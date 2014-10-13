@@ -1,0 +1,8 @@
+bin
+Content
+obj
+Icon.ico
+*.cachefile
+*.csproj
+*.idc
+*.user

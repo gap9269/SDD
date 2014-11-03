@@ -65,7 +65,7 @@ namespace ISurvived
 
         public static Portal ToTheQuad { get { return toTheQuad; } }
 
-        Texture2D fore1, fore2, mid1, mid2, sky, clouds1, clouds2, farClouds1, farClouds2, sky1, sky2, boyd;
+        Texture2D fore1, fore2, mid1, mid2, sky, clouds1, clouds2, farClouds1, farClouds2, sky1, sky2, boyd, grave;
 
         float cloudPos = 93;
         float farCloudPos = 493;
@@ -97,10 +97,10 @@ namespace ISurvived
             LockerCombo lockerSheet = new LockerCombo(5520, -2350, "Tim", game);
             collectibles.Add(lockerSheet);
 
-            Dandelion d1 = new Dandelion(3700, -1290);
+            Dandelion d1 = new Dandelion(2200, -220);
             storyItems.Add(d1);
 
-            Dandelion d2 = new Dandelion(4220, -500);
+            Dandelion d2 = new Dandelion(4000, -1290);
             storyItems.Add(d2);
 
             Dandelion d3 = new Dandelion(2950, -2350);
@@ -132,6 +132,23 @@ namespace ISurvived
             sky2 = content.Load<Texture2D>(@"Maps\School\FarSide\FarSideSky2");
 
             boyd = content.Load<Texture2D>(@"Maps\School\FarSide\BoydSheet");
+
+            grave = content.Load<Texture2D>(@"Maps\School\FarSide\grave");
+
+            game.NPCSprites["Death"] = content.Load<Texture2D>(@"NPC\Main\Death");
+
+            Game1.npcFaces["Death"].faces["Normal"] = content.Load<Texture2D>(@"NPCFaces\Main Characters\DeathNormal");
+            Game1.npcFaces["Dandelion"].faces["Normal"] = content.Load<Texture2D>(@"NPCFaces\Dandelion");
+        }
+
+        public override void UnloadNPCContent()
+        {
+            base.UnloadNPCContent();
+
+            game.NPCSprites["Death"] = Game1.whiteFilter;
+
+            Game1.npcFaces["Death"].faces["Normal"] = Game1.whiteFilter;
+            Game1.npcFaces["Dandelion"].faces["Normal"] = Game1.whiteFilter;
         }
 
         public override void RespawnGroundEnemies()
@@ -161,6 +178,23 @@ namespace ISurvived
             base.Update();
 
             timeUntilNextBoyd--;
+
+            if (Vector2.Distance(new Vector2(player.VitalRec.Center.X, player.VitalRec.Center.Y), new Vector2(storyItems[2].Rec.Center.X, storyItems[2].Rec.Center.Y)) < 600 && storyItems[2].PickedUp == false)
+            {
+                //Chapter.effectsManager.AddInGameDialogue("I'm poisonous! ~teehee", "Dandelion", "Normal", 1);
+            }
+
+            if (Vector2.Distance(new Vector2(player.VitalRec.Center.X, player.VitalRec.Center.Y), new Vector2(storyItems[1].Rec.Center.X, storyItems[1].Rec.Center.Y)) < 700 && player.VitalRec.X > storyItems[1].RecX + 250 && storyItems[1].PickedUp == false && player.VitalRecY < -1400)
+            {
+                Chapter.effectsManager.AddInGameDialogue("I heard Johnny screaming down there! I think someone is picking us. Please, jump over here and protect me! \n\nHold 'Shift' to sprint. You can jump farther that way.", "Dandelion", "Normal", 1);
+            }
+
+            if (Vector2.Distance(new Vector2(player.VitalRec.Center.X, player.VitalRec.Center.Y), new Vector2(storyItems[0].Rec.Center.X, storyItems[0].Rec.Center.Y)) < 670 && player.VitalRec.X < storyItems[0].RecX - 250 && storyItems[0].PickedUp == false)
+            {
+                Chapter.effectsManager.AddInGameDialogue("Hi there, friend! If you promise not to tear me out of the ground by my roots, I'll teach you how to jump! \n\nJust press the 'Up Arrow'!", "Dandelion", "Normal", 1);
+            }
+            else if (Vector2.Distance(new Vector2(player.VitalRec.Center.X, player.VitalRec.Center.Y), new Vector2(storyItems[0].Rec.Center.X, storyItems[0].Rec.Center.Y)) < 250 && storyItems[0].PickedUp == false)
+                Chapter.effectsManager.AddInGameDialogue("Ahh! Getting a little close, there! You promised!", "Dandelion", "Normal", 1);
 
             //Add boyds to the map at a random Y position
             if (timeUntilNextBoyd <= 0)
@@ -217,6 +251,11 @@ namespace ISurvived
         public override void Draw(SpriteBatch s)
         {
             base.Draw(s);
+
+            if (game.SideQuestManager.ratQuest.CompletedQuest)
+            {
+                s.Draw(grave, new Vector2(362, mapRec.Y + 524), Color.White);
+            }
         }
 
         public override void DrawParallaxAndForeground(SpriteBatch s)

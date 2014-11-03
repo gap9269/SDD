@@ -175,15 +175,15 @@ namespace ISurvived
                     questAlpha += (1f / 100f);
                 }
 
-                if (questTimer <= 0)
-                {
-                    rewards.Clear();
-                    questAlpha = 0f;
-                    finished = true;
-                }
-
                 questTimer--;
 
+            }
+
+            if (questTimer <= 0 && !(Cursor.last.CursorRec.Intersects(new Rectangle(449, 127, Game1.storyQuestComplete.Width, Game1.storyQuestComplete.Height)) && Cursor.last.active))
+            {
+                rewards.Clear();
+                questAlpha = 0f;
+                finished = true;
             }
         }
 
@@ -289,19 +289,18 @@ namespace ISurvived
         }
     }
 
-    public class SocialRankUpNotification : Notification
+    public class BioUnlockNotification : Notification
     {
         int timer;
-        float alpha = 0f;
-        String rank, passive;
-        int socialLevel;
+        public int typeOfEntryAdded; //1 is NPC, 2 is Monster
 
-        public SocialRankUpNotification(String r, String p, int lv)
+        /// <summary>
+        ///  //1 is NPC, 2 is Monster
+        /// </summary>
+        public BioUnlockNotification(int entryType)
         {
-            rank = r;
-            passive = p;
             timer = 300;
-            socialLevel = lv;
+            typeOfEntryAdded = entryType;
         }
 
         public override void Update()
@@ -316,10 +315,57 @@ namespace ISurvived
 
         public override void Draw(SpriteBatch s)
         {
-            s.Draw(Game1.socialRankUpTexture, new Rectangle(451, 33, Game1.socialRankUpTexture.Width, Game1.socialRankUpTexture.Height), Color.White);
-            s.DrawString(Game1.bioPageNameFont, "Rank " + socialLevel + ": " + rank, new Vector2(635 - (Game1.bioPageNameFont.MeasureString("Rank " + socialLevel + ": " + rank).X * .63f / 2), 73), Color.White, 0, Vector2.Zero, .7f, SpriteEffects.None, 0);
-            s.DrawString(Game1.twConRegularSmall, "NEW PASSIVE UNLOCKED:", new Vector2(558, 131), Color.Black, 0, Vector2.Zero, 1.05f, SpriteEffects.None, 0);
-            s.DrawString(Game1.twConRegularSmall, passive, new Vector2(655 - Game1.twConRegularSmall.MeasureString(passive).X / 2, 161), new Color(255, 98, 65), 0, Vector2.Zero, 1f, SpriteEffects.None, 0);
+            s.Draw(Game1.newBioNotification, new Rectangle(547, 10, Game1.newBioNotification.Width, Game1.newBioNotification.Height), Color.White);
+        }
+    }
+
+    public class SocialRankUpNotification : Notification
+    {
+        float alpha = 0f;
+        int timer;
+        String rank, passive;
+        int socialLevel;
+        int frameDelay = 5;
+        int moveFrame = 0;
+
+        public SocialRankUpNotification(String r, String p, int lv)
+        {
+            rank = r;
+            passive = p;
+            socialLevel = lv;
+        }
+
+        public override void Update()
+        {
+            frameDelay--;
+            timer++;
+
+            if (frameDelay <= 0 && moveFrame < 14)
+            {
+                frameDelay = 4;
+                moveFrame++;
+
+                if (moveFrame > 14)
+                {
+                    moveFrame = 14;
+                }
+            }
+            if (timer > 250)
+            {
+                finished = true;
+            }
+        }
+
+        public override void Draw(SpriteBatch s)
+        {
+            s.Draw(Game1.socialRankUpTexture["SocialRankUp" + moveFrame], new Rectangle(365, 0, Game1.socialRankUpTexture.ElementAt(0).Value.Width, Game1.socialRankUpTexture.ElementAt(0).Value.Height), Color.White);
+
+            if (moveFrame >= 4)
+            {
+                s.DrawString(Game1.bioPageNameFont, "Rank " + socialLevel + ": " + rank, new Vector2(635 - (Game1.bioPageNameFont.MeasureString("Rank " + socialLevel + ": " + rank).X * .63f / 2), 73), Color.White, 0, Vector2.Zero, .7f, SpriteEffects.None, 0);
+                s.DrawString(Game1.twConRegularSmall, "NEW PASSIVE UNLOCKED:", new Vector2(558, 131), Color.Black, 0, Vector2.Zero, 1.05f, SpriteEffects.None, 0);
+                s.DrawString(Game1.twConRegularSmall, passive, new Vector2(655 - Game1.twConRegularSmall.MeasureString(passive).X / 2, 161), new Color(255, 98, 65), 0, Vector2.Zero, 1f, SpriteEffects.None, 0);
+            }
         }
     }
 
@@ -505,6 +551,9 @@ namespace ISurvived
         public List<Rectangle> fButtonRecs;
         public List<Rectangle> foregroundFButtonRecs;
 
+        public List<Rectangle> spaceButtonRecs;
+        public List<Rectangle> foregroundSpaceButtonRecs;
+
         public static List<SoundEffectInstance> allCurrentSounds;
 
         public static Texture2D deathSpriteSheet;
@@ -594,6 +643,8 @@ namespace ISurvived
             deathTypes = new List<int>();
             allCurrentSounds = new List<SoundEffectInstance>();
             fButtonRecs = new List<Rectangle>();
+            spaceButtonRecs = new List<Rectangle>();
+            foregroundSpaceButtonRecs = new List<Rectangle>();
             foregroundFButtonRecs = new List<Rectangle>();
             inGameDialogue = new List<string>();
             inGameDialogueMaxTimer = new List<int>();
@@ -1176,7 +1227,7 @@ namespace ISurvived
             if (lockedTimer > 0)
                 lockedTimer--;
 
-            if (fButtonRecs.Count > 0 || foregroundFButtonRecs.Count > 0)
+            if (fButtonRecs.Count > 0 || foregroundFButtonRecs.Count > 0 || spaceButtonRecs.Count > 0 || foregroundSpaceButtonRecs.Count > 0)
             {
 
                 if (alphaGoingUp == false)
@@ -1509,6 +1560,11 @@ namespace ISurvived
              fButtonRecs.Add(rec);
         }
 
+        public void AddSpaceButton(Rectangle rec)
+        {
+            spaceButtonRecs.Add(rec);
+        }
+
         public void DrawFButtons(SpriteBatch s)
         {
             for (int i = 0; i < fButtonRecs.Count; i++)
@@ -1519,6 +1575,20 @@ namespace ISurvived
                     s.Draw(Game1.rightBumperTexture, fButtonRecs[i], Color.White);
                 else
                     s.Draw(Game1.fOuter, fButtonRecs[i], Color.White * .7f);
+
+            }
+        }
+
+        public void DrawSpaceButtons(SpriteBatch s)
+        {
+            for (int i = 0; i < spaceButtonRecs.Count; i++)
+            {
+
+                s.Draw(Game1.spaceInner, spaceButtonRecs[i], Color.White * fAlpha);
+                if (Game1.gamePadConnected)
+                    s.Draw(Game1.rightBumperTexture, spaceButtonRecs[i], Color.White);
+                else
+                    s.Draw(Game1.spaceOuter, spaceButtonRecs[i], Color.White * .7f);
 
             }
         }
@@ -1538,6 +1608,12 @@ namespace ISurvived
                     s.DrawString(Game1.expMoneyFloatingNumFont, "No Messages!", new Vector2(70 + (int)phonePosX, 210), Color.White);
                 }
             }
+        }
+
+        public void ClearDustPoofs()
+        {
+            dustPoofs.Clear();
+            jumpPoofs.Clear();
         }
     }
 }

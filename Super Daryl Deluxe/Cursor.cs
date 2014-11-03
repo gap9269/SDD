@@ -18,15 +18,23 @@ namespace ISurvived
         Rectangle cursorRec;
         Vector2 lastPos;
         Vector2 currentPos;
+        public static int hoverTimer, clickTimer; //These are set to 1 when you hover or click a button
+
+        ButtonState previous;
+        ButtonState current;
+
+        ButtonState rightPrevious;
+        ButtonState rightCurrent;
 
         public static Rectangle cursorOnMapRec; //For map editting
 
         int idleTime = 0;
+        public Boolean active;
 
         public static Cursor last;
 
-        public static int cursorWidth = 30;
-        public static int cursorHeight = 30;
+        public static int cursorWidth = 18;
+        public static int cursorHeight = 18;
 
         public Rectangle CursorRec { get { return cursorRec; } }
 
@@ -34,7 +42,7 @@ namespace ISurvived
         {
             last = this;
             cursorTexture = tex;
-            cursorRec = new Rectangle(0, 0, cursorWidth, cursorHeight);
+            cursorRec = new Rectangle(0, 0, 101,93 );
         }
 
         public void Update()
@@ -48,6 +56,30 @@ namespace ISurvived
                 cursorOnMapRec.Y += (int)Game1.camera.Center.Y;
             MouseState mouse = Mouse.GetState();
             lastPos = currentPos;
+
+            //--Update the mouse states, so last state is set to "previous"
+            rightPrevious = rightCurrent;
+            previous = current;
+            //--If the mouse is right clicking, make "current" equal to pressed.
+            //--If not, make it released
+            if (mouse.RightButton == ButtonState.Pressed)
+                rightCurrent = ButtonState.Pressed;
+            else
+                rightCurrent = ButtonState.Released;
+
+            if (mouse.LeftButton == ButtonState.Pressed)
+                current = ButtonState.Pressed;
+            else
+                current = ButtonState.Released;
+
+            //--If the previous state was pressed, and it is now released, the user must have right clicked
+            //--Return true
+            if (((rightCurrent == ButtonState.Released && rightPrevious == ButtonState.Pressed)) || ((current == ButtonState.Released && previous == ButtonState.Pressed) || MyGamePad.RightAnalogPressedIn()))
+            {
+                clickTimer = 5;
+                active = true;
+                idleTime = 0;
+            }
 
             if (!Game1.gamePadConnected)
             {
@@ -80,17 +112,35 @@ namespace ISurvived
 
             if (lastPos == currentPos)
             {
-                if(idleTime < 141)
+                if (idleTime < 141)
                     idleTime++;
             }
             else
+            {
+                active = true;
                 idleTime = 0;
+            }
         }
 
         public void Draw(SpriteBatch s)
         {
-            if(idleTime < 140)
-                s.Draw(cursorTexture, cursorRec, Color.White);
+            if (idleTime < 140)
+            {
+                if(clickTimer > 0)
+                    s.Draw(cursorTexture, new Rectangle(cursorRec.X - 30, cursorRec.Y - 9, 101, 93), new Rectangle(202, 0, 101, 93), Color.White);
+                else if(hoverTimer > 0)
+                    s.Draw(cursorTexture, new Rectangle(cursorRec.X - 30, cursorRec.Y - 9, 101, 93), new Rectangle(101, 0, 101, 93), Color.White);
+                else
+                    s.Draw(cursorTexture, new Rectangle(cursorRec.X - 30, cursorRec.Y - 9, 101, 93), new Rectangle(0, 0, 101, 93), Color.White);
+
+            }
+            else
+                active = false;
+
+            if(clickTimer > 0)
+            clickTimer--;
+            if(hoverTimer > 0)
+            hoverTimer--;
         }
     }
 }

@@ -64,7 +64,7 @@ namespace ISurvived
         {
             base.Update(mapwidth);
 
-            if (!respawning)
+            if (!respawning && !isStunned)
             {
                 if (hostile)
                     attackCooldown--;
@@ -376,7 +376,7 @@ namespace ISurvived
             }
             else if (dropType < 35)
             {
-                currentMap.Drops.Add(new EnemyDrop(new DunceCap(), new Rectangle(rec.Center.X, rec.Center.Y, dropDiameter, dropDiameter)));
+                //currentMap.Drops.Add(new EnemyDrop(new DunceCap(), new Rectangle(rec.Center.X, rec.Center.Y, dropDiameter, dropDiameter)));
             }
         }
     }

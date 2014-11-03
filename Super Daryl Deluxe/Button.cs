@@ -65,7 +65,10 @@ namespace ISurvived
                 if (Cursor.last.CursorRec.X > buttonRec.X && Cursor.last.CursorRec.X < buttonRec.X + buttonRec.Width)
                 {
                     if (Cursor.last.CursorRec.Y > buttonRec.Y && Cursor.last.CursorRec.Y < buttonRec.Y + buttonRec.Height)
+                    {
+                        Cursor.hoverTimer = 1;
                         return true;
+                    }
                 }
             }
                 return false;
@@ -80,7 +83,9 @@ namespace ISurvived
                 if (IsOver())
                 {
                     if (mouse.LeftButton == ButtonState.Pressed || MyGamePad.currentState.Buttons.RightStick == ButtonState.Pressed)
+                    {
                         return true;
+                    }
                 }
             }
             return false;
@@ -109,7 +114,10 @@ namespace ISurvived
                     //--If the previous state was pressed, and it is now released, the user must have right clicked
                     //--Return true
                     if ((rightCurrent == ButtonState.Released && rightPrevious == ButtonState.Pressed))
+                    {
+                        Cursor.clickTimer = 5;
                         return true;
+                    }
                 }
             }
 
@@ -139,7 +147,10 @@ namespace ISurvived
                     //--If the previous state was pressed, and it is now released, the user must have clicked
                     //--Return true
                     if ((current == ButtonState.Released && previous == ButtonState.Pressed) || MyGamePad.RightAnalogPressedIn())
+                    {
+                        Cursor.clickTimer = 5;
                         return true;
+                    }
                 }
             }
             return false;

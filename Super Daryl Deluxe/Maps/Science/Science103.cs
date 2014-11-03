@@ -33,6 +33,12 @@ namespace ISurvived
 
         Texture2D elevatorTex, fore1, fore2, parallax;
 
+        float v2, v3; //float velocities
+
+        float y2, y3; //float Y positions
+
+        Boolean up2, up3;
+
         public static Portal ToScience102 { get { return toScience102; } }
         public static Portal ToScience104 { get { return toScience104; } }
 
@@ -79,8 +85,20 @@ namespace ISurvived
                 enemiesKilledForQuest, enemyNames, player);
             mapQuestSigns.Add(sign);
 
-            chest = new TreasureChest(Game1.treasureChestSheet, 3700, -1330, player, 0, new GymShirt(), this);
+            chest = new TreasureChest(Game1.treasureChestSheet, 3700, -1330, player, 0, new LabCoat(), this);
             treasureChests.Add(chest);
+
+            Barrel bar = new Barrel(game, 3000, -300 + 155, Game1.interactiveObjects["Barrel"], true, 1, 3, .04f, true, Barrel.BarrelType.ScienceFlask);
+            interactiveObjects.Add(bar);
+
+            Barrel bar2 = new Barrel(game, 2000, -275 + 155, Game1.interactiveObjects["Barrel"], true, 1, 4, .07f, false, Barrel.BarrelType.ScienceTube);
+            interactiveObjects.Add(bar2);
+
+            Barrel bar3 = new Barrel(game, 3500, -580 + 155, Game1.interactiveObjects["Barrel"], true, 1, 3, .03f, false, Barrel.BarrelType.ScienceBarrel);
+            interactiveObjects.Add(bar3);
+
+            up3 = true;
+            up2 = false;
         }
 
         public override void LoadEnemyData()
@@ -110,6 +128,14 @@ namespace ISurvived
             }
 
             flowerTextures = ContentLoader.LoadContent(content, "Maps\\Science\\103\\Head Bob");
+            Game1.npcFaces["Flower God"].faces["Normal"] = content.Load<Texture2D>(@"NPCFaces\Flower");
+        }
+
+        public override void UnloadNPCContent()
+        {
+            base.UnloadNPCContent();
+
+            Game1.npcFaces["Flower God"].faces["Normal"] = Game1.whiteFilter;
         }
 
         public override void RespawnGroundEnemies()
@@ -142,6 +168,43 @@ namespace ISurvived
         {
             base.Update();
 
+            interactiveObjects[0].RecY = -900 + (int)y2;
+            interactiveObjects[1].RecY = -680 + (int)y3;
+
+            if (!up2)
+            {
+                v2 += .006f;
+                y2 += v2;
+
+                if (v2 >= .5)
+                    up2 = true;
+            }
+            else
+            {
+                v2 -= .006f;
+                y2 += v2;
+
+                if (v2 <= -.5)
+                    up2 = false;
+            }
+
+            if (!up3)
+            {
+                v3 += .006f;
+                y3 += v3;
+
+                if (v3 >= .5)
+                    up3 = true;
+            }
+            else
+            {
+                v3 -= .006f;
+                y3 += v3;
+
+                if (v3 <= -.5)
+                    up3 = false;
+            }
+
             #region Flower Animation
             flowerDelay--;
 
@@ -154,6 +217,11 @@ namespace ISurvived
                     flowerFrame = 0;
             }
             #endregion
+
+            if (player.VitalRecY < -300 && player.VitalRecX < 1000 && !game.MapBooleans.prologueMapBooleans["spawnEnemies"])
+            {
+                Chapter.effectsManager.AddInGameDialogue("Hello, little one. It would seem your path is blocked. Press the button below to return my power to me, and I can aid you on your way. \n\nHold 'Shift' and tap the 'Down Arrow' to drop through platorms.", "Flower God", "Normal", 1);
+            }
 
             //--If there aren't max enemies on the screen, spawn more
             if (enemiesInMap.Count < enemyAmount)
@@ -236,6 +304,14 @@ namespace ISurvived
 
             s.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
 null, null, null, null, Game1.camera.Transform);
+
+            for (int i = 0; i < interactiveObjects.Count; i++)
+            {
+                if (interactiveObjects[i].Foreground)
+                {
+                    interactiveObjects[i].Draw(s);
+                }
+            }
 
             s.Draw(fore1, new Vector2(0, mapRec.Y), Color.White);
             s.Draw(fore2, new Vector2(mapRec.Width - fore2.Width, mapRec.Y), Color.White);

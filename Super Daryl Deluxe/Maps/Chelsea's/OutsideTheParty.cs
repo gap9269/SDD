@@ -41,14 +41,14 @@ namespace ISurvived
             AddNPCs();
             SetPortals();
 
-            
-            Barrel bar = new Barrel(game, 1824, 630, Game1.interactiveObjects["Barrel"], true, 1, 5, 1.38f, false, 0);
+
+            Barrel bar = new Barrel(game, 1824, 630, Game1.interactiveObjects["Barrel"], true, 1, 5, 1.38f, false, Barrel.BarrelType.WoodenLeft);
             interactiveObjects.Add(bar);
 
-            Barrel bar2 = new Barrel(game, 2900, 590, Game1.interactiveObjects["Barrel"], true, 1, 0, .46f, false, 2);
+            Barrel bar2 = new Barrel(game, 2900, 590, Game1.interactiveObjects["Barrel"], true, 1, 0, .46f, false, Barrel.BarrelType.Radioactive);
             interactiveObjects.Add(bar2);
 
-            Barrel bar1 = new Barrel(game, 2800, 610, Game1.interactiveObjects["Barrel"], true, 1, 0, .76f, false, 1);
+            Barrel bar1 = new Barrel(game, 2800, 610, Game1.interactiveObjects["Barrel"], true, 1, 0, .76f, false, Barrel.BarrelType.WoodenRight);
             interactiveObjects.Add(bar1);
 
             backgroundMusicName = "The Party";

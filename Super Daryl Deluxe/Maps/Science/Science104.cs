@@ -22,8 +22,13 @@ namespace ISurvived
         public static Portal ToScience105 { get { return toScience105; } }
         public static Portal ToScience101 { get { return toScience101; } }
 
-        Texture2D foreground, galaxy, moon, sputnik, portalSheet;
+        Texture2D foreground, galaxy, moon, sputnik, portalSheet, goggles;
         Dictionary<String, Texture2D> triceratopsTextures;
+
+        Rectangle gogglesRec;
+        float v1, y1, v2, y2;
+        Boolean up, up2;
+        Sparkles sparkles;
 
         int triFrame, timeUntilNextBlink, portalFrame;
         int triDelay = 5;
@@ -62,6 +67,24 @@ namespace ISurvived
             randomNum = new Random();
 
             timeUntilNextBlink = randomNum.Next(240, 500);
+
+            gogglesRec = new Rectangle(5488, mapRec.Y + 728, 44, 41);
+            sparkles = new Sparkles(5488, gogglesRec.Y);
+
+            Barrel bar = new Barrel(game, 1000, 415 + 155, Game1.interactiveObjects["Barrel"], true, 1, 3, .04f, true, Barrel.BarrelType.ScienceFlask);
+            interactiveObjects.Add(bar);
+
+            Barrel bar2 = new Barrel(game, 1370, -275 + 155, Game1.interactiveObjects["Barrel"], true, 1, 4, .07f, false, Barrel.BarrelType.ScienceTube);
+            interactiveObjects.Add(bar2);
+
+            Barrel bar3 = new Barrel(game, 3750, 168 + 155, Game1.interactiveObjects["Barrel"], true, 1, 3, .03f, false, Barrel.BarrelType.ScienceBarrel);
+            interactiveObjects.Add(bar3);
+
+            Barrel bar4 = new Barrel(game, 3100, 168 + 155, Game1.interactiveObjects["Barrel"], true, 1, 4, .07f, false, Barrel.BarrelType.ScienceBarrel);
+            interactiveObjects.Add(bar4);
+
+            Barrel bar5 = new Barrel(game, 5330, -50 + 155, Game1.interactiveObjects["Barrel"], true, 1, 3, .03f, true, Barrel.BarrelType.ScienceFlask);
+            interactiveObjects.Add(bar5);
         }
 
         public override void RespawnGroundEnemies()
@@ -131,6 +154,8 @@ namespace ISurvived
             background.Add(content.Load<Texture2D>(@"Maps/Science/104/background1"));
             background.Add(content.Load<Texture2D>(@"Maps/Science/104/background2"));
 
+
+            goggles = content.Load<Texture2D>(@"Maps/Science/101/float2");
             foreground = content.Load<Texture2D>(@"Maps/Science/104/foreground");
             galaxy = content.Load<Texture2D>(@"Maps/Science/104/galaxy");
             moon = content.Load<Texture2D>(@"Maps/Science/104/moon");
@@ -164,6 +189,26 @@ namespace ISurvived
         {
             base.Update();
 
+            if (!up2)
+            {
+                v2 += .006f;
+                y2 += v2;
+
+                if (v2 >= .5)
+                    up2 = true;
+            }
+            else
+            {
+                v2 -= .006f;
+                y2 += v2;
+
+                if (v2 <= -.5)
+                    up2 = false;
+            }
+
+            interactiveObjects[1].RecY = 137 + (int)y2;
+
+
             sputnikX += 4;
 
             if (sputnikX > mapRec.Width)
@@ -171,7 +216,7 @@ namespace ISurvived
 
             if (floatCycle < 75)
             {
-                if(floatCycle % 3 == 0)
+                if (floatCycle % 3 == 0)
                     sputnikY -= 1; floatCycle++;
             }
             else
@@ -234,6 +279,40 @@ namespace ISurvived
                 if (enemiesInMap.Count < enemyAmount)
                     RespawnGroundEnemies();
             }
+
+
+            if (!up)
+            {
+                v1 += .008f;
+                y1 += v1;
+
+                if (v1 >= .45)
+                    up = true;
+            }
+            else
+            {
+                v1 -= .008f;
+                y1 += v1;
+
+                if (v1 <= -.45)
+                    up = false;
+            }
+
+            if (player.VitalRec.Intersects(gogglesRec) && last.IsKeyDown(Keys.Space) && current.IsKeyUp(Keys.Space) && game.Prologue.PrologueBooleans["FoundGoggles"] == false)
+            {
+                player.AddAccessoryToInventory(new LabGoggles());
+                game.Prologue.PrologueBooleans["FoundGoggles"] = true;
+
+                Chapter.effectsManager.AddFoundItem("Lab Goggles", Game1.equipmentTextures["Lab Goggles"]);
+            }
+            if (game.Prologue.PrologueBooleans["FoundGoggles"] == false)
+            {
+                if(Vector2.Distance(new Vector2(player.VitalRec.Center.X, player.VitalRec.Center.Y), new Vector2(gogglesRec.Center.X, gogglesRec.Center.Y)) < 300)
+                {
+                    Chapter.effectsManager.AddInGameDialogue("Press space to pick up shiny things", "Paul", "Normal", 1);
+                }
+                sparkles.Update();
+            }
         }
 
         public override void SetPortals()
@@ -265,6 +344,14 @@ namespace ISurvived
 
             if(portalFrame < 9)
                 s.Draw(portalSheet, new Rectangle(6021, mapRec.Y + 693, 179, 484), new Rectangle(179 * portalFrame, 0, 179, 484), Color.White);
+
+            if (game.Prologue.PrologueBooleans["FoundGoggles"] == false)
+            {
+                s.Draw(goggles, new Vector2(gogglesRec.X, gogglesRec.Y + y1), Color.White);
+                sparkles.Draw(s);
+                sparkles.rec.X = 5474;
+                sparkles.rec.Y = 295 + (int)y1;
+            }
         }
 
         public override void DrawParallaxAndForeground(SpriteBatch s)
@@ -275,6 +362,14 @@ namespace ISurvived
 null, null, null, null, Game1.camera.Transform);
 
             s.Draw(foreground, new Vector2(6200 - foreground.Width, mapRec.Y), Color.White);
+
+            for (int i = 0; i < interactiveObjects.Count; i++)
+            {
+                if (interactiveObjects[i].Foreground)
+                {
+                    interactiveObjects[i].Draw(s);
+                }
+            }
 
             s.Draw(sputnik, new Vector2(sputnikX, mapRec.Y + 915 +  sputnikY), Color.White);
             s.End();

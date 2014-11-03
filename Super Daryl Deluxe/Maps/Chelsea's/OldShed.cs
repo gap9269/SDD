@@ -63,19 +63,19 @@ namespace ISurvived
 
             collectibles.Add(text);
 
-            Barrel bar1 = new Barrel(game, 105, 646 + 55, Game1.interactiveObjects["Barrel"], true, 1, 0, .09f, true, 3);
+            Barrel bar1 = new Barrel(game, 105, 646 + 55, Game1.interactiveObjects["Barrel"], true, 1, 0, .09f, true, Barrel.BarrelType.Radioactive);
             interactiveObjects.Add(bar1);
 
-            Barrel bar2 = new Barrel(game, 1041, 237 + 55, Game1.interactiveObjects["Barrel"], true, 1, 0, 2.34f, true, 4);
+            Barrel bar2 = new Barrel(game, 1041, 237 + 55, Game1.interactiveObjects["Barrel"], true, 1, 0, 2.34f, true, Barrel.BarrelType.MetalLabel);
             interactiveObjects.Add(bar2);
 
-            Barrel bar3 = new Barrel(game, 551, 197 + 55, Game1.interactiveObjects["Barrel"], true, 1, 0, 1.47f, false, 2);
+            Barrel bar3 = new Barrel(game, 551, 197 + 55, Game1.interactiveObjects["Barrel"], true, 1, 0, 1.47f, false, Barrel.BarrelType.WoodenRight);
             interactiveObjects.Add(bar3);
 
-            Barrel bar4 = new Barrel(game, 402, 547 + 55, Game1.interactiveObjects["Barrel"], true, 1, 0, .36f, false, 0);
+            Barrel bar4 = new Barrel(game, 402, 547 + 55, Game1.interactiveObjects["Barrel"], true, 1, 0, .36f, false, Barrel.BarrelType.WoodenLeft);
             interactiveObjects.Add(bar4);
 
-            Barrel bar5 = new Barrel(game, 978, 662 + 55, Game1.interactiveObjects["Barrel"], true, 1, 0, .58f, true, 1);
+            Barrel bar5 = new Barrel(game, 978, 662 + 55, Game1.interactiveObjects["Barrel"], true, 1, 0, .58f, true, Barrel.BarrelType.WoodenRight);
             interactiveObjects.Add(bar5);
 
             skeletonRec = new Rectangle(954, 455, 188, 178);
@@ -159,7 +159,7 @@ namespace ISurvived
                 if (game.MapBooleans.chapterTwoMapBooleans["FoundHandsaw"] == false)
                     sparkles.Update();
 
-                if (player.VitalRec.Intersects(skeletonRec) && last.IsKeyDown(Keys.Space) && current.IsKeyUp(Keys.Space) && game.MapBooleans.chapterTwoMapBooleans["FoundHandsaw"] == false)
+            if (player.VitalRec.Intersects(skeletonRec) && last.IsKeyDown(Keys.Space) && current.IsKeyUp(Keys.Space) && game.MapBooleans.chapterTwoMapBooleans["FoundHandsaw"] == false)
             {
                 player.AddWeaponToInventory(new HandSaw());
                 game.MapBooleans.chapterTwoMapBooleans["FoundHandsaw"] = true;

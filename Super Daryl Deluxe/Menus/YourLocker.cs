@@ -142,8 +142,8 @@ namespace ISurvived
             textures.Add("lockerBookWithSkillShop", Content.Load<Texture2D>(@"Menus\Locker\lockerBook"));
             textures.Add("lockerArrowStatic", Content.Load<Texture2D>(@"Menus\Locker\lockerArrowStatic"));
             textures.Add("lockerArrowOver", Content.Load<Texture2D>(@"Menus\Locker\lockerArrow"));
-            textures.Add("skillArrowStatic", Content.Load<Texture2D>(@"Menus\Locker\SkillShopArrow"));
-            textures.Add("skillArrowOver", Content.Load<Texture2D>(@"Menus\Locker\SkillShopArrowOver"));
+            textures.Add("skillArrowStatic", Content.Load<Texture2D>(@"Menus\Locker\SkillShopArrowStatic"));
+            textures.Add("skillArrowOver", Content.Load<Texture2D>(@"Menus\Locker\SkillShopArrowActive"));
             textures.Add("buyActive", Content.Load<Texture2D>(@"Menus\Locker\buyActive"));
             textures.Add("buyStatic", Content.Load<Texture2D>(@"Menus\Locker\buyStatic"));
             textures.Add("equipActive", Content.Load<Texture2D>(@"Menus\Locker\equipActive"));

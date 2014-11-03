@@ -1376,7 +1376,7 @@ namespace ISurvived
             //--but you have to always call the draw method in case there are left over parts of the skill after the player animation ends,
             //--such as lighting strikes or explosions
             #region Draw Skills
-            if (game.CurrentChapter.state == Chapter.GameState.Game && !levelingUp && playerState != PlayerState.dead)
+            if (/*game.CurrentChapter.state == Chapter.GameState.Game && */!levelingUp && playerState != PlayerState.dead)
             {
                 for (int i = 0; i < equippedSkills.Count; i++)
                 {
@@ -2663,9 +2663,13 @@ namespace ISurvived
 
 
                                 //--Make it so the drop is picked up
-                                if(!cantPickUp)
+                                if (!cantPickUp)
+                                {
                                     drop.PickedUp = true;
 
+                                    if (game.Prologue.PrologueBooleans["PickedUpDrop"] == false)
+                                        game.Prologue.PrologueBooleans["PickedUpDrop"] = true;
+                                }
                             }
 
                             //--Saying break here makes it so you can only pick up one item at a time
@@ -2999,43 +3003,56 @@ namespace ISurvived
             }
         }
 
+        public void UnlockCharacterBio(String name)
+        {
+            allCharacterBios[name] = true;
+            Chapter.effectsManager.secondNotificationQueue.Enqueue(new BioUnlockNotification(1));
+        }
+
+        public void UnlockEnemyBio(String name)
+        {
+            allMonsterBios[name] = true;
+            Chapter.effectsManager.secondNotificationQueue.Enqueue(new BioUnlockNotification(2));
+        }
+
         public void SetCharacterBioDictionary()
         {
             allCharacterBios.Add("Paul", false);
-            allCharacterBios.Add("Alan", true);
-            allCharacterBios.Add("Mr. Robatto", true);
-            allCharacterBios.Add("Equipment Instructor", true);
-            allCharacterBios.Add("Karma Instructor", true);
-            allCharacterBios.Add("Journal Instructor", true);
-            allCharacterBios.Add("Save Instructor", true);
-            allCharacterBios.Add("Skill Instructor", true);
-            allCharacterBios.Add("Chelsea", true);
-            allCharacterBios.Add("Mark", true);
-            allCharacterBios.Add("Trenchcoat Employee", true);
-            allCharacterBios.Add("Gardener", true);
-            allCharacterBios.Add("Tim", true);
-            allCharacterBios.Add("Julius Caesar", false);
-            allCharacterBios.Add("Pelt Kid", true);
-            allCharacterBios.Add("Jesse", true);
-            allCharacterBios.Add("Squirrel Boy", true);
-            allCharacterBios.Add("Bob the Construction Guy", true);
+            allCharacterBios.Add("Alan", false);
+            allCharacterBios.Add("Mr. Robatto", false);
+            allCharacterBios.Add("Hangerman", false);
             allCharacterBios.Add("Princess", false);
             allCharacterBios.Add("Janitor", false);
-            allCharacterBios.Add("Hangerman", false);
             allCharacterBios.Add("Author", false);
+            allCharacterBios.Add("Trenchcoat Employee", false);
+            allCharacterBios.Add("Gardener", false);
+            allCharacterBios.Add("Tim", false);
+            allCharacterBios.Add("Journal Instructor", false);
+            allCharacterBios.Add("Karma Instructor", false);
+            allCharacterBios.Add("Skill Instructor", false);
+            allCharacterBios.Add("Save Instructor", false);
+            allCharacterBios.Add("Equipment Instructor", false);
+            allCharacterBios.Add("Chelsea", false);
+            allCharacterBios.Add("Mark", false);
+            allCharacterBios.Add("Julius Caesar", false);
+            allCharacterBios.Add("Pelt Kid", false);
+            allCharacterBios.Add("Jesse", false);
+            allCharacterBios.Add("Squirrel Boy", false);
+            allCharacterBios.Add("Bob the Construction Guy", false);
             allCharacterBios.Add("Journal Kid", false);
         }
 
         public void SetMonsterBioDictionary()
         {
-            allMonsterBios.Add("Erl The Flask", true);
-            allMonsterBios.Add("Benny Beaker", true);
-            allMonsterBios.Add("Crow", true);
-            allMonsterBios.Add("Scarecrow", true);
-            allMonsterBios.Add("Goblin Gate", true);
-            allMonsterBios.Add("Goblin", true);
+            allMonsterBios.Add("Fez", false);
+            allMonsterBios.Add("Erl The Flask", false);
+            allMonsterBios.Add("Benny Beaker", false);
+            allMonsterBios.Add("Crow", false);
+            allMonsterBios.Add("Scarecrow", false);
+            allMonsterBios.Add("Goblin Gate", false);
+            allMonsterBios.Add("Goblin", false);
             allMonsterBios.Add("Field Goblin", false);
-            allMonsterBios.Add("Troll", true);
+            allMonsterBios.Add("Troll", false);
         }
 
         public void AddWeaponToInventory(Weapon w)

@@ -18,14 +18,118 @@ namespace ISurvived
         NPC tim;
         NPC alan;
         NPC paul;
-        MovingPlatform light;
         GameObject camFollow; //An object for the camera to follow
         float nameAlpha = 1f;
+        int timFrame;
+        int timDelay = 5;
+        float leftPlatY, rightPlatY, platVelocity;
+
+        int timesTimStandLooped = 0;
+        int timTransformTimer = 0;
+        Boolean transformed = false;
+        Boolean mapTransformed = false;
+        Boolean platformsFall = false;
+        Boolean drawTitle = false;
+        Boolean updateBossHealth = false;
+        enum TimState
+        {
+            stand, snarl, pound
+        }
+        TimState timState;
+
+        float gorillaWordPositionX, timWordPositionX;
+        int timeWordsHangInCenter = 100;
 
         //--Takes in a background and all necessary objects
         public TimScene(Game1 g, Camera cam, Player player)
             : base(g, cam, player)
         {
+        }
+
+        public void TimStand()
+        {
+            timDelay--;
+
+            if (timDelay <= 0)
+            {
+                timFrame++;
+                timDelay = 5;
+
+                //During transformation, only play about half of the standing animation
+                if (!transformed)
+                {
+                    if (timFrame > 3)
+                    {
+                        timesTimStandLooped++;
+                        timFrame = 0;
+
+                        if (timesTimStandLooped == 1)
+                        {
+                            timesTimStandLooped = 0;
+                            timState = TimState.pound;
+                            timTransformTimer = 0;
+                        }
+                    }
+                }
+                    //Otherwise loop a couple times, then snarl
+                else
+                {
+                    if (timFrame > 5)
+                    {
+                        timesTimStandLooped++;
+                        timFrame = 0;
+
+                        if (timesTimStandLooped == 5)
+                        {
+                            timesTimStandLooped = 0;
+                            timState = TimState.snarl;
+                        }
+                    }
+                }
+            }
+        }
+
+        public void TimSnarl()
+        {
+            timDelay--;
+
+            if (timDelay <= 0)
+            {
+                timFrame++;
+                timDelay = 5;
+
+                if (timFrame > 4)
+                {
+                    timFrame = 0;
+                    timState = TimState.stand;
+                }
+                
+            }
+        }
+
+        public void TimGroundPound()
+        {
+            timDelay--;
+
+            if (timDelay <= 0)
+            {
+                timFrame++;
+                timDelay = 5;
+
+                if (timFrame == 7)
+                {
+                    platformsFall = true;
+                    game.Camera.ShakeCamera(30, 15);
+                }
+
+                if (timFrame > 12)
+                {
+                    timFrame = 0;
+                    timState = TimState.stand;
+                    timTransformTimer = 0;
+                    transformed = true;
+                }
+            }
         }
 
         public override void Play()
@@ -36,18 +140,23 @@ namespace ISurvived
                 case 0:
                     if (firstFrameOfTheState)
                     {
+                        leftPlatY = -150;
+                        rightPlatY = -75;
                         tim = game.CurrentChapter.NPCs["Tim"];
                         alan = game.CurrentChapter.NPCs["Alan"];
                         paul = game.CurrentChapter.NPCs["Paul"];
-                        tim.PositionX = player.PositionX - 900;
-                        tim.PositionY = 680 - 388;
-                        dialogue.Add("Which one of you faggots put the flowers in my locker and stole my lunch money?");
+                        tim.PositionX = player.PositionX - 1200;
+                        tim.PositionY = 670 - 388;
+                        dialogue.Add("Which one of you assholes put the flowers in my locker and stole my lunch money?");
                         DialogueState = 0;
                         player.playerState = Player.PlayerState.relaxedStanding;
                         player.FacingRight = false;
                         camFollow = new GameObject();
                         camFollow.PositionX = camera.center.X;
-
+                        player.Sprinting = false;
+                        player.PositionX = 3110;
+                        player.UpdatePosition();
+                        Chapter.effectsManager.ClearDustPoofs();
                         alan.Dialogue.Clear();
                         paul.Dialogue.Clear();
 
@@ -65,10 +174,10 @@ namespace ISurvived
                     if (timer > 40)
                         paul.FacingRight = false;
 
-                    if (timer < 90 && timer > 30)
-                    camFollow.PositionX -= 5;
+                    if (camFollow.PositionX > 3075 && timer > 30)
+                    camFollow.PositionX -= 6;
 
-                    if (Vector2.Distance(player.Position, tim.Position) > 530)
+                    if (tim.Position.X < 2550)
                     {
                         tim.Move(new Vector2(3, 0));
                     }
@@ -246,50 +355,121 @@ namespace ISurvived
 
                     //TIM TRANSFORMS
                     camera.Update(camFollow, game, Game1.schoolMaps.maps["NorthHall"]);
-                    if (timer >2)
+                    NorthHall.drawTimMap = true;
+
+                    //Tim transforms
+                    if (!transformed)
+                    {
+
+                        timTransformTimer++;
+
+                        if (timState == TimState.stand)
+                        {
+
+                            if (timTransformTimer < 10 || timTransformTimer > 25 && timTransformTimer < 45 || timTransformTimer > 65 && timTransformTimer < 85 || timTransformTimer > 105 && timTransformTimer < 125 || timTransformTimer > 155 && timTransformTimer < 170 || timTransformTimer > 190)
+                            {
+                                NorthHall.drawTimMap = true;
+                                TimStand();
+                            }
+                            else
+                                NorthHall.drawTimMap = false;
+
+                        }
+                        else if (timState == TimState.pound)
+                        {
+                            if (timTransformTimer < 5 || timTransformTimer > 15 && timTransformTimer < 25 || timTransformTimer > 35 && timTransformTimer < 40 || timTransformTimer > 45 && timTransformTimer < 50 || timTransformTimer > 55)
+                            {
+                                NorthHall.drawTimMap = true;
+                                TimGroundPound();
+                            }
+                            else
+                                NorthHall.drawTimMap = false;
+                        }
+                    }
+                    //After, the map transforms
+                    if (!mapTransformed && platformsFall)
+                    {
+                        player.playerState = Player.PlayerState.standing;
+                        player.CutsceneStand();
+                        if (timState == TimState.stand)
+                        {
+                            TimStand();
+                        }
+                        else if (timState == TimState.snarl)
+                        {
+                            TimSnarl();
+                        }
+
+                        #region Make platforms drop in
+                        platVelocity += GameConstants.GRAVITY;
+                        if (leftPlatY < 190)
+                        {
+                            leftPlatY += platVelocity;
+
+                            if (leftPlatY > 175)
+                                leftPlatY = 175;
+                        }
+                        if (rightPlatY < 175)
+                        {
+                            rightPlatY += platVelocity;
+
+                            if (rightPlatY > 175)
+                                rightPlatY = 175;
+                        }
+
+                        if (leftPlatY == 175 && rightPlatY == 175)
+                            mapTransformed = true;
+                        #endregion
+                    }
+
+                    if(transformed && mapTransformed)
                     {
                         timer = 0;
                         state++;
-                        player.playerState = Player.PlayerState.standing;
                     }
                     break;
 
                 case 11:
                     if (firstFrameOfTheState)
                     {
-                        tim.PositionX -= 120;
-                    }
-
-                    player.CutsceneStand();
-                    camera.Update(camFollow, game, game.CurrentChapter.CurrentMap);
-                    if (timer > 61) //&& stayStill)
-                    {
+                        player.CutsceneStand();
+                        camera.Update(camFollow, game, game.CurrentChapter.CurrentMap);
 
                         //--Pillars
-                        Game1.schoolMaps.maps["NorthHall"].Platforms.Add(new Platform(Game1.platformTextures.ElementAt(0).Value, new Rectangle(3200, 0, 100, 800), false, false, false));
-                        Game1.schoolMaps.maps["NorthHall"].Platforms.Add(new Platform(Game1.platformTextures.ElementAt(0).Value, new Rectangle(5200, 0, 100, 800), false, false, false));
+                        NorthHall.leftPillar = new Platform(Game1.platformTextures.ElementAt(0).Value, new Rectangle(2200, 0, 100, 800), false, false, false);
+                        Game1.schoolMaps.maps["NorthHall"].Platforms.Add(NorthHall.leftPillar);
+                        NorthHall.rightPillar = new Platform(Game1.platformTextures.ElementAt(0).Value, new Rectangle(4000, 0, 100, 800), false, false, false);
+                        Game1.schoolMaps.maps["NorthHall"].Platforms.Add(NorthHall.rightPillar);
 
                         //--Steps on Pillars
-                        Game1.schoolMaps.maps["NorthHall"].Platforms.Add(new Platform(Game1.platformTextures.ElementAt(0).Value, new Rectangle(3300, 400, 100, 50), true, false, false));
-                        Game1.schoolMaps.maps["NorthHall"].Platforms.Add(new Platform(Game1.platformTextures.ElementAt(0).Value, new Rectangle(5050, 350, 100, 50), true, false, false));
+                        NorthHall.leftStep = new Platform(Game1.platformTextures.ElementAt(0).Value, new Rectangle(2300, 400, 100, 50), false, false, false);
+                        NorthHall.rightStep = new Platform(Game1.platformTextures.ElementAt(0).Value, new Rectangle(3850, 350, 100, 50), false, false, false);
+                        Game1.schoolMaps.maps["NorthHall"].Platforms.Add(NorthHall.leftStep);
+                        Game1.schoolMaps.maps["NorthHall"].Platforms.Add(NorthHall.rightStep);
 
-                        //--Lights
-                        Game1.schoolMaps.maps["NorthHall"].Platforms.Add(new Platform(Game1.platformTextures.ElementAt(0).Value, new Rectangle(3650, 220, 400, 50), true, false, false));
-                        List<Vector2> targets = new List<Vector2>();
-                        targets.Add(new Vector2(4375, 225));
-                        targets.Add(new Vector2(4350, 220));
-                        targets.Add(new Vector2(4375, 225));
-                        targets.Add(new Vector2(4400, 220));
-                        light = new MovingPlatform(Game1.platformTextures.ElementAt(0).Value, new Rectangle(4400, 220, 400, 50), true, false, false, targets, 1, 50);
-                        Game1.schoolMaps.maps["NorthHall"].Platforms.Add(light);
+                        //--Platforms
+                        NorthHall.leftTimPlat = new Platform(Game1.platformTextures.ElementAt(0).Value, new Rectangle(2600, 175, 400, 50), true, false, false);
+                        NorthHall.rightTimPlat = new Platform(Game1.platformTextures.ElementAt(0).Value, new Rectangle(3250, 175, 400, 50), true, false, false);
+                        Game1.schoolMaps.maps["NorthHall"].Platforms.Add(NorthHall.leftTimPlat);
+                        Game1.schoolMaps.maps["NorthHall"].Platforms.Add(NorthHall.rightTimPlat);
 
+                        //Barrels
+                        NorthHall.timBar1 = new Barrel(game, 3613, 456 + 155, Game1.interactiveObjects["Barrel"], true, 4, 5, 0f, false, Barrel.BarrelType.TimBarrel);
+                        NorthHall.timBar2 = new Barrel(game, 2919, 456 + 155, Game1.interactiveObjects["Barrel"], true, 4, 6, .04f, false, Barrel.BarrelType.TimBarrel);
+                        NorthHall.timBar3 = new Barrel(game, 2454, 550 + 155, Game1.interactiveObjects["Barrel"], true, 4, 7, .14f, true, Barrel.BarrelType.TimBarrel);
 
-
-                        GorillaTim gorillaTim = new GorillaTim(new Vector2(tim.Position.X, 630 - 300), "GORILLA TIM", game, ref player, Game1.schoolMaps.maps["NorthHall"]);
+                        Game1.schoolMaps.maps["NorthHall"].InteractiveObjects.Add(NorthHall.timBar1);
+                        Game1.schoolMaps.maps["NorthHall"].InteractiveObjects.Add(NorthHall.timBar2);
+                        Game1.schoolMaps.maps["NorthHall"].InteractiveObjects.Add(NorthHall.timBar3);
+                        
+                        GorillaTim gorillaTim = new GorillaTim(new Vector2((int)tim.PositionX + 55, 118), "GORILLA TIM", game, ref player, Game1.schoolMaps.maps["NorthHall"]);
                         tim.Move(new Vector2(-10000, 0));
-                        gorillaTim.Boundaries.Add(new Platform(Game1.platformTextures.ElementAt(0).Value, new Rectangle(3300, 400, 100, 50), true, false, false));
-                        gorillaTim.Boundaries.Add(new Platform(Game1.platformTextures.ElementAt(0).Value, new Rectangle(5050, 350, 100, 50), true, false, false));
+                        gorillaTim.Boundaries.Add(new Platform(Game1.platformTextures.ElementAt(0).Value, new Rectangle(2300, 400, 100, 50), true, false, false));
+                        gorillaTim.Boundaries.Add(new Platform(Game1.platformTextures.ElementAt(0).Value, new Rectangle(3850, 350, 100, 50), true, false, false));
                         game.CurrentChapter.CurrentBoss = gorillaTim;
+                        gorillaTim.moveFrame = timFrame;
+                        gorillaTim.CutsceneStand();
+                        gorillaTim.faceTexture = GorillaTim.animationTextures["GorillaTimFace"];
                         game.CurrentChapter.BossFight = true;
                         timer = 0;
                         state++;
@@ -298,32 +478,76 @@ namespace ISurvived
                 case 12:
                     if (firstFrameOfTheState)
                     {
-                        camFollow.PositionX = 4486;
-                        
+                        timWordPositionX = 1400;
+                        gorillaWordPositionX = -650;
                     }
-                    light.Update();
                     camera.Update(camFollow, game, game.CurrentChapter.CurrentMap);
 
-                    if(timer > 60)
-                        game.CurrentChapter.CurrentBoss.HealthBarGrow();
+                    if (timer > 45 && drawTitle == false && updateBossHealth == false)
+                        drawTitle = true;
 
-                    player.CutsceneStand();
-
-
-                    if (timer > 200)
+                    if (drawTitle && gorillaWordPositionX < 1280 && timWordPositionX > -311)
                     {
-                        if (nameAlpha > 0)
-                            nameAlpha -= .01f;
-                        else
-                            game.CurrentChapter.CurrentBoss.DrawHUDName = true;
+                        if (timer > 60)
+                        {
+                            if (gorillaWordPositionX >= 250 && gorillaWordPositionX < 300)
+                            {
+                                gorillaWordPositionX += .5f;
+                                timWordPositionX -= .5f;
+                            }
+                            else
+                            {
+                                gorillaWordPositionX += 40;
+                                timWordPositionX -= 40;
+                            }
+                        }
                     }
-                    if (timer > 350)
+                    else if(drawTitle == true)
+                    {
+                        drawTitle = false;
+                        updateBossHealth = true;
+                        timer = 2;
+                    }
+
+                    if (drawTitle == false)
+                    {
+                        player.CutsceneStand();
+                        (game.CurrentChapter.CurrentBoss as GorillaTim).CutsceneStand();
+
+                        if(updateBossHealth)
+                            game.CurrentChapter.CurrentBoss.HealthBarGrow();
+                    }
+
+                    if (timer > 180 && drawTitle == false)
                     {
                         timer = 0;
                         game.CurrentChapter.state = Chapter.GameState.Game;
                         game.CurrentChapter.CutsceneState++;
                     }
                     break;
+            }
+        }
+
+        public void DrawTim(SpriteBatch s)
+        {
+            if (NorthHall.drawTimMap)
+            {
+                s.Draw(Game1.interactiveObjects["Barrel"], new Rectangle(3613, 456, 105, 155), new Rectangle(0, 775, 105, 155), Color.White);
+                s.Draw(Game1.interactiveObjects["Barrel"], new Rectangle(2919, 456, 105, 155), new Rectangle(0, 775, 105, 155), Color.White);
+                s.Draw(Game1.interactiveObjects["Barrel"], new Rectangle(2454, 550, 105, 155), new Rectangle(0, 775, 105, 155), Color.White);
+
+                if (timState == TimState.stand)
+                {
+                    s.Draw(GorillaTim.animationTextures["Stand" + timFrame], new Rectangle((int)tim.PositionX + 55, 118, (int)(940 * .65f), (int)(796 * .65f)), Color.White);
+                }
+                else if (timState == TimState.pound)
+                {
+                    s.Draw(GorillaTim.animationTextures["pound" + timFrame], new Rectangle((int)tim.PositionX + 55, 118, (int)(940 * .65f), (int)(796 * .65f)), Color.White);
+                }
+                else if (timState == TimState.snarl)
+                {
+                    s.Draw(GorillaTim.animationTextures["Snarl" + timFrame], new Rectangle((int)tim.PositionX + 55, 118, (int)(940 * .65f), (int)(796 * .65f)), Color.White);
+                }
             }
         }
 
@@ -381,7 +605,14 @@ null, null, null, null, camera.StaticTransform);
                     null, null, null, null, camera.Transform);
 
                     game.CurrentChapter.CurrentMap.Draw(s);
-                    game.CurrentChapter.DrawNPC(s);
+                    s.Draw(NorthHall.timPlatform, new Rectangle(2590, (int)leftPlatY, 420, 50), Color.White);
+                    s.Draw(NorthHall.timPlatform, new Rectangle(3240, (int)rightPlatY, 420, 50), Color.White);
+
+                    if (NorthHall.drawTimMap)
+                        DrawTim(s);
+                    else
+                        game.CurrentChapter.DrawNPC(s);
+
                     player.Draw(s);
                     s.End();
 
@@ -402,7 +633,11 @@ null, null, null, null, camera.StaticTransform);
                     null, null, null, null, camera.Transform);
 
                     game.CurrentChapter.CurrentMap.Draw(s);
-                    game.CurrentChapter.DrawNPC(s);
+
+                    s.Draw(Game1.interactiveObjects["Barrel"], new Rectangle(3613, 456, 105, 155), new Rectangle(0, 775, 105, 155), Color.White);
+                    s.Draw(Game1.interactiveObjects["Barrel"], new Rectangle(2919, 456, 105, 155), new Rectangle(0, 775, 105, 155), Color.White);
+                    s.Draw(Game1.interactiveObjects["Barrel"], new Rectangle(2454, 550, 105, 155), new Rectangle(0, 775, 105, 155), Color.White);
+
                     player.Draw(s);
                     game.CurrentChapter.CurrentBoss.Draw(s);
                     s.End();
@@ -410,12 +645,18 @@ null, null, null, null, camera.StaticTransform);
                     s.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
 null, null, null, null, camera.StaticTransform);
 
-                    s.Draw(game.EnemySpriteSheets["GorillaTimName"], new Rectangle(0, 0, 1280, (int)(Game1.aspectRatio * 1280)), Color.White * nameAlpha);
+                    if (drawTitle)
+                    {
+                        s.Draw(GorillaTim.animationTextures["BossTitleBar"], new Vector2(0, 0), Color.White * nameAlpha);
 
-                     
-
-                    if(timer > 60)
+                        s.Draw(GorillaTim.animationTextures["GORILLA"], new Vector2((int)gorillaWordPositionX, 191), Color.White);
+                        s.Draw(GorillaTim.animationTextures["TIM"], new Vector2((int)timWordPositionX, 359), Color.White);
+                    }
+                    
+                    if(updateBossHealth)
+                    {
                         game.CurrentChapter.CurrentBoss.DrawHud(s);
+                    }
 
                     s.End();
                     break;

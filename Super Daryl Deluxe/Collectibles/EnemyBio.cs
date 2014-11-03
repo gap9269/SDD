@@ -112,7 +112,7 @@ namespace ISurvived
 
         public void PickUpCollectible()
         {
-            Chapter.effectsManager.AddFoundItem("a Monster Biography : " + characterName, Game1.storyItemIcons["Piece of Paper"]);
+            //Chapter.effectsManager.AddFoundItem("a Monster Biography : " + characterName, Game1.storyItemIcons["Piece of Paper"]);
 
             Game1.Player.AllMonsterBios[CharacterName] = true;
 

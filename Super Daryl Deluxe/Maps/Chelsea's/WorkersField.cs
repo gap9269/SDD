@@ -97,16 +97,16 @@ namespace ISurvived
 
             fallenGate = new Platform(Game1.platformTextures.ElementAt(0).Value, new Rectangle(2040, -1180, 700, 50), true, false, false);
 
-            Barrel bar1 = new Barrel(game, 500, 710, Game1.interactiveObjects["Barrel"], true, 3, 5, .3f, true, 1);
+            Barrel bar1 = new Barrel(game, 500, 710, Game1.interactiveObjects["Barrel"], true, 3, 5, .3f, true, Barrel.BarrelType.WoodenLeft);
             interactiveObjects.Add(bar1);
 
-            Barrel bar2 = new Barrel(game, 1300, 650, Game1.interactiveObjects["Barrel"], true, 3, 7, 0, false, 2);
+            Barrel bar2 = new Barrel(game, 1300, 650, Game1.interactiveObjects["Barrel"], true, 3, 7, 0, false, Barrel.BarrelType.Radioactive);
             interactiveObjects.Add(bar2);
 
-            Barrel bar3 = new Barrel(game, 1700, 710, Game1.interactiveObjects["Barrel"], true, 3, 6, .7f, true, 3);
+            Barrel bar3 = new Barrel(game, 1700, 710, Game1.interactiveObjects["Barrel"], true, 3, 6, .7f, true, Barrel.BarrelType.MetalLabel);
             interactiveObjects.Add(bar3);
 
-            Barrel bar4 = new Barrel(game, 2600, 650, Game1.interactiveObjects["Barrel"], true, 3, 3, .15f, false, 4);
+            Barrel bar4 = new Barrel(game, 2600, 650, Game1.interactiveObjects["Barrel"], true, 3, 3, .15f, false, Barrel.BarrelType.MetalBlank);
             interactiveObjects.Add(bar4);
 
             randomMoonTime = new Random();

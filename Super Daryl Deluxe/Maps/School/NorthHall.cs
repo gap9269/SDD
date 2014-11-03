@@ -22,6 +22,11 @@ namespace ISurvived
         static Portal toUpstairs;
         static Portal toGymLobby;
 
+        //PROLOGUE BOSS FIGHT SHIT
+        public static Boolean drawTimMap = false;
+        public static Platform leftTimPlat, rightTimPlat, leftPillar, leftStep, rightPillar, rightStep;
+        public static Barrel timBar1, timBar2, timBar3;
+
         int lightTime;
         int flickAmount;
         int maxFlick;
@@ -32,7 +37,8 @@ namespace ISurvived
 
         PetRat petRat;
 
-        Texture2D fore, fore2, light, darylLocker;
+        Texture2D fore, fore2, light, darylLocker, timMap;
+        public static Texture2D timPlatform;
 
         public static Portal ToUpstairs { get { return toUpstairs; } }
         public static Portal ToBathroom { get { return toBathroom; } }
@@ -96,6 +102,8 @@ namespace ISurvived
             {
                 game.NPCSprites["Skill Instructor"] = content.Load<Texture2D>(@"NPC\DD\skill");
                 game.NPCSprites["Journal Instructor"] = content.Load<Texture2D>(@"NPC\DD\journal");
+                game.NPCSprites["Tim"] = content.Load<Texture2D>(@"NPC\Main\tim");
+                Game1.npcFaces["Tim"].faces["Normal"] = content.Load<Texture2D>(@"NPCFaces\Main Characters\Tim");
 
                 Game1.npcFaces["Journal Instructor"].faces["Normal"] = content.Load<Texture2D>(@"NPCFaces\D&D\Journal");
                 Game1.npcFaces["Skill Instructor"].faces["Normal"] = content.Load<Texture2D>(@"NPCFaces\D&D\Skill");
@@ -132,6 +140,13 @@ namespace ISurvived
 
                     Game1.schoolMaps.maps["NorthHall"].EnemiesInMap.Add(goblin);
                 }
+
+                if (game.Prologue.PrologueBooleans["gotTextbook"] == true)
+                {
+                    EnemyContentLoader.GorillaTimBoss(content);
+                    timMap = content.Load<Texture2D>(@"Maps\School\Tim Boss Map");
+                    timPlatform = content.Load<Texture2D>(@"Maps\School\bossPlat");
+                }
             }
         }
 
@@ -160,6 +175,14 @@ namespace ISurvived
 
                 Game1.npcFaces["Skill Instructor"].faces["Normal"] = Game1.whiteFilter;
                 Game1.npcFaces["Journal Instructor"].faces["Arrogant"] = Game1.whiteFilter;
+
+                game.NPCSprites["Tim"] = Game1.whiteFilter;
+                Game1.npcFaces["Tim"].faces["Normal"] = Game1.whiteFilter;
+
+                if (game.Prologue.PrologueBooleans["gotTextbook"] == true)
+                {
+                    GorillaTim.animationTextures.Clear();
+                }
             }
 
             Game1.npcFaces["Alan"].faces["Normal"] = Game1.whiteFilter;
@@ -189,7 +212,7 @@ namespace ISurvived
             toArtHall.FButtonYOffset = -30;
             toArtHall.PortalNameYOffset = -30;
 
-            toScienceIntroRoom = new Portal(1227, platforms[0], "NorthHall");//, "Key Ring");
+            toScienceIntroRoom = new Portal(1227, platforms[0], "NorthHall", "Key Ring");
             toScienceIntroRoom.FButtonYOffset = -30;
             toScienceIntroRoom.PortalNameYOffset = -30;
 
@@ -257,6 +280,13 @@ namespace ISurvived
             {
                 petRat.Update();
             }
+            if (drawTimMap)
+            {
+                timBar1.Update();
+                timBar2.Update();
+                timBar3.Update();
+
+            }
         }
 
         public override string CheckPortals()
@@ -265,6 +295,8 @@ namespace ISurvived
 
                 return name;
         }
+
+
 
         public override void Draw(SpriteBatch s)
         {
@@ -282,6 +314,30 @@ namespace ISurvived
                     petRat.Draw(s);
                 }
             }
+
+            if (drawTimMap)
+            {
+                s.Draw(timMap, new Vector2(2232, 0), Color.White);
+
+                if (game.CurrentChapter.CurrentBoss != null)
+                {
+                    (game.CurrentChapter.CurrentBoss as GorillaTim).DrawPlatformsDisappearing(s);
+                    (game.CurrentChapter.CurrentBoss as GorillaTim).DrawPlatformsFalling(s);
+                }
+                //If the map has the platforms in it for Tim, draw the textures over them
+                if (platforms.Contains(rightTimPlat))
+                {
+
+                    s.Draw(timPlatform, new Rectangle(rightTimPlat.RecX - 10, rightTimPlat.RecY, rightTimPlat.RecWidth + 20, rightTimPlat.RecHeight), null, Color.White);
+                    s.Draw(timPlatform, new Rectangle(leftTimPlat.RecX - 10, leftTimPlat.RecY, leftTimPlat.RecWidth + 20, leftTimPlat.RecHeight), null, Color.White);
+                }
+                if (timBar1 != null)
+                {
+                    timBar1.Draw(s);
+                    timBar2.Draw(s);
+                }
+            }
+
         }
 
         public override void DrawParallaxAndForeground(SpriteBatch s)
@@ -293,8 +349,12 @@ null, null, null, null, Game1.camera.Transform);
             s.Draw(fore, new Rectangle(0, 0, fore.Width, 720), Color.White);
             s.Draw(fore2, new Rectangle(fore.Width, 0, fore2.Width, 720), Color.White);
 
-            if (lightOn)
+            if (lightOn && !drawTimMap)
                 s.Draw(light, new Vector2(3009, 0), Color.White);
+
+            if (drawTimMap && timBar3 != null)
+                timBar3.Draw(s);
+
             s.End();
         }
 

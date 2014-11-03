@@ -49,7 +49,7 @@ namespace ISurvived
         public static String lastMap;
         public static String theNextMap;
 
-        float tintAlpha = 0f;
+        public float tintAlpha = 0f;
         Boolean tintAlphaRising = true;
 
         protected Boolean bossFight = false;
@@ -780,8 +780,11 @@ namespace ISurvived
                     effectsManager.DrawSkillLevelUpEffect(s);
 
                     if (!talkingToNPC)
+                    {
                         effectsManager.DrawFButtons(s);
+                        effectsManager.DrawSpaceButtons(s);
 
+                    }
                     player.Draw(s);
 
                     if (player.LevelingUp)

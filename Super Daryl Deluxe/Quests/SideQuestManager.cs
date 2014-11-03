@@ -19,7 +19,8 @@ namespace ISurvived
 
         //Prologue +
         NPC gardener;
-        RatQuest ratQuest;
+        public RatQuest ratQuest;
+        NPC farSideDeath;
 
         //Chapter One +
         NPC scienceQuestNPC;
@@ -58,6 +59,24 @@ namespace ISurvived
 
         public void Update()
         {
+            //Prologue and Up
+            if (nPCs.ContainsKey("Far Side Death") && farSideDeath.Talking && game.Prologue.PrologueBooleans["buriedRiley"] == false)
+            {
+                game.Prologue.PrologueBooleans["buriedRiley"] = true;
+            }
+
+            if (!game.CurrentChapter.TalkingToNPC && game.Prologue.PrologueBooleans["buriedRiley"] == true && ratQuest.CompletedQuest == false)
+            {
+                ratQuest.CompletedQuest = true;
+                farSideDeath.ClearDialogue();
+                farSideDeath.Dialogue.Add("Riley was actually pretty evil for a rat. I wouldn't mourn too much.");
+                Chapter.effectsManager.AddSmokePoof(new Rectangle(357, -2920 + 524, 95, 95), 2);
+            }
+
+            if (ratQuest.CompletedQuest && Game1.Player.AllCharacterBios["Gardener"] == false && !game.CurrentSideQuests.Contains(ratQuest))
+                Game1.Player.UnlockCharacterBio("Gardener");
+
+            //Chapter One and Up - Add some NPCs and remove previous ones if their quests are done
             if (game.chapterState >= Game1.ChapterState.chapterOne)
             {
                 if (sideQuestBrokenGlass.CompletedQuest == true && killFlasks.CompletedQuest == false && scienceQuestNPC.Quest == null)
@@ -74,6 +93,7 @@ namespace ISurvived
                 {
 
                     nPCs.Remove("The Gardener");
+                    nPCs.Remove("Far Side Death");
                     game.Prologue.PrologueBooleans["finishedRatQuest"] = true;
                 }
             }
@@ -90,6 +110,16 @@ namespace ISurvived
                 gardener = new NPC(game.NPCSprites["The Gardener"], gardenDialogue, ratQuest, new Rectangle(700, 680 - 395, 516, 388),
                     Game1.Player, game.Font, game, "East Hall", "The Gardener", false);
                 nPCs.Add("The Gardener", gardener);
+
+                List<String> dialogue = new List<string>();
+                dialogue.Add("What are you doing up here? Don't you know how dangerous it is to-");
+                dialogue.Add("Oh! Well what do we have here? Is that Riley? Ha, no kiddin'. I was supposed to take care of that one later today.");
+                dialogue.Add("Rabies. Nasty stuff, that. Looks like you went ahead and took care of 'im for me, though. That's the sixth animal that rackety old gardener has gone through this month.");
+                dialogue.Add("Ah well, that's my job. I'll bury that little bastard for you. Hand 'im over.");
+                farSideDeath = new NPC(game.NPCSprites["Death"], dialogue,
+                    new Rectangle(50, -2920 + 303, 516, 388), Game1.Player, game.Font, game, "The Far Side", "Death", false);
+                farSideDeath.FacingRight = true;
+                nPCs.Add("Far Side Death", farSideDeath);
             }
 
             

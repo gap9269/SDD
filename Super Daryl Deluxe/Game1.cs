@@ -71,6 +71,8 @@ namespace ISurvived
         }
 
         #region Textures
+        public static Texture2D questionMarkFace;
+        public static Texture2D newBioNotification;
         public static Texture2D skillDescriptionBox;
         public static Texture2D backspaceTexture;
         public static Texture2D portalTexture;
@@ -115,8 +117,8 @@ namespace ISurvived
         public static Texture2D decisionBox;
         public static Texture2D treasureChestFlash;
         public static Texture2D treasureChestBox;
-        public static Texture2D socialRankUpTexture;
-        public static Texture2D fOuter, fInner;
+        public static Dictionary<String, Texture2D> socialRankUpTexture;
+        public static Texture2D fOuter, fInner, spaceInner, spaceOuter;
         public static Texture2D equipDescriptionBox, otherDescriptionBox, dualWieldIcon;
         Texture2D playerSheet;
 
@@ -315,6 +317,7 @@ namespace ISurvived
             numberOfNPCWalkingFrames.Add("Paul", 10);
             numberOfNPCWalkingFrames.Add("Alan", 9);
             numberOfNPCWalkingFrames.Add("Mr. Robatto", 10);
+            numberOfNPCWalkingFrames.Add("Tim", 8);
         }
 
         protected override void Initialize()
@@ -474,9 +477,9 @@ namespace ISurvived
             #endregion
 
             #region Hats
-
             allEquipment.Add("Dunce Cap", new DunceCap());
             allEquipment.Add("Band Hat", new BandHat());
+            allEquipment.Add("Fez", new Fez());
             allEquipment.Add("Powdered Wig", new PowderedWig());
             allEquipment.Add("Gardening Hat", new GardeningHat());
             allEquipment.Add("Party Hat", new PartyHat());
@@ -485,7 +488,7 @@ namespace ISurvived
             #endregion
 
             #region Hoodies
-            allEquipment.Add("Dirty Gym Shirt", new GymShirt());
+            allEquipment.Add("Lab Coat", new LabCoat());
             allEquipment.Add("Band Uniform", new BandUniform());
             allEquipment.Add("'I Love Melons' Band Tee", new ILoveMelons());
             allEquipment.Add("'I Hate Melons' Band Tee", new IHateMelons());
@@ -496,6 +499,8 @@ namespace ISurvived
 
             #region Accessories
             allEquipment.Add("Riley's Bow", new RileysBow());
+            allEquipment.Add("Uranium Rod", new UraniumRod());
+            allEquipment.Add("Lab Goggles", new LabGoggles());
             allEquipment.Add("Used Tissue", new UsedTissue());
             allEquipment.Add("Fang Necklace", new FangNecklace());
             allEquipment.Add("Jar of Dirt", new JarOfDirt());
@@ -598,9 +603,12 @@ namespace ISurvived
             decisionBox = Content.Load<Texture2D>(@"Notifications\decisionBox");
             storyQuestComplete = Content.Load<Texture2D>(@"Notifications\StoryQuestComplete");
             sideQuestComplete = Content.Load<Texture2D>(@"Notifications\SideQuestComplete");
-            socialRankUpTexture = Content.Load<Texture2D>(@"Notifications\SocialRankUp");
+            socialRankUpTexture = ContentLoader.LoadContent(Content, "Notifications\\Social Rank Up");
+            newBioNotification = Content.Load<Texture2D>(@"Notifications\newBio");
             fOuter = Content.Load<Texture2D>(@"Notifications\fOuter");
             fInner = Content.Load<Texture2D>(@"Notifications\fInner");
+            spaceOuter = Content.Load<Texture2D>(@"Notifications\spaceOuter");
+            spaceInner = Content.Load<Texture2D>(@"Notifications\spaceInner");
 
             equipDescriptionBox = Content.Load<Texture2D>(@"Notifications\equipDescriptionBox");
             otherDescriptionBox = Content.Load<Texture2D>(@"Notifications\otherDescriptionBox");
@@ -613,6 +621,18 @@ namespace ISurvived
             #endregion
 
             #region NPC Faces
+            questionMarkFace = Content.Load<Texture2D>(@"NPCFaces\question mark");
+
+            NPCFace dandelionFace = new NPCFace();
+            dandelionFace.faces = new Dictionary<string, Texture2D>();
+            dandelionFace.faces.Add("Normal", whiteFilter);
+            npcFaces.Add("Dandelion", dandelionFace);
+
+            NPCFace flowerFace = new NPCFace();
+            flowerFace.faces = new Dictionary<string, Texture2D>();
+            flowerFace.faces.Add("Normal", whiteFilter);
+            npcFaces.Add("Flower God", flowerFace);
+
             NPCFace robattoFace = new NPCFace();
             robattoFace.faces = new Dictionary<string, Texture2D>();
             robattoFace.faces.Add("Normal", whiteFilter);
@@ -665,6 +685,11 @@ namespace ISurvived
             chelseaface.faces = new Dictionary<string, Texture2D>();
             chelseaface.faces.Add("Normal", whiteFilter);
             npcFaces.Add("Chelsea", chelseaface);
+
+            NPCFace deathFace = new NPCFace();
+            deathFace.faces = new Dictionary<string, Texture2D>();
+            deathFace.faces.Add("Normal", whiteFilter);
+            npcFaces.Add("Death", chelseaface);
 
             //--D&D Dorks
 
@@ -792,6 +817,8 @@ namespace ISurvived
             npcSprites.Add("Balto", whiteFilter);
             npcHeightFromRecTop.Add("Balto", 152);
 
+            npcSprites.Add("Death", whiteFilter);
+            npcHeightFromRecTop.Add("Death", 44);
             //--D&D Characters
             npcSprites.Add("Karma Instructor", whiteFilter);
             npcHeightFromRecTop.Add("Karma Instructor", 145);
@@ -835,7 +862,7 @@ namespace ISurvived
             treasureChestFlash = Content.Load<Texture2D>(@"SpriteSheets\Chest\treasureChestFlash");
             treasureChestBox = Content.Load<Texture2D>(@"SpriteSheets\Chest\treasureChestPopUp");
             lockerComboButton = Content.Load<Texture2D>(@"Menus\StudentLocker\lockerComboButton");
-            cursor = new Cursor(this.Content.Load<Texture2D>("cursor"));
+            cursor = new Cursor(this.Content.Load<Texture2D>("CursorSheet"));
 
             storyQuestReceived = Content.Load<Texture2D>(@"Notifications\StoryQuest");
             sideQuestReceived = Content.Load<Texture2D>(@"Notifications\SideQuest");
@@ -926,8 +953,9 @@ namespace ISurvived
             skillAnimations.Add("Discuss Differences", this.Content.Load<Texture2D>(@"SpriteSheets\Skills\DiscussDifferences"));
             skillIcons.Add("Discuss Differences", this.Content.Load<Texture2D>(@"SkillIcons\DiscussDifferencesIcon"));
 
-            skillAnimations.Add("Blinding Logic", skillSheetOne);
-            skillIcons.Add("Blinding Logic", this.Content.Load<Texture2D>(@"SkillIcons\WittyComebackIcon"));
+            skillAnimations.Add("Blinding Logic", this.Content.Load<Texture2D>(@"SpriteSheets\Skills\Blinding Logic"));
+            skillIcons.Add("Blinding Logic", this.Content.Load<Texture2D>(@"SkillIcons\BlindingLogic"));
+            BlindingLogic.flashTextures = ContentLoader.LoadContent(Content, "SpriteSheets\\Skills\\BlindingLogicFlash");
 
             skillAnimations.Add("Quick Retort", this.Content.Load<Texture2D>(@"SpriteSheets\Skills\Dash"));
             skillIcons.Add("Quick Retort", this.Content.Load<Texture2D>(@"SkillIcons\QuickRetortIcon"));
@@ -962,6 +990,7 @@ namespace ISurvived
             skillManager = new SkillManager(skillAnimations, skillIcons, player);
 
             SkillManager.skillImpactEffects.Add("Discuss Differences", bangFX1);
+            SkillManager.skillImpactEffects.Add("Blinding Logic", bangFX1);
             SkillManager.skillImpactEffects.Add("Mopping Up", bangFX1);
             SkillManager.skillImpactEffects.Add("Fowl Mouth", bangFX1);
             SkillManager.skillImpactEffects.Add("Shocking Statement", this.Content.Load<Texture2D>(@"SkillImpacts\LightningImpact"));

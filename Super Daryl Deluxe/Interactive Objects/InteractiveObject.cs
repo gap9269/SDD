@@ -36,6 +36,8 @@ namespace ISurvived
 
         public Boolean Foreground { get { return foreground; } set { foreground = value; } }
         public Rectangle Rec { get { return rec; } set { rec = value; } }
+        public int RecX { get { return rec.X; } set { rec.X = value; } }
+        public int RecY { get { return rec.Y; } set { rec.Y = value; } }
         public Rectangle VitalRec { get { return vitalRec; } set { vitalRec = value; } }
         public Boolean Finished { get { return finished; } set { finished = value; } }
         public int Health { get { return health; } set { health = value; } }

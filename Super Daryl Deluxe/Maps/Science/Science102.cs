@@ -35,11 +35,11 @@ namespace ISurvived
         Boolean destroyGiantErl = false;
         int erlFrame, erlDelay;
 
-        float v1; //float velocities
+        float v1, v2, v3; //float velocities
 
-        float y1; //float Y positions
+        float y1, y2, y3; //float Y positions
 
-        Boolean up1;
+        Boolean up1, up2, up3;
 
         public Science102(List<Texture2D> bg, Game1 g, ref Player play)
             : base(bg, g, ref play)
@@ -65,6 +65,18 @@ namespace ISurvived
             erlDelay = 5;
 
             giantErlTextures = new Dictionary<String, Texture2D>();
+
+            Barrel bar = new Barrel(game, 2000, -300 + 155, Game1.interactiveObjects["Barrel"], true, 1, 3, .04f, true, Barrel.BarrelType.ScienceJar);
+            interactiveObjects.Add(bar);
+
+            Barrel bar2 = new Barrel(game, 1700, -275 + 155, Game1.interactiveObjects["Barrel"], true, 1, 0, .07f, false, Barrel.BarrelType.ScienceTube);
+            interactiveObjects.Add(bar2);
+
+            Barrel bar3 = new Barrel(game, 1350, 500 + 155, Game1.interactiveObjects["Barrel"], true, 1, 0, .03f, false, Barrel.BarrelType.ScienceBarrel);
+            interactiveObjects.Add(bar3);
+
+            up3 = true;
+            up2 = false;
         }
 
         public override void RespawnGroundEnemies()
@@ -121,6 +133,42 @@ namespace ISurvived
         public override void Update()
         {
             base.Update();
+
+            interactiveObjects[0].RecY = 340 + (int)y2;
+            interactiveObjects[1].RecY = 275 + (int)y3;
+            if (!up2)
+            {
+                v2 += .006f;
+                y2 += v2;
+
+                if (v2 >= .5)
+                    up2 = true;
+            }
+            else
+            {
+                v2 -= .006f;
+                y2 += v2;
+
+                if (v2 <= -.5)
+                    up2 = false;
+            }
+
+            if (!up3)
+            {
+                v3 += .006f;
+                y3 += v3;
+
+                if (v3 >= .5)
+                    up3 = true;
+            }
+            else
+            {
+                v3 -= .006f;
+                y3 += v3;
+
+                if (v3 <= -.5)
+                    up3 = false;
+            }
 
             pulseX += 50;
 
@@ -261,6 +309,14 @@ null, null, null, null, Game1.camera.Transform);
             {
                 //s.Draw(giantErlTextures.ElementAt(13).Value, new Vector2(3509, mapRec.Y + 20), Color.White);
                 s.Draw(erl, new Vector2(3509, mapRec.Y + 20), Color.White);
+            }
+
+            for (int i = 0; i < interactiveObjects.Count; i++)
+            {
+                if (interactiveObjects[i].Foreground)
+                {
+                    interactiveObjects[i].Draw(s);
+                }
             }
 
             s.Draw(fore, new Vector2(3561, mapRec.Y + 744), Color.White);

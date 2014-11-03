@@ -335,7 +335,7 @@ namespace ISurvived
             darylDrawings.Add("Hand Saw Second", Game1.whiteFilter);
 
             darylDrawings.Add("ShirtClean", Game1.whiteFilter);
-            darylDrawings.Add("Dirty Gym Shirt", Game1.whiteFilter);
+            darylDrawings.Add("Lab Coat", Game1.whiteFilter);
             darylDrawings.Add("Band Uniform", Game1.whiteFilter);
             darylDrawings.Add("'I Love Melons' Band Tee", Game1.whiteFilter);
             darylDrawings.Add("'I Hate Melons' Band Tee", Game1.whiteFilter);

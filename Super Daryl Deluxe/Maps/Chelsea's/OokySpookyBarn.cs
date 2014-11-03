@@ -37,13 +37,13 @@ namespace ISurvived
             AddNPCs();
             SetPortals();
 
-            Barrel bar = new Barrel(game, 824, 630, Game1.interactiveObjects["Barrel"], true, 5, 0, 1.38f, false, 0);
+            Barrel bar = new Barrel(game, 824, 630, Game1.interactiveObjects["Barrel"], true, 5, 0, 1.38f, false, Barrel.BarrelType.WoodenLeft);
             interactiveObjects.Add(bar);
 
-            Barrel bar1 = new Barrel(game, 963, 624, Game1.interactiveObjects["Barrel"], true, 5, 0, .16f, false, 1);
+            Barrel bar1 = new Barrel(game, 963, 624, Game1.interactiveObjects["Barrel"], true, 5, 0, .16f, false, Barrel.BarrelType.WoodenRight);
             interactiveObjects.Add(bar1);
 
-            Barrel bar2 = new Barrel(game, 910, 640, Game1.interactiveObjects["Barrel"], true, 5, 0, .16f, false, 0);
+            Barrel bar2 = new Barrel(game, 910, 640, Game1.interactiveObjects["Barrel"], true, 5, 0, .16f, false, Barrel.BarrelType.WoodenLeft);
             interactiveObjects.Add(bar2);
         }
 

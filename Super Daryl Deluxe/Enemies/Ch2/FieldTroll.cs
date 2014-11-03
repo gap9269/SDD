@@ -1420,10 +1420,10 @@ namespace ISurvived
         public override void DropItem()
         {
             //Drop bio if you don't have it yet
-            if (!player.AllMonsterBios[name])
-            {
+           // if (!player.AllMonsterBios[name])
+           // {
                     //currentMap.Drops.Add(new EnemyBio("This String Doesn't Matter for Bios", new Rectangle(rec.Center.X, rec.Center.Y, dropDiameter, dropDiameter), name));
-            }
+           // }
 
         }
 

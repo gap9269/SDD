@@ -113,7 +113,7 @@ namespace ISurvived
         {
             base.Draw(s);
 
-            s.Draw(outhouse, new Rectangle(2020, 570 - outhouse.Height, outhouse.Width, outhouse.Height), Color.White);
+            s.Draw(outhouse, new Rectangle(1930, 570 - outhouse.Height, outhouse.Width, outhouse.Height), Color.White);
         }
 
         public override void SetPortals()

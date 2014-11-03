@@ -254,6 +254,7 @@ namespace ISurvived
                         player.MoveFrame = 3;
                         player.FrameDelay = 80;
                         player.Health = player.MaxHealth;
+                        player.UnlockEnemyBio("Goblin Gate");
                     }
                     break;
             }

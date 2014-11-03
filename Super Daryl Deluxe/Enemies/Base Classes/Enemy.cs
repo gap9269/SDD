@@ -370,13 +370,13 @@ namespace ISurvived
 
                 #region Strength and weakness modifiers
                 //Increase damage if the skill type is equal to the enemy's weakness
-                if (skillType == veryEffective || meleeOrRanged == veryEffectiveRangedMelee)
+                if ((skillType == veryEffective || meleeOrRanged == veryEffectiveRangedMelee) && skillType != AttackType.AttackTypes.none)
                 {
                     damage = (int)(damage * veryEffectiveMultiplier);
                     weaknessStrengthOrNormal.Add("Weakness");
                 }
                 //Opposite if it's the enemy's strength
-                else if (skillType == notEffective || meleeOrRanged == notEffectiveRangedMelee)
+                else if ((skillType == notEffective || meleeOrRanged == notEffectiveRangedMelee) && skillType != AttackType.AttackTypes.none)
                 {
                     damage = (int)(damage * notEffectiveMultiplier);
                     weaknessStrengthOrNormal.Add("Strength");
@@ -593,7 +593,6 @@ namespace ISurvived
                         if (checkPlatRec.Intersects(right))
                         {
                             // playerState = PlayerState.standing;
-                            Console.WriteLine("hit right");
                             PositionX += Math.Abs(VelocityX);
                             knockedBack = false;
                             VelocityX = 0;
@@ -676,6 +675,10 @@ namespace ISurvived
                 DropHealth();
                 DropMoney();
                 Chapter.effectsManager.AddSmokePoof(deathRec,1);
+
+                //Unlock enemy bio for this enemy
+                if (player.AllMonsterBios[name] == false)
+                    player.UnlockEnemyBio(name);
                 return true;
             }
 
@@ -741,17 +744,17 @@ namespace ISurvived
 
         public virtual void DropItem()
         {
-            //Drop bio if you don't have it yet
-            if (player.AllMonsterBios.ContainsKey(name) && !player.AllMonsterBios[name])
-            {
+            ////Drop bio if you don't have it yet
+            //if (player.AllMonsterBios.ContainsKey(name) && !player.AllMonsterBios[name])
+            //{
 
-                int dropType = moveNum.Next(0, 101);
+            //    int dropType = moveNum.Next(0, 101);
 
-                if (dropType < 10)
-                {
-                    currentMap.Drops.Add(new EnemyBio("This String Doesn't Matter for Bios", new Rectangle(rec.Center.X, rec.Center.Y, dropDiameter, dropDiameter), name));
-                }
-            }
+            //    if (dropType < 10)
+            //    {
+            //        currentMap.Drops.Add(new EnemyBio("This String Doesn't Matter for Bios", new Rectangle(rec.Center.X, rec.Center.Y, dropDiameter, dropDiameter), name));
+            //    }
+            //}
 
         }
 

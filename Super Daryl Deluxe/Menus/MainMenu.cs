@@ -25,11 +25,12 @@ namespace ISurvived
         int introTimer;
         int timeBeforeAfterIntro;
         float introAlpha = 0f;
-        Texture2D logo, disclaimer, boxSmall, choices, savesTexture, overwriteTexture, saveBoxTextureStatic, saveBoxTextureActive, overwriteBoxTexture, loading, mainWords, selectGameText, overwriteYes, overwriteNo;
+        Texture2D logo, disclaimer, boxSmall, choices, savesTexture, overwriteTexture, saveBoxTextureStatic, saveBoxTextureActive, overwriteBoxTexture, loading, mainWords, selectGameText, overwriteYes, overwriteNo, rays, darylLoop, gradient, colorSplash;
         float rayRotation;
         int confirmSlot = 0;
         int introState = 0;
         float mainAlpha = 0f;
+        int darylPosX;
 
         Boolean overwriteWithoutTutorial = false;
 
@@ -65,6 +66,10 @@ namespace ISurvived
             background = content.Load<Texture2D>(@"Menus\MainMenu\MainMenu");
             choices = content.Load<Texture2D>(@"Menus\MainMenu\MainMenuChoices");
             mainWords = content.Load<Texture2D>(@"Menus\MainMenu\MainWords");
+            darylLoop = content.Load<Texture2D>(@"Menus\MainMenu\darylLoop");
+            colorSplash = content.Load<Texture2D>(@"Menus\MainMenu\splashColor");
+            gradient = content.Load<Texture2D>(@"Menus\MainMenu\gradientStrip");
+            rays = content.Load<Texture2D>(@"Menus\MainMenu\MainMenuRays");
 
             saveBoxTextureStatic = content.Load<Texture2D>(@"Menus\MainMenu\MainMenuSaveBoxStatic");
             saveBoxTextureActive = content.Load<Texture2D>(@"Menus\MainMenu\MainMenuSaveBoxActive");
@@ -122,7 +127,7 @@ namespace ISurvived
                         introTimer++;
 
                     //--Fade it back out
-                    if (((introState == 0 && introTimer > 100) || (introState == 1 && introTimer > 200)) && introAlpha > 0)
+                    if (((introState == 0 && introTimer > 100) || (introState == 1 && introTimer > 550)) && introAlpha > 0)
                         introAlpha -= .015f;
 
                     if (introAlpha <= 0 && introTimer > 0)
@@ -601,6 +606,14 @@ namespace ISurvived
                             Game1.Player.LearnedSkills[0].SkillRank = 3;
                             Game1.Player.LearnedSkills[0].ApplyLevelUp();
 
+                            //TEMP SHIT------------------------------
+                            Game1.Player.Textbooks = 10;
+                            Game1.Player.Money = 10;
+                            Game1.Player.OwnedHats.Add(new PartyHat());
+                            Game1.Player.OwnedHoodies.Add(new Toga());
+
+                            //---------------------------------------
+
                             Chapter.effectsManager.skillMessageColor = Color.White;
                             Chapter.effectsManager.skillMessageTime = 0;
 
@@ -720,10 +733,10 @@ namespace ISurvived
                         UnloadContent();
                         //FOR THE TUTORIAl/DEMO SHIT
                         game.CurrentChapter = game.Prologue;
-                        game.CurrentChapter.StartingPortal = Science104.ToScience103;
+                        game.CurrentChapter.StartingPortal = MainLobby.ToArtHall;
                         game.chapterState = Game1.ChapterState.prologue;
 
-                        game.CurrentChapter.CurrentMap = Game1.schoolMaps.maps["NorthHall"];
+                        game.CurrentChapter.CurrentMap = Game1.schoolMaps.maps["Science105"];
                         game.CurrentChapter.CurrentMap.LoadContent();
                         Game1.Player.HasCellPhone = false;
                         Game1.schoolMaps.LoadEnemyData();
@@ -1234,8 +1247,20 @@ namespace ISurvived
                 case State.selecting:
                     backgroundRec = new Rectangle(0, 0, 1280, (int)(1280 * Game1.aspectRatio));
 
-                    //s.Draw(Game1.whiteFilter, new Rectangle(0, 0, 1280, (int)(Game1.aspectRatio * 1280)), new Color(225, 222, 222) * mainAlpha);
+                    s.Draw(Game1.whiteFilter, new Rectangle(0, 0, 1280, (int)(Game1.aspectRatio * 1280)), new Color(25, 25, 25) * mainAlpha);
+                    s.Draw(gradient, new Vector2(0, 283), Color.White * mainAlpha);
+                    s.End();
 
+                    s.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearWrap, null, null, null, Game1.camera.Transform);
+                    Game1.camera.Update(Game1.Player, game);
+                    darylPosX -= 3;
+                    s.Draw(darylLoop, new Rectangle(0, 540, darylLoop.Width, darylLoop.Height), new Rectangle(darylPosX, 0, darylLoop.Width, darylLoop.Height), Color.White);
+                    s.End();
+
+                    s.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+null, null, null, null, Game1.camera.StaticTransform);
+                    s.Draw(colorSplash, backgroundRec, Color.White * mainAlpha);
+                    s.Draw(rays, new Rectangle(980, 220, 2200, 2200), null, Color.White * (mainAlpha - .5f), (float)(rayRotation * (Math.PI / 180)), new Vector2(rays.Width / 2, rays.Height / 2), SpriteEffects.None, 0f);
                     s.Draw(background, backgroundRec, Color.White * mainAlpha);
                     s.Draw(choices, new Rectangle(845, 416, choices.Width, choices.Height), Color.White * mainAlpha);
                     selectionBox.Draw(s, mainAlpha);
@@ -1243,6 +1268,20 @@ namespace ISurvived
                     break;
 
                 case State.overwriteConfirm:
+                    s.Draw(Game1.whiteFilter, new Rectangle(0, 0, 1280, (int)(Game1.aspectRatio * 1280)), new Color(25, 25, 25) * mainAlpha);
+                    s.Draw(gradient, new Vector2(0, 283), Color.White * mainAlpha);
+                    s.End();
+
+                    s.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearWrap, null, null, null, Game1.camera.Transform);
+                    Game1.camera.Update(Game1.Player, game);
+                    darylPosX -= 3;
+                    s.Draw(darylLoop, new Rectangle(0, 540, darylLoop.Width, darylLoop.Height), new Rectangle(darylPosX, 0, darylLoop.Width, darylLoop.Height), Color.White);
+                    s.End();
+
+                    s.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+null, null, null, null, Game1.camera.StaticTransform);
+                    s.Draw(colorSplash, backgroundRec, Color.White * mainAlpha);
+                    s.Draw(rays, new Rectangle(980, 220, 2200, 2200), null, Color.White * (mainAlpha - .5f), (float)(rayRotation * (Math.PI / 180)), new Vector2(rays.Width / 2, rays.Height / 2), SpriteEffects.None, 0f);
                     s.Draw(background, backgroundRec, Color.White * mainAlpha);
                     if (fadeOut.State < 2)
                     {
@@ -1256,7 +1295,21 @@ namespace ISurvived
                     break;
 
                 case State.options:
-                    s.Draw(Game1.whiteFilter, new Rectangle(0, 0, 1280, (int)(Game1.aspectRatio * 1280)), Color.White * .7f);
+                    //s.Draw(Game1.whiteFilter, new Rectangle(0, 0, 1280, (int)(Game1.aspectRatio * 1280)), Color.White * .7f);
+                    s.Draw(Game1.whiteFilter, new Rectangle(0, 0, 1280, (int)(Game1.aspectRatio * 1280)), new Color(25, 25, 25) * mainAlpha);
+                    s.Draw(gradient, new Vector2(0, 283), Color.White * mainAlpha);
+                    s.End();
+
+                    s.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearWrap, null, null, null, Game1.camera.Transform);
+                    Game1.camera.Update(Game1.Player, game);
+                    darylPosX -= 3;
+                    s.Draw(darylLoop, new Rectangle(0, 540, darylLoop.Width, darylLoop.Height), new Rectangle(darylPosX, 0, darylLoop.Width, darylLoop.Height), Color.White);
+                    s.End();
+
+                    s.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+null, null, null, null, Game1.camera.StaticTransform);
+                    s.Draw(colorSplash, backgroundRec, Color.White * mainAlpha);
+                    s.Draw(rays, new Rectangle(980, 220, 2200, 2200), null, Color.White * (mainAlpha - .5f), (float)(rayRotation * (Math.PI / 180)), new Vector2(rays.Width / 2, rays.Height / 2), SpriteEffects.None, 0f);
                     s.Draw(background, backgroundRec, Color.White * mainAlpha);
                     if (fadeOut.State < 2)
                     {
@@ -1288,8 +1341,22 @@ namespace ISurvived
                     break;
 
                 case State.startNewGame:
-                    s.Draw(Game1.whiteFilter, new Rectangle(0, 0, 1280, (int)(Game1.aspectRatio * 1280)), Color.White * .7f);
 
+                    s.Draw(Game1.whiteFilter, new Rectangle(0, 0, 1280, (int)(Game1.aspectRatio * 1280)), Color.White * .7f);
+                    s.Draw(Game1.whiteFilter, new Rectangle(0, 0, 1280, (int)(Game1.aspectRatio * 1280)), new Color(25, 25, 25) * mainAlpha);
+                    s.Draw(gradient, new Vector2(0, 283), Color.White * mainAlpha);
+                    s.End();
+
+                    s.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearWrap, null, null, null, Game1.camera.Transform);
+                    Game1.camera.Update(Game1.Player, game);
+                    darylPosX -= 3;
+                    s.Draw(darylLoop, new Rectangle(0, 540, darylLoop.Width, darylLoop.Height), new Rectangle(darylPosX, 0, darylLoop.Width, darylLoop.Height), Color.White);
+                    s.End();
+
+                    s.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+null, null, null, null, Game1.camera.StaticTransform);
+                    s.Draw(colorSplash, backgroundRec, Color.White * mainAlpha);
+                    s.Draw(rays, new Rectangle(980, 220, 2200, 2200), null, Color.White * (mainAlpha - .5f), (float)(rayRotation * (Math.PI / 180)), new Vector2(rays.Width / 2, rays.Height / 2), SpriteEffects.None, 0f);
                     s.Draw(background, backgroundRec, Color.White * mainAlpha);
                     if (fadeOut.State < 2)
                     {
@@ -1322,7 +1389,20 @@ namespace ISurvived
 
                 case State.loadGame:
                     s.Draw(Game1.whiteFilter, new Rectangle(0, 0, 1280, (int)(Game1.aspectRatio * 1280)), Color.White * .7f);
+                    s.Draw(Game1.whiteFilter, new Rectangle(0, 0, 1280, (int)(Game1.aspectRatio * 1280)), new Color(25, 25, 25) * mainAlpha);
+                    s.Draw(gradient, new Vector2(0, 283), Color.White * mainAlpha);
+                    s.End();
 
+                    s.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearWrap, null, null, null, Game1.camera.Transform);
+                    Game1.camera.Update(Game1.Player, game);
+                    darylPosX -= 3;
+                    s.Draw(darylLoop, new Rectangle(0, 540, darylLoop.Width, darylLoop.Height), new Rectangle(darylPosX, 0, darylLoop.Width, darylLoop.Height), Color.White);
+                    s.End();
+
+                    s.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+null, null, null, null, Game1.camera.StaticTransform);
+                    s.Draw(colorSplash, backgroundRec, Color.White * mainAlpha);
+                    s.Draw(rays, new Rectangle(980, 220, 2200, 2200), null, Color.White * (mainAlpha - .5f), (float)(rayRotation * (Math.PI / 180)), new Vector2(rays.Width / 2, rays.Height / 2), SpriteEffects.None, 0f);
                     s.Draw(background, backgroundRec, Color.White * mainAlpha);
                     if (fadeOut.State < 2)
                     {

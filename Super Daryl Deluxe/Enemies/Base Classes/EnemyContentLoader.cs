@@ -28,5 +28,11 @@ namespace ISurvived
         {
             Game1.g.EnemySpriteSheets.Add("Fez", content.Load<Texture2D>(@"EnemySprites\Prologue\FezGoblin"));
         }
+
+        static public void GorillaTimBoss(ContentManager content)
+        {
+            GorillaTim.animationTextures = ContentLoader.LoadContent(content, "Bosses\\Tim");
+            GorillaTim.animationTextures.Add("BossTitleBar", content.Load<Texture2D>(@"HUD\Boss Title"));
+        }
     }
 }

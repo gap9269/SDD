@@ -49,7 +49,7 @@ namespace ISurvived
 
             nameAndInfo.Add("Tim", new CharacterInfo() { name = "Tim", yearbookQuote = "I am the alpha and the omega, the greatest textbook salesman to ever inhabit this ball of floating dirt.", funFact = "Has never sold a textbook.", superlative = "Most likely to stay in college until he's 40.", age = "16" });
 
-            nameAndInfo.Add("Gardener", new CharacterInfo() { name = "Gardener", yearbookQuote = "I am the alpha and the omega, the greatest textbook salesman to ever inhabit this ball of floating dirt.", funFact = "Has never sold a textbook.", superlative = "Most likely to stay in college until he's 40.", age = "16" });
+            nameAndInfo.Add("Gardener", new CharacterInfo() { name = "The Gardener", yearbookQuote = "I am the alpha and the omega, the greatest textbook salesman to ever inhabit this ball of floating dirt.", funFact = "Has never sold a textbook.", superlative = "Most likely to stay in college until he's 40.", age = "16" });
 
             nameAndInfo.Add("Journal Instructor", new CharacterInfo() { name = "Journal Instructor", yearbookQuote = "I am the alpha and the omega, the greatest textbook salesman to ever inhabit this ball of floating dirt.", funFact = "Has never sold a textbook.", superlative = "Most likely to stay in college until he's 40.", age = "16" });
 
@@ -64,6 +64,9 @@ namespace ISurvived
             nameAndInfo.Add("Squirrel Boy", new CharacterInfo() { name = "Squirrel Boy", yearbookQuote = "I am the alpha and the omega, the greatest textbook salesman to ever inhabit this ball of floating dirt.", funFact = "Has never sold a textbook.", superlative = "Most likely to stay in college until he's 40.", age = "16" });
 
             nameAndInfo.Add("Jesse", new CharacterInfo() { name = "Jesse", yearbookQuote = "I am the alpha and the omega, the greatest textbook salesman to ever inhabit this ball of floating dirt.", funFact = "Has never sold a textbook.", superlative = "Most likely to stay in college until he's 40.", age = "16" });
+
+
+            enemyNameAndInfo.Add("Fez", new EnemyInfo() { name = "Fez", experienceGiven = "1", hobby = "Being a hat", itemDrop = "None", level = "1" });
 
             enemyNameAndInfo.Add("Benny Beaker", new EnemyInfo() { name = "Benny Beaker", experienceGiven = "5", hobby = "Eating cabbage", itemDrop = "Broken Glass", level = "3" });
 

@@ -81,6 +81,9 @@ namespace ISurvived
             up1 = false;
 
             eyeFrame = -1;
+
+            Barrel bar = new Barrel(game, 1300, -280 + 155, Game1.interactiveObjects["Barrel"], true, 1, 0, .12f, false, Barrel.BarrelType.ScienceBarrel);
+            interactiveObjects.Add(bar);
         }
 
         public override void ResetMapAssetsOnEnter()

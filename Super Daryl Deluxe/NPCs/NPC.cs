@@ -163,17 +163,17 @@ namespace ISurvived
                 switch (moveState)
                 {
                     case MoveState.standing:
-                        return new Rectangle(0, 0, 518, 388);
+                        return new Rectangle(0, 0, 516, 388);
 
                     case MoveState.moving:
                         if (frame < 5)
                         {
-                            return new Rectangle(frame * 518, 388, 518, 388);
+                            return new Rectangle(frame * 516, 388, 516, 388);
                         }
                         else
                         {
                             int column = frame - 5;
-                            return new Rectangle(column * 518, 388 * 2, 518, 388);
+                            return new Rectangle(column * 516, 388 * 2, 516, 388);
                         }
                 }
             }
@@ -209,6 +209,7 @@ namespace ISurvived
 
                     game.CurrentChapter.TalkingToNPC = true;
                     talking = true;
+                    player.Sprinting = false;
 
                     if(rec.Center.X < player.VitalRec.Center.X)
                         facingRight = true;

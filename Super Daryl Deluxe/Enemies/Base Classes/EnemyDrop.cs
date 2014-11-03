@@ -199,6 +199,14 @@ namespace ISurvived
 
         public virtual void Draw(SpriteBatch s)
         {
+            if (!Game1.g.Prologue.PrologueBooleans["PickedUpDrop"])
+            {
+                Rectangle spaceRec = new Rectangle(rec.X + rec.Width / 2 - 96 / 2, rec.Y - 70, (int)(120 * .8f), (int)(52 * .8f));
+
+                s.Draw(Game1.spaceInner, spaceRec , Color.White);
+                s.Draw(Game1.spaceOuter, spaceRec, Color.White * .7f);
+            }
+
             if(equip != null)
                 s.Draw(Game1.equipmentTextures[equip.Name], rec, Color.White * pickedUpTimer);
             else if (storyItem != null)

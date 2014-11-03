@@ -483,6 +483,23 @@ namespace ISurvived
                     case GameState.Game:
                         UpdateNPCs();
 
+                        #region Unlocking Character Bios
+                        if (chelsea.Talking && player.AllCharacterBios["Chelsea"] == false)
+                            player.UnlockCharacterBio("Chelsea");
+
+                        if (beerForHat.CompletedQuest && player.AllCharacterBios["Jesse"] == false && !game.CurrentSideQuests.Contains(beerForHat))
+                            player.UnlockCharacterBio("Jesse");
+
+                        if (beerForToga.CompletedQuest && player.AllCharacterBios["Julius Caesar"] == false && !game.CurrentSideQuests.Contains(beerForToga))
+                            player.UnlockCharacterBio("Julius Caesar");
+
+                        if (scissorsQuest.CompletedQuest && player.AllCharacterBios["Pelt Kid"] == false && !game.CurrentSideQuests.Contains(scissorsQuest))
+                            player.UnlockCharacterBio("Pelt Kid");
+
+                        if (mark.Talking && player.AllCharacterBios["Mark"] == false)
+                            player.UnlockCharacterBio("Mark");
+                        #endregion
+
                         #region Decisions
                         if (makingDecision)
                         {

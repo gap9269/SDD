@@ -66,15 +66,21 @@ namespace ISurvived
         protected int moveFrame;
         protected Game1 game;
         protected int costToBuy;
-        protected int maxHit;
-        protected int hitThisTime = 0;
+
         protected List<InteractiveObject> interactiveObjectsInMap;
         protected int frameDelay;
 
         protected List<int> playerLevelRequiredToLevel;
 
+        protected int maxHit;
+        protected int hitThisTime = 0;
         protected List<Enemy> enemiesHitThisAttack;
         protected List<Boss> bossesHitThisAttack;
+
+        protected int stunnedThisTime = 0;
+        protected List<Enemy> enemiesStunnedThisAttack;
+        protected List<Boss> bossesStunnedThisAttack;
+
         protected List<InteractiveObject> interactiveObjectsThisAttack;
         protected Color skillBarColor;
 
@@ -129,6 +135,9 @@ namespace ISurvived
             holdToUse = hold;
             enemiesHitThisAttack = new List<Enemy>();
             bossesHitThisAttack = new List<Boss>();
+            bossesStunnedThisAttack = new List<Boss>();
+            enemiesStunnedThisAttack = new List<Enemy>();
+
             interactiveObjectsThisAttack = new List<InteractiveObject>();
 
             skillBarColor = new Color(255, 255, 255);
@@ -208,13 +217,19 @@ namespace ISurvived
                 if (attackRec.Intersects(enemies[i].VitalRec) && enemies[i].Respawning == false)
                 {
                     enemies[i].Stun(time);
+                    stunnedThisTime++;
+                    enemiesStunnedThisAttack.Add(enemies[i]);
                 }
+
+                if (stunnedThisTime == maxHit && maxHit > 0)
+                    break;
             }
 
             //--If the skill's attack hits the enemy vitals
-            if (game.CurrentChapter.BossFight && attackRec.Intersects(currentBoss.VitalRec) && game.CurrentChapter.CurrentBoss.CanBeStunned)
+            if (game.CurrentChapter.BossFight && attackRec.Intersects(currentBoss.VitalRec))
             {
                 currentBoss.Stun(time);
+                bossesStunnedThisAttack.Add(currentBoss);
             }
         }
 

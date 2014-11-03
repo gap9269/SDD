@@ -309,21 +309,23 @@ namespace ISurvived
         //--Draw the string that is found in the list at the index of [dialogueState]
         public virtual void DrawDialogue(SpriteBatch s)
         {
-            Vector2 length = Game1.font.MeasureString(dialogue[dialogueState]);
-            float lengthX = length.X / 2;
-            textBox = new Vector2((dialogueBox.X + dialogueBox.Width / 2) - lengthX, dialogueBox.Y + 20);
+            s.Draw(Game1.notificationTextures, new Rectangle(38, (int)(Game1.aspectRatio * 1280 * .55) - 3, 1080, 327), new Rectangle(0, 155, 1080, 327), Color.White);
+
+            s.Draw(Game1.questionMarkFace, new Rectangle(0, (int)(Game1.aspectRatio * 1280) - Game1.questionMarkFace.Height, Game1.questionMarkFace.Width, Game1.questionMarkFace.Height), Color.White);
+
+            String currentLine = Game1.WrapText(Game1.dialogueFont, dialogue[dialogueState], 660);
+            stringNum = currentLine.Length;
 
             if (scrollDialogueNum < stringNum)
             {
-                scrollDialogue += dialogue[dialogueState].ElementAt(scrollDialogueNum);
+                scrollDialogue += currentLine.ElementAt(scrollDialogueNum);
                 scrollDialogueNum++;
 
                 if (scrollDialogueNum % 5 == 0)
                     Sound.PlaySoundInstance(Sound.SoundNames.TextScroll);
             }
 
-            s.Draw(Game1.whiteFilter, dialogueBox, Color.LightGray * .7f);
-            s.DrawString(Game1.font, scrollDialogue, textBox, Color.Black);
+            s.DrawString(Game1.dialogueFont, Game1.WrapText(Game1.dialogueFont, scrollDialogue, 660), new Vector2(360, (int)(Game1.aspectRatio * 1280 * .8f)), Color.Black);
         }
 
         public virtual void DrawDialogue(SpriteBatch s, NPC npc)

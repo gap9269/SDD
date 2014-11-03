@@ -68,7 +68,6 @@ namespace ISurvived
         static Random ranTime;
         static Random ranNum;
         Texture2D texture;
-        int x, y;
         Rectangle rec;
         public SpookyEyes(Texture2D tex, int x, int y)
         {

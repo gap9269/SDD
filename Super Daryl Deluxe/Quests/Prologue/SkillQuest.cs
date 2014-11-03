@@ -20,10 +20,11 @@ namespace ISurvived
             questDialogue.Add("Use your big muscles and show that box who's boss!");
             completedDialogue.Add("The way you destroyed that box was so manly. If you hang around with me I could show you some new skills. *wink*");
 
+            rewardObjects.Add(new Fez());
             rewardObjects.Add(new Karma(1));
             enemiesToKill.Add(1);
             enemiesKilledForQuest.Add(0);
-            enemyNames.Add("Fez Goblin");
+            enemyNames.Add("Fez");
 
             npcName = "Skill Instructor";
 
@@ -33,7 +34,7 @@ namespace ISurvived
 
             conditionsToComplete = "Destroy the goblin";
 
-            rewards = "1 Karma";
+            rewards = "1 Fez\n1 Karma";
 
             descriptionForJournal = "A girl that looked like your type stood next to your locker and explained to you how important skills are. To prove your masculinity, you destroyed a box. Boy, was she impressed! I think with a bit of work you two could go far. *wink*";
         }

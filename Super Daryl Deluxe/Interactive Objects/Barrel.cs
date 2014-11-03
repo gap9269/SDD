@@ -12,38 +12,46 @@ using Microsoft.Xna.Framework.Media;
 
 namespace ISurvived
 {
-    class Barrel : BreakableObject
+    public class Barrel : BreakableObject
     {
-        int barrelType;
+        //int barrelType;
 
-        public Barrel(Game1 g, int x, int y, Texture2D s, Boolean pass, int hlth, Object content, float mon, Boolean fore, int barrlType)
+        public enum BarrelType
+        {
+            WoodenRight, WoodenLeft, Radioactive, MetalLabel, MetalBlank,
+            TimBarrel,
+            ScienceBarrel, ScienceFlask, ScienceTube, ScienceJar
+        }
+        public BarrelType barrelType;
+
+        public Barrel(Game1 g, int x, int y, Texture2D s, Boolean pass, int hlth, Object content, float mon, Boolean fore, BarrelType barrlType)
             : base(g, x, y, s, pass, hlth, content, mon, fore)
         {
-            rec = new Rectangle(x, y - 155, s.Width, 155);
+            rec = new Rectangle(x, y - 155, 105, 155);
             barrelType = barrlType;
             vitalRec = rec;
         }
 
-        public Barrel(Game1 g, int x, int y, Texture2D s, Boolean pass, int hlth, int hlthDrop, float mon, Boolean fore, int barrlType)
+        public Barrel(Game1 g, int x, int y, Texture2D s, Boolean pass, int hlth, int hlthDrop, float mon, Boolean fore, BarrelType barrlType)
             : base(g, x, y, s, pass, hlth, hlthDrop, mon, fore)
         {
-            rec = new Rectangle(x, y - 155, s.Width, 155);
+            rec = new Rectangle(x, y - 155, 105, 155);
             barrelType = barrlType;
             vitalRec = rec;
         }
 
-        public Barrel(Game1 g, int x, int y, Texture2D s, Boolean pass, int hlth, String content, float mon, Boolean fore, int barrlType)
+        public Barrel(Game1 g, int x, int y, Texture2D s, Boolean pass, int hlth, String content, float mon, Boolean fore, BarrelType barrlType)
             : base(g, x, y, s, pass, hlth, content, mon, fore)
         {
-            rec = new Rectangle(x, y - 155, s.Width, 155);
+            rec = new Rectangle(x, y - 155, 105, 155);
             barrelType = barrlType;
             vitalRec = rec;
         }
 
-        public Barrel(Game1 g, int x, int y, Texture2D s, Boolean pass, int hlth, StoryItem story, float mon, Boolean fore, int barrlType)
+        public Barrel(Game1 g, int x, int y, Texture2D s, Boolean pass, int hlth, StoryItem story, float mon, Boolean fore, BarrelType barrlType)
             : base(g, x, y, s, pass, hlth, story, mon, fore)
         {
-            rec = new Rectangle(x, y - 155, s.Width, 155);
+            rec = new Rectangle(x, y - 155, 105, 155);
             barrelType = barrlType;
             vitalRec = rec;
         }
@@ -53,16 +61,26 @@ namespace ISurvived
         {
             switch (barrelType)
             {
-                case 0:
-                    return new Rectangle(0, 0, sprite.Width, 155);
-                case 1:
-                    return new Rectangle(0, 155, sprite.Width, 155);
-                case 2:
-                    return new Rectangle(0, 310, sprite.Width, 155);
-                case 3:
-                    return new Rectangle(0, 465, sprite.Width, 155);
-                case 4:
-                    return new Rectangle(0, 620, sprite.Width, 155);
+                case BarrelType.WoodenLeft:
+                    return new Rectangle(0, 0, 105, 155);
+                case BarrelType.WoodenRight:
+                    return new Rectangle(0, 155, 105, 155);
+                case BarrelType.Radioactive:
+                    return new Rectangle(0, 310, 105, 155);
+                case BarrelType.MetalBlank:
+                    return new Rectangle(0, 465, 105, 155);
+                case BarrelType.MetalLabel:
+                    return new Rectangle(0, 620, 105, 155);
+                case BarrelType.TimBarrel:
+                    return new Rectangle(0, 775, 105, 155);
+                case BarrelType.ScienceBarrel:
+                    return new Rectangle(105, 155, 105, 155);
+                case BarrelType.ScienceFlask:
+                    return new Rectangle(105, 0, 105, 155);
+                case BarrelType.ScienceJar:
+                    return new Rectangle(105, 465, 105, 155);
+                case BarrelType.ScienceTube:
+                    return new Rectangle(105, 310, 105, 155);
             }
 
             return new Rectangle();
@@ -73,6 +91,8 @@ namespace ISurvived
 
             if (!finished)
             {
+                vitalRec = rec;
+
                 if (health <= 0 && finished == false)
                 {
                     Chapter.effectsManager.AddSmokePoof(rec, 2);

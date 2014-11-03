@@ -45,20 +45,20 @@ namespace ISurvived
 
                 }
 
-                Rectangle frec = new Rectangle(rec.X + rec.Width / 2 - 43 / 2, rec.Y - 100, 43,
-                    65);
+                Rectangle spaceRec = new Rectangle(rec.X + rec.Width / 2 - 96 / 2, rec.Y - 70, (int)(120 * .8f),
+                    (int)(52 * .8f));
 
                 if (NearPlayer() && !pickedUp && showFButton)
                 {
 
-                    if (!Chapter.effectsManager.fButtonRecs.Contains(frec))
-                        Chapter.effectsManager.AddFButton(frec);
+                    if (!Chapter.effectsManager.spaceButtonRecs.Contains(spaceRec))
+                        Chapter.effectsManager.AddSpaceButton(spaceRec);
 
                 }
                 else
                 {
-                    if (Chapter.effectsManager.fButtonRecs.Contains(frec))
-                        Chapter.effectsManager.fButtonRecs.Remove(frec);
+                    if (Chapter.effectsManager.spaceButtonRecs.Contains(spaceRec))
+                        Chapter.effectsManager.spaceButtonRecs.Remove(spaceRec);
                 }
             }
 
@@ -66,7 +66,7 @@ namespace ISurvived
 
         public override bool NearPlayer()
         {
-            if (Vector2.Distance(new Vector2(player.VitalRec.Center.X, player.VitalRec.Center.Y), new Vector2(rec.Center.X, rec.Center.Y)) < 300)
+            if (Vector2.Distance(new Vector2(player.VitalRec.Center.X, player.VitalRec.Center.Y), new Vector2(rec.Center.X, rec.Center.Y)) < 150)
                 return true;
 
             return false;
@@ -79,7 +79,7 @@ namespace ISurvived
 
             frameDelay--;
 
-            if (!NearPlayer())
+            if (Vector2.Distance(new Vector2(player.VitalRec.Center.X, player.VitalRec.Center.Y), new Vector2(rec.Center.X, rec.Center.Y)) > 300)
             {
 
                 if (frameDelay == 0)

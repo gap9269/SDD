@@ -42,6 +42,8 @@ namespace ISurvived
         protected float distanceFromPlayer;
         protected Boolean drawHUDName = false;
         protected int xPos;
+        protected int distanceFromBottomRecToFeet; //This is the distance from the bottom of the texture to where the boss should be standing on a platform
+
         //--Health bar stuff
         protected Random healthShakeNum;
         protected Boolean healthShaking = false;
@@ -52,7 +54,7 @@ namespace ISurvived
 
         //--Movement
         protected int frameDelay;
-        protected int moveFrame;
+        public int moveFrame;
         protected int attackFrame;
         protected int attackCooldown;
         protected bool currentlyInMoveState;
@@ -120,9 +122,9 @@ namespace ISurvived
             boundaries = new List<Platform>();
 
 
-            bossHUDRec = new Rectangle(577, 461, game.EnemySpriteSheets["BossHUD"].Width, game.EnemySpriteSheets["BossHUD"].Height);
-            healthBarRec = new Rectangle(602, 576, game.EnemySpriteSheets["BossHealthBar"].Width, game.EnemySpriteSheets["BossHealthBar"].Height);
-            originalHealthX = 602;
+            bossHUDRec = new Rectangle(1280 - 731, 461, game.EnemySpriteSheets["BossHUD"].Width, game.EnemySpriteSheets["BossHUD"].Height);
+            healthBarRec = new Rectangle(1280 - 731, 461, game.EnemySpriteSheets["BossHealthBar"].Width, game.EnemySpriteSheets["BossHealthBar"].Height);
+            originalHealthX = 1280 - 731;
         }
 
         //--Return the source rectangle for the enemy move frames
@@ -184,10 +186,10 @@ namespace ISurvived
 
                 if (shakeTimer % 2 == 0 || healthShaking == false)
                 {
-                    bossHUDRec.X = 577;
+                    bossHUDRec.X = 1280 - 731;
                     bossHUDRec.Y = 461;
                     healthBarRec.X = healthBarRec.X = originalHealthX + xPos;
-                    healthBarRec.Y = 576;
+                    healthBarRec.Y = 461;
                 }
             }
         }
@@ -201,7 +203,7 @@ namespace ISurvived
         public virtual void HealthBarGrow()
         {
             targetHealthWidth = (int)((float)originalHealthWidth * ((float)health / (float)maxHealth));
-            addToHealthWidth += ((targetHealthWidth - healthBarRec.Width) * .03f);
+            addToHealthWidth += ((targetHealthWidth - healthBarRec.Width) * .02f);
             healthBarRec.Width = (int)addToHealthWidth;
 
             xPos = originalHealthWidth - healthBarRec.Width;
@@ -232,18 +234,18 @@ namespace ISurvived
 
                 if (shakeTimer % 2 == 0 || healthShaking == false)
                 {
-                    bossHUDRec.X = 577;
+                    bossHUDRec.X = 1280 - 731;
                     bossHUDRec.Y = 461;
                     healthBarRec.X = healthBarRec.X = originalHealthX + xPos;
-                    healthBarRec.Y = 576;
+                    healthBarRec.Y = 461;
                 }
             }
             else
             {
-                bossHUDRec.X = 577;
+                bossHUDRec.X = 1280 - 731;
                 bossHUDRec.Y = 461;
                 healthBarRec.X = healthBarRec.X = originalHealthX + xPos;
-                healthBarRec.Y = 576;
+                healthBarRec.Y = 461;
             }
             #endregion
 
@@ -281,6 +283,8 @@ namespace ISurvived
 
         public virtual Boolean CollideWithBounds()
         {
+            boundaries[1].RecX = 3750;
+            boundaries[0].RecX = 2400;
             for (int i = 0; i < boundaries.Count; i++)
             {
                 if (vitalRec.Intersects(boundaries[i].Rec))
@@ -413,12 +417,77 @@ namespace ISurvived
             velocity.Y += GameConstants.GRAVITY;
             position += velocity;
 
-            Rectangle feet = new Rectangle((int)position.X, (int)position.Y + rec.Height - 20, rec.Width, 20);
+            Rectangle feet = new Rectangle((int)position.X, (int)position.Y + rec.Height - distanceFromBottomRecToFeet, rec.Width, 20);
+            Rectangle topEn = new Rectangle((int)vitalRec.X + 5, (int)vitalRec.Y, vitalRec.Width - 5, 10);
+            Rectangle rightEn = new Rectangle((int)vitalRec.X + vitalRec.Width, (int)vitalRec.Y + 5, 15, vitalRec.Height + 35);
+            Rectangle leftEn = new Rectangle((int)vitalRec.X - 15, (int)vitalRec.Y + 5, 15, vitalRec.Height + 35);
 
             for (int i = 0; i < currentMap.Platforms.Count; i++)
             {
                 Platform plat = currentMap.Platforms[i];
                 Rectangle top = new Rectangle(plat.Rec.X, plat.Rec.Y, plat.Rec.Width, 5);
+                Rectangle left = new Rectangle(plat.Rec.X, plat.Rec.Y + 5, 10, plat.Rec.Height - 3);
+                Rectangle right = new Rectangle(plat.Rec.X + plat.Rec.Width - 10, plat.Rec.Y + 5, 10, plat.Rec.Height - 3);
+
+                #region Don't move through non passable platforms
+                if ((rightEn.Intersects(left) || leftEn.Intersects(right)) && plat.Passable == false)
+                {
+                    if (rightEn.Intersects(left))
+                    {
+                        position.X -= moveSpeed;
+
+                        if (VelocityX > 0)
+                        {
+                            PositionX -= (int)VelocityX;
+                            velocity.X = 0;
+                        }
+                    }
+
+                    if (leftEn.Intersects(right))
+                    {
+                        position.X += moveSpeed;
+
+                        if (VelocityX < 0)
+                        {
+                            PositionX += (int)Math.Abs(VelocityX);
+                            velocity.X = 0;
+                        }
+
+                    }
+                }
+
+                if (knockedBack)
+                {
+                    Rectangle checkPlatRec;
+
+                    if (VelocityX >= 0)
+                    {
+                        checkPlatRec = new Rectangle(rightEn.X, rightEn.Y, (int)velocity.X, rightEn.Height);
+
+                        if (checkPlatRec.Intersects(left))
+                        {
+                            //playerState = PlayerState.standing;
+                            PositionX -= VelocityX;
+                            knockedBack = false;
+                            VelocityX = 0;
+                            // playerState = PlayerState.standing;
+                        }
+                    }
+                    else
+                    {
+                        checkPlatRec = new Rectangle(leftEn.X - Math.Abs((int)VelocityX), leftEn.Y, Math.Abs((int)velocity.X), leftEn.Height);
+
+                        if (checkPlatRec.Intersects(right))
+                        {
+                            // playerState = PlayerState.standing;
+                            PositionX += Math.Abs(VelocityX);
+                            knockedBack = false;
+                            VelocityX = 0;
+                            //playerState = PlayerState.standing;
+                        }
+                    }
+                }
+                #endregion
 
                 #region Landing on a platform
                 if (feet.Intersects(top) && velocity.Y > 0)
@@ -426,9 +495,8 @@ namespace ISurvived
                     //Set the platform it's currently on to currentPlat
                     currentPlat = plat;
 
-                    position.Y = currentMap.Platforms[i].Rec.Y - rec.Height;
+                    position.Y = currentMap.Platforms[i].Rec.Y - rec.Height + distanceFromBottomRecToFeet;
                     velocity.Y = 0;
-
 
                     //--Once it collides with the ground, set the moveTimer to 0 and the boolean to false
                     //--This will make the monster start moving again
@@ -442,18 +510,18 @@ namespace ISurvived
                 }
                 #endregion
 
-                if (rec.Intersects(plat.Rec) && plat.Passable == false)
-                {
-                    if (position.X < plat.Rec.X)
-                    {
-                        position.X = plat.Rec.X - rec.Width;
-                    }
+                //if (rec.Intersects(plat.Rec) && plat.Passable == false)
+                //{
+                //    if (position.X < plat.Rec.X)
+                //    {
+                //        position.X = plat.Rec.X - rec.Width;
+                //    }
 
-                    else if (position.X < plat.Rec.X + plat.Rec.Width)
-                    {
-                        position.X = plat.Rec.X + plat.Rec.Width;
-                    }
-                }
+                //    else if (position.X < plat.Rec.X + plat.Rec.Width)
+                //    {
+                //        position.X = plat.Rec.X + plat.Rec.Width;
+                //    }
+                //}
             }
 
             #region Not falling off a platform
@@ -483,23 +551,22 @@ namespace ISurvived
 
         public virtual void DrawHud(SpriteBatch s)
         {
-
             s.Draw(game.EnemySpriteSheets["BossHUD"], bossHUDRec, Color.White);
             s.Draw(game.EnemySpriteSheets["BossHealthBar"], healthBarRec, GetHealthSourceRectangle(), Color.White);
             s.Draw(game.EnemySpriteSheets["BossLine"], bossHUDRec, Color.White);
 
             if(faceTexture != null)
-                s.Draw(faceTexture, new Rectangle(1280 - faceTexture.Width - 2, (int)(Game1.aspectRatio * 1280) - faceTexture.Height, faceTexture.Width, faceTexture.Height), Color.White);
+                s.Draw(faceTexture, new Rectangle(1280 - faceTexture.Width, (int)(Game1.aspectRatio * 1280) - faceTexture.Height, faceTexture.Width, faceTexture.Height), Color.White);
 
             if (drawHUDName)
             {
-                s.DrawString(Game1.questNameFont, name, new Vector2(1090 - (Game1.font.MeasureString(name).X), (int)(Game1.aspectRatio * 1280 * .9f) - 26), Color.Black);
-                s.DrawString(Game1.questNameFont, name, new Vector2(1091 - (Game1.font.MeasureString(name).X), (int)(Game1.aspectRatio * 1280 * .9f) - 28), Color.White);
+                s.DrawString(Game1.questNameFont, name, new Vector2(1070 - (Game1.font.MeasureString(name).X), (int)(Game1.aspectRatio * 1280 * .9f) - 26), Color.Black);
+                s.DrawString(Game1.questNameFont, name, new Vector2(1071 - (Game1.font.MeasureString(name).X), (int)(Game1.aspectRatio * 1280 * .9f) - 28), Color.White);
 
             }
         }
 
-        public virtual void Update(int mapwidth)
+        public virtual void UpdateStun()
         {
             if (isStunned)
             {
@@ -511,6 +578,12 @@ namespace ISurvived
                     stunTime = 0;
                 }
             }
+        }
+
+        public virtual void Update(int mapwidth)
+        {
+
+            UpdateStun();
 
             if (hitPauseTimer >= 0)
                 hitPauseTimer--;

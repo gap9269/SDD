@@ -21,7 +21,7 @@ namespace ISurvived
             completedDialogue.Add("Thanks! I'll be rolling in dough this week.");
 
             rewardObjects.Add(new Experience(20));
-            rewardObjects.Add(new GymShirt());
+            rewardObjects.Add(new LabCoat());
 
             itemNames.Add("Broken Glass");
             itemsToGather.Add(20);

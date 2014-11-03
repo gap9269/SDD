@@ -39,7 +39,7 @@ namespace ISurvived
         InventoryQuest inventoryQuest;
         JournalQuest journalQuest;
         SkillQuest skillQuest;
-        SaveQuest levelUpQuest;
+        SaveQuest saveQuest;
 
         //--Cutscenes
         PrologueIntroFlashBack introFlashback;
@@ -82,7 +82,7 @@ namespace ISurvived
             inventoryQuest = new InventoryQuest(false, game);
             journalQuest = new JournalQuest(false);
             skillQuest = new SkillQuest(false);
-            levelUpQuest = new SaveQuest(false);
+            saveQuest = new SaveQuest(false);
 
             prologueBooleans = new Dictionary<String, bool>();
 
@@ -96,7 +96,7 @@ namespace ISurvived
             game.AllQuests.Add(inventoryQuest.QuestName, inventoryQuest);
             game.AllQuests.Add(journalQuest.QuestName, journalQuest);
             game.AllQuests.Add(skillQuest.QuestName, skillQuest);
-            game.AllQuests.Add(levelUpQuest.QuestName, levelUpQuest);
+            game.AllQuests.Add(saveQuest.QuestName, saveQuest);
 
             prologueBooleans.Add("ratSpawned", false);
             prologueBooleans.Add("brokeIntoLocker", false);
@@ -122,6 +122,9 @@ namespace ISurvived
             prologueBooleans.Add("equippedSecondSkill", false);
             prologueBooleans.Add("removeNPCs", false);
             prologueBooleans.Add("finishedRatQuest", false);
+            prologueBooleans.Add("buriedRiley", false);
+            prologueBooleans.Add("FoundGoggles", false);
+            prologueBooleans.Add("PickedUpDrop", false);
 
             prologueBooleans.Add("secondSceneNotPlayed", true);
             prologueBooleans.Add("thirdSceneNotPlayed", true);
@@ -172,7 +175,7 @@ namespace ISurvived
 
             //Change to cutscene to play scene
             state = GameState.Game;
-            cutsceneState = 5;
+            cutsceneState = 4;
 
             
             synopsis = "Your name is Daryl Whitelaw, and you have just arrived at your new highschool. You have met the vice principal, " +
@@ -181,13 +184,22 @@ namespace ISurvived
 
             game.Notebook.Journal.prologueSynopsisRead = false;
 
-            game.YourLocker.SkillsOnSale.Add(SkillManager.AllSkills["Fowl Mouth"]);
+            game.YourLocker.SkillsOnSale.Add(SkillManager.AllSkills["Blinding Logic"]);
+
+            //player.EquippedSkills.Add(SkillManager.AllSkills["Discuss Differences"]);
         }
 
         public override void Update()
         {
             //player.AddStoryItemWithoutPopup("Piece of Paper", 1);
             //player.AddStoryItemWithoutPopup("Dandelion", 3);
+            if (player.LearnedSkills.Count == 2)
+            {
+                player.Strength = 100;
+                player.LearnedSkills.Add(SkillManager.AllSkills["Blinding Logic"]);
+            }
+
+           // player.EquippedSkills.Add(SkillManager.AllSkills["Blinding Logic"]);
 
             if (NorthHall.ToGymLobby.IsUseable)
             {
@@ -210,7 +222,9 @@ namespace ISurvived
 
                 if(current.IsKeyUp(Keys.P) && last.IsKeyDown(Keys.P))
                 {
-                    player.Experience = player.ExperienceUntilLevel;
+                    player.EquippedSkills[0].SkillRank++;
+                  // player.Experience = player.ExperienceUntilLevel;
+                   // player.Karma++;
                 }
 
                 AddNPCs();
@@ -226,6 +240,33 @@ namespace ISurvived
 
                     case GameState.Game:
 
+                        #region Unlocking Character Bios
+                        if (questOne.CompletedQuest && player.AllCharacterBios["Paul"] == false && !game.CurrentQuests.Contains(questOne))
+                        {
+                            player.UnlockCharacterBio("Paul");
+                            player.UnlockCharacterBio("Alan");
+                        }
+
+                        if (questFive.CompletedQuest && player.AllCharacterBios["Trenchcoat Employee"] == false && !game.CurrentQuests.Contains(questFive))
+                        {
+                            player.UnlockCharacterBio("Trenchcoat Employee");
+                        }
+
+                        if (skillQuest.CompletedQuest && player.AllCharacterBios["Skill Instructor"] == false && !game.CurrentSideQuests.Contains(skillQuest))
+                            player.UnlockCharacterBio("Skill Instructor");
+
+                        if (saveQuest.CompletedQuest && player.AllCharacterBios["Save Instructor"] == false && !game.CurrentSideQuests.Contains(saveQuest))
+                            player.UnlockCharacterBio("Save Instructor");
+
+                        if (inventoryQuest.CompletedQuest && player.AllCharacterBios["Equipment Instructor"] == false && !game.CurrentSideQuests.Contains(inventoryQuest))
+                            player.UnlockCharacterBio("Equipment Instructor");
+
+                        if (journalQuest.CompletedQuest && player.AllCharacterBios["Journal Instructor"] == false && !game.CurrentSideQuests.Contains(journalQuest))
+                            player.UnlockCharacterBio("Journal Instructor");
+
+                        if (karmaQuest.CompletedQuest && player.AllCharacterBios["Karma Instructor"] == false && !game.CurrentSideQuests.Contains(karmaQuest))
+                            player.UnlockCharacterBio("Karma Instructor");
+                        #endregion
 
                         //--Gardener talking to herself
                         if (prologueBooleans["sawGardener"] == false && prologueBooleans["addedGardener"] && CurrentMap == Game1.schoolMaps.maps["EastHall"])
@@ -567,12 +608,12 @@ null, null, null, null, camera.StaticTransform);
                 nPCs.Add("TrenchcoatCrony", trenchcoatEmployee);
             }
 
-            if (!nPCs.ContainsKey("SaveInstructor") && prologueBooleans["addedJournalInstructor"] == true)
+            if (!nPCs.ContainsKey("SaveInstructor") && prologueBooleans["addedJournalInstructor"] == true && prologueBooleans["removeNPCs"] == false)
             {
                 //--Level up NPC
                 List<String> dialogueSave = new List<string>();
                 dialogueSave.Add("I save every time I come in here!");
-                saveInstructor = new NPC(game.NPCSprites["Save Instructor"], dialogueSave, levelUpQuest,
+                saveInstructor = new NPC(game.NPCSprites["Save Instructor"], dialogueSave, saveQuest,
                     new Rectangle(470, 680 - 388, 516, 388), player, game.Font, game,  "Bathroom" , "Save Instructor", false);
                 nPCs.Add("SaveInstructor", saveInstructor);
             }

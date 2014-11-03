@@ -409,7 +409,6 @@ namespace ISurvived
                     {
                         Button tab = tabButtons[i];
                         ResetInventoryBoxes();
-                        ResetStoryBoxes();
                         equipmentPage = 0;
                         if (tab == weaponTab)
                         {

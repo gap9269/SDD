@@ -187,8 +187,6 @@ namespace ISurvived
                 case 0:
                     break;
                 case 1:
-                    GymShirt s = new GymShirt();
-                    currentMap.Drops.Add(new EnemyDrop(s, new Rectangle(rec.X + 20, rec.Y + 20, dropDiameter, dropDiameter)));
                     break;
                 case 2:
                     RileysBow sun = new RileysBow();

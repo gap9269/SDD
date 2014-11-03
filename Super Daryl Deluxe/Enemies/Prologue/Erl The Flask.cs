@@ -66,10 +66,10 @@ namespace ISurvived
         {
             base.Update(mapwidth);
 
-            if (!respawning)
+            if (!respawning && !isStunned)
             {
                 Move(mapwidth);
-                CheckWalkCollisions(4, new Vector2(10, -5));
+                CheckWalkCollisions(3, new Vector2(10, -5));
             }
                 vitalRec.X = rec.X + (rec.Width / 4) - 10;
                 vitalRec.Y = rec.Y + (rec.Height / 4) + 10;
@@ -179,7 +179,7 @@ namespace ISurvived
             }
             else if (dropType < 35)
             {
-                currentMap.Drops.Add(new EnemyDrop(new Marker(), new Rectangle(rec.Center.X, rec.Center.Y, dropDiameter, dropDiameter)));
+                //currentMap.Drops.Add(new EnemyDrop(new Marker(), new Rectangle(rec.Center.X, rec.Center.Y, dropDiameter, dropDiameter)));
             }
         }
     }

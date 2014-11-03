@@ -48,6 +48,11 @@ namespace ISurvived
         {
             base.UpdateQuest();
 
+            if (completedQuest)
+            {
+                specialConditions["Go to the Far Side and bury Riley the Rat."] = true;
+            }
+
         }
 
         public override void RewardPlayer()

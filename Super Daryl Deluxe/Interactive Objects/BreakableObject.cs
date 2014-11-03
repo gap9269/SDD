@@ -12,7 +12,7 @@ using Microsoft.Xna.Framework.Media;
 
 namespace ISurvived
 {
-    class BreakableObject : InteractiveObject
+    public class BreakableObject : InteractiveObject
     {
         protected int healthDropAmount;
         protected float money;

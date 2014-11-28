@@ -909,18 +909,18 @@ namespace ISurvived
                             #region Draw how many textbooks the player has
                             if (player.Textbooks == 0)
                             {
-                                s.DrawString(Game1.lockerTextbookFont, "0", new Vector2(99, 88), Color.White);
+                                s.DrawString(Game1.lockerTextbookFont, "0", new Vector2(104, 88), Color.White);
 
                             }
                             else if (player.Textbooks < 10)
                             {
-                                s.DrawString(Game1.lockerTextbookFont, "0", new Vector2(85, 88), Color.White);
+                                s.DrawString(Game1.lockerTextbookFont, "0", new Vector2(90, 88), Color.White);
 
-                                s.DrawString(Game1.lockerTextbookFont, player.Textbooks.ToString(), new Vector2(114, 88), Color.White);
+                                s.DrawString(Game1.lockerTextbookFont, player.Textbooks.ToString(), new Vector2(120, 88), Color.White);
                             }
                             else
                             {
-                                s.DrawString(Game1.lockerTextbookFont, player.Textbooks.ToString(), new Vector2(85, 88), Color.White);
+                                s.DrawString(Game1.lockerTextbookFont, player.Textbooks.ToString(), new Vector2(90, 88), Color.White);
                             }
                             #endregion
 

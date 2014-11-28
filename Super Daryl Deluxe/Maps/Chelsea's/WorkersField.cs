@@ -150,21 +150,31 @@ namespace ISurvived
 
             gate4 = content.Load<Texture2D>(@"Maps\Chelseas\GoblinGate4");
 
-            /*
-                SoundEffect bg = Sound.backgroundMusicContent.Load<SoundEffect>(@"Sound\Hitman");
-                SoundEffectInstance backgroundMusic = bg.CreateInstance();
-                backgroundMusic.IsLooped = true;
-                Sound.music.Add("Before Wall", backgroundMusic);
 
-                SoundEffect bg1 = Sound.backgroundMusicContent.Load<SoundEffect>(@"Sound\Movement Proposition");
-                SoundEffectInstance backgroundMusic1 = bg1.CreateInstance();
-                backgroundMusic1.IsLooped = true;
-                Sound.music.Add("Wall", backgroundMusic1);
+            SoundEffect am = Sound.ambienceContent.Load<SoundEffect>(@"Sound\Ambience\ambience_cave");
+            SoundEffectInstance amb = am.CreateInstance();
+            amb.IsLooped = true;
+            Sound.ambience.Add("Cave", amb);
 
-                SoundEffect bg2 = Sound.backgroundMusicContent.Load<SoundEffect>(@"Sound\Mistake the Getaway");
-                SoundEffectInstance backgroundMusic2 = bg2.CreateInstance();
-                backgroundMusic2.IsLooped = true;
-                Sound.music.Add("Troll", backgroundMusic2);*/
+            SoundEffect fieldAm = Sound.ambienceContent.Load<SoundEffect>(@"Sound\Ambience\ambience_outdoors_night");
+            SoundEffectInstance fieldAmb = fieldAm.CreateInstance();
+            fieldAmb.IsLooped = true;
+            Sound.ambience.Add("Field", fieldAmb);
+
+                //SoundEffect bg = Sound.backgroundMusicContent.Load<SoundEffect>(@"Sound\Hitman");
+                //SoundEffectInstance backgroundMusic = bg.CreateInstance();
+                //backgroundMusic.IsLooped = true;
+                //Sound.music.Add("Before Wall", backgroundMusic);
+
+                //SoundEffect bg1 = Sound.backgroundMusicContent.Load<SoundEffect>(@"Sound\Movement Proposition");
+                //SoundEffectInstance backgroundMusic1 = bg1.CreateInstance();
+                //backgroundMusic1.IsLooped = true;
+                //Sound.music.Add("Wall", backgroundMusic1);
+
+                //SoundEffect bg2 = Sound.backgroundMusicContent.Load<SoundEffect>(@"Sound\Mistake the Getaway");
+                //SoundEffectInstance backgroundMusic2 = bg2.CreateInstance();
+                //backgroundMusic2.IsLooped = true;
+                //Sound.music.Add("Troll", backgroundMusic2);
 
             Sound.backgroundVolume = 1f;
         }
@@ -190,11 +200,20 @@ namespace ISurvived
             }*/
         }
 
+        public override void PlayAmbience()
+        {
+            if (player.VitalRecY < -1000)
+                Sound.PlayAmbience("Field");
+            else
+                Sound.PlayAmbience("Cave");
+        }
+
         public override void UnloadNPCContent()
         {
             base.UnloadNPCContent();
 
             Sound.UnloadBackgroundMusic();
+            Sound.UnloadAmbience();
             gate.faceTexture = Game1.whiteFilter;
         }
 
@@ -202,16 +221,13 @@ namespace ISurvived
         {
             base.LoadEnemyData();
 
-            game.EnemySpriteSheets.Add("Crow", content.Load<Texture2D>(@"EnemySprites\CrowSheet"));
-            game.EnemySpriteSheets.Add("Scarecrow", content.Load<Texture2D>(@"EnemySprites\ScarecrowSheet"));
-            game.EnemySpriteSheets.Add("Goblin", content.Load<Texture2D>(@"EnemySprites\GoblinSheet"));
+            EnemyContentLoader.Scarecrow(content);
+            EnemyContentLoader.Goblin(content);
+            EnemyContentLoader.Crow(content);
 
             if (game.ChapterTwo.ChapterTwoBooleans["goblinGateDestroyed"] == false)
             {
-                game.EnemySpriteSheets.Add("Field Troll", content.Load<Texture2D>(@"EnemySprites\TrollSprite"));
-                game.EnemySpriteSheets.Add("TrollFall", content.Load<Texture2D>(@"EnemySprites\TrollFallSprite"));
-                game.EnemySpriteSheets.Add("TrollAttack", content.Load<Texture2D>(@"EnemySprites\TrollAttackSprite"));
-                game.EnemySpriteSheets.Add("TrollClubGone", content.Load<Texture2D>(@"EnemySprites\TrollClubDisappearSprite"));
+                EnemyContentLoader.Troll(content);
                 Chapter.LoadTrollTexturesByDrawing = true;
             }
         }
@@ -331,6 +347,7 @@ namespace ISurvived
             base.Update();
 
             PlayBackgroundMusic();
+            PlayAmbience();
 
             if (troll != null && troll.HoriztonalDistanceToPlayer < 500 && !playTrollMusic && game.ChapterTwo.ChapterTwoBooleans["trollAdded"])
                 playTrollMusic = true;

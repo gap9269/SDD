@@ -16,13 +16,17 @@ namespace ISurvived
 {
         // ATTRIBUTES \\
         NPC robatto;
-        Texture2D outsideSchool;
+        Texture2D outsideSchool, outsideWords;
         GameObject camFollow; //An object for the camera to follow
         Texture2D schedule;
         Texture2D mainOffice;
         NPC paul;
         NPC alan;
+        float textAlpha = 1f;
 
+        float clouds1Pos, clouds2Pos;
+
+        int specialTimer;
         int talkingState;
 
         // CONSTRUCTOR \\
@@ -49,6 +53,7 @@ namespace ISurvived
             schedule = textures["Schedule"];
             outsideSchool = textures["OutsideSchool"];
             mainOffice = textures["MainOffice"];
+            outsideWords = textures["OutsideSchoolWords"];
         }
 
         public override void Play()
@@ -70,27 +75,40 @@ namespace ISurvived
 
                 //-- FADE IN AND PAN ACROSS OUTSIDE OF SCHOOL
                 case 1:
-                    FadeIn(180);
-                    camera.Update(camFollow, game);
-                    camFollow.PositionX += 2;
+ state++;
+                        timer = 0;
                     break;
 
 
                 //-- KEEP MOVING CAMERA OUTSIDE OF SCHOOL UNTIL YOU REACH THE END OF THE MAP
                 case 2:
+                    if (firstFrameOfTheState)
+                    {
+                        dialogue.Add("Ah yes, you must be Daryl Whitelaw. I am Mr. Robatto, the vice principal here.");
+                    }
                     //camera.GetStaticTransform(game);
                     camera.Update(camFollow, game);
-                    camFollow.PositionX += 2;
-                    if (camera.Center.X > 2000 - 1280)
+
+                    clouds1Pos += .3f;
+                    clouds2Pos += .5f;
+
+                    if (timer > 120)
                     {
-                        state++;
-                        timer = 0;
+                        if (textAlpha > 0)
+                            textAlpha -= .01f;
+                    }
+                    if (timer > 400)
+                    {
+                       state++;
+                       timer = 0;
                     }
                     break;
 
                 //-- FADE OUT FROM OUTSIDE SCHOOL
                 case 3:
-                    FadeOut(60);
+                    clouds1Pos += .3f;
+                    clouds2Pos += .5f;
+                    FadeOut(35);
                     break;
 
                 //-- PAN ACROSS MAIN LOBBY SLOWLY, PLAY DIALOGUE WITHOUT KNOWING WHO IS TALKING
@@ -98,30 +116,41 @@ namespace ISurvived
                     if (firstFrameOfTheState)
                     {
                         //--SET DIALOGUE AND CAM POSITION
-                        camFollow.PositionX = 1;
+                        camFollow.PositionX = 2;
                         dialogue.Clear();
-                        dialogue.Add("Greetings! You must be Daryl Whitelaw. My name is Mr. Robatto, it's a pleasure to meet you.");
-                        dialogue.Add("I hope you are impressed by everything you have seen so far here at Water Falls High School. We strive for excellence here.");
-                        dialogue.Add("This is your schedule. I hope you find it satisfactory to completing your education here at WFHS. Do you like your classes?");
+                        dialogue.Add("Welcome! Water Falls High School is the finest school in the state. We pride ourselves on the beauty and safety that our campus offers.");
+                        dialogue.Add("Looking around you, you're sure to see a vast community of friendly, helpful students. If you ever need help, don't be afraid to reach out to any of your peers or faculty.");
+                        dialogue.Add("Of course, academics are of the utmost importance to us. There's nothing we care about more than the success of our students, so we have created the perfect environment for learning and growing into an upstanding citizen.");
+                        dialogue.Add("Speaking of, here is your class schedule. What do you think of your classes?");
                         DialogueState = 0;
                     }
 
                     //--CHANGE DIALOGUE STATES BASED ON CAMERA POSITION
-                    else if (camFollow.PositionX == 800)
+                    else if (camFollow.PositionX == 1900)
+                        DialogueState = 3;
+                    else if (camFollow.PositionX == 1400)
                         DialogueState = 2;
-                    else if (camFollow.PositionX == 400)
+                    else if (camFollow.PositionX == 850)
                         DialogueState = 1;
 
-                    camFollow.PositionX += 1;
-                    camera.Update(camFollow, game);
-
                     //--REACH END OF LOBBY, RESET TIMER AND DIALOGUE
-                    if (camFollow.PositionX >= 2300 - 1280)
+                    if (camFollow.PositionX >= 3425 - 1280)
+                    {
+                        specialTimer++;
+                    }
+                    else
+                    {
+                        camFollow.PositionX += 1f;
+                        camera.Update(camFollow, game);
+                    }
+
+                    if (specialTimer >= 100)
                     {
                         timer = 0;
                         state++;
                         dialogueState = 0;
                         dialogue.Clear();
+                        specialTimer = 0;
                     }
                     break;
 
@@ -129,7 +158,7 @@ namespace ISurvived
                 //-- THIS SCENE DRAWS ONLY DARYL HOLDING HIS SCHEDULE
                 case 5:
                     camera.Update(camFollow, game);
-                    if (timer > 120)
+                    if (timer > 280)
                     {
                         //alpha = 0;
                         timer = 0;
@@ -147,13 +176,8 @@ namespace ISurvived
                         robatto.Rec = new Rectangle(0, 0, 518, 388);
 
                         dialogue.Clear();
-                        robatto.Dialogue.Add("It looks like you do. I should not have to remind you how important it is that you attend all of your classes.");
-                        robatto.Dialogue.Add("We strive to provide only the best education a young, handsome man like yourself can obtain. ");
-                        robatto.Dialogue.Add("And I am sure you are concerned about meeting new people as well. That will not be an issue! Our students are " +
-                            "not only very helpful, but very kind. They will be happy to show you around.");
-
-                        robatto.Dialogue.Add("You will be making new friends in no time, and I am sure you will fit right in. If you will just follow me I will show you to your new locker.");
-                        robatto.Dialogue.Add("Right this way Daryl. Classes begin soon!");
+                        robatto.Dialogue.Add("Yes Daryl, that schedule will be your guide to success here at WFHS. You're going to do just fine.");
+                        robatto.Dialogue.Add("Classes are about to begin soon. If you would follow me, I'll show you to your locker.");
 
                     }
                     if (timer == 21)
@@ -172,12 +196,15 @@ namespace ISurvived
                 //-- FADE OUT OF MAIN OFFICE
                 case 7:
                     camera.Update(camFollow, game);
-                    if (firstFrameOfTheState)
+                    FadeOut(120);
+
+                    if (timer == 119)
                     {
                         game.CurrentChapter.CurrentMap.UnloadContent();
                         game.CurrentChapter.CurrentMap.UnloadNPCContent();
                         game.CurrentChapter.CurrentMap = Game1.schoolMaps.maps["NorthHall"];
                         game.CurrentChapter.CurrentMap.LoadContent();
+                        game.CurrentChapter.LoadCurrentMapLocks();
                         player.PositionX = game.CurrentChapter.CurrentMap.MapWidth - 600;
                         player.PositionY = game.CurrentChapter.CurrentMap.Platforms[0].Rec.Y - player.VitalRecHeight - 135 - 37;
                         robatto.PositionX = player.PositionX - 150;
@@ -188,7 +215,6 @@ namespace ISurvived
                         camera.centerTarget = new Vector2(camFollow.PositionX, 0);
                         camera.center = camera.centerTarget;
                     }
-                    FadeOut(120);
                     break;
 
                 //-- FADE IN TO DARYL FOLLOWING VITALE DOWN NORTH HALL
@@ -236,8 +262,7 @@ namespace ISurvived
                         robatto.Dialogue.Clear();
                         robatto.moveState = NPC.MoveState.standing;
                         player.playerState = Player.PlayerState.relaxedStanding;
-                        robatto.Dialogue.Add("This locker is yours. You will be accessing it frequently throughout the day. It is a very important" +
-                            " part of your high school experience.");
+                        robatto.Dialogue.Add("This locker is yours. You will be accessing it frequently throughout the day. It is a very important part of your high school experience.");
                         robatto.Dialogue.Add("Oh look, there are some new friends now!");
                         robatto.Dialogue.Add("Paul, Alan, this is Daryl. Daryl, this is Paul and Alan.");
                         robatto.Dialogue.Add("...");
@@ -510,7 +535,7 @@ namespace ISurvived
                         {
                             alan.CurrentDialogueFace = "Arrogant";
                             alan.Dialogue.Add("Fine taste indeed...");
-                            alan.Dialogue.Add("You made a good choice coming to us first. Anybody else would've tried exploiting your ignorance by now.");
+                            alan.Dialogue.Add("You made a good choice coming to us first. Anybody else would've tried exploiting you by now.");
                             alan.Talking = true;
                         }
 
@@ -524,58 +549,41 @@ namespace ISurvived
                         else if (talkingState == 5)
                         {
                             alan.CurrentDialogueFace ="Normal";
-                            alan.Dialogue.Add("No character at all...");
+                            alan.Dialogue.Add("Took the words right outta my mouth, Paul. Damn kids nowadays only think for themselves.");
                             alan.Talking = true;
                         }
 
                         else if (talkingState == 6)
                         {
-                            paul.Dialogue.Add("None! It's no surprise the world is in the poor state it's in.");
+                            paul.Dialogue.Add("Right on the ball, Alan. Right on the ball. Not us though.");
                             paul.Talking = true;
                         }
                         else if (talkingState == 7)
                         {
-                            alan.Dialogue.Add("Took the words right outta my mouth, Paul. Damn kids nowadays only think for themselves.");
+                            alan.Dialogue.Add("Nope. We're on a mission from God to save our doomed generation. We lead by example.");
                             alan.Talking = true;
                         }
                         else if (talkingState == 9)
                         {
-                            paul.CurrentDialogueFace ="Arrogant";
-                            paul.Dialogue.Add("Right on the ball, Alan. Right on the ball. Not us though.");
+                            paul.Dialogue.Add("Of course, our lowly peers aren't always on the same page as us. We face discrimination left and right. Only an hour ago a plain bully named Tim nabbed an important paper from Alan and threw it into The Quad.");
                             paul.Talking = true;
                         }
                         else if (talkingState == 10)
                         {
-                            alan.CurrentDialogueFace = "Arrogant";
-                            alan.Dialogue.Add("Nope. We're on a mission from God to save our doomed generation. We lead by example.");
+                            alan.Dialogue.Add("It was completely uncalled for! We can't save any souls without that paper, buddy. Plus, half of The Quad is closed to students. Paul and I could be expelled if we're caught out there again.");
                             alan.Talking = true;
                         }
                         else if (talkingState == 11)
                         {
-                            paul.CurrentDialogueFace = "Normal";
-                            paul.Dialogue.Add("We're two halves of one Messiah, friend. Unfortunately our peers aren't on the same page as us. As recently as an hour ago we've faced discrimination in our endeavors. A plain bully named Tim nabbed an important piece of paper from Alan and threw it into the quad.");
+                            paul.Dialogue.Add("I shan't begin to think what would become of my mother of poor health if she were to hear that her only child had been expelled...for -trespassing-!");
                             paul.Talking = true;
                         }
                         else if (talkingState == 12)
                         {
-                            alan.CurrentDialogueFace = "Normal";
-                            alan.Dialogue.Add("It was completely uncalled for! We can't spread the word of God without that paper, buddy. The Far Side of the Quad is closed to students, and our mission has put us in bad favor with the school authorities. Paul and I can't afford another demerit on our records.");
-                            alan.Talking = true;
-                        }
-                        else if (talkingState == 13)
-                        {
-                            paul.CurrentDialogueFace = "Normal";
-                            paul.Dialogue.Add("I shan't begin to think what would become of my mother of poor health if she were to hear that her only child had been caught wandering around the Far Side...");
-                            paul.Dialogue.Add("*sob*");
-                            paul.Talking = true;
-                        }
-                        else if (talkingState == 14)
-                        {
-                            alan.CurrentDialogueFace = "Normal";
                             alan.Dialogue.Add("Now you've done it, kid. You made Paul sad. You owe it to him and his mother to go get that paper.");
                             alan.Talking = true;
                         }
-                        else if (talkingState == 15)
+                        else if (talkingState == 13)
                         {
                             state++;
                             timer = 0;
@@ -610,9 +618,9 @@ namespace ISurvived
                     {
                         alan.CurrentDialogueFace = "Normal";
                         alan.Dialogue.Clear();
-                        alan.Dialogue.Add("Be careful when you're over there. I heard kids get shot on sight if they get caught on the far side.");
-                        alan.Dialogue.Add("Oh! While you're there pick some flowers for us. Friends love flowers!");
-                        alan.Dialogue.Add("Understand?");
+                        alan.Dialogue.Add("You can get to The Quad from the Main Lobby.");
+                        alan.Dialogue.Add("You know, that big room you entered the building through? Only an idiot could miss it.");
+                        alan.Dialogue.Add("Oh! While you're there pick some dandelions for us. Friends love flowers! Understand?");
                     }
 
                     if(alan.DialogueState == 1)
@@ -666,9 +674,10 @@ namespace ISurvived
                     {
                         paul.Dialogue.Clear();
                         alan.Dialogue.Clear();
-                        alan.Dialogue.Add("Be careful not to get caught.");
+                        alan.Dialogue.Add("Whatever you do, don't go to the far side of the quad. It's said anyone who does that faces Death.");
                         game.CurrentSideQuests.Add((game.CurrentChapter as Prologue).QuestOne);
                         player.playerState = Player.PlayerState.standing;
+                        player.CanJump = false;
                         game.CurrentChapter.state = Chapter.GameState.Game;
                         game.CurrentChapter.CutsceneState++;
                         game.Prologue.PrologueBooleans["ratSpawned"] = true;
@@ -695,14 +704,16 @@ null, null, null, null, camera.StaticTransform);
                 case 1: //Draw the background and the fade-in
                     s.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
                     null, null, null, null, camera.Transform);
-                    s.Draw(outsideSchool, new Rectangle(0, 0, 2000, (int)(Game1.aspectRatio * 1280)), Color.White);
+                    s.Draw(outsideSchool, new Rectangle(0, 0, 1280, (int)(Game1.aspectRatio * 1280)), Color.White);
+                    s.Draw(outsideWords, new Rectangle(0, 720 - outsideWords.Height, 1280, outsideWords.Height), Color.White);
                     s.End();
 
                     //--This stays static on the screen, draws the fade-in square
                     s.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
 null, null, null, null, camera.StaticTransform);
-                    s.DrawString(Game1.twConMedium, "Water Falls High School, Present Day", new Vector2(1280 / 2 - Game1.HUDFont.MeasureString("Water Falls High School, Present Day").X / 2, (int)(Game1.aspectRatio * 1280 * .8)), Color.Black);
-                    DrawFade(s, 1);
+                    if (timer < 100)
+                        s.Draw(Game1.whiteFilter, new Rectangle(0, 0, 1280, 720), Color.Black);
+                    //DrawFade(s, 1);
                     s.End();
                     break;
 
@@ -710,25 +721,38 @@ null, null, null, null, camera.StaticTransform);
                     s.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
                     null, null, null, null, camera.Transform);
 
-                    s.Draw(outsideSchool, new Rectangle(0, 0, 2000, (int)(Game1.aspectRatio * 1280)), Color.White);
+                    s.Draw(outsideSchool, new Rectangle(0, 0, 1280, (int)(Game1.aspectRatio * 1280)), Color.White);
+                    s.Draw(outsideWords, new Rectangle(0, 720 - outsideWords.Height, 1280, outsideWords.Height), Color.White * textAlpha);
+                    s.Draw(textures["Clouds1"], new Vector2(-200 + clouds1Pos, 0), Color.White);
+                    s.Draw(textures["Clouds2"], new Vector2(0 + clouds2Pos, 0), Color.White);
                     s.End();
 
                     s.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
 null, null, null, null, camera.StaticTransform);
+                    if (timer < 2)
+                        s.Draw(Game1.whiteFilter, new Rectangle(0, 0, 1280, 720), Color.Black);
+                    if (timer > 200)
+                    {
+                        DrawDialogue(s, false);
+                    }
                     s.End();
                     break;
                 case 3:
                     s.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
                     null, null, null, null, camera.Transform);
-                    s.Draw(outsideSchool, new Rectangle(0, 0, 2000, (int)(Game1.aspectRatio * 1280)), Color.White);
+                    s.Draw(outsideSchool, new Rectangle(0, 0, 1280, (int)(Game1.aspectRatio * 1280)), Color.White);
+                    s.Draw(textures["Clouds1"], new Vector2(-200 + clouds1Pos, 0), Color.White);
+                    s.Draw(textures["Clouds2"], new Vector2(0 + clouds2Pos, 0), Color.White);
                     s.End();
 
                     s.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
 null, null, null, null, camera.StaticTransform);
+                    DrawDialogue(s, false);
                     DrawFade(s, 0);
                     s.End();
                     break;
                 case 4:
+                    game.CurrentChapter.CurrentMap.DrawBackgroundAndParallax(s);
                     s.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
                     null, null, null, null, camera.Transform);
                     game.CurrentChapter.CurrentMap.Draw(s);
@@ -737,13 +761,17 @@ null, null, null, null, camera.StaticTransform);
                     s.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
 null, null, null, null, camera.StaticTransform);
 
-                    if (dialogue.Count > 0 && camFollow.PositionX > 100)
+                    if (dialogue.Count > 0)
                     {
-                        DrawDialogue(s);
+                        DrawDialogue(s, false);
                     }
+
+                    if(timer < 20)
+                        s.Draw(Game1.whiteFilter, new Rectangle(0, 0, 1280, 720), Color.Black);
                     s.End();
                     break;
                 case 5: //Draws a filler for the scene
+
                     s.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
 null, null, null, null, camera.StaticTransform);
 
@@ -928,7 +956,7 @@ null, null, null, null, camera.StaticTransform);
 
                     s.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
 null, null, null, null, camera.StaticTransform);
-                    
+                    DrawFade(s, 0);
                     alan.DrawDialogue(s);
                     s.End();
                     break;

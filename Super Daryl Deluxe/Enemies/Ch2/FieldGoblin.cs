@@ -37,16 +37,16 @@ namespace ISurvived
         {
             if (type == "Goblin" || type == "Field Goblin")
             {
-                health = 80;
-                maxHealth = 80;
-                level = 4;
-                experienceGiven = 25;
+                health = 6300;
+                maxHealth = 6300;
+                level = 15;
+                experienceGiven = 75;
                 rec = new Rectangle((int)position.X, (int)position.Y, 157, 135);
                 currentlyInMoveState = false;
                 enemySpeed = 4;
-                tolerance = 7;
+                tolerance = 190;
                 vitalRec = new Rectangle(rec.X, rec.Y, 70, 90);
-                maxHealthDrop = 6;
+                maxHealthDrop = 260;
                 moneyToDrop = .15f;
 
                 standRand = new Random();
@@ -58,8 +58,8 @@ namespace ISurvived
 
                 maxAttackCooldown = 70;
 
-                swipeDamage = 22;
-                spitDamage = 21;
+                swipeDamage = 155;
+                spitDamage = 145;
             }
         }
 
@@ -104,7 +104,7 @@ namespace ISurvived
         {
             base.Update(mapwidth);
 
-            if (!respawning)
+            if (!respawning && !isStunned)
             {
 
                 if (hostile)
@@ -129,9 +129,9 @@ namespace ISurvived
                     Move(mapwidth);
 
                 if(!flying && !landing)
-                    CheckWalkCollisions(20, new Vector2(15, -5));
+                    CheckWalkCollisions(135, new Vector2(15, -5));
                 else
-                    CheckWalkCollisions(25, new Vector2(20, -5));
+                    CheckWalkCollisions(135, new Vector2(20, -5));
             }
 
             vitalRec.X = rec.X + 40;
@@ -769,6 +769,7 @@ namespace ISurvived
         public override void TakeHit(int damage, Vector2 kbvel, Rectangle collision, AttackType.AttackTypes skillType, AttackType.RangedOrMelee meleeOrRanged)
         {
             base.TakeHit(damage, kbvel, collision, skillType, meleeOrRanged);
+
 
             //--If this is the first time being hit, make him hostile
             if (hostile == false)

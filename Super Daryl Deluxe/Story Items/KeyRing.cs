@@ -18,7 +18,7 @@ namespace ISurvived
         {
             name = "Key Ring";
             pickUpName = "Key Ring";
-            description = "The janitor's key ring. It should open up all of the doors \nin the school.";
+            description = "The janitor's key ring. It should open up all of the doors in the school.";
 
             icon = Game1.storyItemIcons[name];
             texture = Game1.storyItems[name];
@@ -31,7 +31,7 @@ namespace ISurvived
         {
             name = "Key Ring";
             pickUpName = "Key Ring";
-            description = "The janitor's key ring. It should open up all of the doors \nin the school.";
+            description = "The janitor's key ring. It should open up all of the doors in the school.";
 
             rec = new Rectangle(0, 0, 0, 0);
             icon = Game1.storyItemIcons[name];

@@ -274,7 +274,7 @@ namespace ISurvived
 
             else if (player.Textbooks < 10)
             {
-                s.DrawString(Game1.font, "0", new Vector2(55, 142), Color.White);
+                s.DrawString(Game1.font, "0", new Vector2(53, 142), Color.White);
 
                 s.DrawString(Game1.font, player.Textbooks.ToString(), new Vector2(64, 142), Color.White);
             }

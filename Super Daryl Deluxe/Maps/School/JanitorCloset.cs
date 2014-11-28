@@ -18,7 +18,11 @@ namespace ISurvived
 
         public static Portal ToArtHall { get { return toArtHall; } }
 
-        Texture2D fore, lights, drip, splashSheet, overlay, janitorSleeping;
+        Texture2D fore, lights, drip, splashSheet, overlay;
+
+        Dictionary<String, Texture2D> janitorSleeping;
+        int janitorFrame;
+        int janitorDelay = 5;
 
         float dropPosY = -50;
 
@@ -96,7 +100,7 @@ namespace ISurvived
             splashSheet = content.Load<Texture2D>(@"Maps\School\Closet\splashSheet");
 
             if(game.chapterState == Game1.ChapterState.prologue)
-                janitorSleeping = content.Load<Texture2D>(@"Maps\School\Closet\janitor sleeping");
+                janitorSleeping = ContentLoader.LoadContent(content, "Maps\\School\\Closet\\Janitor");
         }
 
         public override void Draw(SpriteBatch s)
@@ -105,7 +109,20 @@ namespace ISurvived
 
             if (game.chapterState == Game1.ChapterState.prologue)
             {
-                s.Draw(janitorSleeping, new Vector2(876, 461), Color.White);
+                janitorDelay--;
+
+                if (janitorDelay == 0)
+                {
+                    janitorFrame++;
+                    janitorDelay = 20;
+
+                    if (janitorFrame == 4)
+                        janitorDelay = 25;
+
+                    if (janitorFrame > 5)
+                        janitorFrame = 0;
+                }
+                s.Draw(janitorSleeping["janitor sleeping" + janitorFrame], new Vector2(876, 461), Color.White);
             }
             else
             {

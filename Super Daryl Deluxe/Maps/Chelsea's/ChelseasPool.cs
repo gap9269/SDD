@@ -53,7 +53,7 @@ namespace ISurvived
 
         public override void PlayBackgroundMusic()
         {
-            Sound.PlayBackGroundMusic("Exploring");
+            //Sound.PlayBackGroundMusic("Exploring");
         }
 
         public override void Update()
@@ -81,16 +81,16 @@ namespace ISurvived
             game.NPCSprites["Trenchcoat Employee"] = content.Load<Texture2D>(@"NPC\Main\trenchcoat");
             Game1.npcFaces["Trenchcoat Employee"].faces["Normal"] = content.Load<Texture2D>(@"NPCFaces\Main Characters\Trenchcoat");
 
-            //If the last map does not have the same music
-            if (Chapter.lastMap != "Old Shed")
-            {
-                SoundEffect bg1 = Sound.backgroundMusicContent.Load<SoundEffect>(@"Sound\Hidden Agenda");
-                SoundEffectInstance backgroundMusic1 = bg1.CreateInstance();
-                backgroundMusic1.IsLooped = true;
-                Sound.music.Add("Exploring", backgroundMusic1);
-            }
+            ////If the last map does not have the same music
+            //if (Chapter.lastMap != "Old Shed")
+            //{
+            //    SoundEffect bg1 = Sound.backgroundMusicContent.Load<SoundEffect>(@"Sound\Hidden Agenda");
+            //    SoundEffectInstance backgroundMusic1 = bg1.CreateInstance();
+            //    backgroundMusic1.IsLooped = true;
+            //    Sound.music.Add("Exploring", backgroundMusic1);
+            //}
 
-            Sound.backgroundVolume = 1f;
+            //Sound.backgroundVolume = 1f;
         }
 
         public override void UnloadNPCContent()
@@ -100,10 +100,10 @@ namespace ISurvived
             game.NPCSprites["Trenchcoat Employee"] = Game1.whiteFilter;
             Game1.npcFaces["Trenchcoat Employee"].faces["Normal"] = Game1.whiteFilter;
 
-            if (Chapter.theNextMap != "OldShed")
-            {
-                Sound.UnloadBackgroundMusic();
-            }
+            //if (Chapter.theNextMap != "OldShed")
+            //{
+            //    Sound.UnloadBackgroundMusic();
+            //}
         }
 
 

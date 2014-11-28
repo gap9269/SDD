@@ -17,12 +17,14 @@ namespace ISurvived
         static Portal toScience103;
         static Portal toScience105;
         static Portal toScience101;
+        static Portal toBathroom;
 
+        public static Portal ToBathroom { get { return toBathroom; } }
         public static Portal ToScience103 { get { return toScience103; } }
         public static Portal ToScience105 { get { return toScience105; } }
         public static Portal ToScience101 { get { return toScience101; } }
 
-        Texture2D foreground, galaxy, moon, sputnik, portalSheet, goggles;
+        Texture2D foreground, galaxy, moon, sputnik, portalSheet, goggles, outhouse;
         Dictionary<String, Texture2D> triceratopsTextures;
 
         Rectangle gogglesRec;
@@ -55,10 +57,10 @@ namespace ISurvived
             AddNPCs();
             SetPortals();
 
-            MapFire fire = new MapFire(120, 200, 2900, mapRec.Y, game, 5);
+            MapFire fire = new MapFire(120, 200, 2900, mapRec.Y, game, 8);
             mapHazards.Add(fire);
 
-            MapFire fire2 = new MapFire(120, 200, 3900, mapRec.Y, game, 5);
+            MapFire fire2 = new MapFire(120, 200, 3900, mapRec.Y, game, 8);
             mapHazards.Add(fire2);
 
             enemyNamesAndNumberInMap.Add("Erl The Flask", 0);
@@ -154,7 +156,7 @@ namespace ISurvived
             background.Add(content.Load<Texture2D>(@"Maps/Science/104/background1"));
             background.Add(content.Load<Texture2D>(@"Maps/Science/104/background2"));
 
-
+            outhouse = content.Load<Texture2D>(@"Maps\Outhouse");
             goggles = content.Load<Texture2D>(@"Maps/Science/101/float2");
             foreground = content.Load<Texture2D>(@"Maps/Science/104/foreground");
             galaxy = content.Load<Texture2D>(@"Maps/Science/104/galaxy");
@@ -163,6 +165,14 @@ namespace ISurvived
             portalSheet = content.Load<Texture2D>(@"Maps/Science/104/PortalSheet");
 
             triceratopsTextures = ContentLoader.LoadContent(content, "Maps\\Science\\104\\TriBlink");
+            Game1.npcFaces["Triceratops"].faces["Normal"] = content.Load<Texture2D>(@"NPCFaces\Triceratops");
+        }
+
+        public override void UnloadNPCContent()
+        {
+            base.UnloadNPCContent();
+
+            Game1.npcFaces["Triceratops"].faces["Normal"] = Game1.whiteFilter;
         }
 
         public override void LoadEnemyData()
@@ -304,12 +314,14 @@ namespace ISurvived
                 game.Prologue.PrologueBooleans["FoundGoggles"] = true;
 
                 Chapter.effectsManager.AddFoundItem("Lab Goggles", Game1.equipmentTextures["Lab Goggles"]);
+
+                Chapter.effectsManager.AddInGameDialogue("You haven't seen any of my relatives around, have you?", "Triceratops", "Normal", 180);
             }
             if (game.Prologue.PrologueBooleans["FoundGoggles"] == false)
             {
                 if(Vector2.Distance(new Vector2(player.VitalRec.Center.X, player.VitalRec.Center.Y), new Vector2(gogglesRec.Center.X, gogglesRec.Center.Y)) < 300)
                 {
-                    Chapter.effectsManager.AddInGameDialogue("Press space to pick up shiny things", "Paul", "Normal", 1);
+                    Chapter.effectsManager.AddInGameDialogue("Press 'SPACE' to pick up shiny objects such as that one over there. Get it? SPACE? I'm in space.", "Triceratops", "Normal", 1);
                 }
                 sparkles.Update();
             }
@@ -324,6 +336,9 @@ namespace ISurvived
             toScience105.FButtonYOffset = -10;
             toScience105.PortalNameYOffset = -10;
 
+            toBathroom = new Portal(5120, 14, "Science104");
+            toBathroom.PortalRecY = -160;
+
             toScience101 = new Portal(6040, 640, "Science104");
             toScience101.FButtonYOffset = -10;
             toScience101.PortalNameYOffset = -10;
@@ -336,11 +351,14 @@ namespace ISurvived
             portals.Add(toScience103, Science103.ToScience104);
             portals.Add(toScience105, Science105.ToScience104);
             portals.Add(toScience101, Science101.ToScience104);
+            portals.Add(ToBathroom, Bathroom.ToLastMap);
         }
 
         public override void Draw(SpriteBatch s)
         {
             base.Draw(s);
+
+            s.Draw(outhouse, new Rectangle(5020, -190, outhouse.Width, outhouse.Height), Color.White);
 
             if(portalFrame < 9)
                 s.Draw(portalSheet, new Rectangle(6021, mapRec.Y + 693, 179, 484), new Rectangle(179 * portalFrame, 0, 179, 484), Color.White);

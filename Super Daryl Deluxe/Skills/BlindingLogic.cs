@@ -27,12 +27,13 @@ namespace ISurvived
             //--Base Stats
             damage = .3f;
             experience = 0;
-            experienceUntilLevel = 15;
+            experienceUntilLevel = 500;
             skillRank = 1;
             name = "Blinding Logic";
             canUse = true;
             description = "Daryl removes his glasses, stunning enemies in front of him. \nMax Enemies Hit: 2";
             fullCooldown = 300;
+            levelToUse = 3;
 
             //--Animation and skill attributes
             animationLength = 0;
@@ -41,9 +42,12 @@ namespace ISurvived
             costToBuy = 1;
             skillBarColor = new Color(196, 196, 196);
 
-            playerLevelRequiredToLevel.Add(3);
-            playerLevelRequiredToLevel.Add(3);
-            playerLevelRequiredToLevel.Add(8);
+            playerLevelRequiredToLevel.Add(14);
+            playerLevelRequiredToLevel.Add(14);
+            playerLevelRequiredToLevel.Add(15);
+
+            rangedOrMelee = AttackType.RangedOrMelee.Ranged;
+            skillType = AttackType.AttackTypes.Blunt;
         }
 
         public override Rectangle GetSourceRec()
@@ -74,6 +78,7 @@ namespace ISurvived
                 animationLength = 27;
                 useKey = key;
                 hitThisTime = 0;
+                stunnedThisTime = 0;
                 enemiesHitThisAttack.Clear();
                 bossesHitThisAttack.Clear();
             }
@@ -207,7 +212,7 @@ namespace ISurvived
                     fullCooldown = 275;
                     damage = .35f;
                     experience = 0;
-                    experienceUntilLevel = 1000;
+                    experienceUntilLevel = 700;
                     maxHit = 3;
                     skillRange = 475;
                     skillHeight = 350;
@@ -215,7 +220,7 @@ namespace ISurvived
                     break;
                 case 3:
                     damage = .4f;
-                    experienceUntilLevel = 5000;
+                    experienceUntilLevel = 1200;
                     maxHit = 4;
                     skillRange = 550;
                     skillHeight = 425;

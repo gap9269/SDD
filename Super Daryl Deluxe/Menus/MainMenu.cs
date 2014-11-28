@@ -24,13 +24,20 @@ namespace ISurvived
         Cursor cursor;
         int introTimer;
         int timeBeforeAfterIntro;
-        float introAlpha = 0f;
+        float introAlpha = 1f;
         Texture2D logo, disclaimer, boxSmall, choices, savesTexture, overwriteTexture, saveBoxTextureStatic, saveBoxTextureActive, overwriteBoxTexture, loading, mainWords, selectGameText, overwriteYes, overwriteNo, rays, darylLoop, gradient, colorSplash;
         float rayRotation;
         int confirmSlot = 0;
         int introState = 0;
         float mainAlpha = 0f;
         int darylPosX;
+
+        int otherTimer;
+
+        int introFrame;
+        int introDelay = 5;
+
+        Dictionary<String, Texture2D> gamesLogoAnimation;
 
         Boolean overwriteWithoutTutorial = false;
 
@@ -52,7 +59,7 @@ namespace ISurvived
             selectionState = 0;
             fadeOut = new Cutscene(game, game.Camera);
             cursor = c;
-            state = State.selecting;
+            state = State.intro;
 
             content = new ContentManager(g.Services);
             content.RootDirectory = "Content";
@@ -64,12 +71,14 @@ namespace ISurvived
             logo = content.Load<Texture2D>(@"Menus\MainMenu\intro");
             disclaimer = content.Load<Texture2D>(@"Menus\MainMenu\intro2");
             background = content.Load<Texture2D>(@"Menus\MainMenu\MainMenu");
-            choices = content.Load<Texture2D>(@"Menus\MainMenu\MainMenuChoices");
-            mainWords = content.Load<Texture2D>(@"Menus\MainMenu\MainWords");
+            choices = content.Load<Texture2D>(@"Menus\MainMenu\MainMenuChoicesPax");
+            mainWords = content.Load<Texture2D>(@"Menus\MainMenu\MainWordsPax");
             darylLoop = content.Load<Texture2D>(@"Menus\MainMenu\darylLoop");
             colorSplash = content.Load<Texture2D>(@"Menus\MainMenu\splashColor");
             gradient = content.Load<Texture2D>(@"Menus\MainMenu\gradientStrip");
             rays = content.Load<Texture2D>(@"Menus\MainMenu\MainMenuRays");
+
+            gamesLogoAnimation = ContentLoader.LoadContent(content, "Menus\\MainMenu\\D&GG Logo");
 
             saveBoxTextureStatic = content.Load<Texture2D>(@"Menus\MainMenu\MainMenuSaveBoxStatic");
             saveBoxTextureActive = content.Load<Texture2D>(@"Menus\MainMenu\MainMenuSaveBoxActive");
@@ -114,40 +123,60 @@ namespace ISurvived
                 #region INTRO
                 case State.intro:
 
-
-                    timeBeforeAfterIntro++;
-
-                    //--Fade the intro in, then wait 200 frames
-                    if (introAlpha < 1 && introTimer == 0)
+                    if (introFrame < 9)
                     {
-                        if (timeBeforeAfterIntro > 60)
-                            introAlpha += .005f;
-                    }
-                    else
-                        introTimer++;
-
-                    //--Fade it back out
-                    if (((introState == 0 && introTimer > 100) || (introState == 1 && introTimer > 550)) && introAlpha > 0)
-                        introAlpha -= .015f;
-
-                    if (introAlpha <= 0 && introTimer > 0)
-                    {
-                        if (introState == 0)
+                        if (otherTimer > 60)
                         {
-                            introState = 1;
-                            introTimer = 0;
+                            introDelay--;
+
+                            if (introDelay <= 0)
+                            {
+                                introDelay = 5;
+                                introFrame++;
+                            }
                         }
                         else
-                        {
-                            introState = 2;
-                            introTimer = 0;
-                        }
+                            otherTimer++;
 
                     }
+                    else
+                    {
 
-                    if (introTimer == 5 && introState == 2)
-                        state = State.selecting;
+                        timeBeforeAfterIntro++;
 
+                        //--Fade the intro in, then wait 200 frames
+                        if (introAlpha < 1 && introTimer == 0)
+                        {
+                            if (timeBeforeAfterIntro > 60)
+                                introAlpha += .005f;
+                        }
+                        else
+                            introTimer++;
+
+                        //--Fade it back out
+
+                            if (((introState == 0 && introTimer > 100) || (introState == 1 && introTimer > 550)) && introAlpha > 0)
+                                introAlpha -= .015f;
+
+                            if (introAlpha <= 0 && introTimer > 0)
+                            {
+                                if (introState == 0)
+                                {
+                                    introState = 1;
+                                    introTimer = 0;
+                                }
+                                else
+                                {
+                                    introState = 2;
+                                    introTimer = 0;
+                                }
+
+                            }
+
+
+                        if (introTimer == 5 && introState == 2)
+                            state = State.selecting;
+                    }
                     break;
                 #endregion
 
@@ -333,9 +362,15 @@ namespace ISurvived
                         game.CurrentChapter.CutsceneState = 4;
                         game.CurrentChapter.state = Chapter.GameState.Game;
 
-                        Game1.Player.Experience = Game1.Player.ExperienceUntilLevel;
-                        Game1.Player.LevelUp();
-                        Game1.Player.LevelingUp = false;
+                        //Game1.Player.Experience = Game1.Player.ExperienceUntilLevel;
+                        //Game1.Player.LevelUp();
+                        //Game1.Player.LevelingUp = false;
+                        Game1.Player.Level = 14;
+                        Game1.Player.MaxHealth = 1050;
+                        Game1.Player.Health = 1050;
+                        Game1.Player.Defense = 97;
+                        Game1.Player.Strength = 1100;
+
                         game.CurrentChapter.HUD.SkillsHidden = false;
 
                         Game1.Player.LearnedSkills.Add(SkillManager.AllSkills["Discuss Differences"]);
@@ -343,6 +378,8 @@ namespace ISurvived
                         Game1.Player.LearnedSkills[0].Equipped = true;
                         Game1.Player.LearnedSkills[0].SkillRank = 3;
                         Game1.Player.LearnedSkills[0].ApplyLevelUp();
+                        Game1.Player.ExperienceUntilLevel = 3700;
+                        Game1.Player.CanJump = true;
 
                         Chapter.effectsManager.skillMessageColor = Color.White;
                         Chapter.effectsManager.skillMessageTime = 0;
@@ -595,9 +632,15 @@ namespace ISurvived
                             game.CurrentChapter.CutsceneState = 4;
                             game.CurrentChapter.state = Chapter.GameState.Game;
 
-                            Game1.Player.Experience = Game1.Player.ExperienceUntilLevel;
-                            Game1.Player.LevelUp();
-                            Game1.Player.LevelingUp = false;
+                            //Game1.Player.Experience = Game1.Player.ExperienceUntilLevel;
+                            //Game1.Player.LevelUp();
+                            //Game1.Player.LevelingUp = false;
+                            Game1.Player.Level = 14;
+                            Game1.Player.MaxHealth = 1050;
+                            Game1.Player.Health = 1050;
+                            Game1.Player.Defense = 97;
+                            Game1.Player.Strength = 1100;
+                            Game1.Player.ExperienceUntilLevel = 3700;
                             game.CurrentChapter.HUD.SkillsHidden = false;
 
                             Game1.Player.LearnedSkills.Add(SkillManager.AllSkills["Discuss Differences"]);
@@ -605,14 +648,7 @@ namespace ISurvived
                             Game1.Player.LearnedSkills[0].Equipped = true;
                             Game1.Player.LearnedSkills[0].SkillRank = 3;
                             Game1.Player.LearnedSkills[0].ApplyLevelUp();
-
-                            //TEMP SHIT------------------------------
-                            Game1.Player.Textbooks = 10;
-                            Game1.Player.Money = 10;
-                            Game1.Player.OwnedHats.Add(new PartyHat());
-                            Game1.Player.OwnedHoodies.Add(new Toga());
-
-                            //---------------------------------------
+                            Game1.Player.CanJump = true;
 
                             Chapter.effectsManager.skillMessageColor = Color.White;
                             Chapter.effectsManager.skillMessageTime = 0;
@@ -643,14 +679,16 @@ namespace ISurvived
                         }//Otherwise start as normal
                         else
                         {
-                            //CHANGE THIS FOR STARTING IN OTHER CHAPTERS
-                            game.CurrentChapter = game.ChapterTwo;
-                            game.CurrentChapter.StartingPortal = OutsideTheParty.ToTheParty;
-                            game.chapterState = Game1.ChapterState.chapterTwo;
+                            UnloadContent();
+                            game.CurrentChapter = game.Prologue;
+                            game.CurrentChapter.StartingPortal = MainLobby.ToArtHall;
+                            game.chapterState = Game1.ChapterState.prologue;
 
-                            game.CurrentChapter.CurrentMap = Game1.schoolMaps.maps["OutsidetheParty"];
+                            game.CurrentChapter.CurrentMap = Game1.schoolMaps.maps["MainLobby"];
                             game.CurrentChapter.CurrentMap.LoadContent();
                             Game1.Player.HasCellPhone = false;
+                            Game1.schoolMaps.LoadEnemyData();
+                            game.CurrentChapter.CurrentMap.LoadEnemyData();
                         }
                         game.CurrentChapter.CurrentMap.LoadEnemyData();
                     }
@@ -731,12 +769,11 @@ namespace ISurvived
                     if (fadeOut.State == 2)
                     {
                         UnloadContent();
-                        //FOR THE TUTORIAl/DEMO SHIT
                         game.CurrentChapter = game.Prologue;
                         game.CurrentChapter.StartingPortal = MainLobby.ToArtHall;
                         game.chapterState = Game1.ChapterState.prologue;
 
-                        game.CurrentChapter.CurrentMap = Game1.schoolMaps.maps["Science105"];
+                        game.CurrentChapter.CurrentMap = Game1.schoolMaps.maps["MainLobby"];
                         game.CurrentChapter.CurrentMap.LoadContent();
                         Game1.Player.HasCellPhone = false;
                         Game1.schoolMaps.LoadEnemyData();
@@ -775,8 +812,6 @@ namespace ISurvived
                     break;
                 #endregion
             }
-
-
 #else
             switch (state)
             {
@@ -1237,9 +1272,13 @@ namespace ISurvived
             switch (state)
             {
                 case State.intro:
-                    s.Draw(Game1.whiteFilter, new Rectangle(0, 0, 1280, (int)(Game1.aspectRatio * 1280)), Color.Black);
                     if (introState == 0)
-                        s.Draw(logo, new Rectangle(0, 0, 1280, (int)(Game1.aspectRatio * 1280)), Color.White * introAlpha);
+                    {
+                        if (otherTimer > 59)
+                            s.Draw(gamesLogoAnimation.ElementAt(introFrame).Value, new Rectangle(0, 0, 1280, (int)(Game1.aspectRatio * 1280)), Color.White * introAlpha);
+                        else
+                            s.Draw(Game1.whiteFilter, new Rectangle(0, 0, 1280, 720), Color.White);
+                    }
                     else if (introState == 1)
                         s.Draw(disclaimer, new Rectangle(0, 0, 1280, (int)(Game1.aspectRatio * 1280)), Color.White * introAlpha);
                     break;

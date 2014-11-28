@@ -240,7 +240,7 @@ namespace ISurvived
                         #endregion
 
                         //If you press F, go to your locker
-                        if (Game1.Player.VitalRec.Intersects(vitalRec) && current.IsKeyUp(Keys.F) && last.IsKeyDown(Keys.F) && Game1.Player.LearnedSkills.Count > 0 && game.CurrentChapter.BossFight == false)
+                        if (Game1.Player.VitalRec.Intersects(vitalRec) && current.IsKeyUp(Keys.F) && last.IsKeyDown(Keys.F) && Game1.Player.LearnedSkills.Count > 0 /*&& game.CurrentChapter.BossFight == false*/)
                         {
                             game.YourLocker.LoadContent();
                             game.CurrentChapter.state = Chapter.GameState.YourLocker;

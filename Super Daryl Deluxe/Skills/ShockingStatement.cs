@@ -33,7 +33,7 @@ namespace ISurvived
             //--Base Stats
             damage = .25f;
             experience = 0;
-            experienceUntilLevel = 120;
+            experienceUntilLevel = 500;
             skillRank = 1;
             levelToUse = 3;
             name = "Shocking Statement";
@@ -43,7 +43,7 @@ namespace ISurvived
             //--Animation and skill attributes
             animationLength = 0;
             lightningAmount = 1;
-            costToBuy = 2;
+            costToBuy = 1;
             hitPauseTime = 1;
 
             skillBarColor = new Color(0, 255, 255);
@@ -51,9 +51,9 @@ namespace ISurvived
             skillType = AttackType.AttackTypes.Lightning;
             rangedOrMelee = AttackType.RangedOrMelee.Ranged;
 
-            playerLevelRequiredToLevel.Add(3);
-            playerLevelRequiredToLevel.Add(3);
-            playerLevelRequiredToLevel.Add(4);
+            playerLevelRequiredToLevel.Add(14);
+            playerLevelRequiredToLevel.Add(14);
+            playerLevelRequiredToLevel.Add(15);
 
             randomLightningIndex = new Random();
         }
@@ -90,7 +90,7 @@ namespace ISurvived
                 animationLength = 20;
                 useKey = key;
                 lightningTime = 15;
-                Sound.skillSoundEffects["ShockingStatementUse1"].CreateInstance().Play();
+                PlayRandomUseSound();
             }
         }
 
@@ -173,14 +173,15 @@ namespace ISurvived
                 lightningTime2 = 15;
 
                 if(lightningAmount > 1)
-                    Sound.skillSoundEffects["ShockingStatementUse2"].CreateInstance().Play();
+                    PlayRandomUseSound();
             }
             if (lightningTime2 == 5)
             {
                 lightningTime3 = 15;
 
                 if (lightningAmount > 2)
-                    Sound.skillSoundEffects["ShockingStatementUse1"].CreateInstance().Play();
+                    PlayRandomUseSound();
+
             }
 
             //--Check to see if an enemy is getting hit
@@ -286,21 +287,21 @@ namespace ISurvived
             switch (skillRank)
             {
                 case 2:
-                    damage = .25f;
+                    damage = .3f;
                     lightningAmount = 2;
                     experience = 0;
-                    experienceUntilLevel = 300;
+                    experienceUntilLevel = 700;
                     fullCooldown = 50;
                     break;
                 case 3:
-                    damage = .25f;
-                    lightningAmount = 2;
+                    damage = .3f;
+                    lightningAmount = 3;
                     fullCooldown = 50;
-                    experienceUntilLevel = 500;
+                    experienceUntilLevel = 1200;
                     experience = 0;
                     break;
                 case 4:
-                    damage = .3f;
+                    damage = .35f;
                     lightningAmount = 3;
                     experience = 0;
                     //name = "Lightning pun";

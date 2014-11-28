@@ -32,7 +32,7 @@ namespace ISurvived
             //--Base Stats
             damage = .4f;
             experience = 0;
-            experienceUntilLevel = 75;
+            experienceUntilLevel = 400;
             skillRank = 1;
             levelToUse = 3;
             name = "Quick Retort";
@@ -49,9 +49,9 @@ namespace ISurvived
             skillType = AttackType.AttackTypes.Blunt;
             rangedOrMelee = AttackType.RangedOrMelee.Melee;
 
-            playerLevelRequiredToLevel.Add(3);
-            playerLevelRequiredToLevel.Add(3);
-            playerLevelRequiredToLevel.Add(4);
+            playerLevelRequiredToLevel.Add(14);
+            playerLevelRequiredToLevel.Add(14);
+            playerLevelRequiredToLevel.Add(15);
 
         }
 
@@ -77,7 +77,7 @@ namespace ISurvived
                 currentCooldown = fullCooldown;
                 animationLength = maxAnimationLength;
                 useKey = key;
-                Sound.skillSoundEffects["QuickRetortUse1"].CreateInstance().Play();
+                PlayRandomUseSound();
             }
         }
 
@@ -304,12 +304,12 @@ namespace ISurvived
                 case 2:
                     damage = .45f;
                     experience = 0;
-                    experienceUntilLevel = 300;
+                    experienceUntilLevel = 750;
                     maxAnimationLength = 9;
                     break;
                 case 3:
                     damage = .5f;
-                    experienceUntilLevel = 400;
+                    experienceUntilLevel = 1000;
                     experience = 0;
                     maxAnimationLength = 12;
                     fullCooldown = 100;

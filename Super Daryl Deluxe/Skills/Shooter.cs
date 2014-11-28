@@ -26,9 +26,9 @@ namespace ISurvived
             : base(sheet, play, ico, false)
         {
             //--Base Stats
-            damage = .3f;
+            damage = .5f;
             experience = 0;
-            experienceUntilLevel = 80;
+            experienceUntilLevel = 500;
             skillRank = 1;
             levelToUse = 1;
             name = "Fowl Mouth";
@@ -43,9 +43,9 @@ namespace ISurvived
 
             costToBuy = 1;
 
-            playerLevelRequiredToLevel.Add(1);
-            playerLevelRequiredToLevel.Add(3);
-            playerLevelRequiredToLevel.Add(3);
+            playerLevelRequiredToLevel.Add(14);
+            playerLevelRequiredToLevel.Add(14);
+            playerLevelRequiredToLevel.Add(15);
 
             skillType = AttackType.AttackTypes.Blunt;
             rangedOrMelee = AttackType.RangedOrMelee.Ranged;
@@ -239,22 +239,22 @@ namespace ISurvived
             switch (skillRank)
             {
                 case 2:
-                    damage = .35f;
+                    damage = .5f;
                     experience = 0;
-                    experienceUntilLevel = 170;
+                    experienceUntilLevel = 700;
                     maxAmmo = 2;
                     description = "Daryl displays his finesse in archery. \n# of Arrows: 2";
                     break;
                 case 3:
-                    damage = .4f;
-                    experienceUntilLevel = 300;
+                    damage = .55f;
+                    experienceUntilLevel = 1200;
                     experience = 0;
                     fullCooldown = 100;
-                    maxAmmo = 2;
+                    maxAmmo = 3;
                     description = "Daryl displays his finesse in archery. \n# of Arrows: 2";
                     break;
                 case 4:
-                    damage = .5f;
+                    damage = .6f;
                     experience = 0;
                     //name = "Lightning pun";
                     maxAmmo = 3;

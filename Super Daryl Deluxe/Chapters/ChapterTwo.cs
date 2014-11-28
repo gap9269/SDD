@@ -378,11 +378,6 @@ namespace ISurvived
 
         public override void Update()
         {
-            //player.StoryItems.Add("Key Ring", 1);
-
-            //player.OwnedAccessories.Add(new SoloCup());
-            //player.OwnedHats.Add(new PartyHat());
-            //player.OwnedHoodies.Add(new Toga());
             if (player.playerState == Player.PlayerState.dead)
             {
                 base.Update();
@@ -392,13 +387,13 @@ namespace ISurvived
 #if DEBUG
             if(current.IsKeyUp(Keys.P) && last.IsKeyDown(Keys.P))
             {
-                player.Experience = player.ExperienceUntilLevel;
+               // player.Experience = player.ExperienceUntilLevel;
             }
 
             #region Decisions
             if (current.IsKeyUp(Keys.M) && last.IsKeyDown(Keys.M) && decisionNum == 0)
             {
-                player.Karma++;
+               // player.Karma++;
                // makingDecision = true;
                 //decisions = Decisions.test;
 
@@ -722,7 +717,6 @@ namespace ISurvived
 
                     break;
                 case GameState.Game:
-
                     //This draws a frame of black screen before the cutscene plays so the camera doesn't show a frame of the map before it starts
                     if (!chapterTwoBooleans["crossroadsScenePlayed"] && currentMap.MapName == "Crossroads")
                     {
@@ -790,7 +784,7 @@ namespace ISurvived
                 //Trenchcoat crony
                 List<String> cronydialogue = new List<string>();
                 cronydialogue.Add("Hey. You look like someone who could use a stolen Textbook or two.");
-                List<ItemForSale> items = new List<ItemForSale>() {new WeaponForSale(new Marker(), 1.00f), new AccessoryForSale(new SoloCup(), 2.00f), new TextbookForSale(5.00f, 2), new HoodieForSale(new ScarecrowVest(), 15.00f) };
+                List<ItemForSale> items = new List<ItemForSale>() {new AccessoryForSale(new SoloCup(), 2.00f), new TextbookForSale(5.00f, 2)};
                  poolShop = new TrenchcoatKid(game.NPCSprites["Trenchcoat Employee"], cronydialogue, 1000, 650, player, game, "Chelsea's Pool", items);
                 nPCs.Add("PoolCrony", poolShop);
             }
@@ -901,8 +895,8 @@ namespace ISurvived
                 dialogueSave.Add("AAAAAAAAHHHHHHHHHHHHHHHH...");
                 dialogueSave.Add("Oh, sorry. I'm powering up before we raid the fields over there.");
                 dialogueSave.Add("I should be ready in a few more days. I always get annoyed when they try to rush me.");
-                saveInstructor = new NPC(game.NPCSprites["Save Instructor"], dialogueSave,
-                    new Rectangle(950, 630 - 388, 516, 388), player, game.Font, game, "Chelsea's Field", "Save Instructor", false);
+                saveInstructor = new NPC(game.NPCSprites["Saving Instructor"], dialogueSave,
+                    new Rectangle(950, 630 - 388, 516, 388), player, game.Font, game, "Chelsea's Field", "Saving Instructor", false);
                 saveInstructor.FacingRight = false;
                 nPCs.Add("SaveInstructor", saveInstructor);
                 
@@ -913,8 +907,8 @@ namespace ISurvived
                 //--Skill Instructor next to Daryl's Locker
                 List<String> dialogueSkill = new List<string>();
                 dialogueSkill.Add("One is wise not to proceed any further without first mastering the ancient art of...uh, skilling. With skills.");
-                skillInstructor = new NPC(game.NPCSprites["Skill Instructor"], dialogueSkill,
-                    new Rectangle(700, 630 - 388, 516, 388), player, game.Font, game, "Chelsea's Field", "Skill Instructor", false);
+                skillInstructor = new NPC(game.NPCSprites["Skill Sorceress"], dialogueSkill,
+                    new Rectangle(700, 630 - 388, 516, 388), player, game.Font, game, "Chelsea's Field", "Skill Sorceress", false);
                 skillInstructor.FacingRight = true;
                 nPCs.Add("SkillInstructor", skillInstructor);
             }
@@ -927,11 +921,11 @@ namespace ISurvived
                 dialogueEquipment.Add("Greetings weary traveler.");
                 dialogueEquipment.Add("I must warn you that beyond this great wall of grass a powerful evil is present.");
                 dialogueEquipment.Add("...");
-                dialogueEquipment.Add("I would, like, not suggest going in unless you're at least level three.");
+                dialogueEquipment.Add("I would, like, not suggest going in unless you're at least level fourteen.");
                 dialogueEquipment.Add("Farewell fellow warrior, and good luck in your, like, goals.");
 
-                inventoryInstructor = new NPC(game.NPCSprites["Equipment Instructor"], dialogueEquipment,
-                    new Rectangle(1605, 630 - 388, 516, 388), player, game.Font, game, "Chelsea's Field", "Equipment Instructor", false);
+                inventoryInstructor = new NPC(game.NPCSprites["Weapons Master"], dialogueEquipment,
+                    new Rectangle(1605, 630 - 388, 516, 388), player, game.Font, game, "Chelsea's Field", "Weapons Master", false);
 
                 nPCs.Add("InventoryInstructor", inventoryInstructor);
             }

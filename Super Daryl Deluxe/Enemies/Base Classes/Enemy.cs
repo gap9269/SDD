@@ -282,6 +282,7 @@ namespace ISurvived
                 if (timeBeforeSpawn <= 0 && respawning == true)
                 {
                     alpha = 1f;
+                    Sound.PlayRandomRegularPoof();
                     Chapter.effectsManager.AddSmokePoof(vitalRec, 2);
                     respawning = false;
                 }
@@ -675,7 +676,7 @@ namespace ISurvived
                 DropHealth();
                 DropMoney();
                 Chapter.effectsManager.AddSmokePoof(deathRec,1);
-
+                Sound.PlayRandomRegularPoof();
                 //Unlock enemy bio for this enemy
                 if (player.AllMonsterBios[name] == false)
                     player.UnlockEnemyBio(name);

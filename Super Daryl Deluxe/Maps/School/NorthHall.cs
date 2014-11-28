@@ -100,13 +100,13 @@ namespace ISurvived
 
             if (game.chapterState == Game1.ChapterState.prologue)
             {
-                game.NPCSprites["Skill Instructor"] = content.Load<Texture2D>(@"NPC\DD\skill");
-                game.NPCSprites["Journal Instructor"] = content.Load<Texture2D>(@"NPC\DD\journal");
+                game.NPCSprites["Skill Sorceress"] = content.Load<Texture2D>(@"NPC\DD\skill");
+                game.NPCSprites["Keeper of the Quests"] = content.Load<Texture2D>(@"NPC\DD\journal");
                 game.NPCSprites["Tim"] = content.Load<Texture2D>(@"NPC\Main\tim");
                 Game1.npcFaces["Tim"].faces["Normal"] = content.Load<Texture2D>(@"NPCFaces\Main Characters\Tim");
 
-                Game1.npcFaces["Journal Instructor"].faces["Normal"] = content.Load<Texture2D>(@"NPCFaces\D&D\Journal");
-                Game1.npcFaces["Skill Instructor"].faces["Normal"] = content.Load<Texture2D>(@"NPCFaces\D&D\Skill");
+                Game1.npcFaces["Keeper of the Quests"].faces["Normal"] = content.Load<Texture2D>(@"NPCFaces\D&D\Journal");
+                Game1.npcFaces["Skill Sorceress"].faces["Normal"] = content.Load<Texture2D>(@"NPCFaces\D&D\Skill");
             }
 
             if (Chapter.lastMap != "East Hall")
@@ -170,11 +170,11 @@ namespace ISurvived
 
             if (game.chapterState == Game1.ChapterState.prologue)
             {
-                game.NPCSprites["Skill Instructor"] = Game1.whiteFilter;
-                game.NPCSprites["Journal Instructor"] = Game1.whiteFilter;
+                game.NPCSprites["Skill Sorceress"] = Game1.whiteFilter;
+                game.NPCSprites["Keeper of the Quests"] = Game1.whiteFilter;
 
-                Game1.npcFaces["Skill Instructor"].faces["Normal"] = Game1.whiteFilter;
-                Game1.npcFaces["Journal Instructor"].faces["Arrogant"] = Game1.whiteFilter;
+                Game1.npcFaces["Skill Sorceress"].faces["Normal"] = Game1.whiteFilter;
+                Game1.npcFaces["Keeper of the Quests"].faces["Arrogant"] = Game1.whiteFilter;
 
                 game.NPCSprites["Tim"] = Game1.whiteFilter;
                 Game1.npcFaces["Tim"].faces["Normal"] = Game1.whiteFilter;
@@ -182,6 +182,7 @@ namespace ISurvived
                 if (game.Prologue.PrologueBooleans["gotTextbook"] == true)
                 {
                     GorillaTim.animationTextures.Clear();
+                    drawTimMap = false;
                 }
             }
 

@@ -22,7 +22,7 @@ namespace ISurvived
         public static Portal ToAnotherSpookyField { get { return toAnotherSpookyField; } }
         public static Portal ToBathroom { get { return toBathroom; } }
 
-        Texture2D foreground1, foreground2, backField, barn, sky, clouds, moonHappy, moonAngry, bathroomPort;
+        Texture2D foreground1, foreground2, backField, barn, sky, clouds, moonHappy, moonAngry, outhouse;
 
         float cloudPos = 1500;
 
@@ -81,7 +81,7 @@ namespace ISurvived
 
             moonAngry = content.Load<Texture2D>(@"Maps\Chelseas\SpookyFieldMoonAngry");
 
-            bathroomPort = content.Load<Texture2D>(@"Maps\Outhouse");
+            outhouse = content.Load<Texture2D>(@"Maps\Outhouse");
 
             game.NPCSprites["Trenchcoat Employee"] = content.Load<Texture2D>(@"NPC\Main\trenchcoat");
             Game1.npcFaces["Trenchcoat Employee"].faces["Normal"] = content.Load<Texture2D>(@"NPCFaces\Main Characters\Trenchcoat");
@@ -183,7 +183,7 @@ namespace ISurvived
         {
             base.Draw(s);
 
-            s.Draw(bathroomPort, new Rectangle(1005, 680 - bathroomPort.Height, bathroomPort.Width, bathroomPort.Height), Color.White);
+            s.Draw(outhouse, new Rectangle(920, 390, outhouse.Width, outhouse.Height), Color.White);
             locker.Draw(s);
         }
 

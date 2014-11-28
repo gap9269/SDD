@@ -18,12 +18,13 @@ namespace ISurvived
         public static Dictionary<String, SoundEffect> permanentSoundEffects;
         public static Dictionary<String, SoundEffect> menuSoundEffects;
         public static Dictionary<String, SoundEffect> enemySoundEffects;
-        public static Dictionary<String, SoundEffect> skillSoundEffects;
+
+        public static List<SoundEffectInstance> poofSounds;
 
         public static ContentManager permanentContent, backgroundMusicContent, menuContent, ambienceContent;
         public static float backgroundVolume = .3f;
         public static float soundVolume = .5f;
-        public static float ambienceVolume = .3f;
+        public static float ambienceVolume = 1f;
 
         public static Boolean muted = false;
 
@@ -35,6 +36,17 @@ namespace ISurvived
             PlayerLanding,
             PlayerJump1,
             PlayerJump2,
+
+            PlayerRunOutside1,
+            PlayerRunOutside2,
+            PlayerRunOutside3,
+            PlayerRunOutside4,
+            PlayerRunOutside5,
+            PlayerRunOutside6,
+            PlayerLandingOutside1,
+            PlayerLandingOutside2,
+            PlayerJumpOutside1,
+            PlayerJumpOutside2,
 
             TextScroll,
             CoinPickUp,
@@ -62,14 +74,16 @@ namespace ISurvived
 
         static public void ResetSound()
         {
+
+            UnloadAmbience();
+            UnloadBackgroundMusic();
+            UnloadMenuSounds();
+
+            poofSounds = new List<SoundEffectInstance>();
             ambience = new Dictionary<string, SoundEffectInstance>();
             music = new Dictionary<string, SoundEffectInstance>();
             menuSoundEffects = new Dictionary<string, SoundEffect>();
             enemySoundEffects = new Dictionary<string, SoundEffect>();
-
-           //backgroundMusicContent.Unload();
-            menuContent.Unload();
-            //ambienceContent.Unload();
         }
 
         static public void LoadMenuSounds()
@@ -100,15 +114,23 @@ namespace ISurvived
             menuContent.Unload();
         }
 
+        static public void PlayRandomRegularPoof()
+        {
+            if (poofSounds.Count < 2)
+            {
+                poofSounds.Add(permanentSoundEffects["Poof" + Game1.randomNumberGen.Next(1, 4).ToString()].CreateInstance());
+                poofSounds[poofSounds.Count - 1].Play();
+            }
+        }
 
         static public void LoadPermanentContent()
         {
+            poofSounds = new List<SoundEffectInstance>();
             ambience = new Dictionary<string, SoundEffectInstance>();
             music = new Dictionary<string, SoundEffectInstance>();
             menuSoundEffects = new Dictionary<string, SoundEffect>();
             permanentSoundEffects = new Dictionary<string, SoundEffect>();
             enemySoundEffects = new Dictionary<string, SoundEffect>();
-            skillSoundEffects = new Dictionary<string, SoundEffect>();
 
             // Load sound effects
             permanentSoundEffects.Add("PlayerRunRoom1", permanentContent.Load<SoundEffect>("Sound\\Movement\\movement_footstep_walk_room_01"));
@@ -118,25 +140,30 @@ namespace ISurvived
             permanentSoundEffects.Add("PlayerJump1", permanentContent.Load<SoundEffect>("Sound\\Movement\\movement_jump_room_01"));
             permanentSoundEffects.Add("PlayerJump2", permanentContent.Load<SoundEffect>("Sound\\Movement\\movement_jump_room_02"));
 
+            permanentSoundEffects.Add("PlayerRunOutside1", permanentContent.Load<SoundEffect>("Sound\\Movement\\movement_footstep_walk_outside_01"));
+            permanentSoundEffects.Add("PlayerRunOutside2", permanentContent.Load<SoundEffect>("Sound\\Movement\\movement_footstep_walk_outside_02"));
+            permanentSoundEffects.Add("PlayerRunOutside3", permanentContent.Load<SoundEffect>("Sound\\Movement\\movement_footstep_walk_outside_03"));
+            permanentSoundEffects.Add("PlayerRunOutside4", permanentContent.Load<SoundEffect>("Sound\\Movement\\movement_footstep_walk_outside_04"));
+            permanentSoundEffects.Add("PlayerRunOutside5", permanentContent.Load<SoundEffect>("Sound\\Movement\\movement_footstep_walk_outside_05"));
+            permanentSoundEffects.Add("PlayerRunOutside6", permanentContent.Load<SoundEffect>("Sound\\Movement\\movement_footstep_walk_outside_06"));
+            permanentSoundEffects.Add("PlayerLandingOutside1", permanentContent.Load<SoundEffect>("Sound\\Movement\\movement_land_outside_01"));
+            permanentSoundEffects.Add("PlayerLandingOutside2", permanentContent.Load<SoundEffect>("Sound\\Movement\\movement_land_outside_02"));
+            permanentSoundEffects.Add("PlayerJumpOutside1", permanentContent.Load<SoundEffect>("Sound\\Movement\\movement_jump_outside_01"));
+            permanentSoundEffects.Add("PlayerJumpOutside2", permanentContent.Load<SoundEffect>("Sound\\Movement\\movement_jump_outside_02"));
+
             permanentSoundEffects.Add("TextScroll", permanentContent.Load<SoundEffect>("Sound\\textScroll"));
             permanentSoundEffects.Add("CoinPickUp", permanentContent.Load<SoundEffect>("SoundEffects\\CoinPickUp"));
             permanentSoundEffects.Add("DoorOpen", permanentContent.Load<SoundEffect>("Sound\\Movement\\movement_door_open"));
+
+            permanentSoundEffects.Add("Poof1", permanentContent.Load<SoundEffect>("Sound\\Poofs\\enemy_generic_spawn_01"));
+            permanentSoundEffects.Add("Poof2", permanentContent.Load<SoundEffect>("Sound\\Poofs\\enemy_generic_spawn_02"));
+            permanentSoundEffects.Add("Poof3", permanentContent.Load<SoundEffect>("Sound\\Poofs\\enemy_generic_spawn_03"));
+
 
             permanentSoundEffects.Add("UIClose", permanentContent.Load<SoundEffect>(@"Sound\UI\ui_inventory_close"));
             permanentSoundEffects.Add("UIEnter", permanentContent.Load<SoundEffect>(@"Sound\UI\ui_general_enter"));
             permanentSoundEffects.Add("UIBack", permanentContent.Load<SoundEffect>(@"Sound\UI\ui_general_back"));
             permanentSoundEffects.Add("UITab", permanentContent.Load<SoundEffect>(@"Sound\UI\ui_general_tab"));
-
-            skillSoundEffects.Add("DiscussDifferencesUse1", permanentContent.Load<SoundEffect>(@"Sound\Skills\DiscussDifferences\weapon_punch_a_01"));
-            skillSoundEffects.Add("DiscussDifferencesUse2", permanentContent.Load<SoundEffect>(@"Sound\Skills\DiscussDifferences\weapon_punch_b_01"));
-            skillSoundEffects.Add("DiscussDifferencesUse3", permanentContent.Load<SoundEffect>(@"Sound\Skills\DiscussDifferences\weapon_punch_c_01"));
-
-            skillSoundEffects.Add("QuickRetortUse1", permanentContent.Load<SoundEffect>(@"Sound\Skills\QuickRetort\weapon_dash_a_01"));
-
-            skillSoundEffects.Add("SharpCommentsUse1", permanentContent.Load<SoundEffect>(@"Sound\Skills\SharpComments\weapon_sword_a_01"));
-
-            skillSoundEffects.Add("ShockingStatementUse1", permanentContent.Load<SoundEffect>(@"Sound\Skills\ShockingStatement\weapon_zap_a_01"));
-            skillSoundEffects.Add("ShockingStatementUse2", permanentContent.Load<SoundEffect>(@"Sound\Skills\ShockingStatement\weapon_zap_a_02"));
         }
 
         static public void UnloadAmbience()
@@ -207,6 +234,11 @@ namespace ISurvived
 
             if (ambienceVolume > 1)
                 ambienceVolume = 1;
+
+            for (int i = 0; i < ambience.Count; i++)
+            {
+                ambience.ElementAt(i).Value.Volume = ambienceVolume;
+            }
         }
 
         static public void SetBackgroundVolume(float volume)
@@ -222,7 +254,7 @@ namespace ISurvived
 
         static public void PlayAmbience(String ambienceName)
         {
-            if (!muted)
+            if (!muted && Game1.g.chapterState != Game1.ChapterState.prologue)
             {
                 //Creating a instance allows you to modify the sound playing, eg Change volume.
                 if (ambience[ambienceName].State == SoundState.Stopped)
@@ -240,50 +272,50 @@ namespace ISurvived
 
         static public void PlayBackGroundMusic(String musicName)
         {
-            if (!muted)
-            {
-                //Creating a instance allows you to modify the sound playing, eg Change volume.
-                if (music[musicName].State == SoundState.Stopped)
-                {
-                    music[musicName].Volume = backgroundVolume;
-                    music[musicName].Play();
-                }
-                else
-                {
-                    music[musicName].Volume = backgroundVolume;
-                    music[musicName].Resume();
-                }
-            }
+            //if (!muted)
+            //{
+            //    //Creating a instance allows you to modify the sound playing, eg Change volume.
+            //    if (music[musicName].State == SoundState.Stopped)
+            //    {
+            //        music[musicName].Volume = backgroundVolume;
+            //        music[musicName].Play();
+            //    }
+            //    else
+            //    {
+            //        music[musicName].Volume = backgroundVolume;
+            //        music[musicName].Resume();
+            //    }
+            //}
         }
 
         static public void PlayBackGroundMusic(String musicName, float vol, float pan)
         {
-            if (!muted)
-            {
-                if (pan < 0)
-                    pan = 0;
-                if (pan > 1)
-                    pan = 1;
+            //if (!muted)
+            //{
+            //    if (pan < 0)
+            //        pan = 0;
+            //    if (pan > 1)
+            //        pan = 1;
 
-                if (vol < 0)
-                    vol = 0;
-                if (vol > 1)
-                    vol = 1;
+            //    if (vol < 0)
+            //        vol = 0;
+            //    if (vol > 1)
+            //        vol = 1;
 
-                //Creating a instance allows you to modify the sound playing, eg Change volume.
-                if (music[musicName].State == SoundState.Stopped)
-                {
-                    music[musicName].Pan = pan;
-                    music[musicName].Volume = vol;
-                    music[musicName].Play();
-                }
-                else
-                {
-                    music[musicName].Pan = pan;
-                    music[musicName].Volume = vol;
-                    music[musicName].Resume();
-                }
-            }
+            //    //Creating a instance allows you to modify the sound playing, eg Change volume.
+            //    if (music[musicName].State == SoundState.Stopped)
+            //    {
+            //        music[musicName].Pan = pan;
+            //        music[musicName].Volume = vol;
+            //        music[musicName].Play();
+            //    }
+            //    else
+            //    {
+            //        music[musicName].Pan = pan;
+            //        music[musicName].Volume = vol;
+            //        music[musicName].Resume();
+            //    }
+            //}
         }
 
         /// <summary>

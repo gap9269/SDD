@@ -60,10 +60,10 @@ namespace ISurvived
             enemyAmount = 5;
 
             //Breakable scarecrows
-            Scarecrow scare = new Scarecrow(game, 1332, 308 + 310 + 72, Game1.interactiveObjects["Scarecrow"], true, 5, 5, .20f, false);
+            Scarecrow scare = new Scarecrow(game, 1332, 308 + 310 + 72, Game1.interactiveObjects["Scarecrow"], true, 5, 150, .20f, false);
             interactiveObjects.Add(scare);
 
-            Scarecrow scare1 = new Scarecrow(game, 2674, 308 + 310 + 72, Game1.interactiveObjects["Scarecrow"], true, 5, 5, .13f, false);
+            Scarecrow scare1 = new Scarecrow(game, 2674, 308 + 310 + 72, Game1.interactiveObjects["Scarecrow"], true, 5, 230, .13f, false);
             interactiveObjects.Add(scare1);
 
             backgroundMusicName = "Spooky Field";
@@ -74,7 +74,7 @@ namespace ISurvived
         {
             base.PlayBackgroundMusic();
 
-            Sound.PlayBackGroundMusic("Spooky Field");
+           // Sound.PlayBackGroundMusic("Spooky Field");
         }
 
         public override void LoadContent()
@@ -100,33 +100,33 @@ namespace ISurvived
 
             moonAngry = content.Load<Texture2D>(@"Maps\Chelseas\SpookyFieldMoonAngry");
 
-            //If the last map does not have the same music
-            if (Chapter.lastMap != "Another Spooky Field")
-            {
-                SoundEffect bg = Sound.backgroundMusicContent.Load<SoundEffect>(@"Sound\Black Vortex");
-                SoundEffectInstance backgroundMusic = bg.CreateInstance();
-                backgroundMusic.IsLooped = true;
-                Sound.music.Add("Spooky Field", backgroundMusic);
-                Sound.backgroundVolume = 1f;
-            }
+            ////If the last map does not have the same music
+            //if (Chapter.lastMap != "Another Spooky Field")
+            //{
+            //    SoundEffect bg = Sound.backgroundMusicContent.Load<SoundEffect>(@"Sound\Black Vortex");
+            //    SoundEffectInstance backgroundMusic = bg.CreateInstance();
+            //    backgroundMusic.IsLooped = true;
+            //    Sound.music.Add("Spooky Field", backgroundMusic);
+            //    Sound.backgroundVolume = 1f;
+            //}
         }
 
         public override void UnloadNPCContent()
         {
             base.UnloadNPCContent();
 
-            if (Chapter.theNextMap != "AnotherSpookyField")
-            {
-                Sound.UnloadBackgroundMusic();
-            }
+            //if (Chapter.theNextMap != "AnotherSpookyField")
+            //{
+            //    Sound.UnloadBackgroundMusic();
+            //}
         }
 
         public override void LoadEnemyData()
         {
             base.LoadEnemyData();
 
-            game.EnemySpriteSheets.Add("Crow", content.Load<Texture2D>(@"EnemySprites\CrowSheet"));
-            game.EnemySpriteSheets.Add("Scarecrow", content.Load<Texture2D>(@"EnemySprites\ScarecrowSheet"));
+            EnemyContentLoader.Scarecrow(content);
+            EnemyContentLoader.Crow(content);
         }
 
         public override void RespawnGroundEnemies()

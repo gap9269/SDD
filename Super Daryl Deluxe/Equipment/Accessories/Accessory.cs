@@ -52,13 +52,13 @@ icon = Game1.equipmentTextures[name];
         public SoloCup()
             : base()
         {
-            health = 5;
-            strength = 3;
-            defense = 3;
+            health = 60;
+            strength = 20;
+            defense = 6;
             moveSpeed = 0;
             jumpHeight = 0;
             name = "Solo Cup";
-            level = 1;
+            level = 14;
             description = "It's full of water.\n\n";
 icon = Game1.equipmentTextures[name];
         }

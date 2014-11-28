@@ -58,8 +58,8 @@ namespace ISurvived
 
             if (game.chapterState == Game1.ChapterState.prologue)
             {
-                game.NPCSprites["Save Instructor"] = content.Load<Texture2D>(@"NPC\DD\save");
-                Game1.npcFaces["Save Instructor"].faces["Normal"] = content.Load<Texture2D>(@"NPCFaces\D&D\Save");
+                game.NPCSprites["Saving Instructor"] = content.Load<Texture2D>(@"NPC\DD\save");
+                Game1.npcFaces["Saving Instructor"].faces["Normal"] = content.Load<Texture2D>(@"NPCFaces\D&D\Save");
             }
 
             SoundEffect am = Sound.ambienceContent.Load<SoundEffect>(@"Sound\Ambience\ambience_bathroom");
@@ -74,8 +74,8 @@ namespace ISurvived
 
             if (game.chapterState == Game1.ChapterState.prologue)
             {
-                game.NPCSprites["Save Instructor"] = Game1.whiteFilter;
-                Game1.npcFaces["Save Instructor"].faces["Normal"] = Game1.whiteFilter;
+                game.NPCSprites["Saving Instructor"] = Game1.whiteFilter;
+                Game1.npcFaces["Saving Instructor"].faces["Normal"] = Game1.whiteFilter;
             }
         }
 

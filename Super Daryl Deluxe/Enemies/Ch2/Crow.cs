@@ -33,14 +33,14 @@ namespace ISurvived
             wanderDist = 15;
             wanderMax = 20;
 
-            health = 50;
-            maxHealth = 50;
-            level = 3;
-            experienceGiven = 5;
+            health = 4000;
+            maxHealth = 4000;
+            level = 13;
+            experienceGiven = 30;
             rec = new Rectangle((int)position.X, (int)position.Y, 150, 140);
-            tolerance = 5;
+            tolerance = 60;
             vitalRec = new Rectangle(rec.X + 10, rec.Y + 10, 130, 120);
-            maxHealthDrop = 5;
+            maxHealthDrop = 90;
             moneyToDrop = .13f;
 
             playerAttackPoints = new List<Vector2>() { new Vector2(), new Vector2(), new Vector2(), new Vector2(), new Vector2(), new Vector2(), new Vector2() };
@@ -49,7 +49,7 @@ namespace ISurvived
         //--Return the source rectangle for the enemy move frames
         public override Rectangle GetSourceRectangle(int frame)
         {
-            if (knockedBack)
+            if (knockedBack || isStunned)
                 return new Rectangle(0, 420, 150, 140);
 
             if (!hostile)
@@ -90,7 +90,7 @@ namespace ISurvived
         public override void Update(int mapWidth)
         {
             base.Update(mapWidth);
-            if (!respawning)
+            if (!respawning && !isStunned)
             {
 
                 UpdatePlayerAttackPoints();
@@ -120,9 +120,9 @@ namespace ISurvived
                 }
 
                 if (attacking)
-                    CheckWalkCollisions(19, new Vector2(3, -5));
+                    CheckWalkCollisions(135, new Vector2(3, -5));
                 else
-                    CheckWalkCollisions(16, new Vector2(3, -5));
+                    CheckWalkCollisions(125, new Vector2(3, -5));
             }
             vitalRec.X = rec.X;
             vitalRec.Y = rec.Y;

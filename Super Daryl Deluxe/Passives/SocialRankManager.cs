@@ -21,7 +21,7 @@ namespace ISurvived
            allSocialRanks = new List<SocialRank>();
            SocialRank FlowerBoy = new SocialRank() {socialRank = "Flower Boy",  karmaNeeded = 1, passiveGrantedThisRank = PassiveManager.allPassives["You Have Friends!"]};
 
-           SocialRank AirJordan = new SocialRank() {socialRank = "Air Jordan", karmaNeeded = 10, passiveGrantedThisRank = PassiveManager.allPassives["Double Jump"] };
+           SocialRank AirJordan = new SocialRank() {socialRank = "Air Jordan", karmaNeeded = 15, passiveGrantedThisRank = PassiveManager.allPassives["Double Jump"] };
 
 
            //Add the passives IN ORDER OF INCREASING KARMA REQUIRED

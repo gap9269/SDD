@@ -86,11 +86,11 @@ icon = Game1.equipmentTextures[name];
         {
             health = 0;
             strength = 0;
-            defense = 5;
+            defense = 10;
             moveSpeed = 0;
             jumpHeight = 0;
             name = "Toga";
-            level = 1;
+            level = 14;
             description = "Julius Caesar's own personal toga. \n\n";
 icon = Game1.equipmentTextures[name];
         }

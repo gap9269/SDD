@@ -48,7 +48,7 @@ namespace ISurvived
 
         public override void PlayBackgroundMusic()
         {
-            Sound.PlayBackGroundMusic("Exploring");
+            //Sound.PlayBackGroundMusic("Exploring");
         }
 
         public override void LoadContent()
@@ -58,16 +58,16 @@ namespace ISurvived
             game.NPCSprites["Squirrel Boy"] = content.Load<Texture2D>(@"NPC\Party\squirrelKid");
             Game1.npcFaces["Squirrel Boy"].faces["Normal"] = content.Load<Texture2D>(@"NPCFaces\Party\SquirrelBoy");
 
-            //If the last map does not have the same music
-            if (Chapter.lastMap != "The Goats")
-            {
-                SoundEffect bg1 = Sound.backgroundMusicContent.Load<SoundEffect>(@"Sound\Hidden Agenda");
-                SoundEffectInstance backgroundMusic1 = bg1.CreateInstance();
-                backgroundMusic1.IsLooped = true;
-                Sound.music.Add("Exploring", backgroundMusic1);
-            }
+            ////If the last map does not have the same music
+            //if (Chapter.lastMap != "The Goats")
+            //{
+            //    SoundEffect bg1 = Sound.backgroundMusicContent.Load<SoundEffect>(@"Sound\Hidden Agenda");
+            //    SoundEffectInstance backgroundMusic1 = bg1.CreateInstance();
+            //    backgroundMusic1.IsLooped = true;
+            //    Sound.music.Add("Exploring", backgroundMusic1);
+            //}
 
-            Sound.backgroundVolume = 1f;
+            //Sound.backgroundVolume = 1f;
         }
 
         public override void UnloadNPCContent()
@@ -78,10 +78,10 @@ namespace ISurvived
 
             Game1.npcFaces["Squirrel Boy"].faces["Normal"] = Game1.whiteFilter;
 
-            if (Chapter.theNextMap != "TheGoats")
-            {
-                Sound.UnloadBackgroundMusic();
-            }
+            //if (Chapter.theNextMap != "TheGoats")
+            //{
+            //    Sound.UnloadBackgroundMusic();
+            //}
         }
         public override void Update()
         {

@@ -15,22 +15,19 @@ namespace ISurvived
             game = g;
             questDialogue.Add("Whoa there! Where is all of your equipment? Don't you know anything" +
                                " about 'Dwarves and Druids'?");
-            questDialogue.Add("The Number One Rule: It's dangerous to go alo- ...uh, by yourself.");
-            questDialogue.Add("I'm surprised you've survived as long as you have. You need someone to teach you about your inventory obviously.");
-            questDialogue.Add("In D&D we all have a page in our handbook that represents our inventory. It holds a bunch of information, like our equipment, stats, and items.");
+            questDialogue.Add("The Number One Rule is: It's dangerous to go al- -  err... uh, by yourself.");
+            questDialogue.Add("I'm like, surprised you've survived as long as you have. You obviously need a seasoned instructor to teach you about your inventory.");
+            questDialogue.Add("In D&D we all have, like, a page in our handbook that represents our inventory. It holds a bunch of information, like our equipment, stats, and items.");
             questDialogue.Add("There are four types of equipment in D&D: Weapons, Hats, Outfits, and Accessories. Our " +
                               "inventory has special tabs for each type. Just click through them to view your equipment.");
             questDialogue.Add("Each type of equipment does something different for your stats. Weapons add strength, and sometimes " +
                               "you can dual wield them.");
-            questDialogue.Add("Helmets add health, Chest Plates add defense, and accessories can do a whole bunch of things. " +
-                              "You can even wear two accessories!");
-            questDialogue.Add("Here, give it a try! Equip this mighty weapon through your inventory and talk to me when " +
-                              "you've figured it out.");
-            questDialogue.Add("Why haven't you equipped the weapon yet?");
+            questDialogue.Add("Hats add health, Outfits add defense, and accessories can do a whole bunch of things. " +
+                              "You can even wear two accessories.");
+            questDialogue.Add("Give it a try, young warrior. Equip this mighty weapon through your inventory and talk to me when you've figured it out.");
+            questDialogue.Add("Why haven't you equipped the mighty weapon yet?");
             completedDialogue.Add("You look fierce already!");
-            completedDialogue.Add("Keep collecting equipment and you'll be ready to explore dungeons in no time. " +
-                                  "Remember that equipment has a level requirement though; the Game Master won't let you wear equipment that is too" +
-                                  " strong for you.");
+            completedDialogue.Add("Keep collecting equipment and you'll be, like, exploring dungeons in no time. Remember that equipment has a level requirement though; the Game Master won't let you wear equipment that is too strong for you.");
             rewardObjects.Add(new Karma(1));
 
             specialConditions.Add("Equip a mighty weapon", false);

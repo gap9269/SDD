@@ -98,14 +98,14 @@ namespace ISurvived
             haze2 = content.Load<Texture2D>(@"Maps\Chelseas\PartyHaze2");
             haze3 = content.Load<Texture2D>(@"Maps\Chelseas\PartyHaze3");
 
-            //If the last map does not have the same music
-            if (Chapter.lastMap != "Behind the Party" && Chapter.lastMap != "Outside the Party")
-            {
-                SoundEffect bg = Sound.backgroundMusicContent.Load<SoundEffect>(@"Sound\Who Likes to Party");
-                SoundEffectInstance backgroundMusic = bg.CreateInstance();
-                backgroundMusic.IsLooped = true;
-                Sound.music.Add("The Party", backgroundMusic);
-            }
+            ////If the last map does not have the same music
+            //if (Chapter.lastMap != "Behind the Party" && Chapter.lastMap != "Outside the Party")
+            //{
+            //    SoundEffect bg = Sound.backgroundMusicContent.Load<SoundEffect>(@"Sound\Who Likes to Party");
+            //    SoundEffectInstance backgroundMusic = bg.CreateInstance();
+            //    backgroundMusic.IsLooped = true;
+            //    Sound.music.Add("The Party", backgroundMusic);
+            //}
         }
 
         public override void UnloadNPCContent()
@@ -124,16 +124,16 @@ namespace ISurvived
             Game1.npcFaces["Paul"].faces["Arrogant"] = Game1.whiteFilter;
             Game1.npcFaces["Paul"].faces["Fonz"] = Game1.whiteFilter;
 
-            //DOn't clear the music if the next map is behind the party
-            if (Chapter.theNextMap != "BehindtheParty" && Chapter.theNextMap != "OutsidetheParty")
-            {
-                Sound.UnloadBackgroundMusic();
-            }
+            ////DOn't clear the music if the next map is behind the party
+            //if (Chapter.theNextMap != "BehindtheParty" && Chapter.theNextMap != "OutsidetheParty")
+            //{
+            //    Sound.UnloadBackgroundMusic();
+            //}
         }
 
         public override void PlayBackgroundMusic()
         {
-            Sound.PlayBackGroundMusic("The Party");
+            //Sound.PlayBackGroundMusic("The Party");
         }
 
         public override void Update()

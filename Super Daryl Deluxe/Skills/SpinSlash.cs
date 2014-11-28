@@ -32,28 +32,28 @@ namespace ISurvived
         {
 
             //--Base Stats
-            damage = .3f;
+            damage = .4f;
             experience = 0;
-            experienceUntilLevel = 100;
+            experienceUntilLevel = 500;
             skillRank = 1;
             name = "Sharp Comments";
-            description = "Daryl swings a sword around like a maniac in both directions. Tap quickly as rank increases for more swings. \n# of Swings: 1";
+            description = "Daryl swings a sword around like a maniac in both directions. Tap quickly as rank increases for more swings. # of Swings: 1";
             fullCooldown = 65;
             //--Animation and skill attributes
             animationLength = 0;
             phase = 0;
             timer = -1;
             canUse = true;
-            costToBuy = 2;
+            costToBuy = 1;
             levelToUse = 3;
             skillBarColor = new Color(255, 120, 0);
 
             skillType = AttackType.AttackTypes.Cut;
             rangedOrMelee = AttackType.RangedOrMelee.Melee;
 
-            playerLevelRequiredToLevel.Add(3);
-            playerLevelRequiredToLevel.Add(3);
-            playerLevelRequiredToLevel.Add(8);
+            playerLevelRequiredToLevel.Add(14);
+            playerLevelRequiredToLevel.Add(14);
+            playerLevelRequiredToLevel.Add(15);
         }
 
         public override Rectangle GetSourceRec()
@@ -108,7 +108,7 @@ namespace ISurvived
                     timer = defaultTimer;
                     phase = 1;
                     hitPauseTime = 1;
-                    Sound.skillSoundEffects["SharpCommentsUse1"].CreateInstance().Play();
+                    PlayRandomUseSound();
                 }
 
                 //--Second press, cooldown is set back to 100, and restarts the timer
@@ -121,7 +121,8 @@ namespace ISurvived
                     phase = 2;
                     hitPauseTime = 1;
                     hitPauseTime = 1;
-                    Sound.skillSoundEffects["SharpCommentsUse1"].CreateInstance().Play();
+                    PlayRandomUseSound();
+
                 }
 
                 //--On the third hit, give the skill experience
@@ -135,7 +136,7 @@ namespace ISurvived
                     timer = defaultTimer;
                     phase = 3;
                     hitPauseTime = 1;
-                    Sound.skillSoundEffects["SharpCommentsUse1"].CreateInstance().Play();
+                    PlayRandomUseSound();
                 }
             #endregion
             }
@@ -188,7 +189,7 @@ namespace ISurvived
                         phase = 2;
                         hitPauseTime = 1;
                         moveFrame = 0;
-                        Sound.skillSoundEffects["SharpCommentsUse1"].CreateInstance().Play();
+                        PlayRandomUseSound();
                     }
 
                     break;
@@ -235,7 +236,7 @@ namespace ISurvived
                         phase = 3;
                         hitPauseTime = 1;
                         moveFrame = 0;
-                        Sound.skillSoundEffects["SharpCommentsUse1"].CreateInstance().Play();
+                        PlayRandomUseSound();
                     }
                     break;
                 case 3:
@@ -503,23 +504,23 @@ namespace ISurvived
             switch (skillRank)
             {
                 case 2:
-                    damage = .35f;
+                    damage = .4f;
                     experience = 0;
                     fullCooldown = 65;
-                    experienceUntilLevel = 300;
-                    description = "Daryl swings a sword around like a maniac. Tap quickly as rank increases for more swings. \n# of Swings: 2";
+                    experienceUntilLevel = 700;
+                    description = "Daryl swings a sword around like a maniac. Tap quickly as rank increases for more swings. # of Swings: 2";
                     break;
                 case 3:
-                    damage = .4f;
+                    damage = .45f;
                     fullCooldown = 65;
-                    experienceUntilLevel = 5000;
-                    description = "Daryl swings a sword around like a maniac. Tap quickly as rank increases for more swings. \n# of Swings: 3";
+                    experienceUntilLevel = 1200;
+                    description = "Daryl swings a sword around like a maniac. Tap quickly as rank increases for more swings. # of Swings: 3";
                     experience = 0;
                     break;
                 case 4:
-                    damage = .6f;
+                    damage = .5f;
                     experience = 0;
-                    description = "Daryl swings a sword around like a maniac. Tap quickly as rank increases for more swings. \n# of Swings: 3";
+                    description = "Daryl swings a sword around like a maniac. Tap quickly as rank increases for more swings. # of Swings: 3";
                     //name = "Deliberate Dissimilarities";
                     break;
             }

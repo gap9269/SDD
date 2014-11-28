@@ -11,13 +11,13 @@ namespace ISurvived
         public PeltKidsHat()
             : base()
         {
-            health = 10;
+            health = 180;
             strength = 0;
             defense = 0;
             moveSpeed = 0;
             jumpHeight = 0;
             name = "Pelt Kid's Hat";
-            level = 4; //Make this 4 for the demo
+            level = 15; //Make this 4 for the demo
             description = "The charred remains of Pelt Kid's hat. You sick bastard. \n\n";
             icon = Game1.equipmentTextures[name];
         }

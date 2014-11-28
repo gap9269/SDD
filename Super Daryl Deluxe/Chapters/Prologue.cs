@@ -174,30 +174,38 @@ namespace ISurvived
             chapterScenes.Add(prologueEnd);
 
             //Change to cutscene to play scene
-            state = GameState.Game;
-            cutsceneState = 4;
+            state = GameState.Cutscene;
+            cutsceneState = 1;
 
-            
-            synopsis = "Your name is Daryl Whitelaw, and you have just arrived at your new highschool. You have met the vice principal, " +
-                "Mr. Robatto, and two students, Paul and Alan. Paul and Alan were reluctant to accept you into their social circle, " +
-                "but after finding them a piece of paper containing Tim's locker combination they seem to be warming up to you.";
+
+            synopsis = "Your name is Daryl Whitelaw, and today was your first day at Water Falls High School. You were warmly welcomed by the vice principal, Mr. Robatto, who, while directing you to your new locker, introduced you to two of your peers, Paul and Alan. To allow the seeds of friendship to grow, Robatto left you kids alone. Paul and Alan were reluctant to accept you into their social circle, but after you recovered for them a piece of paper containing their good friend Tim's locker combination, along with a bouquet of dandelions, they decided you were of use after all.";
 
             game.Notebook.Journal.prologueSynopsisRead = false;
 
             game.YourLocker.SkillsOnSale.Add(SkillManager.AllSkills["Blinding Logic"]);
 
             //player.EquippedSkills.Add(SkillManager.AllSkills["Discuss Differences"]);
+            //player.EquippedSkills[0].SkillRank = 3;
+            //player.EquippedSkills[0].ApplyLevelUp();
+            //player.EquippedSkills.Add(SkillManager.AllSkills["Blinding Logic"]);
+            //player.EquippedSkills[1].SkillRank = 2;
+            //player.EquippedSkills[1].ApplyLevelUp();
+
+           // player.CanJump = true;
         }
 
         public override void Update()
         {
             //player.AddStoryItemWithoutPopup("Piece of Paper", 1);
             //player.AddStoryItemWithoutPopup("Dandelion", 3);
-            if (player.LearnedSkills.Count == 2)
-            {
-                player.Strength = 100;
-                player.LearnedSkills.Add(SkillManager.AllSkills["Blinding Logic"]);
-            }
+
+           // player.Health = 3;
+            //player.Health = 0;
+            //if (player.LearnedSkills.Count == 2)
+            //{
+            //    player.Strength = 100;
+            //    player.LearnedSkills.Add(SkillManager.AllSkills["Blinding Logic"]);
+            //}
 
            // player.EquippedSkills.Add(SkillManager.AllSkills["Blinding Logic"]);
 
@@ -206,6 +214,15 @@ namespace ISurvived
                 NorthHall.ToGymLobby.IsUseable = false;
                 MainLobby.ToSideHall.IsUseable = false;
                 NorthHall.ToUpstairs.IsUseable = false;
+            }
+
+            if (questOne.CompletedQuest == false)
+            {
+                NorthHall.ToBathroom.IsUseable = false;
+            }
+            else if(!NorthHall.ToBathroom.IsUseable)
+            {
+                NorthHall.ToBathroom.IsUseable = true;
             }
 
             cursor.Update();
@@ -220,11 +237,11 @@ namespace ISurvived
             {
                 base.Update();
 
-                if(current.IsKeyUp(Keys.P) && last.IsKeyDown(Keys.P))
+                if (current.IsKeyUp(Keys.P) && last.IsKeyDown(Keys.P))
                 {
-                    player.EquippedSkills[0].SkillRank++;
-                  // player.Experience = player.ExperienceUntilLevel;
-                   // player.Karma++;
+                    //player.EquippedSkills[0].SkillRank++;
+                     //player.Experience = player.ExperienceUntilLevel;
+                    // player.Karma++;
                 }
 
                 AddNPCs();
@@ -304,7 +321,7 @@ namespace ISurvived
                         //--Start the business cutscene when you talk to Paul or Alan
                         if (prologueBooleans["fourthSceneNotPlayed"] && questTwo.CompletedQuest && (paul.Talking || alan.Talking))
                         {
-                            synopsis += "\n\nUsing the combination, you placed a handful of flowers in Tim's locker, and earned the friendship of Paul and Alan. They gave you an old book that they said would help you interact with other students and make more friends. Of course, they ripped the pages out of it and demand that you give them physics textbooks in return for more skills. ";
+                            synopsis += "\n\nAt the suggestion of Paul and Alan, you placed the beautiful bouquet in Tim's locker to strengthen the bond of friendship between all parties involved. To reward you for the favor, they gave you an old self-help book titled Interacting With Others, which they claimed would help you interact with other students and make more friends. Like good friends, they saved you the trouble of ripping out all the pages. To ensure your continued comradery, you were officially employed by them to collect contraband textbooks for them to sell on the highly competitive textbook market. As payment, you would receive chapters of the self-help book to expand your social interaction horizons, and as Alan claimed, \"become the Fonz in no time.\". To get you started, they graciously gave you a social skill for free and sent you off to the Science Room to clean out the textbook collection they alleged remained from the massive school-wide renovation and peculiar classroom lockdown a year prior.";
 
 
                             prologueBooleans["fourthSceneNotPlayed"] = false;
@@ -346,8 +363,6 @@ namespace ISurvived
                             alan.Dialogue.Add("Paul has the key.");
 
                             paul.RemoveQuest(questFour);
-                            //Re-add it so it stays in your Quest Page for now.
-                            Game1.g.CurrentQuests.Add(questFour);
                             paul.AddQuest(questFive);
                             prologueBooleans["giveKey"] = true;
 
@@ -386,10 +401,9 @@ namespace ISurvived
 
                         if (player.LearnedSkills.Count == 2 && prologueBooleans["equippedSecondSkill"] == false)
                         {
-                            paul.Dialogue.Clear();
                             alan.Dialogue.Clear();
-
-                            paul.Dialogue.Add("Glad we could do business. Go ahead and give that new page a try.");
+                            paul.DialogueState++;
+                            paul.QuestDialogue.Add("Glad we could do business. Go ahead and give that new page a try.");
                             alan.Dialogue.Add("Try it out!");
 
                             prologueBooleans["equippedSecondSkill"] = true;
@@ -462,14 +476,11 @@ namespace ISurvived
                             if (player.Textbooks == 1 && prologueBooleans["gotTextbook"] == false)
                             {
                                 prologueBooleans["gotTextbook"] = true;
-                                questFive.RewardPlayer();
+                                //questFive.RewardPlayer();
 
-                                paul.RemoveQuest(questFive);
-                                Game1.questHUD.RemoveQuestFromHelper(questFive); //Add it back for the current quest page
-                                paul.Dialogue.Clear();
                                 alan.Dialogue.Clear();
-
-                                paul.Dialogue.Add("Only one textbook? Well, it's not impressive but it's a start. Step into our shop and we'll make a deal.");
+                                paul.DialogueState++;
+                                paul.QuestDialogue.Add("Only one textbook? Well, it's not impressive but it's a start. Step into our shop and we'll make a deal.");
                                 alan.Dialogue.Add("Come on into the shop. You're our first customer!");
 
                                 if (nPCs["Paul"].RecX != 2880)
@@ -489,7 +500,9 @@ namespace ISurvived
                             //--Start the tim boss fight
                             if (!prologueBooleans["fifthSceneNotPlayed"] && player.EquippedSkills.Count == 2 && prologueBooleans["sixthSceneNotPlayed"])
                             {
-
+                                paul.RemoveQuest(questFive);
+                                Game1.questHUD.RemoveQuestFromHelper(questFive);
+                                questFive.RewardPlayer();
                                 alan.FacingRight = true;
                                 paul.FacingRight = true;
                                 prologueBooleans["addedTim"] = true;
@@ -497,9 +510,7 @@ namespace ISurvived
                                 prologueBooleans["sixthSceneNotPlayed"] = false;
                                 state = GameState.Cutscene;
 
-
-
-                                synopsis += "\n\nThe science room was locked, and Alan lost the key to the Janitor's closet, so in the meantime you met a bunch of roleplayers around the school that taught you how to play Dwarves and Druids. Eventually you returned and were given the Janitor's key, which you used to steal the keys to open locked classrooms. In the science room you discovered that one of Trenchcoat Kid's cronies had already stolen the physics books, but he sold you one for the money you stole from Tim's locker, which quite frankly makes me question your character.";
+                                synopsis += "\n\nUnsurprisingly, the science room was locked. Luckily for you, Paul had a key to the Janitor's Closet. In order to locate the exact whereabouts of this key, they sent you away so they could find it in peace. In your quest to give your new friends some space, you encountered a scattered group of role players on a quest of their own, quests from the realm of Dwarves & Druids: the coolest game ever. One by one they taught you the basics of role playing while simultaneously teaching you some tips for properly playing Super Daryl Deluxe, only in a way that broke the fourth wall much more subtly than your journal just did. Soon you returned to Paul and Alan and were given the closet keys. After a rather quick and painless trespass, you found the Science Room keys and finally began your mission.  You ventured through the completely normal, if not a bit dusty science room and met a kid in a trenchcoat who had already cleared the room of all textbooks. All was not in vain, however, as he was more than happy to sell you one for a small price. Luckily, you had stolen Tim's lunch money from his locker, like a real jerk, and were more than able to pay.";
                             }
                             #endregion
 
@@ -613,8 +624,8 @@ null, null, null, null, camera.StaticTransform);
                 //--Level up NPC
                 List<String> dialogueSave = new List<string>();
                 dialogueSave.Add("I save every time I come in here!");
-                saveInstructor = new NPC(game.NPCSprites["Save Instructor"], dialogueSave, saveQuest,
-                    new Rectangle(470, 680 - 388, 516, 388), player, game.Font, game,  "Bathroom" , "Save Instructor", false);
+                saveInstructor = new NPC(game.NPCSprites["Saving Instructor"], dialogueSave, saveQuest,
+                    new Rectangle(470, 680 - 388, 516, 388), player, game.Font, game, "Bathroom", "Saving Instructor", false);
                 nPCs.Add("SaveInstructor", saveInstructor);
             }
 
@@ -623,8 +634,8 @@ null, null, null, null, camera.StaticTransform);
                 //--Journal Instructor
                 List<String> dialogueJournal = new List<string>();
                 dialogueJournal.Add("Organization is power!");
-                journalInstructor = new NPC(game.NPCSprites["Journal Instructor"], dialogueJournal, journalQuest,
-                    new Rectangle(1630, 670 - 388, 516, 388), player, game.Font, game,  "North Hall" , "Journal Instructor", false);
+                journalInstructor = new NPC(game.NPCSprites["Keeper of the Quests"], dialogueJournal, journalQuest,
+                    new Rectangle(1630, 670 - 388, 516, 388), player, game.Font, game, "North Hall", "Keeper of the Quests", false);
 
                 nPCs.Add("JournalInstructor", journalInstructor);
             }
@@ -635,8 +646,8 @@ null, null, null, null, camera.StaticTransform);
                 //--Skill Instructor next to Daryl's Locker
                 List<String> dialogueSkill = new List<string>();
                 dialogueSkill.Add("Only through knowledge of skills will one obtain true power.");
-                skillInstructor = new NPC(game.NPCSprites["Skill Instructor"], dialogueSkill, skillQuest,
-                    new Rectangle(3350, 680 - 395, 516, 388), player, game.Font, game, "North Hall" , "Skill Instructor", false);
+                skillInstructor = new NPC(game.NPCSprites["Skill Sorceress"], dialogueSkill, skillQuest,
+                    new Rectangle(3350, 680 - 395, 516, 388), player, game.Font, game, "North Hall", "Skill Sorceress", false);
 
                 nPCs.Add("SkillInstructor", skillInstructor);
                 #endregion
@@ -649,16 +660,16 @@ null, null, null, null, camera.StaticTransform);
                 //--Inventory Instructor
                 List<String> dialogueEquipment = new List<string>();
                 dialogueEquipment.Add("I scored this sweet helmet of +2 Dwarf Slaying from a raid yesterday.");
-                inventoryInstructor = new NPC(game.NPCSprites["Equipment Instructor"], dialogueEquipment, inventoryQuest,
-                    new Rectangle(500, 680 - 388, 516, 388), player, game.Font, game,  "The Quad" , "Equipment Instructor", false);
+                inventoryInstructor = new NPC(game.NPCSprites["Weapons Master"], dialogueEquipment, inventoryQuest,
+                    new Rectangle(500, 680 - 388, 516, 388), player, game.Font, game, "The Quad", "Weapons Master", false);
 
                 nPCs.Add("InventoryInstructor", inventoryInstructor);
 
                 //--Karma Instructor
                 List<String> dialogueKarma = new List<string>();
                 dialogueKarma.Add("I'm almost a Level 5 'Wizard'!");
-                karmaInstructor = new NPC(game.NPCSprites["Karma Instructor"], dialogueKarma, karmaQuest,
-                    new Rectangle(1500, 255, 516, 388), player, game.Font, game,  "Main Lobby", "Karma Instructor", false);
+                karmaInstructor = new NPC(game.NPCSprites["Karma Shaman"], dialogueKarma, karmaQuest,
+                    new Rectangle(1500, 255, 516, 388), player, game.Font, game,  "Main Lobby", "Karma Shaman", false);
                 karmaInstructor.FacingRight = true;
                 nPCs.Add("KarmaInstructor", karmaInstructor);
                 #endregion

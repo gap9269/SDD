@@ -40,21 +40,21 @@ namespace ISurvived
                     DropHealth();
                     DropMoney();
 
-                    if (drop != null)
-                    {
-                        EnemyDrop tempDrop = new EnemyDrop(drop as Equipment, new Rectangle(rec.Center.X, rec.Center.Y, 50, 50));
-                        game.CurrentChapter.CurrentMap.Drops.Add(tempDrop);
-                    }
-                    else if (enemyDrop != "" && enemyDrop != null)
-                    {
-                        EnemyDrop tempDrop = new EnemyDrop(enemyDrop, new Rectangle(rec.Center.X, rec.Center.Y, 50, 50));
-                        game.CurrentChapter.CurrentMap.Drops.Add(tempDrop);
-                    }
-                    else if (storyItem != null)
-                    {
-                        EnemyDrop tempDrop = new EnemyDrop(storyItem, new Rectangle(rec.Center.X, rec.Center.Y, 50, 50));
-                        game.CurrentChapter.CurrentMap.Drops.Add(tempDrop);
-                    }
+                    //if (drop != null)
+                    //{
+                    //    EnemyDrop tempDrop = new EnemyDrop(drop as Equipment, new Rectangle(rec.Center.X, rec.Center.Y, 50, 50));
+                    //    game.CurrentChapter.CurrentMap.Drops.Add(tempDrop);
+                    //}
+                    //else if (enemyDrop != "" && enemyDrop != null)
+                    //{
+                    //    EnemyDrop tempDrop = new EnemyDrop(enemyDrop, new Rectangle(rec.Center.X, rec.Center.Y, 50, 50));
+                    //    game.CurrentChapter.CurrentMap.Drops.Add(tempDrop);
+                    //}
+                    //else if (storyItem != null)
+                    //{
+                    //    EnemyDrop tempDrop = new EnemyDrop(storyItem, new Rectangle(rec.Center.X, rec.Center.Y, 50, 50));
+                    //    game.CurrentChapter.CurrentMap.Drops.Add(tempDrop);
+                    //}
                 }
             }
             base.Update();
@@ -159,17 +159,17 @@ namespace ISurvived
             mapWithMapQuest = true;
 
             MapQuestSign sign = new MapQuestSign(1000, platforms[0].Rec.Y - Game1.mapSign.Height, "Clear the area of enemies!", enemiesToKill,
-enemiesKilledForQuest, enemyNames, player, new List<Object>() { new Experience(50), new Money(7.50f), new HandSaw() });
+enemiesKilledForQuest, enemyNames, player, new List<Object>() { new Experience(850), new Money(7.50f), new HandSaw() });
             mapQuestSigns.Add(sign);
             
             
-            Scarecrow scare = new Scarecrow(game, 670, 630, Game1.interactiveObjects["Scarecrow"], true, 5, 5, .03f, false);
+            Scarecrow scare = new Scarecrow(game, 670, 630, Game1.interactiveObjects["Scarecrow"], true, 5, 200, .03f, false);
             interactiveObjects.Add(scare);
 
-            Scarecrow scare1 = new Scarecrow(game, 0, 94, Game1.interactiveObjects["Scarecrow"], true, 5, 5, .16f, true);
+            Scarecrow scare1 = new Scarecrow(game, 0, 94, Game1.interactiveObjects["Scarecrow"], true, 5, 130, .16f, true);
             interactiveObjects.Add(scare1);
 
-            Scarecrow scare2 = new Scarecrow(game, 2000, -495, Game1.interactiveObjects["Scarecrow"], true, 5, 5, .38f, true);
+            Scarecrow scare2 = new Scarecrow(game, 2000, -495, Game1.interactiveObjects["Scarecrow"], true, 5, 175, .38f, true);
             interactiveObjects.Add(scare2);
 
             enemyNamesAndNumberInMap.Add("Crow", 0);
@@ -214,40 +214,40 @@ enemiesKilledForQuest, enemyNames, player, new List<Object>() { new Experience(5
             eyes2 = new SpookyEyes(eyes, 536, 1127 - 1440);
             eyes3 = new SpookyEyes(eyes, 342, 1773 - 1440);
 
-            //If the last map does not have the same music
-            if (Chapter.lastMap != "Spooky Field")
-            {
-                SoundEffect bg = Sound.backgroundMusicContent.Load<SoundEffect>(@"Sound\Black Vortex");
-                SoundEffectInstance backgroundMusic = bg.CreateInstance();
-                backgroundMusic.IsLooped = true;
-                Sound.music.Add("Spooky Field", backgroundMusic);
-                Sound.backgroundVolume = 1f;
-            }
+            ////If the last map does not have the same music
+            //if (Chapter.lastMap != "Spooky Field")
+            //{
+            //    SoundEffect bg = Sound.backgroundMusicContent.Load<SoundEffect>(@"Sound\Black Vortex");
+            //    SoundEffectInstance backgroundMusic = bg.CreateInstance();
+            //    backgroundMusic.IsLooped = true;
+            //    Sound.music.Add("Spooky Field", backgroundMusic);
+            //    Sound.backgroundVolume = 1f;
+            //}
         }
 
         public override void UnloadNPCContent()
         {
             base.UnloadNPCContent();
 
-            if (Chapter.theNextMap != "SpookyField")
-            {
-                Sound.UnloadBackgroundMusic();
-            }
+            //if (Chapter.theNextMap != "SpookyField")
+            //{
+            //    Sound.UnloadBackgroundMusic();
+            //}
         }
 
         public override void PlayBackgroundMusic()
         {
             base.PlayBackgroundMusic();
 
-            Sound.PlayBackGroundMusic("Spooky Field");
+            //Sound.PlayBackGroundMusic("Spooky Field");
         }
 
         public override void LoadEnemyData()
         {
             base.LoadEnemyData();
 
-            game.EnemySpriteSheets.Add("Crow", content.Load<Texture2D>(@"EnemySprites\CrowSheet"));
-            game.EnemySpriteSheets.Add("Scarecrow", content.Load<Texture2D>(@"EnemySprites\ScarecrowSheet"));
+            EnemyContentLoader.Scarecrow(content);
+            EnemyContentLoader.Crow(content);
             game.EnemySpriteSheets.Add("Field Goblin", content.Load<Texture2D>(@"EnemySprites\FieldGoblinSheet"));
         }
 

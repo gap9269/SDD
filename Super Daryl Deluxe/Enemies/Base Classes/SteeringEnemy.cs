@@ -73,7 +73,7 @@ namespace ISurvived
  	        base.Update(mapwidth);
 
 
-            if (!knockedBack)
+            if (!knockedBack && !isStunned)
             {
                 UpdateRight();
 

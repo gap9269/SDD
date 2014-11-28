@@ -194,8 +194,8 @@ namespace ISurvived
                 case 1:
                     if (firstFrameOfTheState)
                     {
-                        tim.Dialogue.Add("I know it was one of you two. I'm sick of your shit.");
-                        tim.Dialogue.Add("I don't know how you keep getting into my locker, but this is the last time it's going to happen.");
+                        tim.Dialogue.Add("Yeah, it was hilarious sending me to the hospital the last time.  Life's a fuckin' joke to people with deadly pollen allergies.");
+                        tim.Dialogue.Add("I know it was one of you two. I don't know how you keep getting into my locker, but this is the last time it's going to happen. I'm gonna send you both to the hospital!");
                         tim.Talking = true;
                     }
 
@@ -300,7 +300,7 @@ namespace ISurvived
                 case 7:
                     if (firstFrameOfTheState)
                     {
-                        tim.Dialogue.Add("You're new, eh? Well I'll give you one chance to say sorry to me, kid, or else you're gonna get it.");
+                        tim.Dialogue.Add("New, huh? Well I'll give you one chance to say sorry to me, or else you're dead.");
                         tim.Talking = true;
                         paul.Position = new Vector2(paul.RecX, paul.RecY);
                         alan.Position = new Vector2(alan.RecX, alan.RecY);
@@ -334,8 +334,7 @@ namespace ISurvived
                 case 9:
                     if (firstFrameOfTheState)
                     {
-                        tim.Dialogue.Add("Too tough to say anything, huh?");
-                        tim.Dialogue.Add("That's it!");
+                        tim.Dialogue.Add("Too tough to say anything, huh? That's it!");
                         tim.Talking = true;
                     }
 
@@ -436,9 +435,9 @@ namespace ISurvived
                         camera.Update(camFollow, game, game.CurrentChapter.CurrentMap);
 
                         //--Pillars
-                        NorthHall.leftPillar = new Platform(Game1.platformTextures.ElementAt(0).Value, new Rectangle(2200, 0, 100, 800), false, false, false);
+                        NorthHall.leftPillar = new Platform(Game1.platformTextures.ElementAt(0).Value, new Rectangle(2200, -1000, 100, 3000), false, false, false);
                         Game1.schoolMaps.maps["NorthHall"].Platforms.Add(NorthHall.leftPillar);
-                        NorthHall.rightPillar = new Platform(Game1.platformTextures.ElementAt(0).Value, new Rectangle(4000, 0, 100, 800), false, false, false);
+                        NorthHall.rightPillar = new Platform(Game1.platformTextures.ElementAt(0).Value, new Rectangle(4000, -1000, 100, 3000), false, false, false);
                         Game1.schoolMaps.maps["NorthHall"].Platforms.Add(NorthHall.rightPillar);
 
                         //--Steps on Pillars
@@ -571,7 +570,7 @@ null, null, null, null, camera.StaticTransform);
                      
 
                     if(timer > 2)
-                        DrawDialogue(s);
+                        DrawDialogue(s, true);
                     s.End();
                     break;
 

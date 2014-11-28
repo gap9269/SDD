@@ -22,6 +22,7 @@ namespace ISurvived
         Boolean playerFalling = false;
         GameObject camFollow = new GameObject();
         int goblinIndex = 0;
+        SoundEffect gateCollapseSound;
 
         //--Takes in a background and all necessary objects
         public GateCollapseScene(Game1 g, Camera cam, Player player)
@@ -44,7 +45,12 @@ namespace ISurvived
             else
                 return new Rectangle(998 * (explosionFrame - 12), 2298, 998, 766);
         }
+        public override void LoadContent()
+        {
+            base.LoadContent();
 
+            gateCollapseSound = content.Load<SoundEffect>(@"Sound\Cutscenes\cutscene_goblin_gate");
+        }
         public override void Play()
         {
             base.Play();
@@ -57,14 +63,22 @@ namespace ISurvived
 
                     if (firstFrameOfTheState)
                     {
+                        LoadContent();
                         game.Camera.ShakeCamera(30, 20);
                         camFollow.PositionX = player.VitalRec.Center.X;
                         camFollow.YScroll = true;
                         camFollow.RecY = -1450;
                         camFollow.PositionY = -1450;
+                        player.StopSkills();
 
                         camFollow.Rec = new Rectangle((int)camFollow.PositionX, (int)camFollow.PositionY, 1, 1);
+                        gateCollapseSound.CreateInstance().Play();
                     }
+
+                    if (Sound.ambienceVolume > 0)
+                        Sound.IncrementAmbienceVolume(-.005f);
+                    else
+                        Sound.StopAmbience();
 
                     camera.Update(camFollow, game, game.CurrentChapter.CurrentMap);
                     explosionTimer--;
@@ -111,7 +125,7 @@ namespace ISurvived
                         Sound.backgroundVolume = 0f;
                     }
 
-                    if (player.VitalRecY > 300)
+                    if (player.VitalRecY > 250)
                     {
                         game.Camera.ShakeCamera(15, 15);
                         playerFalling = false;
@@ -123,7 +137,6 @@ namespace ISurvived
                     {
                         player.PositionX = 2030;
                         player.PositionY = 320;
-                        player.StopSkills();
                         player.UpdatePosition();
                         player.StunDaryl(250);
                         player.MoveFrame = 3;
@@ -230,6 +243,10 @@ namespace ISurvived
 
                             if (WorkersField.lightRayAlpha > 1f)
                                 WorkersField.lightRayAlpha = 1f;
+
+                            if (Sound.ambienceVolume < 1f)
+                                Sound.IncrementAmbienceVolume(.005f);
+                            game.CurrentChapter.CurrentMap.PlayAmbience();
                         }
                     }
 
@@ -255,6 +272,7 @@ namespace ISurvived
                         player.FrameDelay = 80;
                         player.Health = player.MaxHealth;
                         player.UnlockEnemyBio("Goblin Gate");
+                        UnloadContent();
                     }
                     break;
             }

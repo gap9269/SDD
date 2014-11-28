@@ -12,16 +12,12 @@ namespace ISurvived
         {
             questDialogue.Add("You there! Wanderer!");
             questDialogue.Add("You look like someone who seeks out excitement and lives life in the danger zone.");
-            questDialogue.Add("Well it just so happens that I'm the exact same way! Dangerous souls like us need to stick together " +
-                              "and they sure as heck need to obey the Number One Rule of 'Dwarves and Druids': Always save!");
-            questDialogue.Add("I bet you're wetting yourself with excitement right now. It sure looks like it.");
+            questDialogue.Add("I know my kind when I see it! Dangerous souls like us must stick together, and we sure as heck need to obey the Number One Rule of 'Dwarves and Druids': Always save!");
+            questDialogue.Add("I bet you're wetting yourself with excitement right now. I know I am!");
             questDialogue.Add("Talk to me when you're ready to hear the secrets of saving progress, Wanderer.");
             questDialogue.Add("");
-            completedDialogue.Add("Alright, so here's what you do: Every time you find yourself in super dangerous place or situation " + 
-                                  " and nature calls, just go to that stall over there and make sure you record all of your progress and current stats" +
-                                  " in your 'Dwarves and Druids' handbook.");
-            completedDialogue.Add("It's important, you know! If you lose all of your health the Game Master will make you start from the last time" +
-                                  " you saved. It's super lame, so I make sure to save all the time. Listen to me and you'll never find yourself quitting the game in a blind rage.");
+            completedDialogue.Add("Alright, so here's what you do: Every time you find yourself in a dangerous spot  and nature calls, just find the nearest bathroom and head to that stall over there to update all your progress and stats in your 'Dwarves and Druids' handbook.");
+            completedDialogue.Add("If you lose all your health, the Game Master makes you start over from your last save. It's super lame. I make sure to save all the time. Listen to me, and you'll never quit the game in a blind rage again.");
             completedDialogue.Add("Happy saving, Wanderer.");
 
             rewardObjects.Add(new Karma(1));
@@ -38,7 +34,7 @@ namespace ISurvived
 
             rewards = "1 Karma";
 
-            descriptionForJournal = "You found Goku hanging out in the Bathroom, where he violated the Number One Rule for bathrooms: you never speak to strangers in a bathroom. Of course he DID explain to you how to save your progress, so I guess there's that.";
+            descriptionForJournal = "You found Goku hanging out in the Bathroom, where he violated the Number One Rule for bathrooms: you never speak to strangers in a bathroom. Of course he -did- explain to you how to save your progress, so I guess there's that.";
         }
 
         public override void UpdateQuest()

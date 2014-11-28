@@ -48,7 +48,7 @@ namespace ISurvived
 
         public override void PlayBackgroundMusic()
         {
-            Sound.PlayBackGroundMusic("Exploring");
+            //Sound.PlayBackGroundMusic("Exploring");
         }
 
         public override void LoadContent()
@@ -62,24 +62,24 @@ namespace ISurvived
             tree = content.Load<Texture2D>(@"Maps\Chelseas\ChelseasFieldTree");
             outhouse = content.Load<Texture2D>(@"Maps\Outhouse");
 
-            //If the last map does not have the same music
-            if (Chapter.lastMap != "The Goats")
-            {
-                SoundEffect bg1 = Sound.backgroundMusicContent.Load<SoundEffect>(@"Sound\Hidden Agenda");
-                SoundEffectInstance backgroundMusic1 = bg1.CreateInstance();
-                backgroundMusic1.IsLooped = true;
-                Sound.music.Add("Exploring", backgroundMusic1);
-            }
+            ////If the last map does not have the same music
+            //if (Chapter.lastMap != "The Goats")
+            //{
+            //    SoundEffect bg1 = Sound.backgroundMusicContent.Load<SoundEffect>(@"Sound\Hidden Agenda");
+            //    SoundEffectInstance backgroundMusic1 = bg1.CreateInstance();
+            //    backgroundMusic1.IsLooped = true;
+            //    Sound.music.Add("Exploring", backgroundMusic1);
+            //}
 
-            Sound.backgroundVolume = 1f;
+            //Sound.backgroundVolume = 1f;
 
-            game.NPCSprites["Equipment Instructor"] = content.Load<Texture2D>(@"NPC\DD\inventory");
-            game.NPCSprites["Skill Instructor"] = content.Load<Texture2D>(@"NPC\DD\skill");
-            game.NPCSprites["Save Instructor"] = content.Load<Texture2D>(@"NPC\DD\save");
+            game.NPCSprites["Weapons Master"] = content.Load<Texture2D>(@"NPC\DD\inventory");
+            game.NPCSprites["Skill Sorceress"] = content.Load<Texture2D>(@"NPC\DD\skill");
+            game.NPCSprites["Saving Instructor"] = content.Load<Texture2D>(@"NPC\DD\save");
 
-            Game1.npcFaces["Save Instructor"].faces["Normal"] = content.Load<Texture2D>(@"NPCFaces\D&D\Save");
-            Game1.npcFaces["Skill Instructor"].faces["Normal"] = content.Load<Texture2D>(@"NPCFaces\D&D\Skill");
-            Game1.npcFaces["Equipment Instructor"].faces["Normal"] = content.Load<Texture2D>(@"NPCFaces\D&D\Equipment");
+            Game1.npcFaces["Saving Instructor"].faces["Normal"] = content.Load<Texture2D>(@"NPCFaces\D&D\Save");
+            Game1.npcFaces["Skill Sorceress"].faces["Normal"] = content.Load<Texture2D>(@"NPCFaces\D&D\Skill");
+            Game1.npcFaces["Weapons Master"].faces["Normal"] = content.Load<Texture2D>(@"NPCFaces\D&D\Equipment");
 
 
         }
@@ -88,18 +88,18 @@ namespace ISurvived
         {
             base.UnloadNPCContent();
 
-            game.NPCSprites["Equipment Instructor"] = Game1.whiteFilter;
+            game.NPCSprites["Weapons Master"] = Game1.whiteFilter;
             game.NPCSprites["Skill Instructor"] = Game1.whiteFilter;
             game.NPCSprites["Save Instructor"] = Game1.whiteFilter;
 
-            Game1.npcFaces["Equipment Instructor"].faces["Normal"] = Game1.whiteFilter;
-            Game1.npcFaces["Save Instructor"].faces["Normal"] = Game1.whiteFilter;
-            Game1.npcFaces["Skill Instructor"].faces["Normal"] = Game1.whiteFilter;
+            Game1.npcFaces["Weapons Master"].faces["Normal"] = Game1.whiteFilter;
+            Game1.npcFaces["Saving Instructor"].faces["Normal"] = Game1.whiteFilter;
+            Game1.npcFaces["Skill Sorceress"].faces["Normal"] = Game1.whiteFilter;
 
-            if (Chapter.theNextMap != "TheGoats")
-            {
-                Sound.UnloadBackgroundMusic();
-            }
+            //if (Chapter.theNextMap != "TheGoats")
+            //{
+            //    Sound.UnloadBackgroundMusic();
+            //}
         }
 
         public override void Update()

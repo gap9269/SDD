@@ -11,9 +11,9 @@ namespace ISurvived
         public RileysBow()
             : base()
         {
-            health = 1;
+            health = 2;
             strength = 1;
-            defense = 1;
+            defense = 0;
             moveSpeed = 0;
             jumpHeight = 0;
             name = "Riley's Bow";

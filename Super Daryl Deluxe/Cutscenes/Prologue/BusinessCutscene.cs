@@ -40,7 +40,7 @@ namespace ISurvived
                         alan.Dialogue.Clear();
                         //alan.QuestDialogue.Clear();
                         paul.DialogueState = 0;
-                        paul.Dialogue.Clear();
+                        paul.ClearDialogue();
                         paul.QuestDialogue.Clear();
                         alan.Dialogue.Add("Tim didn't see you, right?");
                         talkingState = 0;
@@ -102,22 +102,22 @@ namespace ISurvived
                         {
                             paul.Talking = true;
 
-                            paul.Dialogue.Add("I don't like those judgmental looks you're giving us.");
-                            paul.Dialogue.Add("I'll have you know that we surprise Tim with flowers all the time, and he thanks us every time. Friends love flowers!");
+                            paul.Dialogue.Add("I don't like your face. You're judging us...");
+                            paul.Dialogue.Add("I'll have you know that we surprise Tim with flowers all the time, and he thanks us -every- time. Friends love flowers!");
                         }
 
                         else if (talkingState == 2)
                         {
                             paul.CurrentDialogueFace = "Normal";
                             paul.Dialogue.Add("But maybe you're right. Maybe breaking into people's lockers is wrong without their permission.");
-                            paul.Dialogue.Add("However, is it so wrong if it's God's will? If it encourages good character? If it makes their lockers smell pretty and look nice? Dammit, it would be wrong not to!");
+                            paul.Dialogue.Add("However, is it so wrong if it encourages good character? If it makes their lockers smell pretty and look nice? Dammit, it would be wrong not to!");
                             paul.Dialogue.Add("I'm glad we could discuss our differences.");
                             paul.Talking = true;
                         }
 
                         else if (talkingState == 3)
                         {
-                            alan.Dialogue.Add("This is going to be a good potential friendship. But the fact of the matter is, if you want to fit in around here you have to learn how to interact with others besides us.");
+                            alan.Dialogue.Add("This is going to be a good potential friendship. However, if you want to fit in around here you have to learn how to interact with others besides us.");
                             alan.Dialogue.Add("Luckily we have just the thing for that. And as a first time customer, we'll give it to you for free!");
                             alan.Talking = true;
                         }
@@ -125,8 +125,8 @@ namespace ISurvived
                         else if (talkingState == 4 && specialTimer >= 120)
                         {
                             talkingState++;
-                            paul.Dialogue.Add("That's right, Alan! You're standing in the presence of Water Falls High School's two newest aspiring entrepreneurs! That there will teach you just what you need to know to make friends around here.");
-                            paul.Dialogue.Add("Now, as good businessmen we went ahead and ripped out all of the pages for you. So if you want the good stuff, you'll have to help us out.");
+                            paul.Dialogue.Add("That's right, Alan! You're standing in the presence of Water Falls High School's two newest aspiring entrepreneurs! That book will teach you just what you need to know to make friends.");
+                            paul.Dialogue.Add("Now, as good businessmen we went ahead and ripped out all of the pages for you. If you want the good stuff, you'll have to help us nurture our young, fragile business.");
                             paul.Dialogue.Add("Since you obviously know how to discuss differences, we'll just give you that first page for free.");
                             player.LearnedSkills.Add(SkillManager.AllSkills["Discuss Differences"]);
                             paul.Talking = true;
@@ -142,9 +142,9 @@ namespace ISurvived
                         else if (talkingState == 8)
                         {
                             alan.Dialogue.Add("The problem is, Darren, we don't have any textbooks.");
-                            alan.Dialogue.Add("To jumpstart our young company we need you to go out and get us some product. Of course, Trenchcoat Kid and his cronies have all of the easily accessible sources on lockdown...");
-                            alan.Dialogue.Add("But last year the school built a whole new set of classrooms and locked down the old ones. It was done so quickly that I bet they didn't even clean the classrooms out. The old science room should have some textbooks still.");
-                            alan.Dialogue.Add("You get us some of those books, and we'll give you some of these here pages to that book we gave you. You'll be The Fonz in no time!");
+                            alan.Dialogue.Add("To jumpstart our company, you (our employee) needs to get us some product. See, Trenchcoat Kid and his cronies have all of the easy sources on lockdown...");
+                            alan.Dialogue.Add("But last year the school was remodeled and all the old classrooms were locked down. It was done so quickly, I bet they didn't even clean the rooms out. The old Science Room should have some textbooks still.");
+                            alan.Dialogue.Add("You get us some of those books and we'll give you some pages to that book we gave you, and you'll make a ton of friends. You'll be The Fonz in no time!");
                             alan.Talking = true;
                         }
                         else if (talkingState == 9)

@@ -54,12 +54,12 @@ namespace ISurvived
 
         public override void PlaySoundWhenHit()
         {
-            int soundType = moveNum.Next(2);
+            //int soundType = moveNum.Next(2);
 
-            if (soundType == 0)
-                Sound.enemySoundEffects["ErlHit1"].CreateInstance().Play();
-            else
-                Sound.enemySoundEffects["ErlHit2"].CreateInstance().Play();
+            //if (soundType == 0)
+            //    Sound.enemySoundEffects["ErlHit1"].CreateInstance().Play();
+            //else
+            //    Sound.enemySoundEffects["ErlHit2"].CreateInstance().Play();
         }
 
         public override void Update(int mapwidth)
@@ -73,7 +73,7 @@ namespace ISurvived
             }
                 vitalRec.X = rec.X + (rec.Width / 4) - 10;
                 vitalRec.Y = rec.Y + (rec.Height / 4) + 10;
-            
+                deathRec = vitalRec;
         }
 
         public override void Move(int mapWidth)

@@ -155,10 +155,12 @@ namespace ISurvived
         int damageTakenInFiveSeconds;
         int fiveSecondTimer = 0;
         int fallCooldown;
-        int damageToFall = 30;
+        int damageToFall = 3000;
         int fallSmokeFrame = 0;
         int fallSmokeTimer = 0;
 
+        public static Dictionary<String, SoundEffect> trollSounds;
+        public static List<SoundEffectInstance> currentlyPlayingSounds;
 
         int goblinSpitAmmo;
 
@@ -180,14 +182,14 @@ namespace ISurvived
         public FieldTroll(Vector2 pos, String type, Game1 g, ref Player play, MapClass cur, TreasureChest chest)
             : base(pos, type, g, ref play, cur)
         {
-            health = 350;
-            maxHealth = 350;//45 is the real value
-            level = 5;
-            experienceGiven = 5;
+            health = 30000;
+            maxHealth = 30000;//45 is the real value
+            level = 16;
+            experienceGiven = 1000;
             rec = new Rectangle((int)position.X, (int)position.Y, 940, 555);
             currentlyInMoveState = false;
             enemySpeed = 2;
-            tolerance = 10;
+            tolerance = 250;
             vitalRec = new Rectangle(rec.X, rec.Y, 250, 350);
             maxHealthDrop = 0;
             moneyToDrop = 0f;
@@ -199,21 +201,23 @@ namespace ISurvived
             groundHoles = new List<GroundHole>();
             deathRec = new Rectangle(0, 0, 250, 250);
 
+            currentlyPlayingSounds = new List<SoundEffectInstance>();
+
             trollChest = chest;
 
             kickRec = new Rectangle(0, 0, 125, 100);
 
-            kickDamage = 25;
-            clubDamage = 35;
+            kickDamage = 200;
+            clubDamage = 300;
 
-            kickCooldown = moveTime.Next(200, 500);
-            spitCooldown = moveTime.Next(400, 1800);
+            kickCooldown = moveTime.Next(200, 300);
+            spitCooldown = moveTime.Next(400, 1200);
 
             goblinSpitAmmo = 10;
 
             notEffectiveRangedMelee = AttackType.RangedOrMelee.Ranged;
 
-            notEffectiveMultiplier = .5f;
+            notEffectiveMultiplier = .8f;
         }
 
         //--Return the source rectangle for the enemy move frames
@@ -311,6 +315,19 @@ namespace ISurvived
 
         public void Spit()
         {
+            if (moveFrame == 2 && frameDelay == 4)
+            {
+                float dis = Vector2.Distance(new Vector2(rec.Center.X, rec.Center.Y), new Vector2(player.Rec.Center.X, player.Rec.Center.Y));
+                float vol = 500 / Vector2.Distance(new Vector2(rec.Center.X, rec.Center.Y), new Vector2(player.Rec.Center.X, player.Rec.Center.Y));
+                if (dis < 1800)
+                {
+                    currentlyPlayingSounds.Add(trollSounds["enemy_troll_summon"].CreateInstance());
+                    if (vol > 1)
+                        vol = 1;
+                    currentlyPlayingSounds[currentlyPlayingSounds.Count - 1].Volume = vol;
+                    currentlyPlayingSounds[currentlyPlayingSounds.Count - 1].Play();
+                }
+            }
             frameDelay--;
 
             if (frameDelay == 0)
@@ -398,6 +415,11 @@ namespace ISurvived
                                 (game.CurrentChapter.CurrentMap.EnemiesInMap[i] as Goblin).GotKicked();
                             }
 
+                            float dis = Vector2.Distance(new Vector2(rec.Center.X, rec.Center.Y), new Vector2(player.Rec.Center.X, player.Rec.Center.Y));
+                            float vol = 500 / Vector2.Distance(new Vector2(rec.Center.X, rec.Center.Y), new Vector2(player.Rec.Center.X, player.Rec.Center.Y));
+                            if ( dis < 1800)
+                                game.TempPlayHitSound(vol);
+
                             Chapter.effectsManager.AddDamageFX(10, Rectangle.Intersect(kickRec, game.CurrentChapter.CurrentMap.EnemiesInMap[i].VitalRec));
                         }
                     }
@@ -415,6 +437,8 @@ namespace ISurvived
                         game.Camera.ShakeCamera(3, 3);
                         MyGamePad.SetRumble(5, 1f);
 
+                            game.TempPlayHitSound();
+
                         Chapter.effectsManager.AddDamageFX(10, Rectangle.Intersect(attackRec, player.VitalRec));
                     }
                 }
@@ -427,6 +451,15 @@ namespace ISurvived
 
                     kickCooldown = moveTime.Next(200, 300);
                 }
+            }
+        }
+
+        public void StopAllSounds()
+        {
+            for (int i = currentlyPlayingSounds.Count - 1; i >= 0; i--)
+            {
+                currentlyPlayingSounds[i].Stop();
+                currentlyPlayingSounds.RemoveAt(i);
             }
         }
 
@@ -477,6 +510,16 @@ namespace ISurvived
                 kicking = false;
                 enemyState = EnemyState.standing;
                 StopAttack();
+            }
+
+            for (int i = 0; i < currentlyPlayingSounds.Count; i++)
+            {
+                if (currentlyPlayingSounds[i].State == SoundState.Stopped)
+                {
+                    currentlyPlayingSounds.RemoveAt(i);
+                    i--;
+                    continue;
+                }
             }
 
             //Make the lift poof away when the troll falls and gets back up
@@ -633,7 +676,24 @@ namespace ISurvived
 
             //Shake camera when he steps
             if (enemyState == EnemyState.moving && (moveFrame == 2 || moveFrame == 9))
+            {
                 Game1.camera.ShakeCamera(3, stepShakeMag);
+
+                int walkSound = moveNum.Next(1,4);
+
+                if (frameDelay == 5)
+                {
+                    SoundEffectInstance step = trollSounds["enemy_troll_walk_0" + walkSound].CreateInstance();
+                    float vol = 500 / Vector2.Distance(new Vector2(rec.Center.X, rec.Center.Y), new Vector2(player.Rec.Center.X, player.Rec.Center.Y));
+
+                    if (vol > 1)
+                        vol = 1;
+                    step.Volume = vol;
+
+                    currentlyPlayingSounds.Add(step);
+                    currentlyPlayingSounds[currentlyPlayingSounds.Count - 1].Play();
+                }
+            }
 
         }
 
@@ -671,6 +731,13 @@ namespace ISurvived
 
         public void Fall()
         {
+            if (moveFrame == 0 && frameDelay == 5)
+            {
+                StopAllSounds();
+                currentlyPlayingSounds.Add(trollSounds["enemy_troll_fall"].CreateInstance());
+                currentlyPlayingSounds[currentlyPlayingSounds.Count - 1].Play();
+            }
+
             frameDelay--;
             if (frameDelay <= 0)
             {
@@ -683,6 +750,12 @@ namespace ISurvived
                 if (moveFrame > 5)
                     frameDelay = 7;*/
 
+                if (moveFrame == 10)
+                {
+                    currentlyPlayingSounds.Add(trollSounds["enemy_troll_getup"].CreateInstance());               
+                    currentlyPlayingSounds[currentlyPlayingSounds.Count - 1].Play();
+
+                }
                 //If he is getting up, change the vital rec size
                 if (moveFrame == 13)
                 {
@@ -973,8 +1046,6 @@ namespace ISurvived
         public override void Attack(int damage, Vector2 kb)
         {
             base.Attack(damage, kb);
-            //--Temporary. Remove once animation is introduced
-            moveFrame = 0;
 
             //--First frame of attack, set the attack rec up and reset the frames
             if (enemyState != EnemyState.attacking)
@@ -1002,6 +1073,10 @@ namespace ISurvived
                 }
 
                 RangedAttackRecs.Add(attackRec);
+
+                //if (moveFrame == 0 && frameDelay == 5)
+                currentlyPlayingSounds.Add(trollSounds["enemy_troll_attack"].CreateInstance());
+                currentlyPlayingSounds[currentlyPlayingSounds.Count - 1].Play();
             }
             enemyState = EnemyState.attacking;
 
@@ -1019,6 +1094,9 @@ namespace ISurvived
 
                     if (ran == 1)
                     {
+                        currentlyPlayingSounds.Add(trollSounds["enemy_troll_fart"].CreateInstance());
+                        currentlyPlayingSounds[currentlyPlayingSounds.Count - 1].Play();
+                        
                         FartCloud fart = new FartCloud(facingRight, rec, clubGoneSprite);
                         currentFart = fart;
                     }
@@ -1147,7 +1225,6 @@ namespace ISurvived
                         pickingUpClub = false;
                         kicking = false;
                         spitting = false;
-
                         VitalRecHeight = 150;
                         VitalRecWidth = 350;
 

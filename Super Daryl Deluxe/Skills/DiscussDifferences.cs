@@ -93,7 +93,7 @@ namespace ISurvived
                     timer = defaultTimer;
                     phase = 1;
                     hitPauseTime = 0;
-                    Sound.skillSoundEffects["DiscussDifferencesUse1"].CreateInstance().Play();
+                    PlayRandomUseSound(0, 4);
                 }
 
                 //--Second press, cooldown is set back to 100, and restarts the timer
@@ -104,7 +104,7 @@ namespace ISurvived
                     timer = defaultTimer;
                     phase = 2;
                     hitPauseTime = 0;
-                    Sound.skillSoundEffects["DiscussDifferencesUse2"].CreateInstance().Play();
+                    PlayRandomUseSound(4, 7);
                 }
 
                 //--On the third hit, give the skill experience
@@ -116,7 +116,7 @@ namespace ISurvived
                     timer = 25;
                     phase = 3;
                     hitPauseTime = 3;
-                    Sound.skillSoundEffects["DiscussDifferencesUse3"].CreateInstance().Play();
+                    PlayRandomUseSound(0, 7);
                 }
             #endregion
             }
@@ -165,7 +165,7 @@ namespace ISurvived
                         phase = 2;
                         hitPauseTime = 0;
                         moveFrame = 0;
-                        Sound.skillSoundEffects["DiscussDifferencesUse2"].CreateInstance().Play();
+                        PlayRandomUseSound(4, 7);
                     }
 
                     break;
@@ -193,7 +193,7 @@ namespace ISurvived
                         phase = 3;
                         hitPauseTime = 3;
                         moveFrame = 0;
-                        Sound.skillSoundEffects["DiscussDifferencesUse3"].CreateInstance().Play();
+                        PlayRandomUseSound(0, 7);
                     }
                     break;
                 case 3:

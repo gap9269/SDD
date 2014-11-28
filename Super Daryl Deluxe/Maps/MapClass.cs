@@ -253,13 +253,13 @@ namespace ISurvived
             }
         }
 
-        public void UnloadContent()
+        public static void UnloadContent()
         {
             gold = null;
             silver = null;
             bronze = null;
             content.Unload();
-            lockPosY = 0;
+           // lockPosY = 0;
         }
     }
 
@@ -427,6 +427,7 @@ namespace ISurvived
             UnloadNPCContent();
             Sound.enemySoundEffects.Clear();
             content.Unload();
+            Portal.UnloadContent();
             background.Clear();
         }
 
@@ -1126,7 +1127,7 @@ new Vector2(portals.ElementAt(i).Key.PortalRec.X + portals.ElementAt(i).Key.Port
                     //If the player uses a portal
                     if (player.VitalRec.Intersects(portals.ElementAt(i).Key.PortalRec) && ((current.IsKeyUp(Keys.F) && last.IsKeyDown(Keys.F)) || MyGamePad.RightBumperPressed())  && CheckPortalLock(portals.ElementAt(i).Key) && player.playerState != ISurvived.Player.PlayerState.jumping && player.playerState != ISurvived.Player.PlayerState.attackJumping && player.Ducking == false)
                     {
-                        Sound.PlaySoundInstance(Sound.SoundNames.DoorOpen);
+                        //Sound.PlaySoundInstance(Sound.SoundNames.DoorOpen);
                         MapNameTimer = 0;
                         player.nextMapPos = new Vector2(portals.ElementAt(i).Value.PortalRec.X - 200, portals.ElementAt(i).Value.PortalRec.Y + portals.ElementAt(i).Value.PortalRec.Height - 170 - 135 - 37);
                         drops.Clear();

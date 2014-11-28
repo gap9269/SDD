@@ -23,7 +23,7 @@ namespace ISurvived
             //--Base Stats
             damage = .4f;
             experience = 0;
-            experienceUntilLevel = 90;
+            experienceUntilLevel = 450;
             skillRank = 1;
             levelToUse = 3;
             name = "Mopping Up";
@@ -42,8 +42,8 @@ namespace ISurvived
 
             costToBuy = 1;
 
-            playerLevelRequiredToLevel.Add(3);
-            playerLevelRequiredToLevel.Add(10);
+            playerLevelRequiredToLevel.Add(14);
+            playerLevelRequiredToLevel.Add(14);
             playerLevelRequiredToLevel.Add(15);
         }
 
@@ -211,11 +211,11 @@ namespace ISurvived
                 case 2:
                     damage = .55f;
                     experience = 0;
-                    experienceUntilLevel = 300;
+                    experienceUntilLevel = 700;
                     break;
                 case 3:
                     damage = .6f;
-                    experienceUntilLevel = 700;
+                    experienceUntilLevel = 1100;
                     experience = 0;
                     fullCooldown = 65;
                     break;

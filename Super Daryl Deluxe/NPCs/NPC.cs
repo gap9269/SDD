@@ -807,10 +807,10 @@ namespace ISurvived
                         scrollDialogueNum++;
 
                         //--Scroll text noise. Faster then you're updating text quickly
-                        if (scrollDialogueNum % 5 == 0 && updateFaster == false)
-                            Sound.PlaySoundInstance(Sound.SoundNames.TextScroll);
-                        else if (scrollDialogueNum % 4 == 0 && updateFaster == true)
-                            Sound.PlaySoundInstance(Sound.SoundNames.TextScroll);
+                        //if (scrollDialogueNum % 5 == 0 && updateFaster == false)
+                        //    Sound.PlaySoundInstance(Sound.SoundNames.TextScroll);
+                        //else if (scrollDialogueNum % 4 == 0 && updateFaster == true)
+                        //    Sound.PlaySoundInstance(Sound.SoundNames.TextScroll);
 
                         //--Add a second letter for updating faster
                         if (updateFaster && scrollDialogueNum < stringNum)
@@ -862,10 +862,10 @@ namespace ISurvived
                         scrollDialogueNum++;
 
                         //--Scroll text noise. Faster then you're updating text quickly
-                        if(scrollDialogueNum % 5 == 0 && updateFaster == false)
-                            Sound.PlaySoundInstance(Sound.SoundNames.TextScroll);
-                        else if(scrollDialogueNum % 3 == 0 && updateFaster == true)
-                            Sound.PlaySoundInstance(Sound.SoundNames.TextScroll);
+                        //if(scrollDialogueNum % 5 == 0 && updateFaster == false)
+                        //    Sound.PlaySoundInstance(Sound.SoundNames.TextScroll);
+                        //else if(scrollDialogueNum % 3 == 0 && updateFaster == true)
+                        //    Sound.PlaySoundInstance(Sound.SoundNames.TextScroll);
 
                         if (updateFaster && scrollDialogueNum < stringNum)
                         {

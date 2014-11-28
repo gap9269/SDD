@@ -145,21 +145,21 @@ namespace ISurvived
             game.NPCSprites["Pelt Kid"] = content.Load<Texture2D>(@"NPC\Party\peltKid");
             Game1.npcFaces["Pelt Kid"].faces["Normal"] = content.Load<Texture2D>(@"NPCFaces\Party\PeltKid");
 
-            //If the last map does not have the same music
-            if (Chapter.lastMap != "Chelsea's Field" && Chapter.lastMap != "Tree House")
-            {
-                SoundEffect bg1 = Sound.backgroundMusicContent.Load<SoundEffect>(@"Sound\Hidden Agenda");
-                SoundEffectInstance backgroundMusic1 = bg1.CreateInstance();
-                backgroundMusic1.IsLooped = true;
-                Sound.music.Add("Exploring", backgroundMusic1);
-            }
+            ////If the last map does not have the same music
+            //if (Chapter.lastMap != "Chelsea's Field" && Chapter.lastMap != "Tree House")
+            //{
+            //    SoundEffect bg1 = Sound.backgroundMusicContent.Load<SoundEffect>(@"Sound\Hidden Agenda");
+            //    SoundEffectInstance backgroundMusic1 = bg1.CreateInstance();
+            //    backgroundMusic1.IsLooped = true;
+            //    Sound.music.Add("Exploring", backgroundMusic1);
+            //}
 
-            Sound.backgroundVolume = 1f;
+            //Sound.backgroundVolume = 1f;
         }
 
         public override void PlayBackgroundMusic()
         {
-            Sound.PlayBackGroundMusic("Exploring");
+            //Sound.PlayBackGroundMusic("Exploring");
         }
 
         public override void Update()
@@ -167,12 +167,12 @@ namespace ISurvived
             base.Update();
 
             //The pelt kid's hat
-            if (player.VitalRec.Intersects(hatRec) && last.IsKeyDown(Keys.F) && current.IsKeyUp(Keys.F) && game.MapBooleans.chapterTwoMapBooleans["FoundPeltHat"] == false && (game.ChapterTwo.NPCs["PeltKidOne"] as PeltKid).Dead)
+            if (player.VitalRec.Intersects(hatRec) && last.IsKeyDown(Keys.Space) && current.IsKeyUp(Keys.Space) && game.MapBooleans.chapterTwoMapBooleans["FoundPeltHat"] == false && (game.ChapterTwo.NPCs["PeltKidOne"] as PeltKid).Dead)
             {
                 player.AddHatToInventory(new PeltKidsHat());
                 game.MapBooleans.chapterTwoMapBooleans["FoundPeltHat"] = true;
 
-                Chapter.effectsManager.AddFoundItem("Pelt Kid's Hat", Game1.storyItemIcons["Pelt Kid's Hat"]);
+                Chapter.effectsManager.AddFoundItem("Pelt Kid's Hat", Game1.equipmentTextures["Pelt Kid's Hat"]);
             }
 
             PlayBackgroundMusic();
@@ -322,10 +322,10 @@ namespace ISurvived
 
             Game1.npcFaces["Pelt Kid"].faces["Normal"] = Game1.whiteFilter;
 
-            if (Chapter.theNextMap != "ChelseasField" && Chapter.theNextMap != "TreeHouse")
-            {
-                Sound.UnloadBackgroundMusic();
-            }
+            //if (Chapter.theNextMap != "ChelseasField" && Chapter.theNextMap != "TreeHouse")
+            //{
+            //    Sound.UnloadBackgroundMusic();
+            //}
         }
 
         public override void SetPortals()

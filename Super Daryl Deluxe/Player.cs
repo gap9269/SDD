@@ -329,7 +329,7 @@ namespace ISurvived
             pickUpTimers = new List<int>();
             storyItems = new Dictionary<string, int>();
             mouseRec = new Rectangle(0, 0, Cursor.cursorWidth / 2, Cursor.cursorHeight / 2);
-            canJump = true;
+            canJump = false;
 
             //--Base stats
             socialRank = "New Kid";
@@ -865,9 +865,9 @@ namespace ISurvived
                                 Chapter.effectsManager.AddJumpDustPoof(rec, facingRight);
 
                                 if(selectFlinch.Next(2) == 0)
-                                    Sound.PlaySoundInstance(Sound.SoundNames.PlayerJump1);
+                                    Sound.PlaySoundInstance(Sound.SoundNames.PlayerJumpOutside1);
                                 else
-                                    Sound.PlaySoundInstance(Sound.SoundNames.PlayerJump2);
+                                    Sound.PlaySoundInstance(Sound.SoundNames.PlayerJumpOutside2);
                             }
                             #endregion
                         }
@@ -981,13 +981,19 @@ namespace ISurvived
                     case PlayerState.running:
                         if ((moveFrame == 2 || moveFrame == 9) && frameDelay == 3)
                         {
-                            int ran = selectFlinch.Next(3);
-                            if(ran == 0)
-                                Sound.PlaySoundInstance(Sound.SoundNames.PlayerRunRoom1);
-                            else if(ran == 1)
-                                Sound.PlaySoundInstance(Sound.SoundNames.PlayerRunRoom2);
-                            else
-                                Sound.PlaySoundInstance(Sound.SoundNames.PlayerRunRoom3);
+                            //int ran = selectFlinch.Next(3);
+                            //if (ran == 0)
+                            //    Sound.PlaySoundInstance(Sound.SoundNames.PlayerRunOutside1);
+                            //else if (ran == 1)
+                            //    Sound.PlaySoundInstance(Sound.SoundNames.PlayerRunOutside2);
+                            //else if (ran == 2)
+                            //    Sound.PlaySoundInstance(Sound.SoundNames.PlayerRunOutside3);
+                            //else if (ran == 3)
+                            //    Sound.PlaySoundInstance(Sound.SoundNames.PlayerRunOutside4);
+                            //else if (ran == 4)
+                            //    Sound.PlaySoundInstance(Sound.SoundNames.PlayerRunOutside5);
+                            //else
+                            //    Sound.PlaySoundInstance(Sound.SoundNames.PlayerRunOutside6);
                         }
 
                         if ((moveFrame == 5 || moveFrame == 12) && frameDelay == 5 && !sprinting)
@@ -1116,9 +1122,9 @@ namespace ISurvived
                                 Chapter.effectsManager.AddJumpDustPoof(rec, facingRight);
 
                                 if (selectFlinch.Next(2) == 0)
-                                    Sound.PlaySoundInstance(Sound.SoundNames.PlayerJump1);
+                                    Sound.PlaySoundInstance(Sound.SoundNames.PlayerJumpOutside1);
                                 else
-                                    Sound.PlaySoundInstance(Sound.SoundNames.PlayerJump2);
+                                    Sound.PlaySoundInstance(Sound.SoundNames.PlayerJumpOutside2);
                                 moveFrame = 0;
                             }
                             #endregion
@@ -1962,7 +1968,11 @@ namespace ISurvived
                             frameDelay = 8;
                             moveFrame = 0;
                         }
-                        Sound.PlaySoundInstance(Sound.SoundNames.PlayerLanding);
+                        //if(selectFlinch.Next(2) == 0)
+                        //    Sound.PlaySoundInstance(Sound.SoundNames.PlayerLandingOutside1);
+                        //else
+                        //    Sound.PlaySoundInstance(Sound.SoundNames.PlayerLandingOutside2);
+
                         attackFalling = false;
                     }
 
@@ -2379,6 +2389,8 @@ namespace ISurvived
 
                 Health -= newDmg;
 
+                game.TempPlayHitSound();
+
                 AddDamageNum(newDmg);
             }
         }
@@ -2443,6 +2455,15 @@ namespace ISurvived
                         experience -= experienceUntilLevel;
                         experienceUntilLevel = 50000;
                         break;
+
+                    case 15:
+                        healthAddedDuringLevel = 50;
+                        strengthAddedDuringLevel = 30;
+                        defenseAddedDuringLevel = 6;
+                        experience -= experienceUntilLevel;
+                        experienceUntilLevel = 300000000;
+                        break;
+
                     default:
                         experienceUntilLevel = 10000;
                         experience = 0;
@@ -2832,16 +2853,22 @@ namespace ISurvived
             if (cutsceneMoving == false)
                 moveFrame = 0;
 
-            if ((moveFrame == 2 || moveFrame == 7) && frameDelay == 3)
-            {
-                int ran = selectFlinch.Next(3);
-                if (ran == 0)
-                    Sound.PlaySoundInstance(Sound.SoundNames.PlayerRunRoom1);
-                else if (ran == 1)
-                    Sound.PlaySoundInstance(Sound.SoundNames.PlayerRunRoom2);
-                else
-                    Sound.PlaySoundInstance(Sound.SoundNames.PlayerRunRoom3);
-            }
+            //if ((moveFrame == 2 || moveFrame == 7) && frameDelay == 3)
+            //{
+            //    int ran = selectFlinch.Next(6);
+            //    if (ran == 0)
+            //        Sound.PlaySoundInstance(Sound.SoundNames.PlayerRunOutside1);
+            //    else if (ran == 1)
+            //        Sound.PlaySoundInstance(Sound.SoundNames.PlayerRunOutside2);
+            //    else if (ran == 2)
+            //        Sound.PlaySoundInstance(Sound.SoundNames.PlayerRunOutside3);
+            //    else if (ran == 3)
+            //        Sound.PlaySoundInstance(Sound.SoundNames.PlayerRunOutside4);
+            //    else if (ran == 4)
+            //        Sound.PlaySoundInstance(Sound.SoundNames.PlayerRunOutside5);
+            //    else
+            //        Sound.PlaySoundInstance(Sound.SoundNames.PlayerRunOutside6);
+            //}
 
             frameDelay--;
             if (frameDelay == 0)
@@ -2883,16 +2910,22 @@ namespace ISurvived
             if (cutsceneMoving == false)
                 moveFrame = 0;
 
-            if ((moveFrame == 2 || moveFrame == 7) && frameDelay == 3)
-            {
-                int ran = selectFlinch.Next(3);
-                if (ran == 0)
-                    Sound.PlaySoundInstance(Sound.SoundNames.PlayerRunRoom1);
-                else if (ran == 1)
-                    Sound.PlaySoundInstance(Sound.SoundNames.PlayerRunRoom2);
-                else
-                    Sound.PlaySoundInstance(Sound.SoundNames.PlayerRunRoom3);
-            }
+            //if ((moveFrame == 2 || moveFrame == 7) && frameDelay == 3)
+            //{
+            //    int ran = selectFlinch.Next(6);
+            //    if (ran == 0)
+            //        Sound.PlaySoundInstance(Sound.SoundNames.PlayerRunOutside1);
+            //    else if (ran == 1)
+            //        Sound.PlaySoundInstance(Sound.SoundNames.PlayerRunOutside2);
+            //    else if (ran == 2)
+            //        Sound.PlaySoundInstance(Sound.SoundNames.PlayerRunOutside3);
+            //    else if (ran == 3)
+            //        Sound.PlaySoundInstance(Sound.SoundNames.PlayerRunOutside4);
+            //    else if (ran == 4)
+            //        Sound.PlaySoundInstance(Sound.SoundNames.PlayerRunOutside5);
+            //    else
+            //        Sound.PlaySoundInstance(Sound.SoundNames.PlayerRunOutside6);
+            //}
 
             frameDelay--;
             if (frameDelay == 0)

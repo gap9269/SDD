@@ -132,7 +132,7 @@ namespace ISurvived
 null, null, null, null, camera.StaticTransform);
                     s.Draw(Game1.whiteFilter, new Rectangle(0, 0, 1280, (int)(Game1.aspectRatio * 1280)), Color.Black);
                     if(timer > 60)
-                        DrawDialogue(s);
+                        DrawDialogue(s, false);
                     s.End();
                     break;
                 case 1:
@@ -163,7 +163,7 @@ null, null, null, null, camera.StaticTransform);
                     s.Draw(Game1.whiteFilter, new Rectangle(0, 0, 1280, (int)(Game1.aspectRatio * 1280)), Color.Black);
 
                     if (timer > 1 && timer < 180)
-                        DrawDialogue(s);
+                        DrawDialogue(s, false);
                     s.End();
                     break;
             }

@@ -17,7 +17,7 @@ namespace ISurvived
             moveSpeed = 0;
             jumpHeight = 0;
             name = "Fez";
-            level = 2;
+            level = 1;
             description = "Everything about how you obtained this Fez is weird. \n\n";
             icon = Game1.equipmentTextures[name];
         }

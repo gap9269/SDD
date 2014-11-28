@@ -56,6 +56,9 @@ namespace ISurvived
         int activeShockTime;
         Boolean rightShock;
 
+        int punchDamage = 13;
+        int poundDamage = 14;
+
         enum Intentions
         {
             none,
@@ -234,7 +237,7 @@ namespace ISurvived
 
                         if (player.CheckIfHit(poundRec))
                         {
-                            player.TakeDamage(11);
+                            player.TakeDamage(poundDamage);
 
                             if (player.VelocityY < 0)
                                 player.VelocityY = 0;
@@ -293,7 +296,7 @@ namespace ISurvived
 
                         if (player.CheckIfHit(poundRec))
                         {
-                            player.TakeDamage(11);
+                            player.TakeDamage(poundDamage);
 
 
                             if (facingRight)
@@ -368,7 +371,7 @@ namespace ISurvived
                 {
                     if (player.CheckIfHit(punchRec))
                     {
-                        player.TakeDamage(9);
+                        player.TakeDamage(punchDamage);
 
 
                         if (facingRight)
@@ -385,10 +388,10 @@ namespace ISurvived
                 if (frameDelay <= 0)
                 {
                     moveFrame++;
-                    frameDelay = 10;
+                    frameDelay = 5;
 
-                    if (moveFrame > 5)
-                        frameDelay = 5;
+                    if (moveFrame < 5)
+                        frameDelay = 4;
 
                     if (moveFrame > 9)
                     {
@@ -586,6 +589,10 @@ namespace ISurvived
                     moveFrame = 0;
                     frameDelay = 5;
                     intentions = Intentions.none;
+                    pounding = false;
+                    punching = false;
+                    quickPounding = false;
+                    snarling = false;
                 }
 
                 confused = true;
@@ -997,7 +1004,7 @@ namespace ISurvived
                 {
                     StartAttack("Punch");
                     bossState = BossState.attacking;
-                    moveFrame = 5;
+                    moveFrame = 0;
                     frameDelay = 10;
 
                     if (player.VitalRec.Center.X > vitalRec.Center.X)

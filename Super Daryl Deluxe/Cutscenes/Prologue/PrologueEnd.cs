@@ -37,7 +37,7 @@ namespace ISurvived
                         camFollow = new GameObject();
                         tim = game.CurrentChapter.NPCs["Tim"];
 
-                        game.Prologue.Synopsis += "\n\nPaul and Alan were unhappy that you only brought back one textbook, but\n sold you a new skill anyway. Using this skill, you were able to defeat\n Tim, who was rather angry and didn't seem to understand that friends love flowers.";
+                        game.Prologue.Synopsis += "\n\nUpon your return, Paul and Alan were unimpressed that you had only brought back one textbook. However, they were eager to make a deal and sold you a new skill anyway. This transaction concluded just in time to meet your new friend Tim, who joined in to remind everyone again that he was deathly allergic to dandelion pollen and that he would rather they didn't open his locker and take his money without permission. During this exchange, Paul and Alan kindly introduced you to Tim and selflessly wandered off in order to let you acquaint yourselves in peace. Tim then turned into a towering gorilla and proceeded to attempt disemboweling you. Your new skill came in much use, however, and you were soon able talk Tim back down to his calm, rational human form. Before parting ways, Tim reminded you again to please refrain from using his locker without permission. Finally alone, you stood there in the hall reveling in the events that transpired in your exciting first day, sure that you were in for a thrilling adventure.";
                     }
 
                     camera.Update(player, game, game.CurrentChapter.CurrentMap);
@@ -79,6 +79,8 @@ namespace ISurvived
                         game.Camera.center = game.Camera.centerTarget;
                     }
                     camera.Update(camFollow, game, game.CurrentChapter.CurrentMap);
+
+                    timeDelay--;
                     if (timeDelay <= 0)
                     {
                         timeDelay = 5;
@@ -102,7 +104,7 @@ namespace ISurvived
                             timFrame = 0;
                     }
 
-                    if(timer > 240)
+                    if(timer > 300)
                         timTransformTimer++;
 
                     if (timTransformTimer < 10 || timTransformTimer > 25 && timTransformTimer < 40 || timTransformTimer > 50 && timTransformTimer < 60 || timTransformTimer > 65 && timTransformTimer < 70)
@@ -120,7 +122,7 @@ namespace ISurvived
                     //    NorthHall.drawTimMap = false;
 
 
-                    if (timTransformTimer > 250)
+                    if (timTransformTimer > 300)
                     {
                         state++;
                         timer = 0;
@@ -140,7 +142,9 @@ namespace ISurvived
                         Game1.schoolMaps.maps["NorthHall"].Platforms.Remove(NorthHall.rightTimPlat);
 
                         tim.Dialogue.Clear();
-                        tim.Dialogue.Add("You're fuckin' weird. Stay away from my locker.");
+                        tim.Dialogue.Add("...");
+                        tim.Dialogue.Add("You're fuckin' weird.");
+                        tim.Dialogue.Add("Stay away from my locker.");
                         tim.Talking = true;
                     }
                     camera.Update(camFollow, game, game.CurrentChapter.CurrentMap);
@@ -154,11 +158,11 @@ namespace ISurvived
                         tim.FacingRight = false;
                     }
 
-                    //if (tim.PositionX <= 3400)
-                    //{
-                    //    timer = 0;
-                    //    state++;
-                    //}
+                    if (tim.PositionX <= 1500)
+                    {
+                        timer = 0;
+                        state++;
+                    }
 
                     break;
 
@@ -170,7 +174,7 @@ namespace ISurvived
 
                     camera.Update(player, game, game.CurrentChapter.CurrentMap);
 
-                    if (timer > 600)
+                    if (timer > 400)
                     {
                         state++;
                         timer = 0;
@@ -181,20 +185,23 @@ namespace ISurvived
                     FadeOut(120);
                     break;
                 case 6:
-                    game.chapterState = Game1.ChapterState.chapterOne;
-                    game.CurrentChapter.state = Chapter.GameState.Cutscene;
-                    game.CurrentChapter = game.ChapterOne;
-                    player.playerState = Player.PlayerState.standing;
-                    timer = 0;
-                    player.StopSkills();
-                    game.Camera.centerTarget = new Vector2(player.PositionX + (player.Rec.Width / 2), 0);
+                    //game.chapterState = Game1.ChapterState.chapterOne;
+                    //game.CurrentChapter.state = Chapter.GameState.Game;
+                    //game.CurrentChapter = game.ChapterOne;
+                    //player.playerState = Player.PlayerState.standing;
+                    //timer = 0;
+                    //tim.PositionX = -1000;
+                    //tim.UpdateRecAndPosition();
+                    game.ResetGameAndGoToMain();
+                    //player.StopSkills();
+                    //game.Camera.centerTarget = new Vector2(player.PositionX + (player.Rec.Width / 2), 0);
 
-                    game.Camera.center = game.Camera.centerTarget;
+                    //game.Camera.center = game.Camera.centerTarget;
 
-                    Chapter.effectsManager.fButtonRecs.Clear();
-                    Chapter.effectsManager.foregroundFButtonRecs.Clear();
-                    Chapter.effectsManager.spaceButtonRecs.Clear();
-                    Chapter.effectsManager.foregroundSpaceButtonRecs.Clear();
+                    //Chapter.effectsManager.fButtonRecs.Clear();
+                    //Chapter.effectsManager.foregroundFButtonRecs.Clear();
+                    //Chapter.effectsManager.spaceButtonRecs.Clear();
+                    //Chapter.effectsManager.foregroundSpaceButtonRecs.Clear();
                     break;
             }
         }
@@ -212,8 +219,6 @@ namespace ISurvived
                     player.Draw(s);
                     game.CurrentChapter.CurrentBoss.Draw(s);
                     s.End();
-                    //s.Draw(game.EnemySpriteSheets["TimDead"], new Rectangle(0, 0, 1280, (int)(Game1.aspectRatio * 1280)), Color.White);
-                    //DrawCutsceneBars(s);
                     s.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend,
 null, null, null, null, camera.Transform);
                         Chapter.effectsManager.DrawSkillEffects(s);
@@ -283,7 +288,7 @@ null, null, null, null, camera.StaticTransform);
                     s.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
 null, null, null, null, camera.StaticTransform);
 
-                    if (timer > 400)
+                    if (timer > 300)
                         s.Draw(complete, new Rectangle(0, 0, 1280, (int)(Game1.aspectRatio * 1280)), Color.White);
                     s.End();
                     break;
@@ -298,6 +303,8 @@ null, null, null, null, camera.StaticTransform);
 
                     s.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
 null, null, null, null, camera.StaticTransform);
+
+                    s.Draw(complete, new Rectangle(0, 0, 1280, (int)(Game1.aspectRatio * 1280)), Color.White);
                     DrawFade(s, 0);
                     s.End();
                     break;

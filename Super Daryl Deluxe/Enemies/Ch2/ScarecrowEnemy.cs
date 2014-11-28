@@ -23,6 +23,8 @@ namespace ISurvived
         Rectangle crowBounds;
         public Boolean canBeActivated = true;
 
+        public static Dictionary<String, SoundEffect> scarecrowSounds;
+
         int timeBeforeSummon;
 
         public Boolean Activated { get { return activated; } set { activated = value; } }
@@ -30,16 +32,16 @@ namespace ISurvived
         public ScarecrowEnemy(Vector2 pos, String type, Game1 g, ref Player play, MapClass cur, Boolean active, Rectangle crowBnds)
             : base(pos, type, g, ref play, cur)
         {
-            health = 70;
-            maxHealth = 70;//45 is the real value
-            level = 3;
-            experienceGiven = 5;
+            health = 5500;
+            maxHealth = 5500;//45 is the real value
+            level = 14;
+            experienceGiven = 45;
             rec = new Rectangle((int)position.X, (int)position.Y, 315, 310);
             currentlyInMoveState = false;
             enemySpeed = 3;
-            tolerance = 5;
+            tolerance = 160;
             vitalRec = new Rectangle(rec.X, rec.Y, 150, 180);
-            maxHealthDrop = 6;
+            maxHealthDrop = 120;
             moneyToDrop = .18f;
             crowBounds = crowBnds;
 
@@ -175,14 +177,14 @@ Math.Abs(player.VitalRec.Center.Y - vitalRec.Center.Y));
         {
             base.Update(mapwidth);
 
-            if (!respawning)
+            if (!respawning && !isStunned)
             {
                 if (hostile)
                     attackCooldown--;
                 Move(mapwidth);
 
                 if (!beingSneaky)
-                    CheckWalkCollisions(19, new Vector2(10, -5));
+                    CheckWalkCollisions(130, new Vector2(10, -5));
             }
             vitalRec.X = rec.X + 90;
             vitalRec.Y = rec.Y + 50;
@@ -233,6 +235,11 @@ Math.Abs(player.VitalRec.Center.Y - vitalRec.Center.Y));
             }
             else if (summoningCrow)
             {
+                if (moveFrame == 0 && frameDelay == 5)
+                {
+                    scarecrowSounds["enemy_scarecrow_summon_01"].CreateInstance().Play();
+                }
+
                 frameDelay--;
                 if (frameDelay == 0)
                 {
@@ -448,7 +455,7 @@ Math.Abs(player.VitalRec.Center.Y - vitalRec.Center.Y));
                             else
                                 kb = new Vector2(-10, -5);
 
-                            Attack(20, kb);
+                            Attack(140, kb);
                         }
                     }
                     #endregion

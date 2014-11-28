@@ -91,12 +91,12 @@ icon = Game1.equipmentTextures[name];
         public HandSaw()
             : base()
         {
-            strength = 5;
+            strength = 55;
             health = 0;
             name = "Hand Saw";
             moveSpeed = 0;
             jumpHeight = 0;
-            level = 1;
+            level = 14;
             description = "It's said that the previous owner of this handsaw will haunt anyone who holds it.";
             canHoldTwo = true;
 

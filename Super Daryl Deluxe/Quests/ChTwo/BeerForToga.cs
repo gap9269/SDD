@@ -16,7 +16,7 @@ namespace ISurvived
             completedDialogue.Add("Move aside everyone! Your highness is here to cause a ruckus!");
             rewardObjects.Add(new Toga());
             rewardObjects.Add(new Textbook());
-            rewardObjects.Add(new Experience(20));
+            rewardObjects.Add(new Experience(400));
 
             itemNames.Add("Beer");
             itemsToGather.Add(1);

@@ -28,6 +28,8 @@ namespace ISurvived
         public static Game1 g;
         public static float dt;
 
+        public static Random randomNumberGen;
+
         #region Fonts
 
         public static SpriteFont twConMedium;
@@ -120,6 +122,7 @@ namespace ISurvived
         public static Dictionary<String, Texture2D> socialRankUpTexture;
         public static Texture2D fOuter, fInner, spaceInner, spaceOuter;
         public static Texture2D equipDescriptionBox, otherDescriptionBox, dualWieldIcon;
+        public static Texture2D cutsceneDialogueBox;
         Texture2D playerSheet;
 
         //Constant Monster Textures
@@ -146,6 +149,7 @@ namespace ISurvived
         Dictionary<String, Texture2D> mapHazards;
         Dictionary<String, Quest> allQuests;
         Dictionary<String, Equipment> allEquipment;
+        public static Dictionary<String, SoundEffect> tempHitSounds;
 
         public static Dictionary<String, int> numberOfNPCWalkingFrames;
 
@@ -252,7 +256,7 @@ namespace ISurvived
             Content.RootDirectory = "Content";
             this.Components.Add(new GamerServicesComponent(this));
             myGamePad = new MyGamePad();
-
+            randomNumberGen = new Random();
             //Update the game pad if it is connected
             if (GamePad.GetState(PlayerIndex.One).IsConnected)
             {
@@ -451,6 +455,15 @@ namespace ISurvived
             schoolMaps.SaveMapDataToWrapper();
         }
 
+        public void TempPlayHitSound(float volume = 1)
+        {
+            SoundEffectInstance sound = tempHitSounds.ElementAt(randomNumberGen.Next(3)).Value.CreateInstance();
+            if (volume > 1)
+                volume = 1;
+            sound.Volume = volume;
+            sound.Play();
+        }
+
         protected override void LoadContent()
         {
             spriteBatch = new SpriteBatch(GraphicsDevice);
@@ -459,6 +472,8 @@ namespace ISurvived
 
             passiveManager = new PassiveManager(this);
             SocialRankManager socialRankManager = new SocialRankManager();
+
+            tempHitSounds = ContentLoader.LoadSoundContent(Content, "Sound\\Skills\\Discuss Differences\\HitSounds");
 
             whiteFilter = Content.Load<Texture2D>("whiteFilter");
             emptyBox = whiteFilter;
@@ -609,6 +624,7 @@ namespace ISurvived
             fInner = Content.Load<Texture2D>(@"Notifications\fInner");
             spaceOuter = Content.Load<Texture2D>(@"Notifications\spaceOuter");
             spaceInner = Content.Load<Texture2D>(@"Notifications\spaceInner");
+            cutsceneDialogueBox = Content.Load<Texture2D>(@"Notifications\cutsceneDialogueBox");
 
             equipDescriptionBox = Content.Load<Texture2D>(@"Notifications\equipDescriptionBox");
             otherDescriptionBox = Content.Load<Texture2D>(@"Notifications\otherDescriptionBox");
@@ -627,6 +643,11 @@ namespace ISurvived
             dandelionFace.faces = new Dictionary<string, Texture2D>();
             dandelionFace.faces.Add("Normal", whiteFilter);
             npcFaces.Add("Dandelion", dandelionFace);
+
+            NPCFace tricerFace = new NPCFace();
+            tricerFace.faces = new Dictionary<string, Texture2D>();
+            tricerFace.faces.Add("Normal", whiteFilter);
+            npcFaces.Add("Triceratops", tricerFace);
 
             NPCFace flowerFace = new NPCFace();
             flowerFace.faces = new Dictionary<string, Texture2D>();
@@ -696,31 +717,31 @@ namespace ISurvived
             NPCFace karmaFace = new NPCFace();
             karmaFace.faces = new Dictionary<string, Texture2D>();
             karmaFace.faces.Add("Normal", whiteFilter);
-            npcFaces.Add("Karma Instructor", karmaFace);
+            npcFaces.Add("Karma Shaman", karmaFace);
             
 
             NPCFace skillFace = new NPCFace();
             skillFace.faces = new Dictionary<string, Texture2D>();
             skillFace.faces.Add("Normal", whiteFilter);
-            npcFaces.Add("Skill Instructor", skillFace);
+            npcFaces.Add("Skill Sorceress", skillFace);
 
 
             NPCFace equipFace = new NPCFace();
             equipFace.faces = new Dictionary<string, Texture2D>();
             equipFace.faces.Add("Normal", whiteFilter);
-            npcFaces.Add("Equipment Instructor", equipFace);
+            npcFaces.Add("Weapons Master", equipFace);
 
 
             NPCFace saveFace = new NPCFace();
             saveFace.faces = new Dictionary<string, Texture2D>();
             saveFace.faces.Add("Normal", whiteFilter);
-            npcFaces.Add("Save Instructor", saveFace);
+            npcFaces.Add("Saving Instructor", saveFace);
 
 
             NPCFace journalFace = new NPCFace();
             journalFace.faces = new Dictionary<string, Texture2D>();
             journalFace.faces.Add("Normal", whiteFilter);
-            npcFaces.Add("Journal Instructor", journalFace);
+            npcFaces.Add("Keeper of the Quests", journalFace);
 
             
             //TUTORIAL
@@ -820,16 +841,16 @@ namespace ISurvived
             npcSprites.Add("Death", whiteFilter);
             npcHeightFromRecTop.Add("Death", 44);
             //--D&D Characters
-            npcSprites.Add("Karma Instructor", whiteFilter);
-            npcHeightFromRecTop.Add("Karma Instructor", 145);
-            npcSprites.Add("Equipment Instructor", whiteFilter);
-            npcHeightFromRecTop.Add("Equipment Instructor", 120);
-            npcSprites.Add("Journal Instructor", whiteFilter);
-            npcHeightFromRecTop.Add("Journal Instructor", 140);
-            npcSprites.Add("Save Instructor", whiteFilter);
-            npcHeightFromRecTop.Add("Save Instructor", 167);
-            npcSprites.Add("Skill Instructor", whiteFilter);
-            npcHeightFromRecTop.Add("Skill Instructor", 125);
+            npcSprites.Add("Karma Shaman", whiteFilter);
+            npcHeightFromRecTop.Add("Karma Shaman", 145);
+            npcSprites.Add("Weapons Master", whiteFilter);
+            npcHeightFromRecTop.Add("Weapons Master", 120);
+            npcSprites.Add("Keeper of the Quests", whiteFilter);
+            npcHeightFromRecTop.Add("Keeper of the Quests", 140);
+            npcSprites.Add("Saving Instructor", whiteFilter);
+            npcHeightFromRecTop.Add("Saving Instructor", 167);
+            npcSprites.Add("Skill Sorceress", whiteFilter);
+            npcHeightFromRecTop.Add("Skill Sorceress", 125);
 
             //Party
             npcSprites.Add("Julius Caesar", whiteFilter);
@@ -987,7 +1008,7 @@ namespace ISurvived
             skillAnimations.Add("Mopping Up", skillSheetOne);
             skillIcons.Add("Mopping Up", this.Content.Load<Texture2D>(@"SkillIcons\Launch"));
 
-            skillManager = new SkillManager(skillAnimations, skillIcons, player);
+            skillManager = new SkillManager(skillAnimations, skillIcons);
 
             SkillManager.skillImpactEffects.Add("Discuss Differences", bangFX1);
             SkillManager.skillImpactEffects.Add("Blinding Logic", bangFX1);
@@ -1074,6 +1095,9 @@ namespace ISurvived
             prologueTextures.Add("MainOffice", Content.Load<Texture2D>(@"Prologue\MainOffice"));
             prologueTextures.Add("PrologueComplete", Content.Load<Texture2D>(@"Prologue\prologueComplete"));
             prologueTextures.Add("Flashback", Content.Load<Texture2D>(@"Prologue\flashback"));
+            prologueTextures.Add("OutsideSchoolWords", Content.Load<Texture2D>(@"Prologue\OutsideSchoolText"));
+            prologueTextures.Add("Clouds1", Content.Load<Texture2D>(@"Prologue\clouds1"));
+            prologueTextures.Add("Clouds2", Content.Load<Texture2D>(@"Prologue\clouds2"));
             petRatSprite = Content.Load<Texture2D>(@"SpriteSheets\ratSprite");
 
 
@@ -1136,6 +1160,19 @@ namespace ISurvived
 
         protected override void Update(GameTime gameTime)
         {
+            if (Sound.poofSounds != null)
+            {
+                for (int i = 0; i < Sound.poofSounds.Count; i++)
+                {
+                    if (Sound.poofSounds[i].State == SoundState.Stopped)
+                    {
+                        Sound.poofSounds.RemoveAt(i);
+                        i--;
+                        continue;
+                    }
+                }
+            }
+
             //Update the game pad if it is connected
             if (GamePad.GetState(PlayerIndex.One).IsConnected)
             {
@@ -1189,6 +1226,7 @@ namespace ISurvived
             questHUD.questHelperQuests.Clear();
             notebook.ComboPage.LockerCombos.Clear();
             yourLocker.SkillsOnSale.Clear();
+            yourLocker.ResetInventoryBoxes();
 
 
             sideQuestManager = new SideQuestManager(this);

@@ -37,8 +37,7 @@ namespace ISurvived
 
             conditionsToComplete = "Find the piece of paper that Tim threw into the Quad. While you're there, pick some dandelions."
                 + "\n\nMaybe this will get you some friends!";
-            descriptionForJournal = "Paul and Alan wanted a piece of paper that they lost, and a batch of dandelions," +
-            "in return for their friendship. Friends love flowers!";
+            descriptionForJournal = "Paul and Alan must put their quest from God on hold until a piece of paper that they lost is back in their hands. They need you to find it and pick a bouquet of dandelions in return for their friendship. Friends love flowers!";
         }
 
         public override void UpdateQuest()

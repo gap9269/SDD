@@ -1310,6 +1310,7 @@ namespace ISurvived
                     player.Position = new Vector2(650, 610 - player.VitalRec.Height - 120);
                     player.SocialRankIndex = SaveData.socialRankIndex;
                     player.HasCellPhone = SaveData.hasPhone;
+                    player.CanJump = true;
 
                     for (int i = 0; i < player.SocialRankIndex; i++)
                     {

@@ -846,20 +846,20 @@ namespace ISurvived
                                         AdjustEquipmentStats("Accessory", 1);
                                         DrawEquippedText(player.EquippedAccessory.Name, 1);
                                         Sound.PlaySoundInstance(Sound.SoundNames.EquipOutfit1);
+
+                                        //Add the passive ability to the player if the equipment has one
+                                        if (player.EquippedAccessory.PassiveAbility != null && !player.OwnedPassives.Contains(player.EquippedAccessory.PassiveAbility))
+                                        {
+                                            //Make sure to load the passive first
+                                            player.EquippedAccessory.PassiveAbility.LoadPassive();
+                                            player.OwnedPassives.Add(player.EquippedAccessory.PassiveAbility);
+
+                                        }
                                     }
                                     else
                                     {
                                         DrawEquippedText("You are not a high enough level", 0);
                                         Sound.PlaySoundInstance(Sound.SoundNames.TextScroll);
-                                    }
-
-                                    //Add the passive ability to the player if the equipment has one
-                                    if (player.EquippedAccessory.PassiveAbility != null && !player.OwnedPassives.Contains(player.EquippedAccessory.PassiveAbility))
-                                    {
-                                        //Make sure to load the passive first
-                                        player.EquippedAccessory.PassiveAbility.LoadPassive();
-                                        player.OwnedPassives.Add(player.EquippedAccessory.PassiveAbility);
-
                                     }
                                 }
                             }

@@ -12,15 +12,30 @@ using Microsoft.Xna.Framework.Media;
 
 namespace ISurvived
 {
-    class TrenchcoatCutscene : Cutscene
+    class TestScene : Cutscene
     {
         // ATTRIBUTES \\
         NPC cronie;
+        Texture2D back, fireBack, fireFore, ruins, kids, daryl, robatto;
+
+        int fireBackPos, fireForePos, ruinsPos, kidsPos, darylPos, robattoPos;
 
         //--Takes in a background and all necessary objects
-        public TrenchcoatCutscene(Game1 g, Camera cam, Player player)
+        public TestScene(Game1 g, Camera cam, Player player)
             : base(g, cam, player)
         {
+        }
+
+        public override void LoadContent()
+        {
+            base.LoadContent();
+            back = content.Load<Texture2D>(@"Cutscenes\Trailer\t1Back");
+            fireBack = content.Load<Texture2D>(@"Cutscenes\Trailer\t1BackFire");
+            fireFore = content.Load<Texture2D>(@"Cutscenes\Trailer\t1FireFore");
+            ruins = content.Load<Texture2D>(@"Cutscenes\Trailer\t1Ruins");
+            daryl = content.Load<Texture2D>(@"Cutscenes\Trailer\t1Daryl");
+            robatto = content.Load<Texture2D>(@"Cutscenes\Trailer\t1Robatto");
+            kids = content.Load<Texture2D>(@"Cutscenes\Trailer\t1Kids");
         }
 
         public override void Play()
@@ -34,47 +49,58 @@ namespace ISurvived
                 case 0:
                     if (firstFrameOfTheState)
                     {
-                        dialogue.Clear();
-                        dialogue.Add("You lookin' for a textbook?");
-                        cronie = game.CurrentChapter.NPCs["TrenchcoatCrony"];
-                        cronie.FacingRight = true;
-                        player.CanJump = false;
-                        DialogueState = 0;
-                        player.Sprinting = false;
+                        LoadContent();
                     }
-                    camera.Update(player, game, game.CurrentChapter.CurrentMap);
-
-                    cronie.UpdateRecAndPosition();
-
-                    if (player.playerState == Player.PlayerState.standing || player.playerState == Player.PlayerState.running)
-                        player.CutsceneStand();
-                    else
-                        player.Update();
 
 
-                    if (timer == 90)
+                    camera.Update(player, game);
+                    if (robattoPos > -110)
                     {
-                        Chapter.effectsManager.AddSmokePoof(new Rectangle(1765, 450, 175, 175), 2);
-                        cronie.PositionX = 1600;
-                        cronie.PositionY = 620 - 388;
-                    }
+                        if (ruinsPos < -110)
+                        {
+                            ruinsPos += 1;
+                        }
 
-                    if (timer > 100)
-                    {
-                        player.FacingRight = false;
-                        player.Sprinting = false;
-                        player.playerState = Player.PlayerState.relaxedStanding;
-                        player.CanJump = true;
-                    }
+                        if (kidsPos < -110)
+                        {
+                            kidsPos += 3;
+                        }
 
+                        if (fireForePos < -110)
+                        {
+                            fireForePos += 13;
+                        }
+
+                        if (robattoPos > -110)
+                        {
+                            robattoPos -= 10;
+                        }
+
+                        if (darylPos < -110)
+                        {
+                            darylPos += 6;
+                        }
+
+                        if (fireBackPos > -110)
+                        {
+                            fireBackPos -= 1;
+                        }
+                    }
                     //--REACH END OF LOBBY, RESET TIMER AND DIALOGUE
-                    if (timer > 145)
+                    if (timer > 500)
                     {
-                        cronie.moveState = NPC.MoveState.standing;
+                        darylPos = -390;
+                        kidsPos = -240;
+                        fireForePos = -720;
+                        robattoPos = 340;
+                        ruinsPos = -160;
+                        fireBackPos = -60;
                         timer = 0;
-                        dialogueState = 0;
-                        dialogue.Clear();
-                        state++;
+                       // cronie.moveState = NPC.MoveState.standing;
+                       // timer = 0;
+                       // dialogueState = 0;
+                        //dialogue.Clear();
+                        //state++;
                     }
                     break;
 
@@ -112,26 +138,24 @@ namespace ISurvived
             {
                 case 0:
                     s.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
-                    null, null, null, null, camera.Transform);
-                    
-                    game.CurrentChapter.CurrentMap.Draw(s);
-                    game.CurrentChapter.DrawNPC(s);
-                    Chapter.effectsManager.DrawPoofs(s);
-                    player.Draw(s);
-                    s.End();
-
-                    s.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
 null, null, null, null, camera.StaticTransform);
-
-                    if(!firstFrameOfTheState && timer < 60)
-                        DrawDialogue(s, true);
+                    if (timer > 0)
+                    {
+                        s.Draw(back, new Vector2(-110, 0), Color.White);
+                        s.Draw(ruins, new Vector2(ruinsPos, 0), Color.White);
+                        s.Draw(fireBack, new Vector2(fireBackPos, 0), Color.White);
+                        s.Draw(kids, new Vector2(kidsPos, 0), Color.White);
+                        s.Draw(daryl, new Vector2(darylPos, 0), Color.White);
+                        s.Draw(robatto, new Vector2(robattoPos, 0), Color.White);
+                        s.Draw(fireFore, new Vector2(fireForePos, 0), Color.White);
+                    }
                     s.End();
                     break;
 
                 case 1:
                     s.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
                     null, null, null, null, camera.Transform);
-                    
+
                     game.CurrentChapter.CurrentMap.Draw(s);
                     game.CurrentChapter.DrawNPC(s);
                     Chapter.effectsManager.DrawPoofs(s);
@@ -144,7 +168,7 @@ null, null, null, null, camera.StaticTransform);
                     cronie.DrawDialogue(s);
                     s.End();
                     break;
-               
+
             }
         }
     }

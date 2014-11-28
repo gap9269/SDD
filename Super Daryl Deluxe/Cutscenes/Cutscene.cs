@@ -307,25 +307,42 @@ namespace ISurvived
 
         //--Draw the dialogue box using the static white box in game, and the position of the dialoguebox
         //--Draw the string that is found in the list at the index of [dialogueState]
-        public virtual void DrawDialogue(SpriteBatch s)
+        public virtual void DrawDialogue(SpriteBatch s, Boolean questionMarkPortrait)
         {
-            s.Draw(Game1.notificationTextures, new Rectangle(38, (int)(Game1.aspectRatio * 1280 * .55) - 3, 1080, 327), new Rectangle(0, 155, 1080, 327), Color.White);
-
-            s.Draw(Game1.questionMarkFace, new Rectangle(0, (int)(Game1.aspectRatio * 1280) - Game1.questionMarkFace.Height, Game1.questionMarkFace.Width, Game1.questionMarkFace.Height), Color.White);
-
-            String currentLine = Game1.WrapText(Game1.dialogueFont, dialogue[dialogueState], 660);
+            String currentLine = Game1.WrapText(Game1.dialogueFont, dialogue[dialogueState], 600);
             stringNum = currentLine.Length;
 
-            if (scrollDialogueNum < stringNum)
+            if (!questionMarkPortrait)
             {
-                scrollDialogue += currentLine.ElementAt(scrollDialogueNum);
-                scrollDialogueNum++;
+                if (scrollDialogueNum < stringNum)
+                {
+                    scrollDialogue += currentLine.ElementAt(scrollDialogueNum);
+                    scrollDialogueNum++;
 
-                if (scrollDialogueNum % 5 == 0)
-                    Sound.PlaySoundInstance(Sound.SoundNames.TextScroll);
+                    //if (scrollDialogueNum % 5 == 0)
+                    //  Sound.PlaySoundInstance(Sound.SoundNames.TextScroll);
+                }
+
+                s.Draw(Game1.cutsceneDialogueBox, new Vector2(1280 / 2 - (Game1.cutsceneDialogueBox.Width / 2), 720 - Game1.cutsceneDialogueBox.Height - 5), Color.White);
+                s.DrawString(Game1.dialogueFont, Game1.WrapText(Game1.dialogueFont, dialogue[dialogueState], 600), new Vector2(640 - Game1.dialogueFont.MeasureString(currentLine).X / 2, (int)(Game1.aspectRatio * 1280 * .8f)), Color.Black);
             }
+            else
+            {
+                if (scrollDialogueNum < stringNum)
+                {
+                    scrollDialogue += currentLine.ElementAt(scrollDialogueNum);
+                    scrollDialogueNum++;
 
-            s.DrawString(Game1.dialogueFont, Game1.WrapText(Game1.dialogueFont, scrollDialogue, 660), new Vector2(360, (int)(Game1.aspectRatio * 1280 * .8f)), Color.Black);
+                   // if (scrollDialogueNum % 5 == 0)
+                     // Sound.PlaySoundInstance(Sound.SoundNames.TextScroll);
+                }
+
+                s.Draw(Game1.notificationTextures, new Rectangle(38, (int)(Game1.aspectRatio * 1280 * .55) - 3, 1080, 327), new Rectangle(0, 155, 1080, 327), Color.White);
+
+                s.Draw(Game1.questionMarkFace, new Rectangle(0, (int)(Game1.aspectRatio * 1280) - Game1.questionMarkFace.Height, Game1.questionMarkFace.Width, Game1.questionMarkFace.Height), Color.White);
+
+                s.DrawString(Game1.dialogueFont, Game1.WrapText(Game1.dialogueFont, scrollDialogue, 660), new Vector2(360, (int)(Game1.aspectRatio * 1280 * .8f)), Color.Black);
+            }
         }
 
         public virtual void DrawDialogue(SpriteBatch s, NPC npc)

@@ -220,7 +220,7 @@ namespace ISurvived
 
             if (player.VitalRecY < -300 && player.VitalRecX < 1000 && !game.MapBooleans.prologueMapBooleans["spawnEnemies"])
             {
-                Chapter.effectsManager.AddInGameDialogue("Hello, little one. It would seem your path is blocked. Press the button below to return my power to me, and I can aid you on your way. \n\nHold 'Shift' and tap the 'Down Arrow' to drop through platorms.", "Flower God", "Normal", 1);
+                Chapter.effectsManager.AddInGameDialogue("Salutations, small invertebrate. It would seem your path is blocked. Press the button below and perhaps I can aid you on your way. \n\nHold 'Shift' and tap the 'Down Arrow' to drop through platorms.", "Flower God", "Normal", 1);
             }
 
             //--If there aren't max enemies on the screen, spawn more
@@ -241,6 +241,8 @@ namespace ISurvived
                 game.CurrentChapter.state = Chapter.GameState.Cutscene;
                 flowerDelay = 4;
                 flowerFrame = 0;
+
+                //Chapter.effectsManager.AddInGameDialogue("Is...is that dirt under your fingernails?", "Flower God", "Normal", 100);
             }
 
 

@@ -169,22 +169,8 @@ namespace ISurvived
             EnterMap();
         }
 
-        public void EnterMap()
+        public void LoadCurrentMapLocks()
         {
-            currentMap.enteringMap = true;
-            player.Position = player.nextMapPos;
-
-            //This updates the camera to the player's new coordinates
-            //This is done here because updating the camera's position before the game resumed was causing issues with parallax and foreground items
-            //Basically I would update the camera every frame to allow them to be drawn correctly, but it would make the camera move to the new player
-            //before changing maps, since this code used to be run as soon as a portal was used
-            game.Camera.centerTarget = new Vector2(player.nextMapPos.X + (player.Rec.Width / 2), 0);
-
-            if (currentMap.yScroll)
-                game.Camera.centerTarget += new Vector2(0, player.nextMapPos.Y + (player.Rec.Height / 2));
-
-            game.Camera.center = game.Camera.centerTarget;
-
             for (int i = 0; i < currentMap.Portals.Count; i++)
             {
                 //If it has a lock
@@ -228,25 +214,45 @@ namespace ISurvived
                     }
                 }
             }
+        }
+
+        public void EnterMap()
+        {
+            currentMap.enteringMap = true;
+            player.Position = player.nextMapPos;
+
+            //This updates the camera to the player's new coordinates
+            //This is done here because updating the camera's position before the game resumed was causing issues with parallax and foreground items
+            //Basically I would update the camera every frame to allow them to be drawn correctly, but it would make the camera move to the new player
+            //before changing maps, since this code used to be run as soon as a portal was used
+            game.Camera.centerTarget = new Vector2(player.nextMapPos.X + (player.Rec.Width / 2), 0);
+
+            if (currentMap.yScroll)
+                game.Camera.centerTarget += new Vector2(0, player.nextMapPos.Y + (player.Rec.Height / 2));
+
+            game.Camera.center = game.Camera.centerTarget;
+
+            LoadCurrentMapLocks();
 
             if (fallingOffMap)
                 fallingOffMap = false;
 
-            while (Sound.backgroundVolume < .5f)
-            {
-                Sound.IncrementBackgroundVolume((float)(1f / 10000f));
-                currentMap.PlayBackgroundMusic();
-            }
-            while (Sound.ambienceVolume < .5f)
-            {
-                Sound.IncrementAmbienceVolume((float)(1f / 10000f));
-                currentMap.PlayAmbience();
-            }
+            //while (Sound.backgroundVolume < .5f)
+            //{
+            //    Sound.IncrementBackgroundVolume((float)(1f / 10000f));
+            //    currentMap.PlayBackgroundMusic();
+            //}
+            //while (Sound.ambienceVolume < .5f)
+            //{
+            //    Sound.IncrementAmbienceVolume((float)(1f / 10000f));
+            //    currentMap.PlayAmbience();
+            //}
             state = GameState.Game;
         }
 
         public virtual void Update()
         {
+            
             last = current;
             current = Keyboard.GetState();
 
@@ -337,8 +343,8 @@ namespace ISurvived
                     }
 
                     //--Open your journal once you can
-                    //if (!(game.CurrentChapter is Prologue) || (game.CurrentChapter as Prologue).QuestOne.CompletedQuest)
-                    // {
+                    if (!(game.CurrentChapter is Prologue) || (game.CurrentChapter as Prologue).QuestOne.CompletedQuest)
+                     {
                     if (!talkingToNPC && !makingDecision && !player.LevelingUp)
                     {
                         //Decrement time until you get another text
@@ -462,7 +468,7 @@ namespace ISurvived
                             Chapter.effectsManager.RemoveToolTip();
                         }
                     }
-                    // }
+                    }
 
                     if (talkingToNPC)
                         effectsManager.ClearDialogue();

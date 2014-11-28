@@ -42,7 +42,7 @@ namespace ISurvived
 
         public override void PlayBackgroundMusic()
         {
-            Sound.PlayBackGroundMusic("The Party");
+            //Sound.PlayBackGroundMusic("The Party");
         }
 
         public override void Update()
@@ -62,15 +62,15 @@ namespace ISurvived
             Game1.npcFaces["Jesse"].faces["Normal"] = content.Load<Texture2D>(@"NPCFaces\Main Characters\Jesse");
             Game1.npcFaces["Bob the Construction Guy"].faces["Normal"] = content.Load<Texture2D>(@"NPCFaces\Main Characters\Bob");
             //If the last map does not have the same music
-            if (Chapter.lastMap != "The Party")
-            {
-                SoundEffect bg = Sound.backgroundMusicContent.Load<SoundEffect>(@"Sound\Who Likes to Party");
-                SoundEffectInstance backgroundMusic = bg.CreateInstance();
-                backgroundMusic.IsLooped = true;
-                Sound.music.Add("The Party", backgroundMusic);
-            }
+            //if (Chapter.lastMap != "The Party")
+            //{
+            //    SoundEffect bg = Sound.backgroundMusicContent.Load<SoundEffect>(@"Sound\Who Likes to Party");
+            //    SoundEffectInstance backgroundMusic = bg.CreateInstance();
+            //    backgroundMusic.IsLooped = true;
+            //    Sound.music.Add("The Party", backgroundMusic);
+            //}
 
-            Sound.backgroundVolume = .01f;
+            //Sound.backgroundVolume = .01f;
         }
 
         public override void UnloadNPCContent()
@@ -84,11 +84,11 @@ namespace ISurvived
             Game1.npcFaces["Jesse"].faces["Normal"] = Game1.whiteFilter;
             Game1.npcFaces["Bob the Construction Guy"].faces["Normal"] = Game1.whiteFilter;
 
-            //DOn't clear the music if the next map is behind the party
-            if (Chapter.theNextMap != "TheParty")
-            {
-                Sound.UnloadBackgroundMusic();
-            }
+            ////DOn't clear the music if the next map is behind the party
+            //if (Chapter.theNextMap != "TheParty")
+            //{
+            //    Sound.UnloadBackgroundMusic();
+            //}
         }
 
         public override void SetPortals()

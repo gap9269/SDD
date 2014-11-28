@@ -114,8 +114,8 @@ namespace ISurvived
 
             if (game.chapterState == Game1.ChapterState.prologue)
             {
-                game.NPCSprites["Equipment Instructor"] = content.Load<Texture2D>(@"NPC\DD\inventory");
-                Game1.npcFaces["Equipment Instructor"].faces["Normal"] = content.Load<Texture2D>(@"NPCFaces\D&D\Equipment");
+                game.NPCSprites["Weapons Master"] = content.Load<Texture2D>(@"NPC\DD\inventory");
+                Game1.npcFaces["Weapons Master"].faces["Normal"] = content.Load<Texture2D>(@"NPCFaces\D&D\Equipment");
             }
 
         }
@@ -142,8 +142,8 @@ null, null, null, null, Game1.camera.GetTransform(1.05f, this, game));
 
             if (game.chapterState == Game1.ChapterState.prologue)
             {
-                game.NPCSprites["Equipment Instructor"] = Game1.whiteFilter;
-                Game1.npcFaces["Equipment Instructor"].faces["Normal"] = Game1.whiteFilter;
+                game.NPCSprites["Weapons Master"] = Game1.whiteFilter;
+                Game1.npcFaces["Weapons Master"].faces["Normal"] = Game1.whiteFilter;
             }
         }
 

@@ -21,8 +21,7 @@ namespace ISurvived
             questDialogue.Add("Just talk to me again when you're ready to learn more about Karma, alright?");
             questDialogue.Add("");
             completedDialogue.Add("I'm glad you're so excited about Karma. I aim to have the best rank in this realm some day!");
-            completedDialogue.Add("I do as many quests as I can for the commonfolk to gain as much Karma as possible." + 
-                                  " Sometimes when you rank up the Game Master will even allow you to wear better equipment!");
+            completedDialogue.Add("I do as many quests as I can for the commonfolk to gain as much Karma as possible, because when you rank up you unlock new Passive Abilities.");
             completedDialogue.Add("Good things come to those with a good 'Social Rank'. You're on your way, Flower Boy.");
 
             rewardObjects.Add(new Karma(3));
@@ -39,7 +38,7 @@ namespace ISurvived
 
             rewards = "3 Karma";
 
-            descriptionForJournal = "A wise, young shaman spoke to you of the wonders of karma and social status. He said that the reason he has so many friends is his esteemed D&D rank. You should listen to him, he had a banana taped to his head.";
+            descriptionForJournal = "A wise, young shaman spoke to you of the wonders of karma and social status. She said that the reason she has so many friends is her esteemed D&D rank. You should listen to her; she had a banana taped to her head.";
         }
 
         public override void UpdateQuest()

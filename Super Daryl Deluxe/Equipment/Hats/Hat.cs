@@ -84,13 +84,13 @@ icon = Game1.equipmentTextures[name];
         public PartyHat()
             : base()
         {
-            health = 5;
+            health = 100;
             strength = 0;
             defense = 0;
             moveSpeed = 0;
             jumpHeight = 0;
             name = "Party Hat";
-            level = 1;
+            level = 14;
             description = "Ain't no party like a Party Hat party!\n\n";
 icon = Game1.equipmentTextures[name];
         }

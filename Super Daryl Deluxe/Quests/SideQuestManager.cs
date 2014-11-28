@@ -69,7 +69,7 @@ namespace ISurvived
             {
                 ratQuest.CompletedQuest = true;
                 farSideDeath.ClearDialogue();
-                farSideDeath.Dialogue.Add("Riley was actually pretty evil for a rat. I wouldn't mourn too much.");
+                farSideDeath.Dialogue.Add("Careful on the way down. I'm not much for saving lives.");
                 Chapter.effectsManager.AddSmokePoof(new Rectangle(357, -2920 + 524, 95, 95), 2);
             }
 
@@ -106,16 +106,15 @@ namespace ISurvived
             if (!nPCs.ContainsKey("The Gardener") && game.Prologue.PrologueBooleans["addedGardener"] == true && game.Prologue.PrologueBooleans["finishedRatQuest"] == false)
             {
                 List<String> gardenDialogue = new List<string>();
-                gardenDialogue.Add("I...*sniff*...I don't know how I'll live without my darling Riley.");
+                gardenDialogue.Add("I should find a new pet...");
                 gardener = new NPC(game.NPCSprites["The Gardener"], gardenDialogue, ratQuest, new Rectangle(700, 680 - 395, 516, 388),
                     Game1.Player, game.Font, game, "East Hall", "The Gardener", false);
                 nPCs.Add("The Gardener", gardener);
 
                 List<String> dialogue = new List<string>();
-                dialogue.Add("What are you doing up here? Don't you know how dangerous it is to-");
-                dialogue.Add("Oh! Well what do we have here? Is that Riley? Ha, no kiddin'. I was supposed to take care of that one later today.");
-                dialogue.Add("Rabies. Nasty stuff, that. Looks like you went ahead and took care of 'im for me, though. That's the sixth animal that rackety old gardener has gone through this month.");
-                dialogue.Add("Ah well, that's my job. I'll bury that little bastard for you. Hand 'im over.");
+                dialogue.Add("Quite the view up here, eh?");
+                dialogue.Add("Waddaya got here, a smashed rat? Looks like little Riley...well that's a shame. Riley had a gene that could've reversed aging in humans. Too bad she lived with that batty gardener...");
+                dialogue.Add("Coulda put me out of a job! BAHAHA! Ah...yeah. Oh well.  I'll bury her next to the other poor souls.");
                 farSideDeath = new NPC(game.NPCSprites["Death"], dialogue,
                     new Rectangle(50, -2920 + 303, 516, 388), Game1.Player, game.Font, game, "The Far Side", "Death", false);
                 farSideDeath.FacingRight = true;

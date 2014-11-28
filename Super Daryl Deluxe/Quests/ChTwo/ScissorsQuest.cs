@@ -19,7 +19,7 @@ namespace ISurvived
             completedDialogue.Add("This is looking to be the luckiest day of my life. If only Pa could see me now! Come on back in a bit and I'll have these bad boys turned into a couple of coats and matching gloves for us.");
 
             rewardObjects.Add(new Textbook());
-            rewardObjects.Add(new Experience(70));
+            rewardObjects.Add(new Experience(700));
             rewardObjects.Add(new Karma(1));
 
 

@@ -74,22 +74,22 @@ namespace ISurvived
             Game1.npcFaces["Chelsea"].faces["Normal"] = content.Load<Texture2D>(@"NPCFaces\Main Characters\Chelsea");
             Game1.npcFaces["Mark"].faces["Normal"] = content.Load<Texture2D>(@"NPCFaces\Main Characters\Mark");
             Game1.npcFaces["Blurso"].faces["Normal"] = content.Load<Texture2D>(@"NPCFaces\Party\Blurso");
-            //If the last map does not have the same music
-            if (Chapter.lastMap != "The Party")
-            {
-                SoundEffect bg = Sound.backgroundMusicContent.Load<SoundEffect>(@"Sound\Who Likes to Party");
-                SoundEffectInstance backgroundMusic = bg.CreateInstance();
-                backgroundMusic.IsLooped = true;
-                Sound.music.Add("The Party", backgroundMusic);
-            }
+            ////If the last map does not have the same music
+            //if (Chapter.lastMap != "The Party")
+            //{
+            //    SoundEffect bg = Sound.backgroundMusicContent.Load<SoundEffect>(@"Sound\Who Likes to Party");
+            //    SoundEffectInstance backgroundMusic = bg.CreateInstance();
+            //    backgroundMusic.IsLooped = true;
+            //    Sound.music.Add("The Party", backgroundMusic);
+            //}
 
-            if(!Sound.music.ContainsKey("Exploring"))
-            {
-                SoundEffect bg1 = Sound.backgroundMusicContent.Load<SoundEffect>(@"Sound\Hidden Agenda");
-                SoundEffectInstance backgroundMusic1 = bg1.CreateInstance();
-                backgroundMusic1.IsLooped = true;
-                Sound.music.Add("Exploring", backgroundMusic1);
-            }
+            //if(!Sound.music.ContainsKey("Exploring"))
+            //{
+            //    SoundEffect bg1 = Sound.backgroundMusicContent.Load<SoundEffect>(@"Sound\Hidden Agenda");
+            //    SoundEffectInstance backgroundMusic1 = bg1.CreateInstance();
+            //    backgroundMusic1.IsLooped = true;
+            //    Sound.music.Add("Exploring", backgroundMusic1);
+            //}
 
             Sound.backgroundVolume = 1f;
         }
@@ -112,56 +112,56 @@ namespace ISurvived
             Game1.npcFaces["Blurso"].faces["Normal"] = Game1.whiteFilter;
             Game1.npcFaces["Mark"].faces["Normal"] = Game1.whiteFilter;
 
-            //DOn't clear the music if the next map is the party
-            if (Chapter.theNextMap != "TheParty")
-            {
-                Sound.UnloadBackgroundMusic();
-            }
-            else
-                Sound.music["Exploring"].Pause();
+            ////DOn't clear the music if the next map is the party
+            //if (Chapter.theNextMap != "TheParty")
+            //{
+            //    Sound.UnloadBackgroundMusic();
+            //}
+            //else
+            //    Sound.music["Exploring"].Pause();
         }
 
         public override void PlayBackgroundMusic()
         {
-            if (game.CurrentChapter.state != Chapter.GameState.ChangingMaps)
-            {
+            //if (game.CurrentChapter.state != Chapter.GameState.ChangingMaps)
+            //{
 
-                //1300 is the point where the music is originating from
-                float partyVolume;
+            //    //1300 is the point where the music is originating from
+            //    float partyVolume;
 
-                //If the player is on the left side of the sound, make it fade out slower because he's still close to the target sound
-                if (player.PositionX < 1300)
-                    partyVolume = 1000 / Math.Abs(player.PositionX - 1300);
-                else//Fade out faster because there is more room and the player gets farther away from the party quicker
-                    partyVolume = 900 / Math.Abs(player.PositionX - 1300);
+            //    //If the player is on the left side of the sound, make it fade out slower because he's still close to the target sound
+            //    if (player.PositionX < 1300)
+            //        partyVolume = 1000 / Math.Abs(player.PositionX - 1300);
+            //    else//Fade out faster because there is more room and the player gets farther away from the party quicker
+            //        partyVolume = 900 / Math.Abs(player.PositionX - 1300);
 
-                //Clamp it between 0 and 1
-                if (partyVolume < 0)
-                    partyVolume = 0;
-                if (partyVolume > 1)
-                    partyVolume = 1;
+            //    //Clamp it between 0 and 1
+            //    if (partyVolume < 0)
+            //        partyVolume = 0;
+            //    if (partyVolume > 1)
+            //        partyVolume = 1;
 
-                //Make it a bit quieter than inside
-                partyVolume = partyVolume - .5f;
+            //    //Make it a bit quieter than inside
+            //    partyVolume = partyVolume - .5f;
 
-                //Pan depending on the player's position to the sound
-                float partyPan = -((player.PositionX - 1300) / 300);
+            //    //Pan depending on the player's position to the sound
+            //    float partyPan = -((player.PositionX - 1300) / 300);
 
-                Sound.PlayBackGroundMusic("The Party", partyVolume, partyPan);
-                Sound.PlayBackGroundMusic("Exploring", .6f - partyVolume, 0);
-            }
-            else
-            {
-                //If the player is on the left side of the sound, play the party as you're changing maps because you're close to the party
-                if (player.PositionX < 1300)
-                {
-                    if (Sound.backgroundVolume > .6f)
-                        Sound.backgroundVolume = .6f;
-                    Sound.PlayBackGroundMusic("The Party");
-                }
-                else//right side means the only thing you can hear is the exploring song, so play that as you fade out
-                    Sound.PlayBackGroundMusic("Exploring");
-            }
+            //    Sound.PlayBackGroundMusic("The Party", partyVolume, partyPan);
+            //    Sound.PlayBackGroundMusic("Exploring", .6f - partyVolume, 0);
+            //}
+            //else
+            //{
+            //    //If the player is on the left side of the sound, play the party as you're changing maps because you're close to the party
+            //    if (player.PositionX < 1300)
+            //    {
+            //        if (Sound.backgroundVolume > .6f)
+            //            Sound.backgroundVolume = .6f;
+            //        Sound.PlayBackGroundMusic("The Party");
+            //    }
+            //    else//right side means the only thing you can hear is the exploring song, so play that as you fade out
+            //        Sound.PlayBackGroundMusic("Exploring");
+            //}
         }
 
         public override void Update()

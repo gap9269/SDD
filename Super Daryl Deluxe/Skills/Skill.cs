@@ -66,11 +66,16 @@ namespace ISurvived
         protected int moveFrame;
         protected Game1 game;
         protected int costToBuy;
+        protected Dictionary<String, SoundEffect> skillHitSounds;
+        protected Dictionary<String, SoundEffect> skillUseSounds;
 
         protected List<InteractiveObject> interactiveObjectsInMap;
         protected int frameDelay;
 
         protected List<int> playerLevelRequiredToLevel;
+
+        static Random randomNumberGenerator;
+        protected int hitSoundsLeftThisAttack = 2; //Decrease this number by 1 each time an attack is landed, and reset on Use()
 
         protected int maxHit;
         protected int hitThisTime = 0;
@@ -83,6 +88,8 @@ namespace ISurvived
 
         protected List<InteractiveObject> interactiveObjectsThisAttack;
         protected Color skillBarColor;
+
+        protected ContentManager content;
 
         //Charge skills
         protected int chargeTime;
@@ -142,6 +149,11 @@ namespace ISurvived
 
             skillBarColor = new Color(255, 255, 255);
             playerLevelRequiredToLevel = new List<int>();
+
+            content = new ContentManager(Game1.g.Services);
+            content.RootDirectory = "Content";
+
+            randomNumberGenerator = new Random();
         }
 
         public virtual void Use(Game1 game, Keys key)
@@ -151,6 +163,8 @@ namespace ISurvived
             enemies =  game.CurrentChapter.CurrentMap.EnemiesInMap;
             currentBoss = game.CurrentChapter.CurrentBoss;
             interactiveObjectsInMap = game.CurrentChapter.CurrentMap.InteractiveObjects;
+
+            hitSoundsLeftThisAttack = 2;
 
             last = current;
             current = Keyboard.GetState();
@@ -179,6 +193,12 @@ namespace ISurvived
 
         public virtual void Update()
         {
+            //DELETE THIS FOR A BETTER WAY OF LOADING SOUNDS PLS OMG
+            if (skillHitSounds == null)
+            {
+                skillHitSounds = ContentLoader.LoadSoundContent(content, "Sound\\Skills\\" + name + "\\HitSounds");
+                skillUseSounds = ContentLoader.LoadSoundContent(content, "Sound\\Skills\\" + name + "\\UseSounds");
+            }
 
             //--Decrease the timer, cooldown, and animationLength every frame
             if (animationLength > -1)
@@ -202,6 +222,24 @@ namespace ISurvived
 
                 Game1.currentChapter.HUD.SkillsHidden = false;
             }
+        }
+
+        public void PlayRandomHitSound()
+        {
+            if (hitSoundsLeftThisAttack > 0)
+            {
+                hitSoundsLeftThisAttack--;
+
+                skillHitSounds.ElementAt(randomNumberGenerator.Next(skillHitSounds.Count)).Value.CreateInstance().Play();
+            }
+        }
+
+        public void PlayRandomUseSound(int startingIndex = 0, int endingExclusiveIndex = 0)
+        {
+            if (endingExclusiveIndex == 0)
+                endingExclusiveIndex = skillUseSounds.Count;
+
+            skillUseSounds.ElementAt(randomNumberGenerator.Next(startingIndex, endingExclusiveIndex)).Value.CreateInstance().Play();
         }
 
         public virtual void ApplyLevelUp()
@@ -258,7 +296,7 @@ namespace ISurvived
                 }
 
                 Chapter.effectsManager.AddDamageFXForSkill(10, Rectangle.Intersect(attackRec, currentBoss.VitalRec), name);
-
+                PlayRandomHitSound();
                 currentBoss.TakeHit((int)damage, new Vector2(kbX, kbvel.Y), Rectangle.Intersect(attackRec, currentBoss.VitalRec));
                 currentBoss.HitPauseTimer = hitPauseTime;
                 player.HitPauseTimer = hitPauseTime;
@@ -277,7 +315,7 @@ namespace ISurvived
                     }
 
                     Chapter.effectsManager.AddDamageFXForSkill(10, Rectangle.Intersect(attackRec, interactiveObjectsInMap[i].VitalRec), name);
-
+                    PlayRandomHitSound();
                     interactiveObjectsInMap[i].TakeHit();
                     interactiveObjectsThisAttack.Add(interactiveObjectsInMap[i]);
                 }
@@ -307,7 +345,7 @@ namespace ISurvived
                     }
 
                     Chapter.effectsManager.AddDamageFXForSkill(10, Rectangle.Intersect(attackRec, enemies[i].VitalRec), name);
-
+                    PlayRandomHitSound();
                     enemies[i].TakeHit((int)damage, new Vector2(kbX, kbvel.Y), Rectangle.Intersect(attackRec, enemies[i].VitalRec), SkillType, RangedOrMelee);
                     enemies[i].HitPauseTimer = hitPauseTime;
                     player.HitPauseTimer = hitPauseTime;
@@ -350,7 +388,7 @@ namespace ISurvived
                     }
 
                     Chapter.effectsManager.AddDamageFXForSkill(10, Rectangle.Intersect(attackRec, enemies[i].VitalRec), name);
-
+                    PlayRandomHitSound();
                     enemies[i].TakeHit((int)damage, new Vector2(kbX, kbvel.Y), Rectangle.Intersect(attackRec, enemies[i].VitalRec), SkillType, RangedOrMelee);
                     enemies[i].HitPauseTimer = hitPauseTime;
                     player.HitPauseTimer = hitPauseTime;
@@ -370,7 +408,7 @@ namespace ISurvived
 
 
                     Chapter.effectsManager.AddDamageFXForSkill(10, Rectangle.Intersect(attackRec, interactiveObjectsInMap[i].VitalRec), name);
-            
+                    PlayRandomHitSound();
                     interactiveObjectsInMap[i].TakeHit();
                 }
             }
@@ -394,7 +432,7 @@ namespace ISurvived
                 }
 
                 Chapter.effectsManager.AddDamageFXForSkill(10, Rectangle.Intersect(attackRec, currentBoss.VitalRec), name);
-
+                PlayRandomHitSound();
                 currentBoss.TakeHit((int)damage, new Vector2(kbX, kbvel.Y), Rectangle.Intersect(attackRec, currentBoss.VitalRec));
                 currentBoss.HitPauseTimer = hitPauseTime;
                 player.HitPauseTimer = hitPauseTime;

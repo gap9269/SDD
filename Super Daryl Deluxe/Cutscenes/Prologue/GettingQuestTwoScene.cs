@@ -59,7 +59,7 @@ namespace ISurvived
                         paul.QuestDialogue.Clear();
                         paul.DialogueState = 0;
                         alan.Dialogue.Add("Don't blame me. I don't know what you did with it.");
-                        paul.Dialogue.Add("You had the goddamn keys last!");
+                        paul.Dialogue.Add("You had them last!");
                         camFollow.PositionX = player.PositionX + 45;
                     }
                     camFollow.PositionX -= player.MoveSpeed;
@@ -82,7 +82,7 @@ namespace ISurvived
                         alan.FacingRight = true;
                         alan.ClearDialogue();
                         paul.ClearDialogue();
-                        alan.Dialogue.Add("Oh wow, he actually came back.");
+                        alan.Dialogue.Add("Wow, he actually came back.");
                         talkingState = 0;
                         alan.Talking = true;
                     }
@@ -123,8 +123,7 @@ namespace ISurvived
                         {
                             paul.FacingRight = true;
                             paul.Talking = true;
-                            paul.Dialogue.Add("Look, he got the paper and flowers.");
-                            paul.Dialogue.Add("He's like some kind of flower boy or something.");
+                            paul.Dialogue.Add("He even got the paper and flowers, like some sort of Flower Boy or something.");
                             player.Karma = 1;
                             player.CheckSocialRankUp();
                         }
@@ -133,7 +132,7 @@ namespace ISurvived
                         {
                             talkingState++;
                             alan.Dialogue.Add("While you were gone Mr. Robatto stopped by. I guess some dork named Daryl left his notebook in the Main Office.");
-                            alan.Dialogue.Add("I don't know who Daryl is, so I'll let you have it for getting us those flowers.");
+                            alan.Dialogue.Add("I don't know who Daryl is, and I don't really care, so I guess you can have it for getting us those flowers.");
                             alan.Talking = true;
                         }
 
@@ -141,7 +140,7 @@ namespace ISurvived
                         {
                             talkingState++;
                             paul.Dialogue.Add("I'm sure you're curious about what's so important about that paper.");
-                            paul.Dialogue.Add("It's Tim's locker combination. We took it so we could give him fun gifts all the time. It encourages good character.");
+                            paul.Dialogue.Add("It's Tim's locker combination. We took it so we could give him fun gifts all the time. That's what friends do.");
                             paul.Dialogue.Add("And those flowers, you ask? Those flowers are exactly what Tim needs to spruce up his locker! Friends love flowers!");
                             paul.Dialogue.Add("Now go ahead and put those flowers in Tim's locker for him. It's over there.");
                             paul.Talking = true;

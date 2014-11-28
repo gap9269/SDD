@@ -85,6 +85,7 @@ namespace ISurvived
 
             if (dead && game.CurrentChapter.CurrentMap.MapName == mapName)
             {
+                facingRight = true;
                 s.Draw(spriteSheet, new Rectangle(rec.X + 70, rec.Y + 130, 290, 193), new Rectangle(516 * smokeFrame, 388, 516, 472), Color.White);
             }
 

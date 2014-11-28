@@ -14,20 +14,16 @@ namespace ISurvived
         public JournalQuest(Boolean story)
             : base(story)
         {
-            questDialogue.Add("...And who are you supposed to be?");
-            questDialogue.Add("You must be the worst excuse for a 'Dwarves and Druids' player that I've ever seen. " + 
-                              "Don't you know the number one rule? Of course you don't. Well I'll tell you: It's stay organized.");
-            questDialogue.Add("How will you know what your current story quest is if you don't keep a record of it in " +
-                              "your journal? Sure we have a small section on our main sheet that holds all of our side quests," +
-                              "but we need information on our main quest, too.");
-            questDialogue.Add("And I'm sure you haven't been keeping a record of all of the quests you've done thus far..." +
-                              "like the unskilled moron that you are.");
-            questDialogue.Add("Why don't you go ahead and take a look at your Journal, maybe you can actually start keeping" +
-                              "a useful record of what you've done. Of course you'll never be as organized as I am.");
+            questDialogue.Add("...You have got to be kidding me.");
+            questDialogue.Add("You must be the worst 'Dwarves and Druids' player I've ever seen. Wandering around without a clue... You're completely oblivious of the Number One Rule: Keep your quests organized.");
+            questDialogue.Add("Do you even know what you're supposed to be doing right now? If you even care about D&D, you'd know to check your Quests Page to find out your current Story Quest.");
+            questDialogue.Add("If you weren't a complete slob, you might know to keep track of all your Side Quests, too. All the information you could possibly need to complete your quests is right there in your Quest Page.");
+            questDialogue.Add("Do you even realize you can add quests your Quest Helper to keep updated on 5 quests?! You literally only have to checkmark a box...Pff. You probably can't even figure out how to use a pencil.");
+            questDialogue.Add("I bet you haven't even kept a Journal of all your quests so far... like the unskilled moron that you are. ");
+            questDialogue.Add("Check out your Quest Page now. And while you're at it, open your Journal and start keeping track of everything you've done. It's people like you that make D&D so frustrating to play. Nobody knows what they're doing...");
             questDialogue.Add("Get organized and then we'll talk! I refuse to converse with disorganized peasants.");
             completedDialogue.Add("Feeling a little better?");
-            completedDialogue.Add("Just try to remember how important that Journal is. If you forget what quest you're doing " +
-                                  "just give it a quick peek. Maybe one day you'll be as organized as me.");
+            completedDialogue.Add("Just try to remember how important your Quests Page is. If you forget what quest you're doing, just give it a quick peek. Maybe one day you'll be as organized as me.");
             completedDialogue.Add("Pff...yeah right.");
             rewardObjects.Add(new Karma(1));
 
@@ -38,7 +34,7 @@ namespace ISurvived
 
             npcName = "Journal Instructor";
 
-            conditionsToComplete = "View the Story and Quest pages in your Notebook.";
+            conditionsToComplete = "View the Journal and Quest pages in your Notebook.";
 
             rewards = "1 Karma";
 

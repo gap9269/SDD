@@ -73,17 +73,17 @@ namespace ISurvived
             }
             vitalRec.X = rec.X + 90;
             vitalRec.Y = rec.Y + 50;
-
+            deathRec = vitalRec;
         }
 
         public override void PlaySoundWhenHit()
         {
-            int soundType = moveNum.Next(2);
+            //int soundType = moveNum.Next(2);
 
-            if (soundType == 0)
-                Sound.enemySoundEffects["BennyHit1"].CreateInstance().Play();
-            else
-                Sound.enemySoundEffects["BennyHit2"].CreateInstance().Play();
+            //if (soundType == 0)
+            //    Sound.enemySoundEffects["BennyHit1"].CreateInstance().Play();
+            //else
+            //    Sound.enemySoundEffects["BennyHit2"].CreateInstance().Play();
         }
 
         public override void Move(int mapWidth)

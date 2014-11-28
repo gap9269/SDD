@@ -18,7 +18,7 @@ namespace ISurvived
 
             rewardObjects.Add(new PartyHat());
             rewardObjects.Add(new Textbook());
-            rewardObjects.Add(new Experience(20));
+            rewardObjects.Add(new Experience(400));
 
             itemNames.Add("Beer");
             itemsToGather.Add(1);

@@ -24,7 +24,7 @@ namespace ISurvived
         public static Portal ToArtHall { get { return toArtHall; } }
         public static Portal ToTheQuad { get { return toTheQuad; } }
 
-        Texture2D foreground;
+        Texture2D foreground, parallax;
 
         public MainLobby(List<Texture2D> bg, Game1 g, ref Player play)
             : base(bg, g, ref play)
@@ -49,12 +49,12 @@ namespace ISurvived
         public override void LoadContent()
         {
             background.Add(content.Load<Texture2D>(@"Maps\School\mainlobby"));
-            foreground = content.Load<Texture2D>(@"Maps\School\mainlobbyFore");
-
+            foreground = content.Load<Texture2D>(@"Maps\School\mainLobbyFore");
+            parallax = content.Load<Texture2D>(@"Maps\School\mainLobbyParallax"); 
             if (game.chapterState == Game1.ChapterState.prologue)
             {
-                game.NPCSprites["Karma Instructor"] = content.Load<Texture2D>(@"NPC\DD\karma");
-                Game1.npcFaces["Karma Instructor"].faces["Normal"] = content.Load<Texture2D>(@"NPCFaces\D&D\Karma");
+                game.NPCSprites["Karma Shaman"] = content.Load<Texture2D>(@"NPC\DD\karma");
+                Game1.npcFaces["Karma Shaman"].faces["Normal"] = content.Load<Texture2D>(@"NPCFaces\D&D\Karma");
             }
 
             if (Chapter.lastMap != "East Hall")
@@ -86,8 +86,8 @@ namespace ISurvived
 
             if (game.chapterState == Game1.ChapterState.prologue)
             {
-                game.NPCSprites["Karma Instructor"] = Game1.whiteFilter;
-                Game1.npcFaces["Karma Instructor"].faces["Normal"] = Game1.whiteFilter;
+                game.NPCSprites["Karma Shaman"] = Game1.whiteFilter;
+                Game1.npcFaces["Karma Shaman"].faces["Normal"] = Game1.whiteFilter;
             }
         }
 
@@ -117,7 +117,7 @@ namespace ISurvived
             toSideHall.FButtonYOffset = -100;
             toSideHall.PortalNameYOffset = -100;
 
-            toArtHall = new Portal(3150, platforms[0], "MainLobby");
+            toArtHall = new Portal(2730, platforms[0], "MainLobby");
             toArtHall.FButtonYOffset = -100;
             toArtHall.PortalNameYOffset = -100;
 
@@ -155,6 +155,16 @@ namespace ISurvived
             s.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
 null, null, null, null, Game1.camera.Transform);
             s.Draw(foreground, new Rectangle(0, 0, foreground.Width, 720), Color.White);
+            s.End();
+        }
+
+        public override void DrawBackgroundAndParallax(SpriteBatch s)
+        {
+
+
+            s.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+null, null, null, null, Game1.camera.GetTransform(.93f, this, game));
+            s.Draw(parallax, new Vector2(-100, 0), Color.White);
             s.End();
         }
     }

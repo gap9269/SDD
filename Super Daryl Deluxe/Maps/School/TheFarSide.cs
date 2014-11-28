@@ -65,7 +65,7 @@ namespace ISurvived
 
         public static Portal ToTheQuad { get { return toTheQuad; } }
 
-        Texture2D fore1, fore2, mid1, mid2, sky, clouds1, clouds2, farClouds1, farClouds2, sky1, sky2, boyd, grave;
+        Texture2D fore1, fore2, mid1, mid2, sky, clouds1, clouds2, farClouds1, farClouds2, sky1, sky2, boyd, grave, moon;
 
         float cloudPos = 93;
         float farCloudPos = 493;
@@ -130,6 +130,7 @@ namespace ISurvived
 
             sky1 = content.Load<Texture2D>(@"Maps\School\FarSide\FarSideSky1");
             sky2 = content.Load<Texture2D>(@"Maps\School\FarSide\FarSideSky2");
+            moon = content.Load<Texture2D>(@"Maps\School\FarSide\FarSideMoon");
 
             boyd = content.Load<Texture2D>(@"Maps\School\FarSide\BoydSheet");
 
@@ -179,9 +180,9 @@ namespace ISurvived
 
             timeUntilNextBoyd--;
 
-            if (Vector2.Distance(new Vector2(player.VitalRec.Center.X, player.VitalRec.Center.Y), new Vector2(storyItems[2].Rec.Center.X, storyItems[2].Rec.Center.Y)) < 600 && storyItems[2].PickedUp == false)
+            if (Vector2.Distance(new Vector2(player.VitalRec.Center.X, player.VitalRec.Center.Y), new Vector2(storyItems[2].Rec.Center.X, storyItems[2].Rec.Center.Y)) < 300 && storyItems[2].PickedUp == false && player.VitalRecY < -2300)
             {
-                //Chapter.effectsManager.AddInGameDialogue("I'm poisonous! ~teehee", "Dandelion", "Normal", 1);
+                Chapter.effectsManager.AddInGameDialogue("Is...is that dirt under your fingernails?", "Dandelion", "Normal", 1);
             }
 
             if (Vector2.Distance(new Vector2(player.VitalRec.Center.X, player.VitalRec.Center.Y), new Vector2(storyItems[1].Rec.Center.X, storyItems[1].Rec.Center.Y)) < 700 && player.VitalRec.X > storyItems[1].RecX + 250 && storyItems[1].PickedUp == false && player.VitalRecY < -1400)
@@ -287,7 +288,7 @@ namespace ISurvived
 
             s.Draw(sky1, new Rectangle(0, mapRec.Y, sky1.Width, sky1.Height), Color.White);
             s.Draw(sky2, new Rectangle(sky2.Width, mapRec.Y, sky1.Width, sky1.Height), Color.White);
-
+            s.Draw(moon, new Vector2(0, mapRec.Y), Color.White);
             s.Draw(farClouds1, new Rectangle((int)farCloudPos, mapRec.Y + 1406, farClouds1.Width, farClouds1.Height), Color.White);
             s.Draw(farClouds2, new Rectangle((int)farCloudPos + farClouds1.Width, mapRec.Y + 1406, farClouds2.Width, farClouds2.Height), Color.White);
 

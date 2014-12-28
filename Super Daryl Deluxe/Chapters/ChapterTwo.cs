@@ -5,7 +5,7 @@ using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.GamerServices;
+//using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
@@ -26,7 +26,7 @@ namespace ISurvived
         Mark mark;
         Julius julius;
         Jesse jesse;
-        BridgeKid bridgeKidOne;
+        BridgeKid bridgeKidOne, outsideCampBob;
         Balto balto;
         NPC skillInstructor;
         NPC saveInstructor;
@@ -35,6 +35,9 @@ namespace ISurvived
         NPC tim;
         NPC inventoryInstructor;
         NPC blurso;
+
+        //History
+        NPC napoleon, cleopatra;
 
         //Trenchcoats
         TrenchcoatKid tutorialShop;
@@ -50,6 +53,7 @@ namespace ISurvived
         public Texture2D associateOneTex;
 
         //--Story quests
+        public FortRaid fortRaid;
         DemoQuestOne demoQuestOne;
         DemoQuestTwo demoQuestTwo;
         public FindingBalto findingBalto;
@@ -64,6 +68,10 @@ namespace ISurvived
         ScissorsQuest scissorsQuest;
 
         //--Cutscenes
+
+        //History
+        CampGateOpenScene campGateOpenScene;
+
         //Demo scenes
         DemoOpening demoOpening;
         TreeFall treeFall;
@@ -280,6 +288,7 @@ namespace ISurvived
             demoQuestOne = new DemoQuestOne(true);
             demoQuestTwo = new DemoQuestTwo(true);
             findingBalto = new FindingBalto(true);
+            fortRaid = new FortRaid(true);
 
             //Side
             beerForToga = new BeerForToga(false);
@@ -293,6 +302,7 @@ namespace ISurvived
             game.AllQuests.Add(demoQuestOne.QuestName, demoQuestOne);
             game.AllQuests.Add(demoQuestTwo.QuestName, demoQuestTwo);
             game.AllQuests.Add(findingBalto.QuestName, findingBalto);
+            game.AllQuests.Add(fortRaid.QuestName, fortRaid);
             game.AllQuests.Add(buildBridgeOne.QuestName, buildBridgeOne);
             game.AllQuests.Add(buildBridgeTwo.QuestName, buildBridgeTwo);
 
@@ -305,6 +315,24 @@ namespace ISurvived
 
             //Booleans
             chapterTwoBooleans = new Dictionary<String, bool>();
+
+            //History room
+            chapterTwoBooleans.Add("campDoorFallen", false);
+            chapterTwoBooleans.Add("clearedCentralFortFirstTime", false);
+            chapterTwoBooleans.Add("enemyReinforcementsSpawning", false);
+            chapterTwoBooleans.Add("clearedEastHuts", false);
+            chapterTwoBooleans.Add("clearedWestHuts", false);
+            chapterTwoBooleans.Add("spawnedOutsideCampGuards", false);
+            chapterTwoBooleans.Add("eastCommanderSpawned", false);
+            chapterTwoBooleans.Add("westCommanderSpawned", false);
+            chapterTwoBooleans.Add("westCommanderKilled", false);
+            chapterTwoBooleans.Add("eastCommanderKilled", false);
+            chapterTwoBooleans.Add("centralCommanderSpawned", false);
+            chapterTwoBooleans.Add("centralCommanderKilled", false);
+            chapterTwoBooleans.Add("horseInCentral", true);
+            chapterTwoBooleans.Add("horseInWest", false);
+            chapterTwoBooleans.Add("horseInEast", false);
+            //Party stuff
             chapterTwoBooleans.Add("firstTextUsed", false);
             chapterTwoBooleans.Add("secondTextUsed", false);
             chapterTwoBooleans.Add("ThirdTextUsed", false);
@@ -343,6 +371,7 @@ namespace ISurvived
             AddNPCs();
 
             //Cutscenes
+
             demoOpening = new DemoOpening(game, camera, player, textures["TutorialPopUps"], textures["Text1"], textures["Text2"], textures["enterButton"]);
             chapterScenes.Add(demoOpening);
 
@@ -354,6 +383,9 @@ namespace ISurvived
 
             tutorialEnd = new TutorialEnd(game, camera, player);
             chapterScenes.Add(tutorialEnd);
+
+            campGateOpenScene = new CampGateOpenScene(game, camera, player);
+            chapterScenes.Add(campGateOpenScene);
 
             gateCollapseScene = new GateCollapseScene(game, camera, player);
             chapterScenes.Add(gateCollapseScene);
@@ -387,7 +419,7 @@ namespace ISurvived
 #if DEBUG
             if(current.IsKeyUp(Keys.P) && last.IsKeyDown(Keys.P))
             {
-               // player.Experience = player.ExperienceUntilLevel;
+                player.Experience = player.ExperienceUntilLevel;
             }
 
             #region Decisions
@@ -832,6 +864,26 @@ namespace ISurvived
                 nPCs.Add("Julius", julius);
             }
 
+            if (!nPCs.ContainsKey("Napoleon"))
+            {
+                //--Friend One
+                List<String> dialogue2 = new List<string>();
+                dialogue2.Add("Gimme french fries");
+                napoleon = new NPC(game.NPCSprites["Napoleon"], dialogue2, fortRaid, new Rectangle(500, 370, 516, 388), player, game.Font, game, "Outside Stone Fort", "Napoleon", false);
+                napoleon.FacingRight = true;
+                nPCs.Add("Napoleon", napoleon);
+            }
+
+            if (!nPCs.ContainsKey("Cleopatra"))
+            {
+                //--Friend One
+                List<String> dialogue2 = new List<string>();
+                dialogue2.Add("Gimme french fries");
+                cleopatra = new NPC(game.NPCSprites["Cleopatra"], dialogue2, new Rectangle(300, 385, 516, 388), player, game.Font, game, "Outside Stone Fort", "Cleopatra", false);
+                cleopatra.FacingRight = true;
+                nPCs.Add("Cleopatra", cleopatra);
+            }
+
             if (!nPCs.ContainsKey("Squirrel Boy"))
             {
                 //--Friend One
@@ -943,6 +995,18 @@ namespace ISurvived
                     new Rectangle(500, 680 - 388, 516, 388), player, game.Font, game, "Behind the Party", "Bob the Construction Guy", false);
                 bridgeKidOne.FacingRight = false;
                 nPCs.Add("BobTheConstructionGuyOne", bridgeKidOne);
+            }
+            if (!nPCs.ContainsKey("BobTheConstructionGuyTwo"))
+            {
+                //--Skill Instructor next to Daryl's Locker
+                List<String> dialogue = new List<string>();
+
+                dialogue.Add("Whoa there, pal! Watch where you step, alright?");
+                dialogue.Add("You're free to drown in this moat all you want, but don't expect anything realistic. There have been a lot of budget cuts lately, we can't afford a splash.");
+                outsideCampBob = new BridgeKid(game.NPCSprites["Bob the Construction Guy"], dialogue,
+                    new Rectangle(3150, 385, 516, 388), player, game.Font, game, "Outside Stone Fort", "Bob the Construction Guy", false);
+                bridgeKidOne.FacingRight = false;
+                nPCs.Add("BobTheConstructionGuyTwo", outsideCampBob);
             }
 
             if (!nPCs.ContainsKey("Mark"))

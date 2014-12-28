@@ -5,7 +5,7 @@ using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.GamerServices;
+//using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
@@ -340,7 +340,7 @@ namespace ISurvived
             last = current;
             current = Keyboard.GetState();
 
-            if (current.IsKeyUp(Keys.Back) && last.IsKeyDown(Keys.Back) && showingPassives)
+            if (((current.IsKeyUp(Keys.Escape) && last.IsKeyDown(Keys.Escape)) || (current.IsKeyUp(Keys.Back) && last.IsKeyDown(Keys.Back))) && showingPassives)
             {
                 Sound.PlaySoundInstance(Sound.SoundNames.UIPaperTab2);
                 showingPassives = false;

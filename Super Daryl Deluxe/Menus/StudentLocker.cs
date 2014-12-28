@@ -5,7 +5,7 @@ using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.GamerServices;
+//using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
@@ -270,7 +270,7 @@ namespace ISurvived
             current = Keyboard.GetState();
 
             #region Exit the screen
-            if ((last.IsKeyDown(Keys.Back) && current.IsKeyUp(Keys.Back)) || MyGamePad.BPressed())
+            if (((last.IsKeyDown(Keys.Escape) && current.IsKeyUp(Keys.Escape))) || ((last.IsKeyDown(Keys.Back) && current.IsKeyUp(Keys.Back))) || MyGamePad.BPressed())
             {
                 first = 0;
                 second = 0;

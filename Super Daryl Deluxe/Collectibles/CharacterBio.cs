@@ -80,6 +80,8 @@ namespace ISurvived
 
             enemyNameAndInfo.Add("Field Goblin", new EnemyInfo() { name = "Field Goblin", experienceGiven = "25", hobby = "Building field swingsets", itemDrop = "Invisible Field Goblin Gold", level = "4" });
 
+            enemyNameAndInfo.Add("Bomblin", new EnemyInfo() { name = "Bomblin", experienceGiven = "25", hobby = "Clearing debris", itemDrop = "Shrapnel", level = "15" });
+
             enemyNameAndInfo.Add("Troll", new EnemyInfo() { name = "Troll", experienceGiven = "1000", hobby = "Licking roof of mouth", itemDrop = "Increased land value", level = "16" });
 
             enemyNameAndInfo.Add("Goblin Gate", new EnemyInfo() { name = "Goblin Gate", experienceGiven = "None", hobby = "Avoiding erosion ", itemDrop = "A lot of dirt and garbage", level = "5" });

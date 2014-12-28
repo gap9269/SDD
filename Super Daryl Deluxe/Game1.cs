@@ -4,7 +4,7 @@ using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.GamerServices;
+//using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
@@ -145,7 +145,7 @@ namespace ISurvived
         Dictionary<String, Texture2D> npcSprites;
         //static Dictionary<String, MapClass> allMaps;
 
-        Dictionary<String, Texture2D> skillIcons;
+        public static Dictionary<String, Texture2D> skillIcons;
         Dictionary<String, Texture2D> mapHazards;
         Dictionary<String, Quest> allQuests;
         Dictionary<String, Equipment> allEquipment;
@@ -254,7 +254,7 @@ namespace ISurvived
             graphics = new GraphicsDeviceManager(this);
             SetResolution(1280, 720);
             Content.RootDirectory = "Content";
-            this.Components.Add(new GamerServicesComponent(this));
+            //this.Components.Add(new GamerServicesComponent(this));
             myGamePad = new MyGamePad();
             randomNumberGen = new Random();
             //Update the game pad if it is connected
@@ -743,7 +743,18 @@ namespace ISurvived
             journalFace.faces.Add("Normal", whiteFilter);
             npcFaces.Add("Keeper of the Quests", journalFace);
 
-            
+            //HISTORY
+            NPCFace cleoFace = new NPCFace();
+            cleoFace.faces = new Dictionary<string, Texture2D>();
+            cleoFace.faces.Add("Normal", whiteFilter);
+            npcFaces.Add("Cleopatra", cleoFace);
+
+            NPCFace napoleonFace = new NPCFace();
+            napoleonFace.faces = new Dictionary<string, Texture2D>();
+            napoleonFace.faces.Add("Normal", whiteFilter);
+            npcFaces.Add("Napoleon", napoleonFace);
+
+
             //TUTORIAL
             NPCFace demoDannyFace = new NPCFace();
             demoDannyFace.faces = new Dictionary<string, Texture2D>();
@@ -851,6 +862,12 @@ namespace ISurvived
             npcHeightFromRecTop.Add("Saving Instructor", 167);
             npcSprites.Add("Skill Sorceress", whiteFilter);
             npcHeightFromRecTop.Add("Skill Sorceress", 125);
+
+            //History
+            npcSprites.Add("Cleopatra", whiteFilter);
+            npcHeightFromRecTop.Add("Cleopatra", 88);
+            npcSprites.Add("Napoleon", whiteFilter);
+            npcHeightFromRecTop.Add("Napoleon", 116);
 
             //Party
             npcSprites.Add("Julius Caesar", whiteFilter);
@@ -968,45 +985,44 @@ namespace ISurvived
 
             skillLevelUpTexture = this.Content.Load<Texture2D>(@"SpriteSheets\Skills\SkillLevelUp");
 
-            Texture2D skillSheetOne = this.Content.Load<Texture2D>(@"SpriteSheets\Skills\SkillSheetOne");
             Texture2D skillIconSheet = whiteFilter;
 
-            skillAnimations.Add("Discuss Differences", this.Content.Load<Texture2D>(@"SpriteSheets\Skills\DiscussDifferences"));
-            skillIcons.Add("Discuss Differences", this.Content.Load<Texture2D>(@"SkillIcons\DiscussDifferencesIcon"));
+            skillAnimations.Add("Discuss Differences", Game1.whiteFilter);
+            skillIcons.Add("Discuss Differences", Game1.whiteFilter);
 
-            skillAnimations.Add("Blinding Logic", this.Content.Load<Texture2D>(@"SpriteSheets\Skills\Blinding Logic"));
-            skillIcons.Add("Blinding Logic", this.Content.Load<Texture2D>(@"SkillIcons\BlindingLogic"));
+            skillAnimations.Add("Blinding Logic", Game1.whiteFilter);
+            skillIcons.Add("Blinding Logic", Game1.whiteFilter);
             BlindingLogic.flashTextures = ContentLoader.LoadContent(Content, "SpriteSheets\\Skills\\BlindingLogicFlash");
 
-            skillAnimations.Add("Quick Retort", this.Content.Load<Texture2D>(@"SpriteSheets\Skills\Dash"));
-            skillIcons.Add("Quick Retort", this.Content.Load<Texture2D>(@"SkillIcons\QuickRetortIcon"));
+            skillAnimations.Add("Quick Retort", Game1.whiteFilter);
+            skillIcons.Add("Quick Retort", Game1.whiteFilter);
 
-            skillAnimations.Add("Twisted Thinking", skillSheetOne);
+            skillAnimations.Add("Twisted Thinking", Game1.whiteFilter);
             skillIcons.Add("Twisted Thinking", this.Content.Load<Texture2D>(@"SkillIcons\TwistedThinkingIcon"));
 
-            skillAnimations.Add("Shocking Statement", this.Content.Load<Texture2D>(@"SpriteSheets\Skills\Lightning"));
-            skillIcons.Add("Shocking Statement", this.Content.Load<Texture2D>(@"SkillIcons\ShockingStatement"));
+            skillAnimations.Add("Shocking Statement", Game1.whiteFilter);
+            skillIcons.Add("Shocking Statement", Game1.whiteFilter);
 
-            skillAnimations.Add("Lightning Dash", skillSheetOne);
+            skillAnimations.Add("Lightning Dash", Game1.whiteFilter);
             skillIcons.Add("Lightning Dash", this.Content.Load<Texture2D>(@"SkillIcons\LightningDash"));
 
             skillAnimations.Add("Distance Yourself", this.Content.Load<Texture2D>(@"SpriteSheets\Skills\distanceYourselfSheet"));
             skillIcons.Add("Distance Yourself", this.Content.Load<Texture2D>(@"SkillIcons\DistanceYourself"));
 
-            skillAnimations.Add("Sharp Comment",skillSheetOne);
+            skillAnimations.Add("Sharp Comment", Game1.whiteFilter);
             skillIcons.Add("Sharp Comment", this.Content.Load<Texture2D>(@"SkillIcons\SharpComment"));
 
-            skillAnimations.Add("Pointed Jabs", skillSheetOne);
+            skillAnimations.Add("Pointed Jabs", Game1.whiteFilter);
             skillIcons.Add("Pointed Jabs", this.Content.Load<Texture2D>(@"SkillIcons\PointedJabs"));
 
-            skillAnimations.Add("Sharp Comments", this.Content.Load<Texture2D>(@"SpriteSheets\Skills\spinSlash"));
-            skillIcons.Add("Sharp Comments", this.Content.Load<Texture2D>(@"SkillIcons\SpinSlash"));
+            skillAnimations.Add("Sharp Comments", Game1.whiteFilter);
+            skillIcons.Add("Sharp Comments", Game1.whiteFilter);
 
-            skillAnimations.Add("Fowl Mouth", skillSheetOne);
-            skillIcons.Add("Fowl Mouth", this.Content.Load<Texture2D>(@"SkillIcons\Shooter"));
+            skillAnimations.Add("Fowl Mouth", Game1.whiteFilter);
+            skillIcons.Add("Fowl Mouth", Game1.whiteFilter);
 
-            skillAnimations.Add("Mopping Up", skillSheetOne);
-            skillIcons.Add("Mopping Up", this.Content.Load<Texture2D>(@"SkillIcons\Launch"));
+            skillAnimations.Add("Mopping Up", Game1.whiteFilter);
+            skillIcons.Add("Mopping Up", Game1.whiteFilter);
 
             skillManager = new SkillManager(skillAnimations, skillIcons);
 

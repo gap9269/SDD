@@ -5,7 +5,7 @@ using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.GamerServices;
+//using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
@@ -1399,6 +1399,7 @@ namespace ISurvived
             {
                 ownedPassives[i].Draw(s);
             }
+
         }
 
         public void DrawDamage(SpriteBatch s)
@@ -1488,6 +1489,11 @@ namespace ISurvived
             storyItems = new Dictionary<string, int>();
             mouseRec = new Rectangle(0, 0, Cursor.cursorWidth / 2, Cursor.cursorHeight / 2);
             canJump = true;
+
+            for (int i = 0; i < equippedSkills.Count; i++)
+            {
+                equippedSkills[i].UnloadContent();
+            }
 
             //--Base stats
             socialRank = "New Kid";
@@ -1834,6 +1840,8 @@ namespace ISurvived
             Rectangle leftPlay = new Rectangle((int)vitalRec.X - 25, (int)vitalRec.Y + 5, 25, vitalRec.Height + 35);
             Rectangle topPlay = new Rectangle((int)vitalRec.X + 5, (int)vitalRec.Y, vitalRec.Width - 5, 10);
             Rectangle checkForStairs = new Rectangle(feet.X, feet.Y, feet.Width, 150);
+            Rectangle checkForRampLeft = new Rectangle(vitalRec.X - 26, feet.Y - 30, 25, 50);
+            Rectangle checkForRampRight = new Rectangle(vitalRec.X + vitalRec.Width, feet.Y - 30, 26, 50);
 
             platBelowPlayerForStairs = false;
 
@@ -1866,19 +1874,44 @@ namespace ISurvived
                         {
                             if (rightPlay.Intersects(left))
                             {
-                                if (playerState != PlayerState.jumping)
+                                if (checkForRampRight.Intersects(left) && checkForRampRight.Y < left.Y && playerState != PlayerState.jumping && playerState != PlayerState.attackJumping)
                                 {
-                                    position.X -= moveSpeed;
+                                    position.Y = plat.Rec.Y - 170 - 135 - 37;
+                                    velocity.Y = 0;
+
+                                    if (VelocityX == 0)
+                                        knockedBack = false;
+
+                                    falling = false;
                                 }
                                 else
                                 {
-                                    position.X -= airMoveSpeed;
+                                    if (playerState != PlayerState.jumping)
+                                    {
+                                        position.X -= moveSpeed;
+                                    }
+                                    else
+                                    {
+                                        position.X -= airMoveSpeed;
+                                    }
+                                    velocity.X = 0;
                                 }
-                                velocity.X = 0;
+
+                                Console.WriteLine("hit left side of plat");
                             }
 
                             if (leftPlay.Intersects(right))
                             {
+                                if (checkForRampLeft.Intersects(right) && checkForRampLeft.Y < right.Y && playerState != PlayerState.jumping && playerState != PlayerState.attackJumping)
+                                {
+                                    position.Y = plat.Rec.Y - 170 - 135 - 37;
+                                    velocity.Y = 0;
+
+                                    if (VelocityX == 0)
+                                        knockedBack = false;
+
+                                    falling = false;
+                                }
                                 if (playerState != PlayerState.jumping)
                                 {
                                     position.X += moveSpeed;
@@ -1888,6 +1921,7 @@ namespace ISurvived
                                     position.X += airMoveSpeed;
                                 }
                                 velocity.X = 0;
+                                Console.WriteLine("hit right side of plat");
                             }
                         }
                     
@@ -3085,6 +3119,7 @@ namespace ISurvived
             allMonsterBios.Add("Goblin Gate", false);
             allMonsterBios.Add("Goblin", false);
             allMonsterBios.Add("Field Goblin", false);
+            allMonsterBios.Add("Bomblin", false);
             allMonsterBios.Add("Troll", false);
         }
 

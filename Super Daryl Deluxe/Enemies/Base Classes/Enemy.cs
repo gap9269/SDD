@@ -5,7 +5,7 @@ using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.GamerServices;
+//using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
@@ -240,6 +240,16 @@ namespace ISurvived
 
         }
 
+        public Boolean IsAbovePlayer()
+        {
+            if (player.VitalRecY > vitalRec.Y + vitalRec.Height)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
         public virtual void Update(int mapwidth)
         {
            verticalDistanceToPlayer = Math.Abs(Vector2.Distance(new Vector2(0, player.VitalRec.Center.Y), new Vector2(0, vitalRec.Center.Y)));
@@ -315,10 +325,10 @@ namespace ISurvived
             rec.Y = (int)position.Y;
 
             healthBoxRec.X = vitalRec.X + vitalRec.Width / 2 - healthBack.Width / 2;
-            healthBoxRec.Y = rec.Y - 17;
+            healthBoxRec.Y = vitalRec.Y - 17;
 
             healthBarRec.X = vitalRec.X + vitalRec.Width / 2 - healthBack.Width / 2 + 2;
-            healthBarRec.Y = rec.Y - 15;
+            healthBarRec.Y = vitalRec.Y - 15;
 
             healthBarRec.Width = (int)((float)originalHealthWidth * ((float)health / (float)maxHealth));
             #endregion

@@ -5,7 +5,7 @@ using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.GamerServices;
+//using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
@@ -286,7 +286,7 @@ namespace ISurvived
                     }
 
                     //--Exit the locker
-                    if (KeyPressed(Keys.Back) || MyGamePad.BPressed())
+                    if (KeyPressed(Keys.Escape) || KeyPressed(Keys.Back) || MyGamePad.BPressed())
                     {
                         Chapter.effectsManager.RemoveToolTip();
                         game.CurrentChapter.state = Chapter.GameState.Game;
@@ -410,7 +410,7 @@ namespace ISurvived
                         UpdateShopInventory();
 
                         //--Exit the locker
-                        if (KeyPressed(Keys.Back) || MyGamePad.BPressed())
+                        if (KeyPressed(Keys.Escape) || KeyPressed(Keys.Back) || MyGamePad.BPressed())
                         {
                             Chapter.effectsManager.RemoveToolTip();
                             game.CurrentChapter.state = Chapter.GameState.Game;
@@ -508,6 +508,7 @@ namespace ISurvived
             #region Remove the skill if you click the unequip button
             if (selectedSkill != null && unequipButton.Clicked() && selectedSkill.Equipped)
             {
+                selectedSkill.UnloadContent();
                 selectedSkill.Equipped = false;
                 player.EquippedSkills.Remove(selectedSkill);
 
@@ -559,6 +560,7 @@ namespace ISurvived
                     #region REMOVE SKILLS
                     if (buttons[i] == skillQ && player.EquippedSkills.Count > 0)
                     {
+                        player.EquippedSkills[0].UnloadContent();
                         player.EquippedSkills[0].Equipped = false;
                         player.EquippedSkills.RemoveAt(0);
 
@@ -570,6 +572,7 @@ namespace ISurvived
 
                     if (buttons[i] == skillW && player.EquippedSkills.Count > 1)
                     {
+                        player.EquippedSkills[1].UnloadContent();
                         player.EquippedSkills[1].Equipped = false;
                         player.EquippedSkills.RemoveAt(1);
 
@@ -580,6 +583,7 @@ namespace ISurvived
                     }
                     if (buttons[i] == skillE && player.EquippedSkills.Count > 2)
                     {
+                        player.EquippedSkills[2].UnloadContent();
                         player.EquippedSkills[2].Equipped = false;
                         player.EquippedSkills.RemoveAt(2);
 
@@ -590,6 +594,7 @@ namespace ISurvived
                     }
                     if (buttons[i] == skillR && player.EquippedSkills.Count > 3)
                     {
+                        player.EquippedSkills[3].UnloadContent();
                         player.EquippedSkills[3].Equipped = false;
                         player.EquippedSkills.RemoveAt(3);
 
@@ -645,6 +650,7 @@ namespace ISurvived
     selectedSkill.Equipped == false && selectedSkill.LevelToUse <= player.Level)
             {
                 //--Add dat skill and set it to equipped
+                selectedSkill.LoadContent();
                 player.EquippedSkills.Add(selectedSkill);
                 selectedSkill.Equipped = true;
                 selectedSkill = null;
@@ -704,6 +710,7 @@ namespace ISurvived
                     {
 
                         //--Add dat skill and set it to equipped
+                        player.LearnedSkills[boxNumber].LoadContent();
                         player.EquippedSkills.Add(player.LearnedSkills[boxNumber]);
                         player.LearnedSkills[boxNumber].Equipped = true;
                         selectedSkill = null;

@@ -5,7 +5,7 @@ using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.GamerServices;
+//using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
@@ -23,8 +23,11 @@ namespace ISurvived
         NPC paul;
         NPC alan;
         float textAlpha = 1f;
-
+        
         float clouds1Pos, clouds2Pos;
+
+        Video flashbackAndOpening;
+        VideoPlayer videoPlayer;
 
         int specialTimer;
         int talkingState;
@@ -34,10 +37,13 @@ namespace ISurvived
         public override void LoadContent()
         {
             base.LoadContent();
-
+            videoPlayer = new VideoPlayer();
+            
             game.NPCSprites["Mr. Robatto"] = content.Load<Texture2D>(@"NPC\Main\robatto");
 
             Game1.npcFaces["Mr. Robatto"].faces["Normal"] = content.Load<Texture2D>(@"NPCFaces\Main Characters\Robatto");
+
+            flashbackAndOpening = content.Load<Video>(@"Cutscenes\OpeningScene");
         }
 
         //--Takes in a background and all necessary objects
@@ -66,11 +72,13 @@ namespace ISurvived
                     if (firstFrameOfTheState)
                     {
                         LoadContent();
+                        videoPlayer.Play(flashbackAndOpening);
                     }
+
                     //camera.GetStaticTransform(game);
                     topBarPos = 0;
                     botBarPos = (int)(Game1.aspectRatio * 1280) - 66;
-                    FadeOut(120);
+                    //FadeOut(120);
                     break;
 
                 //-- FADE IN AND PAN ACROSS OUTSIDE OF SCHOOL
@@ -200,6 +208,9 @@ namespace ISurvived
 
                     if (timer == 119)
                     {
+                        //--CREATE VITALE
+                        robatto.Rec = new Rectangle(0, 0, 518, 388);
+
                         game.CurrentChapter.CurrentMap.UnloadContent();
                         game.CurrentChapter.CurrentMap.UnloadNPCContent();
                         game.CurrentChapter.CurrentMap = Game1.schoolMaps.maps["NorthHall"];
@@ -695,10 +706,29 @@ namespace ISurvived
             switch (state)
             {
                 case 0: //Draws the black box over the entire screen and changes the alpha
-                    s.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+
+                    if (videoPlayer != null)
+                    {
+
+                        Texture2D sceneTex = videoPlayer.GetTexture();
+
+                        if (sceneTex != null)
+                        {
+                            s.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
 null, null, null, null, camera.StaticTransform);
-                    s.Draw(Game1.whiteFilter, new Rectangle(0, 0, 1280, (int)(Game1.aspectRatio * 1280)), Color.Black);
-                    s.End();
+                            s.Draw(sceneTex, new Rectangle(0, 0, 1280, 720), Color.White);
+                            s.End();
+                            sceneTex.Dispose();
+                        }
+                        
+                        
+                        if (videoPlayer.State == MediaState.Stopped && timer > 600)
+                        {
+                            state = 7;
+                            timer = 0;
+                        }
+                    }
+
                     break;
 
                 case 1: //Draw the background and the fade-in
@@ -795,6 +825,7 @@ null, null, null, null, camera.StaticTransform);
                     s.Draw(mainOffice, new Rectangle(0, 0, 1280, (int)(Game1.aspectRatio * 1280)), Color.White);
                     
                     DrawFade(s, 0);
+                    s.Draw(Game1.whiteFilter, new Rectangle(0, 0, 1280, (int)(Game1.aspectRatio * 1280)), Color.Black);
                     s.End();
                     break;
 

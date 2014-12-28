@@ -5,7 +5,7 @@ using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.GamerServices;
+//using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
@@ -26,7 +26,9 @@ namespace ISurvived
 
         Rectangle attackExtensionRec;
 
-        int swipeDamage, spitDamage;
+        int swipeDamage, spitDamage, spitCooldown;
+
+        int maxSpitCooldown = 150;
 
         public Boolean Flying { get { return flying; } set { flying = value; } }
         public Boolean Kicked { get { return kicked; } set { kicked = value; } }
@@ -37,15 +39,15 @@ namespace ISurvived
         {
             if (type == "Goblin" || type == "Field Goblin")
             {
-                health = 6300;
+                health = 630;
                 maxHealth = 6300;
                 level = 15;
                 experienceGiven = 75;
-                rec = new Rectangle((int)position.X, (int)position.Y, 157, 135);
+                rec = new Rectangle((int)position.X, (int)position.Y, 188, 162);
                 currentlyInMoveState = false;
                 enemySpeed = 4;
                 tolerance = 190;
-                vitalRec = new Rectangle(rec.X, rec.Y, 70, 90);
+                vitalRec = new Rectangle(rec.X, rec.Y, 90, 100);
                 maxHealthDrop = 260;
                 moneyToDrop = .15f;
 
@@ -108,8 +110,10 @@ namespace ISurvived
             {
 
                 if (hostile)
+                {
+                    spitCooldown--;
                     attackCooldown--;
-
+                }
                 if (runningAway)
                 {
                     runAwayTimer--;
@@ -200,7 +204,7 @@ namespace ISurvived
                 }
             }
             //--If the enemy hasn't been hit, walk randomly. If he is hostile but far away from the player, ignore him
-            else if (hostile == false || distanceFromPlayer > 1700 || verticalDistanceToPlayer > 250)
+            else if (hostile == false || distanceFromPlayer > 1700 || verticalDistanceToPlayer > 350 || IsAbovePlayer())
             {
                 #region Random movement, not hostile
                 if (currentlyInMoveState == false)
@@ -318,43 +322,46 @@ namespace ISurvived
                     moveTimer--;
                 }
                 //IF YOU CAN ATTACK, CHOOSE WHAT TO DO BASED ON DISTANCE FROM PLAYER
-                else if (attackCooldown <= 0 && knockedBack == false && enemyState != EnemyState.attacking)
+                else if ((attackCooldown <= 0 || spitCooldown <= 0) && knockedBack == false && enemyState != EnemyState.attacking)
                 {
-                    if (horizontalDistanceToPlayer > 400 && horizontalDistanceToPlayer < 850)
+                    if (horizontalDistanceToPlayer > 300 && horizontalDistanceToPlayer < 550 && spitCooldown <= 0)
                         spitting = true;
-                    else if (horizontalDistanceToPlayer <= 135)
+                    else if (horizontalDistanceToPlayer <= 150 && attackCooldown <= 0)
                         swiping = true;
                     else
                         MoveTowardPlayer(mapWidth);
                 }
 
                 #region Attack once it is close enough
-                if (swiping || spitting)
+                if (swiping)
                 {
                     //--Only attack if off cooldown
                     if (attackCooldown <= 0)
                     {
 
                         Vector2 kb;
-                        if (swiping)
-                        {
-                            if (facingRight)
-                                kb = new Vector2(10, -5);
-                            else
-                                kb = new Vector2(-10, -5);
-                        }
-                        else
-                        {
-                            if (facingRight)
-                                kb = new Vector2(5, -3);
-                            else
-                                kb = new Vector2(-5, -3);
-                        }
 
-                        if (swiping)
-                            Attack(swipeDamage, kb);
+                        if (facingRight)
+                            kb = new Vector2(10, -5);
                         else
-                            Attack(0, kb);
+                            kb = new Vector2(-10, -5);
+                        Attack(swipeDamage, kb);
+                    }
+                }
+                else if (spitting)
+                {
+                    //--Only attack if off cooldown
+                    if (spitCooldown <= 0)
+                    {
+
+                        Vector2 kb;
+
+                        if (facingRight)
+                            kb = new Vector2(5, -3);
+                        else
+                            kb = new Vector2(-5, -3);
+                        
+                        Attack(0, kb);
                     }
                 }
                 #endregion
@@ -390,13 +397,13 @@ namespace ISurvived
                 {
                     if (facingRight)
                     {
-                        attackRec = new Rectangle(vitalRec.X + vitalRec.Width, vitalRec.Y, 70, 50);
-                        attackExtensionRec = new Rectangle(rec.X + rec.Width - 9, rec.Y + 39, 51, 75);
+                        attackRec = new Rectangle(vitalRec.X + vitalRec.Width, vitalRec.Y, 90, 50);
+                        attackExtensionRec = new Rectangle(rec.X + rec.Width + 11, rec.Y + 39, 51, 75);
                     }
                     else
                     {
-                        attackRec = new Rectangle(vitalRec.X - 70, vitalRec.Y, 70, 50);
-                        attackExtensionRec = new Rectangle(rec.X - 29, rec.Y + 39, 51, 75);
+                        attackRec = new Rectangle(vitalRec.X - 90, vitalRec.Y, 90, 50);
+                        attackExtensionRec = new Rectangle(rec.X - 9, rec.Y + 39, 51, 75);
                     }
                     //RangedAttackRecs.Add(attackRec);
                 }
@@ -441,11 +448,11 @@ namespace ISurvived
 
                     if (facingRight)
                     {
-                        arrow = new Projectile((int)vitalRec.X + VitalRecWidth + 20, (int)vitalRec.Y + 55, 180, new Vector2(1, 0), (float)Math.PI, spitDamage, new Vector2(5, -5), 1, 0, 10, Projectile.ProjType.goblinSpit);
+                        arrow = new Projectile((int)vitalRec.X + VitalRecWidth + 20, (int)vitalRec.Y + 55, 60, new Vector2(1, 0), (float)Math.PI, spitDamage, new Vector2(5, -5), 1, 0, 10, Projectile.ProjType.goblinSpit);
                     }
                     else
                     {
-                        arrow = new Projectile((int)vitalRec.X - 20, (int)vitalRec.Y + 65, 180, new Vector2(-1, 0), 0f, spitDamage, new Vector2(5, -5), 1, 0, 10, Projectile.ProjType.goblinSpit);
+                        arrow = new Projectile((int)vitalRec.X - 20, (int)vitalRec.Y + 65, 60, new Vector2(-1, 0), 0f, spitDamage, new Vector2(5, -5), 1, 0, 10, Projectile.ProjType.goblinSpit);
                     }
 
                     currentMap.Projectiles.Add(arrow);
@@ -459,10 +466,12 @@ namespace ISurvived
                 {
                     runningAway = true;
                     runAwayTimer = 180;
+                    attackCooldown = maxAttackCooldown;
                 }
+                else
+                    spitCooldown = maxSpitCooldown;
 
                 attackFrame = 0;
-                attackCooldown = maxAttackCooldown;
                 enemyState = EnemyState.standing;
                 currentlyInMoveState = false;
                 attackRec = new Rectangle(0, 0, 0, 0);
@@ -489,6 +498,7 @@ namespace ISurvived
         public override void Draw(SpriteBatch s)
         {
             //s.Draw(Game1.emptyBox, rec, Color.Black);
+            //s.Draw(Game1.whiteFilter, attackRec, Color.Black);
 
             #region Draw Enemy
             if (!facingRight)
@@ -541,6 +551,7 @@ namespace ISurvived
 
                         Rectangle rightEn = new Rectangle((int)vitalRec.X + vitalRec.Width, (int)vitalRec.Y + 5, 15, vitalRec.Height + 35);
             Rectangle leftEn = new Rectangle((int)vitalRec.X - 15, (int)vitalRec.Y + 5, 15, vitalRec.Height + 35);
+
         }
 
         public void MoveTowardPlayer(int mapWidth)

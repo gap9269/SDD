@@ -5,7 +5,7 @@ using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.GamerServices;
+//using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
@@ -113,7 +113,7 @@ namespace ISurvived
             current = Keyboard.GetState();
 
                 //--Show or hide the inventory
-            if (((current.IsKeyUp(Keys.Back) && last.IsKeyDown(Keys.Back)) || MyGamePad.BPressed()) && !inventory.showingPassives)
+            if (((current.IsKeyUp(Keys.Escape) && last.IsKeyDown(Keys.Escape)) || (current.IsKeyUp(Keys.Back) && last.IsKeyDown(Keys.Back)) || MyGamePad.BPressed()) && !inventory.showingPassives)
             {
                 Chapter.effectsManager.RemoveToolTip();
                 

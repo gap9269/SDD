@@ -5,7 +5,7 @@ using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.GamerServices;
+//using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
@@ -768,7 +768,7 @@ namespace ISurvived
                 #region GAME
                 case GameState.Game:
                     currentMap.DrawBackgroundAndParallax(s);
-
+                    
                     s.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend,
                     null, null, null, null, camera.Transform);
 

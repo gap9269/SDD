@@ -5,7 +5,7 @@ using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.GamerServices;
+//using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
@@ -14,26 +14,27 @@ namespace ISurvived
 {
     public class Projectile
     {
-        float rotation;
-        Vector2 position;
-        Rectangle rec;
-        int timeInAir;
-        Vector2 velocity;
-        Texture2D texture;
-        int maxTimeInAir;
-        Boolean dead = false;
-        int damage;
-        Vector2 knockback;
-        int cameraShake;
-        int hitPauseTime;
-        int speed;
+        protected float rotation;
+        protected Vector2 position;
+        protected Rectangle rec;
+        protected int timeInAir;
+        protected Vector2 velocity;
+        protected Texture2D texture;
+        protected int maxTimeInAir;
+        protected Boolean dead = false;
+        protected int damage;
+        protected Vector2 knockback;
+        protected int cameraShake;
+        protected int hitPauseTime;
+        protected int speed;
 
         public Boolean Dead { get { return dead; } set { dead = value; } }
 
         public enum ProjType
         {
             arrow,
-            goblinSpit
+            goblinSpit,
+            bomb
         }
         public ProjType projectileType;
 
@@ -50,6 +51,10 @@ namespace ISurvived
 
                 case ProjType.arrow:
                     rec = new Rectangle(x, y, 169, 48);
+                    break;
+
+                case ProjType.bomb:
+                    rec = new Rectangle(x, y, 47, 63);
                     break;
             }
             position = new Vector2(x, y);
@@ -71,12 +76,15 @@ namespace ISurvived
 
                 case ProjType.arrow:
                     return new Rectangle(53, 0, 169, 48);
+
+                case ProjType.bomb:
+                    return new Rectangle(0, 48, 47, 63);
             }
 
             return new Rectangle();
         }
 
-        public void Update()
+        public virtual void Update()
         {
 
             timeInAir++;
@@ -102,7 +110,7 @@ namespace ISurvived
             }
         }
 
-        public void Draw(SpriteBatch s)
+        public virtual void Draw(SpriteBatch s)
         {
             s.Draw(texture, rec, GetSourceRectangle(), Color.White, rotation, new Vector2(0, 12), SpriteEffects.None, 0f);
         }

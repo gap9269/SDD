@@ -5,7 +5,7 @@ using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.GamerServices;
+//using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
@@ -80,7 +80,6 @@ namespace ISurvived
             : base(bg, g, ref play)
         {
             yScroll = true;
-            zoomLevel = .85f;
 
             mapWidth = 7000;
             mapHeight = 4000;

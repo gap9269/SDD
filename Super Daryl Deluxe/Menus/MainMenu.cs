@@ -7,7 +7,7 @@ using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.GamerServices;
+//using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
@@ -59,7 +59,7 @@ namespace ISurvived
             selectionState = 0;
             fadeOut = new Cutscene(game, game.Camera);
             cursor = c;
-            state = State.intro;
+            state = State.selecting;
 
             content = new ContentManager(g.Services);
             content.RootDirectory = "Content";
@@ -350,10 +350,10 @@ namespace ISurvived
                         UnloadContent();
                         //FOR THE TUTORIAl/DEMO SHIT
                         game.CurrentChapter = game.ChapterTwo;
-                        game.CurrentChapter.StartingPortal = TheParty.ToBehindTheParty;
+                        game.CurrentChapter.StartingPortal = OutsideStoneFort.ToBathroom;
                         game.chapterState = Game1.ChapterState.chapterTwo;
 
-                        game.CurrentChapter.CurrentMap = Game1.schoolMaps.maps["TheParty"];
+                        game.CurrentChapter.CurrentMap = Game1.schoolMaps.maps["StoneFort-East"];
                         game.CurrentChapter.CurrentMap.LoadContent();
                         Game1.Player.HasCellPhone = true;
                         game.CurrentChapter.CurrentMap.LoadEnemyData();
@@ -379,6 +379,7 @@ namespace ISurvived
                         Game1.Player.LearnedSkills[0].SkillRank = 3;
                         Game1.Player.LearnedSkills[0].ApplyLevelUp();
                         Game1.Player.ExperienceUntilLevel = 3700;
+                        Game1.Player.LearnedSkills[0].LoadContent();
                         Game1.Player.CanJump = true;
 
                         Chapter.effectsManager.skillMessageColor = Color.White;
@@ -641,6 +642,7 @@ namespace ISurvived
                             Game1.Player.Defense = 97;
                             Game1.Player.Strength = 1100;
                             Game1.Player.ExperienceUntilLevel = 3700;
+
                             game.CurrentChapter.HUD.SkillsHidden = false;
 
                             Game1.Player.LearnedSkills.Add(SkillManager.AllSkills["Discuss Differences"]);
@@ -648,6 +650,7 @@ namespace ISurvived
                             Game1.Player.LearnedSkills[0].Equipped = true;
                             Game1.Player.LearnedSkills[0].SkillRank = 3;
                             Game1.Player.LearnedSkills[0].ApplyLevelUp();
+                            Game1.Player.LearnedSkills[0].LoadContent();
                             Game1.Player.CanJump = true;
 
                             Chapter.effectsManager.skillMessageColor = Color.White;

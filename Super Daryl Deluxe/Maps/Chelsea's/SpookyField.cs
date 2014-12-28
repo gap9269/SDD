@@ -5,7 +5,7 @@ using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.GamerServices;
+//using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
@@ -190,6 +190,11 @@ namespace ISurvived
 
             if (Game1.mapBooleans.chapterTwoMapBooleans["ClearedSpookyField"] == true)
                 spawnEnemies = true;
+
+            if (Game1.mapBooleans.chapterTwoMapBooleans["ClearedSpookyField"] == false && Game1.mapBooleans.chapterTwoMapBooleans["SpawnedScarecrows"] && enemiesInMap.Count == 0)
+            {
+                Game1.mapBooleans.chapterTwoMapBooleans["SpawnedScarecrows"] = false;
+            }
         }
 
         public override void Update()

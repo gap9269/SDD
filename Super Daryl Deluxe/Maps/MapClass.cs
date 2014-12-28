@@ -5,7 +5,7 @@ using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.GamerServices;
+//using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
@@ -999,11 +999,6 @@ Math.Abs(player.VitalRec.Center.Y - lockers[i].Rec.Center.Y));
                 if (interactiveObjects[i].Foreground == false && !(interactiveObjects[i] is LivingLocker))
                     interactiveObjects[i].Draw(s);
             }
-
-            for (int i = 0; i < projectiles.Count; i++)
-            {
-                projectiles[i].Draw(s);
-            }
         }
 
         public void DrawLivingLocker(SpriteBatch s)
@@ -1087,6 +1082,12 @@ new Vector2(portals.ElementAt(i).Key.PortalRec.X + portals.ElementAt(i).Key.Port
 
         public void DrawEnemyForegroundEffects(SpriteBatch s)
         {
+
+            for (int i = 0; i < projectiles.Count; i++)
+            {
+                projectiles[i].Draw(s);
+            }
+
             for (int i = 0; i < enemiesInMap.Count; i++)
             {
                 enemiesInMap[i].DrawForegroundEffect(s);

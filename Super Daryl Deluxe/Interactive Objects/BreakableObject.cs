@@ -5,7 +5,7 @@ using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.GamerServices;
+//using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
@@ -174,7 +174,12 @@ namespace ISurvived
             if (!finished)
             {
                 //s.Draw(Game1.whiteFilter, vitalRec, Color.Black);
-                s.Draw(sprite, rec, GetSourceRec(), Color.White);
+
+                if(facingRight)
+                    s.Draw(sprite, rec, GetSourceRec(), Color.White);
+                else
+                    s.Draw(sprite, rec, GetSourceRec(), Color.White, 0f, Vector2.Zero, SpriteEffects.FlipHorizontally, 0f);
+
             }
         }
     }

@@ -43,6 +43,7 @@ namespace ISurvived
         List<Boolean> characterBioTemp;
         List<Boolean> monsterBioTemp;
         List<String> passiveNamesTemp;
+        List<String> equippedSkillNamesTemp;
 
         #region Equipment
         List<String> ownedWeaponsTemp;
@@ -178,6 +179,7 @@ namespace ISurvived
             public List<Boolean> characterBios;
             public List<Boolean> monsterBios;
             public List<String> passiveNames;
+            public List<String> equippedSkillNames;
 
             public List<Boolean> prologueSideQuestsRead;
             public List<Boolean> prologueStoryQuestsRead;
@@ -364,12 +366,7 @@ namespace ISurvived
 
             generatedComboNamesTemp = new List<string>();
             generatedCombosTemp = new List<string>();
-        }
-
-        public void InitiateSave()
-        {
-                ResetListsForSave();
-                SaveToDevice();
+            equippedSkillNamesTemp = new List<string>();
         }
 
         public void ResetListsForSave()
@@ -472,6 +469,14 @@ namespace ISurvived
 
             generatedComboNamesTemp = new List<string>();
             generatedCombosTemp = new List<string>();
+            equippedSkillNamesTemp = new List<string>();
+
+        }
+
+        public void InitiateSave()
+        {
+            ResetListsForSave();
+            SaveToDevice();
         }
 
         void SaveToDevice()
@@ -630,6 +635,12 @@ namespace ISurvived
                         equippedSkillsTemp.Add(true);
                     else
                         equippedSkillsTemp.Add(false);
+                }
+
+                //Equipped skills in order
+                for (int i = 0; i < player.EquippedSkills.Count; i++)
+                {
+                    equippedSkillNamesTemp.Add(player.EquippedSkills[i].Name);
                 }
 
                 //Owned weapons
@@ -859,6 +870,7 @@ namespace ISurvived
                     equippedSkills = equippedSkillsTemp,
                     skillWrappers = skillwrapperTemp,
                     skillsInShop = skillsInShopTemp,
+                    equippedSkillNames = equippedSkillNamesTemp,
 
                     //Maps
                     mapStoryItemsPicked = mapStoryItemTemp,
@@ -1131,9 +1143,13 @@ namespace ISurvived
                         player.LearnedSkills[i].FullCooldown = SaveData.skillWrappers[i].fullCooldown;
 
                         player.LearnedSkills[i].ApplyLevelUp();
+                    }
 
-                        if (player.LearnedSkills[i].Equipped)
-                            player.EquippedSkills.Add(player.LearnedSkills[i]);
+                    //Add skills in correct order
+                    for (int i = 0; i < SaveData.equippedSkillNames.Count; i++)
+                    {
+                        player.EquippedSkills.Add(SkillManager.AllSkills[SaveData.equippedSkillNames[i]]);
+                        SkillManager.AllSkills[SaveData.equippedSkillNames[i]].LoadContent();
                     }
 
                     Chapter.effectsManager.skillMessageTime = 0;

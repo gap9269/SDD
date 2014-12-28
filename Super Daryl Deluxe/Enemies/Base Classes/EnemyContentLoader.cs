@@ -34,6 +34,17 @@ namespace ISurvived
             Game1.g.EnemySpriteSheets.Add("Goblin", content.Load<Texture2D>(@"EnemySprites\GoblinSheet"));
         }
 
+        static public void Bomblin(ContentManager content)
+        {
+            Dictionary<String, Texture2D> temp = ContentLoader.LoadContent(content, "EnemySprites\\Bomblin");
+
+            Game1.g.EnemySpriteSheets.Add("Bomblin", content.Load<Texture2D>(@"EnemySprites\Bomblin\\stand0"));
+            for (int i = 0; i < temp.Count; i++)
+            {
+                Game1.g.EnemySpriteSheets.Add(temp.ElementAt(i).Key, temp.ElementAt(i).Value);
+            }
+        }
+
         static public void Crow(ContentManager content)
         {
             Game1.g.EnemySpriteSheets.Add("Crow", content.Load<Texture2D>(@"EnemySprites\CrowSheet"));

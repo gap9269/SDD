@@ -5,7 +5,7 @@ using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.GamerServices;
+//using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
@@ -336,6 +336,20 @@ namespace ISurvived
             //silo4Back.Add(whiteFilter);
             Silo4 silo4 = new Silo4(behindPartyBack, game, ref player);
             maps.Add("Silo4", silo4);
+            #endregion
+
+            #region History
+            OutsideStoneFort outsideEnemyCamp = new OutsideStoneFort(new List<Texture2D>(), game, ref player);
+            maps.Add("OutsideEnemyCamp", outsideEnemyCamp);
+
+            StoneFortCentral stoneFortCentral = new StoneFortCentral(new List<Texture2D>(), game, ref player);
+            maps.Add("StoneFort-Central", stoneFortCentral);
+
+            StoneFortWest stoneFortWest = new StoneFortWest(new List<Texture2D>(), game, ref player);
+            maps.Add("StoneFort-West", stoneFortWest);
+
+            StoneFortEast stoneFortEast = new StoneFortEast(new List<Texture2D>(), game, ref player);
+            maps.Add("StoneFort-East", stoneFortEast);
             #endregion
 
             //--Keep this at the end of MAPS

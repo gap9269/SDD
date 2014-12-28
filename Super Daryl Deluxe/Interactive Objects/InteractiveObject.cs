@@ -5,7 +5,7 @@ using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.GamerServices;
+//using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
@@ -32,7 +32,7 @@ namespace ISurvived
         protected Boolean foreground = false;
         protected KeyboardState last;
         protected KeyboardState current;
-
+        protected Boolean facingRight = true;
 
         public Boolean Foreground { get { return foreground; } set { foreground = value; } }
         public Rectangle Rec { get { return rec; } set { rec = value; } }
@@ -43,6 +43,9 @@ namespace ISurvived
         public int Health { get { return health; } set { health = value; } }
         public int MaxHealth { get { return maxHealth; } set { maxHealth = value; } }
         public int State { get { return frameState; } set { frameState = value; } }
+
+        public Texture2D Sprite { get { return sprite; } set { sprite = value; } }
+
         public InteractiveObject(Game1 g, Boolean fore)
         {
             game = g;
@@ -63,6 +66,7 @@ namespace ISurvived
             if(health > 0)
                  health--;
         }
+
         public virtual void Update()
         {
             if (!finished)

@@ -5,7 +5,7 @@ using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.GamerServices;
+//using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
@@ -1019,7 +1019,7 @@ namespace ISurvived
         }
 
         /// <summary>
-        /// Type 1 is enemy death, type 2 is normal poof
+        /// Type 1 is enemy death, type 2 is normal poof, 3 is fiery death poof
         /// </summary>
         /// <param name="rec"></param>
         /// <param name="type"></param>
@@ -1052,7 +1052,11 @@ namespace ISurvived
             if(deathTypes[recNum] == 1)
                 return new Rectangle(deathFrames[recNum] * 400, 0, 400, 300);
 
-            //SMoke poof
+            //Fiery Death
+            if (deathTypes[recNum] == 3)
+                return new Rectangle(deathFrames[recNum] * 400, 600, 400, 300);
+
+            //Smoke poof
             else
                 return new Rectangle(deathFrames[recNum] * 400, 300, 400, 300);
         }

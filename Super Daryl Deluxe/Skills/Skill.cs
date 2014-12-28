@@ -5,7 +5,7 @@ using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.GamerServices;
+//using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
@@ -170,6 +170,28 @@ namespace ISurvived
             current = Keyboard.GetState();
         }
 
+        public virtual void LoadContent()
+        {
+            skillHitSounds = ContentLoader.LoadSoundContent(content, "Sound\\Skills\\" + name + "\\HitSounds");
+            skillUseSounds = ContentLoader.LoadSoundContent(content, "Sound\\Skills\\" + name + "\\UseSounds");
+
+            Game1.skillAnimations[name] = content.Load<Texture2D>(@"SpriteSheets\Skills\" + name);
+            Game1.skillIcons[name] = content.Load<Texture2D>(@"SkillIcons\" + name);
+
+            icon = Game1.skillIcons[name];
+        }
+
+        public virtual void UnloadContent()
+        {
+            skillHitSounds.Clear();
+            skillUseSounds.Clear();
+
+            Game1.skillAnimations[name] = Game1.whiteFilter;
+            Game1.skillIcons[name] = Game1.whiteFilter;
+
+            content.Unload();
+        }
+
         public virtual Rectangle GetSourceRec()
         {
             return new Rectangle();
@@ -193,13 +215,6 @@ namespace ISurvived
 
         public virtual void Update()
         {
-            //DELETE THIS FOR A BETTER WAY OF LOADING SOUNDS PLS OMG
-            if (skillHitSounds == null)
-            {
-                skillHitSounds = ContentLoader.LoadSoundContent(content, "Sound\\Skills\\" + name + "\\HitSounds");
-                skillUseSounds = ContentLoader.LoadSoundContent(content, "Sound\\Skills\\" + name + "\\UseSounds");
-            }
-
             //--Decrease the timer, cooldown, and animationLength every frame
             if (animationLength > -1)
                 animationLength--;

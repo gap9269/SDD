@@ -17,14 +17,17 @@ namespace ISurvived
         static Portal toArtHall;
         static Portal toTheQuad;
         static Portal toBathroom;
-        static Portal toSideHall;
+        static Portal toSouthHall;
+        public static Portal toMainOffice;
 
-        public static Portal ToSideHall { get { return toSideHall; } }
+        public static Portal ToSouthHall { get { return toSouthHall; } }
         public static Portal ToBathroom { get { return toBathroom; } }
         public static Portal ToArtHall { get { return toArtHall; } }
         public static Portal ToTheQuad { get { return toTheQuad; } }
 
         Texture2D foreground, parallax;
+
+        public static Rectangle sunRec;
 
         public MainLobby(List<Texture2D> bg, Game1 g, ref Player play)
             : base(bg, g, ref play)
@@ -33,10 +36,12 @@ namespace ISurvived
             mapWidth = 3425;
             mapName = "Main Lobby";
 
-            backgroundMusicName = "Noir Halls";
+            currentBackgroundMusic = Sound.MusicNames.NoirHalls;
 
             mapRec = new Rectangle(0, 0, mapWidth, mapHeight);
             enemyAmount = 0;
+
+            sunRec = new Rectangle(12, 256, 410, 456);
 
             yScroll = false;
 
@@ -44,33 +49,43 @@ namespace ISurvived
             AddBounds();
             AddNPCs();
             SetPortals();
+            currentBackgroundMusic = Sound.MusicNames.NoirHalls;
         }
 
         public override void LoadContent()
         {
             background.Add(content.Load<Texture2D>(@"Maps\School\mainlobby"));
             foreground = content.Load<Texture2D>(@"Maps\School\mainLobbyFore");
-            parallax = content.Load<Texture2D>(@"Maps\School\mainLobbyParallax"); 
+            parallax = content.Load<Texture2D>(@"Maps\School\mainLobbyParallax");
+
             if (game.chapterState == Game1.ChapterState.prologue)
             {
                 game.NPCSprites["Karma Shaman"] = content.Load<Texture2D>(@"NPC\DD\karma");
                 Game1.npcFaces["Karma Shaman"].faces["Normal"] = content.Load<Texture2D>(@"NPCFaces\D&D\Karma");
             }
+            else if(game.chapterState == Game1.ChapterState.chapterOne)
+            {
+                game.NPCSprites["The Magister of Maps"] = content.Load<Texture2D>(@"NPC\DD\maps");
+                Game1.npcFaces["The Magister of Maps"].faces["Normal"] = content.Load<Texture2D>(@"NPCFaces\D&D\MapsKid");
 
-            if (Chapter.lastMap != "East Hall")
+                game.NPCSprites["Weapons Master"] = content.Load<Texture2D>(@"NPC\DD\inventory");
+                Game1.npcFaces["Weapons Master"].faces["Normal"] = content.Load<Texture2D>(@"NPCFaces\D&D\Equipment");
+            }
+
+            if (Chapter.lastMap != "East Hall" && Chapter.lastMap != "South Hall")
             {
                 SoundEffect bg = Sound.backgroundMusicContent.Load<SoundEffect>(@"Sound\Music\Noir Halls");
                 SoundEffectInstance backgroundMusic = bg.CreateInstance();
                 backgroundMusic.IsLooped = true;
-                Sound.music.Add("North Hall", backgroundMusic);
+                Sound.music.Add("NoirHalls", backgroundMusic);
             }
 
-            if (Chapter.lastMap != "East Hall")
+            if (Chapter.lastMap != "East Hall" && Chapter.lastMap != "South Hall")
             {
                 SoundEffect am = Sound.ambienceContent.Load<SoundEffect>(@"Sound\Ambience\ambience_school_empty");
                 SoundEffectInstance amb = am.CreateInstance();
                 amb.IsLooped = true;
-                Sound.ambience.Add("North Hall", amb);
+                Sound.ambience.Add("ambience_school_empty", amb);
             }
         }
 
@@ -78,7 +93,7 @@ namespace ISurvived
         {
             base.UnloadNPCContent();
 
-            if (Chapter.theNextMap != "EastHall")
+            if (Chapter.theNextMap != "East Hall" && Chapter.theNextMap != "South Hall")
             {
                 Sound.UnloadAmbience();
                 Sound.UnloadBackgroundMusic();
@@ -89,16 +104,24 @@ namespace ISurvived
                 game.NPCSprites["Karma Shaman"] = Game1.whiteFilter;
                 Game1.npcFaces["Karma Shaman"].faces["Normal"] = Game1.whiteFilter;
             }
+            else if (game.chapterState == Game1.ChapterState.chapterOne)
+            {
+                game.NPCSprites["The Magister of Maps"] = Game1.whiteFilter;
+                Game1.npcFaces["The Magister of Maps"].faces["Normal"] = Game1.whiteFilter;
+
+                game.NPCSprites["Weapons Master"] = Game1.whiteFilter;
+                Game1.npcFaces["Weapons Master"].faces["Normal"] = Game1.whiteFilter;
+            }
         }
 
         public override void PlayBackgroundMusic()
         {
-            Sound.PlayBackGroundMusic("North Hall");
+            Sound.PlayBackGroundMusic(currentBackgroundMusic.ToString());
         }
 
         public override void PlayAmbience()
         {
-            Sound.PlayAmbience("North Hall");
+            Sound.PlayAmbience("ambience_school_empty");
         }
 
         public override void Update()
@@ -113,17 +136,19 @@ namespace ISurvived
         {
             base.SetPortals();
 
-            toSideHall = new Portal(700, platforms[0], "MainLobby");
-            toSideHall.FButtonYOffset = -100;
-            toSideHall.PortalNameYOffset = -100;
+            toSouthHall = new Portal(640, platforms[0], "Main Lobby", Portal.DoorType.movement_door_open);
+            toSouthHall.FButtonYOffset = -90;
+            toSouthHall.PortalNameYOffset = -90;
 
-            toArtHall = new Portal(2730, platforms[0], "MainLobby");
+            toArtHall = new Portal(2730, platforms[0], "Main Lobby", Portal.DoorType.movement_door_open);
             toArtHall.FButtonYOffset = -100;
             toArtHall.PortalNameYOffset = -100;
 
-            toTheQuad = new Portal(2145, platforms[0], "MainLobby");
+            toTheQuad = new Portal(2145, platforms[0], "Main Lobby", Portal.DoorType.movement_door_open);
             toTheQuad.FButtonYOffset = -105;
             toTheQuad.PortalNameYOffset = -105;
+
+            toMainOffice = new Portal(3190, platforms[0], "Main Lobby", Portal.DoorType.movement_door_open);
 
             //toBathroom = new Portal(500, platforms[0], "MainLobby");
         }
@@ -132,8 +157,8 @@ namespace ISurvived
         {
             base.SetDestinationPortals();
 
-            portals.Add(toArtHall, ArtHall.ToMainLobby);
-            portals.Add(toSideHall, SideHall.ToMainLobby);
+            portals.Add(toArtHall, EastHall.ToMainLobby);
+            portals.Add(toSouthHall, SouthHall.ToMainLobby);
             portals.Add(toTheQuad, TheQuad.ToMainLobby);
            // portals.Add(toBathroom, Bathroom.ToLastMap);
         }

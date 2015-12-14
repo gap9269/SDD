@@ -189,8 +189,6 @@ enemiesKilledForQuest, enemyNames, player, new List<Object>() { new Experience(8
             nest = new BreakableNest(game, 1135, 1049 - 1440, Game1.interactiveObjects["Nest"], true, 3, nestKey, 0, false);
             interactiveObjects.Add(nest);
 
-            backgroundMusicName = "Spooky Field";
-
             sparkles = new Sparkles(1135, 1049 - 1440);
         }
 
@@ -229,7 +227,7 @@ enemiesKilledForQuest, enemyNames, player, new List<Object>() { new Experience(8
         {
             base.UnloadNPCContent();
 
-            //if (Chapter.theNextMap != "SpookyField")
+            //if (Chapter.theNextMap != "Spooky Field")
             //{
             //    Sound.UnloadBackgroundMusic();
             //}
@@ -278,7 +276,7 @@ enemiesKilledForQuest, enemyNames, player, new List<Object>() { new Experience(8
                         }
                         else
                         {
-                            enemiesInMap.Add(ben);
+                            AddEnemyToEnemyList(ben);
                             enemyNamesAndNumberInMap["Scarecrow"]++;
                         }
                     }
@@ -296,7 +294,7 @@ enemiesKilledForQuest, enemyNames, player, new List<Object>() { new Experience(8
                         }
                         else
                         {
-                            enemiesInMap.Add(ben);
+                            AddEnemyToEnemyList(ben);
                             enemyNamesAndNumberInMap["Field Goblin"]++;
                         }
                     }
@@ -322,7 +320,7 @@ enemiesKilledForQuest, enemyNames, player, new List<Object>() { new Experience(8
                         }
                         else
                         {
-                            enemiesInMap.Add(en);
+                            AddEnemyToEnemyList(en);
                             enemyNamesAndNumberInMap["Crow"]++;
                         }
                     }
@@ -450,11 +448,11 @@ enemiesKilledForQuest, enemyNames, player, new List<Object>() { new Experience(8
                 spawnEnemies = false;
             }
 
-            if (!clearedScarecrows && enemyNamesAndNumberInMap["Scarecrow"] == 0 && game.ChapterTwo.ChapterTwoBooleans["goblinGateDestroyed"] == true)
-            {
-                Chapter.effectsManager.AddInGameDialogue("Who's smashing our scarecrows?!", "Mr. Robatto", "Normal", 120);
-                clearedScarecrows = true;
-            }
+            //if (!clearedScarecrows && enemyNamesAndNumberInMap["Scarecrow"] == 0 && game.ChapterTwo.ChapterTwoBooleans["goblinGateDestroyed"] == true)
+            //{
+            //    Chapter.effectsManager.AddInGameDialogue("Who's smashing our scarecrows?!", "Mr. Robatto", "Normal", 120);
+            //    clearedScarecrows = true;
+            //}
 
             if (clearedScarecrows)
             {
@@ -466,8 +464,8 @@ enemiesKilledForQuest, enemyNames, player, new List<Object>() { new Experience(8
         {
             base.SetPortals();
 
-            toSpookyField = new Portal(100, platforms[0], "AnotherSpookyField");
-            toWorkersField = new Portal(2400, 145, "AnotherSpookyField");
+            toSpookyField = new Portal(100, platforms[0], "Another Spooky Field");
+            toWorkersField = new Portal(2400, 145, "Another Spooky Field");
         }
 
         public override void Draw(SpriteBatch s)

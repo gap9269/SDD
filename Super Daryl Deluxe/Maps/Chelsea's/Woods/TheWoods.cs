@@ -98,7 +98,7 @@ enemiesKilledForQuest, enemyNames, player, new List<Object>() { new Experience(5
             }
             else
             {
-                enemiesInMap.Add(en);
+                AddEnemyToEnemyList(en);
             }
 
         }
@@ -119,7 +119,7 @@ enemiesKilledForQuest, enemyNames, player, new List<Object>() { new Experience(5
             {
                 troll = new FieldTroll(new Vector2(3060, 50), "Field Troll", game, ref player, this, trollChest);
                 troll.Hostile = true;
-                enemiesInMap.Add(troll);
+                AddEnemyToEnemyList(troll);
             }
 
         }
@@ -128,8 +128,8 @@ enemiesKilledForQuest, enemyNames, player, new List<Object>() { new Experience(5
         {
             base.SetPortals();
 
-            toTheField = new Portal(2900, platforms[0], "TheWoods");
-            toDeepWoods = new Portal(800, platforms[0], "TheWoods");
+            toTheField = new Portal(2900, platforms[0], "The Woods");
+            toDeepWoods = new Portal(800, platforms[0], "The Woods");
         }
 
         public override void DrawParallaxAndForeground(SpriteBatch s)

@@ -57,7 +57,6 @@ namespace ISurvived
             base.SetDestinationPortals();
 
             portals.Add(toSideHall, SideHall.ToBasement);
-            portals.Add(toDDRoom, DDRoom.ToBasement);
             portals.Add(toGeneratorRoom, GeneratorRoom.ToBasement);
             portals.Add(toPrison, Dungeon.ToBasement);
         }

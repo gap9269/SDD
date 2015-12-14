@@ -157,8 +157,7 @@ namespace ISurvived
                 {
                     if (player.CheckIfHit(punchRec) && player.InvincibleTime <= 0)
                     {
-                        player.TakeDamage(12);
-
+                        player.TakeDamage(12, level);
 
                         if (facingRight)
                             player.KnockPlayerBack(new Vector2(20, -5));

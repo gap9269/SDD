@@ -20,6 +20,8 @@ namespace ISurvived
         protected Game1 game;
         protected Texture2D spriteSheet;
         protected ContentManager content;
+        protected float healthModifier, strengthModifer, defenseModifier, moneyModifier, experienceModifier, damageModifier, pickUpRectangleModifier, extraExperiencePerKill;
+        protected int luck, specialDefense;
 
         public String Name { get { return name; } set { name = value; } }
 
@@ -35,12 +37,28 @@ namespace ISurvived
         /// </summary>
         public virtual void LoadPassive()
         {
-
+            Game1.Player.strengthModifier += strengthModifer;
+            Game1.Player.defenseModifier += defenseModifier;
+            Game1.Player.healthModifier += healthModifier;
+            Game1.Player.moneyModifier += moneyModifier;
+            Game1.Player.pickUpRectangleModifier += pickUpRectangleModifier;
+            Game1.Player.Luck += luck;
+            Game1.Player.extraExperiencePerKill += extraExperiencePerKill;
+            Game1.Player.UpdateStats();
         }
 
         //Call this when the passive is removed from Daryl's list
         public virtual void UnloadPassive()
         {
+            Game1.Player.strengthModifier -= strengthModifer;
+            Game1.Player.defenseModifier -= defenseModifier;
+            Game1.Player.healthModifier -= healthModifier;
+            Game1.Player.moneyModifier -= moneyModifier;
+            Game1.Player.pickUpRectangleModifier -= pickUpRectangleModifier;
+            Game1.Player.extraExperiencePerKill -= extraExperiencePerKill;
+            Game1.Player.Luck -= luck;
+
+            Game1.Player.UpdateStats();
             spriteSheet = null;
             content.Unload();
         }
@@ -56,6 +74,10 @@ namespace ISurvived
 
         public virtual void Draw(SpriteBatch s)
         { 
+        }
+
+        public virtual void DrawBehindPlayer(SpriteBatch s)
+        {
         }
 
     }

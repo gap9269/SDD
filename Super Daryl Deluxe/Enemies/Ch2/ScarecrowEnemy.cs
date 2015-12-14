@@ -181,10 +181,14 @@ Math.Abs(player.VitalRec.Center.Y - vitalRec.Center.Y));
             {
                 if (hostile)
                     attackCooldown--;
-                Move(mapwidth);
 
-                if (!beingSneaky)
-                    CheckWalkCollisions(130, new Vector2(10, -5));
+                if (hitPauseTimer <= 0)
+                {
+                    Move(mapwidth);
+
+                    if (!beingSneaky)
+                        CheckWalkCollisions(130, new Vector2(10, -5));
+                }
             }
             vitalRec.X = rec.X + 90;
             vitalRec.Y = rec.Y + 50;
@@ -237,7 +241,8 @@ Math.Abs(player.VitalRec.Center.Y - vitalRec.Center.Y));
             {
                 if (moveFrame == 0 && frameDelay == 5)
                 {
-                    scarecrowSounds["enemy_scarecrow_summon_01"].CreateInstance().Play();
+                    String soundEffectName = "enemy_scarecrow_summon_01";
+                    Sound.PlaySoundInstance(scarecrowSounds[soundEffectName], soundEffectName, false, rec.Center.X, rec.Center.Y, 600, 500, 2000);
                 }
 
                 frameDelay--;
@@ -254,7 +259,7 @@ Math.Abs(player.VitalRec.Center.Y - vitalRec.Center.Y));
                 {
                     Crow en = new Crow(new Vector2(VitalRecX, VitalRecY - 200), "Crow", game, ref player, game.CurrentChapter.CurrentMap, crowBounds);
                     en.Hostile = true;
-                    game.CurrentChapter.CurrentMap.EnemiesInMap.Add(en);
+                    game.CurrentChapter.CurrentMap.AddEnemyToEnemyList(en);
                     game.CurrentChapter.CurrentMap.EnemyNamesAndNumberInMap["Crow"]++;
                 }
 
@@ -509,7 +514,7 @@ Math.Abs(player.VitalRec.Center.Y - vitalRec.Center.Y));
             {
                 if (player.CheckIfHit(attackRec) && player.InvincibleTime <= 0)
                 {
-                    player.TakeDamage(damage);
+                    player.TakeDamage(damage, level);
                     player.KnockPlayerBack(kb);
                     hitPauseTimer = 3;
                     player.HitPauseTimer = 3;
@@ -570,6 +575,8 @@ Math.Abs(player.VitalRec.Center.Y - vitalRec.Center.Y));
             #region Health Bar
             if (health < maxHealth)
             {
+                healthBoxRec.Y = vitalRec.Y - 47;
+                healthBarRec.Y = vitalRec.Y - 45;
                 s.Draw(healthBack, healthBoxRec, Color.White);
 
                 if (health > (maxHealth / 2))
@@ -587,8 +594,8 @@ Math.Abs(player.VitalRec.Center.Y - vitalRec.Center.Y));
                 s.Draw(healthFore, healthBarRec, Color.Gray * .4f);
 
                 float measX = Game1.descriptionFont.MeasureString("Lv." + level + "  " + displayName).X;
-                s.DrawString(Game1.descriptionFont, "Lv. " + level + " " + displayName, new Vector2(rec.X + rec.Width / 2 - measX / 2 - 2, rec.Y - 35 - 2), Color.Black);
-                s.DrawString(Game1.descriptionFont, "Lv. " + level + " " + displayName, new Vector2(rec.X + rec.Width / 2 - measX / 2, rec.Y - 35), Color.White);
+                s.DrawString(Game1.descriptionFont, "Lv. " + level + " " + displayName, new Vector2(rec.X + rec.Width / 2 - measX / 2 - 2, rec.Y - 18 - 2), Color.Black);
+                s.DrawString(Game1.descriptionFont, "Lv. " + level + " " + displayName, new Vector2(rec.X + rec.Width / 2 - measX / 2, rec.Y - 18), Color.White);
             }
             #endregion
 

@@ -43,7 +43,9 @@ namespace ISurvived
         int popUpMoveframe;
         int flashTimer = 3;
         int popUpTimer;
-        Boolean popUpFinised = false;
+        public Boolean popUpFinised = false;
+
+        public static SoundEffectInstance object_chest_open, object_chest_unlock;
 
         public Boolean Opening { get { return opening; } set { opening = value; } }
         public Boolean Opened { get { return opened; } set { opened = value; } }
@@ -156,8 +158,11 @@ namespace ISurvived
 
             if (!opened)
             {
-                if (((last.IsKeyDown(Keys.F) && current.IsKeyDown(Keys.F)) || MyGamePad.currentState.Buttons.RightShoulder == ButtonState.Pressed || MyGamePad.previousState.Buttons.RightShoulder == ButtonState.Pressed) && nearPlayer() && player.playerState == Player.PlayerState.standing)
+                if (((last.IsKeyDown(Keys.F) && current.IsKeyDown(Keys.F)) || MyGamePad.currentState.Buttons.LeftShoulder == ButtonState.Pressed) && nearPlayer() && player.playerState == Player.PlayerState.standing)
                 {
+                    if (!opening)
+                        Sound.PlaySoundInstance(object_chest_unlock, Game1.GetFileName(() => object_chest_unlock));
+
                     openBar.X = rec.X + rec.Width / 2 - 50;
                     openBar.Y = rec.Y;
                     opening = true;
@@ -170,15 +175,22 @@ namespace ISurvived
                     if (timeToOpen != 60 && !opened)
                         timeToOpen = 60;
 
-                    openBarWidth = 0;
-                    openBar.Width = 0;
-                    opening = false;
+                    if (opening)
+                    {
+                        object_chest_unlock.Stop();
+                        openBarWidth = 0;
+                        openBar.Width = 0;
+                        opening = false;
+                    }
                 }
             }
             else if (opened && !empty)
             {
                 opening = false;
                 player.Money += money;
+
+                Sound.PlaySoundInstance(object_chest_open, Game1.GetFileName(() => object_chest_open));
+
 
                 if (contents is Equipment)
                 {
@@ -192,9 +204,9 @@ namespace ISurvived
                     {
                         player.AddHatToInventory(eq as Hat);
                     }
-                    if (eq is Hoodie)
+                    if (eq is Outfit)
                     {
-                        player.AddShirtToInventory(eq as Hoodie);
+                        player.AddShirtToInventory(eq as Outfit);
                     }
                     if (eq is Accessory)
                     {
@@ -226,6 +238,10 @@ namespace ISurvived
 
                     //Chapter.effectsManager.AddFoundItem("a Physics Textbook");
                 }
+                else if (contents is EnemyDrop)
+                {
+                    player.AddLoot((contents as EnemyDrop).Name, 1);
+                }
                 else if (skillName != "" && skillName != null)
                 {
                     player.LearnedSkills.Add(SkillManager.AllSkills[skillName]);
@@ -255,6 +271,7 @@ Math.Abs(player.VitalRec.Center.Y - rec.Center.Y));
                 timeToOpen--;
             if (timeToOpen <= 0)
                 opened = true;
+            
         }
 
         public void Draw(SpriteBatch s)
@@ -316,7 +333,7 @@ Math.Abs(player.VitalRec.Center.Y - rec.Center.Y));
                                 s.Draw(Game1.smallTypeIcons["smallWeaponIcon"], new Rectangle(rec.X + 36, rec.Y - 60, 20, 20), Color.White);
                             if (eq is Hat)
                                 s.Draw(Game1.smallTypeIcons["smallHatIcon"], new Rectangle(rec.X + 36, rec.Y - 60, 20, 20), Color.White);
-                            if (eq is Hoodie)
+                            if (eq is Outfit)
                                 s.Draw(Game1.smallTypeIcons["smallShirtIcon"], new Rectangle(rec.X + 36, rec.Y - 60, 20, 20), Color.White);
                             if (eq is Accessory)
                                 s.Draw(Game1.smallTypeIcons["smallAccessoryIcon"], new Rectangle(rec.X + 36, rec.Y - 60, 20, 20), Color.White);
@@ -350,7 +367,14 @@ Math.Abs(player.VitalRec.Center.Y - rec.Center.Y));
                                 s.Draw(Game1.smallTypeIcons["smallGoldKeyIcon"], new Rectangle(rec.X + 36, rec.Y - 60, 20, 20), Color.White);
                             }
                         }
-                    }//If the object in the chest is a skill page
+                        else if (contents is EnemyDrop)
+                        {
+                            EnemyDrop item = contents as EnemyDrop;
+                            s.DrawString(Game1.twConQuestHudInfo, item.Name, new Vector2(rec.X + 60, rec.Y - 60), Color.Black);
+                            s.Draw(Game1.smallTypeIcons["smallStoryItemIcon"], new Rectangle(rec.X + 36, rec.Y - 60, 20, 20), Color.White);
+                        }
+                    }
+                    //If the object in the chest is a skill page
                     else if (skillName != "" && skillName != null)
                     {
                         s.DrawString(Game1.font, skillName, new Vector2(rec.X + 60, rec.Y - 60), Color.Black);
@@ -361,10 +385,9 @@ Math.Abs(player.VitalRec.Center.Y - rec.Center.Y));
 
                 if (opening)
                 {
-                    s.DrawString(Game1.font, "Opening...", new Vector2(rec.X + rec.Width / 2 - 50, rec.Y - 25), Color.Black);
+                    Game1.OutlineFont(Game1.font, s, "Opening...", 1, rec.X + rec.Width / 2 - 43, rec.Y - 25, Color.Black, Color.White);
                     s.Draw(Game1.emptyBox, new Rectangle(rec.X + rec.Width / 2 - 50, rec.Y, 100, 20), Color.DarkGray * .8f);
-                    s.Draw(Game1.emptyBox, openBar, Color.LightBlue);
-                    Console.WriteLine(openBar.ToString());
+                    s.Draw(Game1.emptyBox, openBar, new Color(241, 107, 79));
 
                     if (Chapter.effectsManager.fButtonRecs.Contains(fRec))
                         Chapter.effectsManager.fButtonRecs.Remove(fRec);

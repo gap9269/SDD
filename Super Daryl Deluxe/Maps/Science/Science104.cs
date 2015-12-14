@@ -32,6 +32,9 @@ namespace ISurvived
         Boolean up, up2;
         Sparkles sparkles;
 
+        SoundEffectInstance object_portal_loop;
+        SoundEffectInstance object_portal_pulse;
+
         int triFrame, timeUntilNextBlink, portalFrame;
         int triDelay = 5;
         int portalDelay = 5;
@@ -79,14 +82,17 @@ namespace ISurvived
             Barrel bar2 = new Barrel(game, 1370, -275 + 155, Game1.interactiveObjects["Barrel"], true, 1, 4, .07f, false, Barrel.BarrelType.ScienceTube);
             interactiveObjects.Add(bar2);
 
-            Barrel bar3 = new Barrel(game, 3750, 168 + 155, Game1.interactiveObjects["Barrel"], true, 1, 3, .03f, false, Barrel.BarrelType.ScienceBarrel);
+            Barrel bar3 = new Barrel(game, 3750, 168 + 155, Game1.interactiveObjects["Barrel"], true, 2, 3, .03f, false, Barrel.BarrelType.ScienceBarrel);
             interactiveObjects.Add(bar3);
 
-            Barrel bar4 = new Barrel(game, 3100, 168 + 155, Game1.interactiveObjects["Barrel"], true, 1, 4, .07f, false, Barrel.BarrelType.ScienceBarrel);
+            Barrel bar4 = new Barrel(game, 3100, 168 + 155, Game1.interactiveObjects["Barrel"], true, 2, 4, .07f, false, Barrel.BarrelType.ScienceBarrel);
             interactiveObjects.Add(bar4);
 
             Barrel bar5 = new Barrel(game, 5330, -50 + 155, Game1.interactiveObjects["Barrel"], true, 1, 3, .03f, true, Barrel.BarrelType.ScienceFlask);
             interactiveObjects.Add(bar5);
+
+            currentBackgroundMusic = Sound.MusicNames.DoingScienceHigh;
+
         }
 
         public override void RespawnGroundEnemies()
@@ -97,41 +103,25 @@ namespace ISurvived
             {
 
                 case Game1.ChapterState.prologue:
-                    if (game.MapBooleans.prologueMapBooleans["spawnedBennys"] == false)
+                    if (game.MapBooleans.prologueMapBooleans["spawnedBennys"] == false || player.Level < 3 && enemiesInMap.Count < ((player.ExperienceUntilLevel - player.Experience) / 5) + 1)
                     {
                         BennyBeaker en = new BennyBeaker(pos, "Benny Beaker", game, ref player, this);
                         monsterY = platforms[platformNum].Rec.Y - en.Rec.Height - 1;
                         en.Position = new Vector2(monsterX, monsterY);
-
+                        en.SpawnWithPoof = false;
                         Rectangle testRec = new Rectangle(en.RecX, monsterY, en.Rec.Width, en.Rec.Height);
                         if (testRec.Intersects(player.Rec))
                         {
                         }
                         else
                         {
-                            enemiesInMap.Add(en);
+                            AddEnemyToEnemyList(en);
                         }
                     }
                     break;
 
                 default:
-                    if (enemyNamesAndNumberInMap["Erl The Flask"] < 4)
-                    {
-                        ErlTheFlask erl = new ErlTheFlask(pos, "Erl The Flask", game, ref player, this);
-                        monsterY = platforms[platformNum].Rec.Y - erl.Rec.Height - 1;
-                        erl.Position = new Vector2(monsterX, monsterY);
-
-                        Rectangle erlRec = new Rectangle(erl.RecX, monsterY, erl.Rec.Width, erl.Rec.Height);
-                        if (erlRec.Intersects(player.Rec))
-                        {
-                        }
-                        else
-                        {
-                            enemiesInMap.Add(erl);
-                            enemyNamesAndNumberInMap["Erl The Flask"]++;
-                        }
-                    }
-                    if (enemyNamesAndNumberInMap["Benny Beaker"] < 4)
+                    if (enemyNamesAndNumberInMap["Benny Beaker"] < 5)
                     {
                         BennyBeaker ben = new BennyBeaker(pos, "Benny Beaker", game, ref player, this);
                         monsterY = platforms[platformNum].Rec.Y - ben.Rec.Height - 1;
@@ -143,7 +133,7 @@ namespace ISurvived
                         }
                         else
                         {
-                            enemiesInMap.Add(ben);
+                            AddEnemyToEnemyList(ben);
                             enemyNamesAndNumberInMap["Benny Beaker"]++;
                         }
                     }
@@ -164,8 +154,55 @@ namespace ISurvived
             sputnik = content.Load<Texture2D>(@"Maps/Science/104/sputnik");
             portalSheet = content.Load<Texture2D>(@"Maps/Science/104/PortalSheet");
 
+            MapFire.object_fire_trap_01 = content.Load<SoundEffect>("Sound\\Objects\\Traps\\object_fire_trap_01");
+            MapFire.object_fire_trap_02 = content.Load<SoundEffect>("Sound\\Objects\\Traps\\object_fire_trap_02");
+
+            Sound.LoadScienceZoneSounds();
+
+            object_portal_loop = Sound.mapZoneSoundEffects["object_portal_loop"].CreateInstance();
+            Sound.PlaySoundInstance(object_portal_loop, Game1.GetFileName(() => object_portal_loop), true, toScience101.PortalRec.Center.X, toScience101.PortalRec.Center.Y, 600, 500, 2000);
+
+            object_portal_pulse = Sound.mapZoneSoundEffects["object_portal_pulse"].CreateInstance();
+
             triceratopsTextures = ContentLoader.LoadContent(content, "Maps\\Science\\104\\TriBlink");
             Game1.npcFaces["Triceratops"].faces["Normal"] = content.Load<Texture2D>(@"NPCFaces\Triceratops");
+
+            if (Chapter.lastMap != "Science 105" && Chapter.lastMap != "Science 103" && !Sound.music.ContainsKey("DoingScienceLow"))
+            {
+                SoundEffect bg = Sound.backgroundMusicContent.Load<SoundEffect>(@"Sound\Music\Science\DoingScienceLow");
+                SoundEffectInstance backgroundMusic = bg.CreateInstance();
+                backgroundMusic.IsLooped = true;
+                Sound.music.Add("DoingScienceLow", backgroundMusic);
+
+                SoundEffect bg2 = Sound.backgroundMusicContent.Load<SoundEffect>(@"Sound\Music\Science\DoingScienceMed");
+                SoundEffectInstance backgroundMusic2 = bg2.CreateInstance();
+                backgroundMusic2.IsLooped = true;
+                Sound.music.Add("DoingScienceMed", backgroundMusic2);
+
+                SoundEffect bg3 = Sound.backgroundMusicContent.Load<SoundEffect>(@"Sound\Music\Science\DoingScienceHigh");
+                SoundEffectInstance backgroundMusic3 = bg3.CreateInstance();
+                backgroundMusic3.IsLooped = true;
+                Sound.music.Add("DoingScienceHigh", backgroundMusic3);
+            }
+
+            if (Chapter.lastMap != "Science 103" && Chapter.lastMap != "Science 101" && !Sound.ambience.ContainsKey("ambience_wasteland"))
+            {
+                SoundEffect am = Sound.ambienceContent.Load<SoundEffect>(@"Sound\Ambience\ambience_wasteland");
+                SoundEffectInstance amb = am.CreateInstance();
+                amb.IsLooped = true;
+                Sound.ambience.Add("ambience_wasteland", amb);
+            }
+        }
+        public override void StopSounds()
+        {
+            base.StopSounds();
+
+            object_portal_loop.Stop();
+            object_portal_pulse.Stop();
+        }
+        public override void LeaveMap()
+        {
+            base.LeaveMap();
         }
 
         public override void UnloadNPCContent()
@@ -173,6 +210,17 @@ namespace ISurvived
             base.UnloadNPCContent();
 
             Game1.npcFaces["Triceratops"].faces["Normal"] = Game1.whiteFilter;
+
+            if (nextMapName == "Bathroom")
+            {
+                Sound.UnloadMapZoneSounds();
+                Sound.PauseBackgroundMusic();
+                Sound.StopAmbience();
+            }
+            if (nextMapName == "Science 105")
+            {
+                Sound.UnloadAmbience();
+            }
         }
 
         public override void LoadEnemyData()
@@ -195,10 +243,34 @@ namespace ISurvived
             }
         }
 
+        public override void PlayAmbience()
+        {
+            Sound.PlayAmbience("ambience_wasteland");
+        }
+
+        public override void PlayBackgroundMusic()
+        {
+            Sound.PlayBackGroundMusic(currentBackgroundMusic.ToString());
+        }
+
         public override void Update()
         {
             base.Update();
 
+            PlayAmbience();
+            PlayBackgroundMusic();
+
+            if (Math.Abs(player.VitalRec.Center.X - toScience101.PortalRec.Center.X) < 2000)
+            {
+                Sound.PlaySoundInstance(object_portal_loop, Game1.GetFileName(() => object_portal_loop), true, toScience101.PortalRec.Center.X, toScience101.PortalRec.Center.Y, 600, 500, 2000);
+            }
+            else
+            {
+                if (object_portal_loop.State == SoundState.Playing)
+                    object_portal_loop.Stop();
+            }
+
+            #region Floating objects
             if (!up2)
             {
                 v2 += .006f;
@@ -239,6 +311,7 @@ namespace ISurvived
                     floatCycle = 0;
                 }
             }
+            #endregion
 
             #region Triceratops
             timeUntilNextBlink--;
@@ -268,7 +341,15 @@ namespace ISurvived
                 portalFrame++;
 
                 if (portalFrame > 17)
+                {
                     portalFrame = 0;
+
+                    if (Math.Abs(player.VitalRec.Center.X - toScience101.PortalRec.Center.X) < 2000)
+                    {
+                        object_portal_pulse = Sound.mapZoneSoundEffects["object_portal_pulse"].CreateInstance();
+                        Sound.PlaySoundInstance(object_portal_pulse, Game1.GetFileName(() => object_portal_pulse), false, toScience101.PortalRec.Center.X, toScience101.PortalRec.Center.Y, 600, 500, 2000);
+                    }
+                }
 
                 portalDelay = 4;
             }
@@ -308,7 +389,7 @@ namespace ISurvived
                     up = false;
             }
 
-            if (player.VitalRec.Intersects(gogglesRec) && last.IsKeyDown(Keys.Space) && current.IsKeyUp(Keys.Space) && game.Prologue.PrologueBooleans["FoundGoggles"] == false)
+            if (player.VitalRec.Intersects(gogglesRec) && ((last.IsKeyDown(Keys.Space) && current.IsKeyUp(Keys.Space))  || MyGamePad.RightTriggerPressed()) && game.Prologue.PrologueBooleans["FoundGoggles"] == false)
             {
                 player.AddAccessoryToInventory(new LabGoggles());
                 game.Prologue.PrologueBooleans["FoundGoggles"] = true;
@@ -321,7 +402,11 @@ namespace ISurvived
             {
                 if(Vector2.Distance(new Vector2(player.VitalRec.Center.X, player.VitalRec.Center.Y), new Vector2(gogglesRec.Center.X, gogglesRec.Center.Y)) < 300)
                 {
-                    Chapter.effectsManager.AddInGameDialogue("Press 'SPACE' to pick up shiny objects such as that one over there. Get it? SPACE? I'm in space.", "Triceratops", "Normal", 1);
+                    if(Game1.gamePadConnected)
+                        Chapter.effectsManager.AddInGameDialogue("Press 'SPACE' to pick up shiny objects such as that one over there. Get it? SPACE? I'm in--wait, you aren't using a keyboard? Try using 'RIGHT TRIGGER' then, but don't expect a joke.", "Triceratops", "Normal", 1);
+                    else
+                        Chapter.effectsManager.AddInGameDialogue("Press 'SPACE' to pick up shiny objects such as that one over there. Get it? SPACE? I'm in space.", "Triceratops", "Normal", 1);
+
                 }
                 sparkles.Update();
             }
@@ -331,15 +416,15 @@ namespace ISurvived
         {
             base.SetPortals();
 
-            toScience103 = new Portal(0, platforms[0], "Science104");
-            toScience105 = new Portal(6020, -40, "Science104");
+            toScience103 = new Portal(0, platforms[0], "Science 104", Portal.DoorType.movement_door_open);
+            toScience105 = new Portal(6020, -40, "Science 104", Portal.DoorType.movement_door_open);
             toScience105.FButtonYOffset = -10;
             toScience105.PortalNameYOffset = -10;
 
-            toBathroom = new Portal(5120, 14, "Science104");
+            toBathroom = new Portal(5120, 14, "Science 104", Portal.DoorType.movement_door_open);
             toBathroom.PortalRecY = -160;
 
-            toScience101 = new Portal(6040, 640, "Science104");
+            toScience101 = new Portal(6040, 640, "Science 104");
             toScience101.FButtonYOffset = -10;
             toScience101.PortalNameYOffset = -10;
         }

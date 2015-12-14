@@ -20,6 +20,7 @@ namespace ISurvived
             description = "Non-scented. \n\n";
             canHoldTwo = true;
             icon = Game1.equipmentTextures[name];
+            sellPrice = .50f;
         }
 
         public override void SetRandomDropStats()

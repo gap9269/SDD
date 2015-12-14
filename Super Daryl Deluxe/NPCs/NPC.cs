@@ -23,10 +23,8 @@ namespace ISurvived
         protected Boolean talking;
         protected Boolean facingRight;
         protected Boolean staticNPC = false;
-        protected int moveFrame;
+        public int moveFrame;
         protected Game1 game;
-        protected KeyboardState last;
-        protected KeyboardState current;
         protected int choice = 0;
         protected String mapName;
         protected Quest quest;
@@ -38,7 +36,7 @@ namespace ISurvived
         protected Boolean updatingInteraction = false;
         protected Boolean drawFButton = false;
         protected Rectangle frec;
-        protected Boolean canTalk = true;
+        public Boolean canTalk = true;
 
         protected float enterAlpha = 1f;
         protected Boolean enterAlphaIncreasing = false;
@@ -55,6 +53,7 @@ namespace ISurvived
         protected String scrollDialogue;
         protected int scrollDialogueNum;
         protected int stringNum;
+        int textScrollSoundIndex;
 
         //--Wander attributes
         static Random moveRandom;
@@ -64,6 +63,7 @@ namespace ISurvived
 
         public Boolean FacingRight { get { return facingRight; } set { facingRight = value; } }
         public List<String> Dialogue { get { return dialogue; } set { dialogue = value; } }
+        public String Name { get { return name; } set { name = value; } }
         public String CurrentDialogueFace { get { return currentDialogueFace; } set { currentDialogueFace = value; } }
         public Boolean Talking { get { return talking; } set { talking = value; } }
         public List<String> QuestDialogue { get { return questDialogue; } set { questDialogue = value; } }
@@ -188,8 +188,6 @@ namespace ISurvived
         //--Check if the player is talking to the NPC
         public virtual void CheckInteraction()
         {
-            last = current;
-            current = Keyboard.GetState();
 
             //--Get the distance from daryl to the NPC
             Point distanceFromNPC = new Point(Math.Abs(player.VitalRec.Center.X - rec.Center.X),
@@ -197,7 +195,7 @@ namespace ISurvived
 
             if (distanceFromNPC.X < 70 && distanceFromNPC.Y < 130)
             {
-                if (((last.IsKeyDown(Keys.F) && current.IsKeyUp(Keys.F)) || MyGamePad.RightBumperPressed()) && Game1.spokeThisFrame == false && player.CurrentPlat != null && canTalk)
+                if (((game.last.IsKeyDown(Keys.F) && game.current.IsKeyUp(Keys.F)) || MyGamePad.LeftBumperPressed()) && Game1.spokeThisFrame == false && player.CurrentPlat != null && canTalk)
                 {
 
                     //--Once the quest is completed, but you haven't gotten the reward, change the dialogue to the finished quest string
@@ -227,6 +225,9 @@ namespace ISurvived
 
         public virtual void ClearDialogue()
         {
+            talking = false;
+            updatingInteraction = false;
+            textScrollSoundIndex = 0;
             stringNum = 0;
             scrollDialogueNum = 0;
             scrollDialogue = "";
@@ -249,7 +250,7 @@ namespace ISurvived
         {
             base.Update();
 
-            if (game.CurrentChapter.CurrentMap.MapName == mapName)
+            if (game.CurrentChapter.CurrentMap.MapName == mapName || talking)
             {
                 if (game.CurrentChapter.TalkingToNPC == false)
                 {
@@ -268,7 +269,7 @@ namespace ISurvived
             }
         }
 
-        public virtual void Move(Vector2 velocity)
+        public virtual void Move(Vector2 velocity, Platform.PlatformType floorType = Platform.PlatformType.rock, int footstepFrame1 = 1, int footstepFrame2 = 6)
         {
             if (velocity.X > 0)
             {
@@ -288,6 +289,11 @@ namespace ISurvived
             {
                 moveFrame++;
                 frameDelay = 6;
+            }
+
+            if ((moveFrame == footstepFrame1 || moveFrame == footstepFrame2) && frameDelay == 3)
+            {
+                Sound.PlayNPCSteppingSound(floorType, rec.Center.X, rec.Center.Y);
             }
 
             if (moveFrame == Game1.numberOfNPCWalkingFrames[name])
@@ -311,14 +317,45 @@ namespace ISurvived
             questDialogue[questDialogue.Count - 1] = dia;
         }
 
+        public void AcceptQuestRemotely(Quest q)
+        {
+            if (quest == q)
+            {
+                acceptedQuest = true;
+                dialogueState = questDialogue.Count - 2;
+                acceptQuestPage = false;
+                game.CurrentQuests.Add(quest);
+
+                if (!quest.StoryQuest)
+                {
+                    game.CurrentSideQuests.Add(quest);
+                    Chapter.effectsManager.NotificationQueue.Enqueue(new QuestReceivedNotification(false));
+                }
+                else
+                {
+                    Chapter.effectsManager.NotificationQueue.Enqueue(new QuestReceivedNotification(true));
+
+                    //Remove the old story quest from the quest helper
+                    for (int j = 0; j < Game1.questHUD.questHelperQuests.Count; j++)
+                    {
+                        if (Game1.questHUD.questHelperQuests[j].StoryQuest)
+                        {
+                            Game1.questHUD.RemoveQuestFromHelper(Game1.questHUD.questHelperQuests[j]);
+                        }
+                    }
+                }
+
+                Game1.questHUD.AddQuestToHelper(quest);
+            }
+            else
+            {
+                throw new Exception("This quest does not match the NPC's quest");
+            }
+        }
+
         //--Update dialogue when you press enter
         public virtual void UpdateInteraction()
         {
-            
-            last = current;
-            
-            current = Keyboard.GetState();
-
             updatingInteraction = true;
 
             #region Non-Quest
@@ -326,15 +363,18 @@ namespace ISurvived
             //--Only play the standard dialogue
             if (questDialogue == null || questDialogue.Count == 0/* || (game.CurrentChapter.CurrentQuests != null & game.CurrentChapter.CurrentQuests != quest)*/)
             {
-                if (((last.IsKeyDown(Keys.Enter) && current.IsKeyUp(Keys.Enter)) || MyGamePad.APressed()) && scrollDialogueNum >= dialogue[dialogueState].Length && updateFaster == false)
+                if (((game.last.IsKeyDown(Keys.Enter) && game.current.IsKeyUp(Keys.Enter)) || MyGamePad.APressed()) && scrollDialogueNum >= dialogue[dialogueState].Length && updateFaster == false)
                 {
+                    Sound.PlaySoundInstance(Sound.SoundNames.ui_general_text_advance);
                     scrollDialogueNum = 0;
                     dialogueState++;
                     scrollDialogue = "";
+                    textScrollSoundIndex = 0;
                         if (dialogueState == dialogue.Count)
                         {
                             game.CurrentChapter.TalkingToNPC = false;
                             talking = false;
+                            MyGamePad.ResetStates();
                             dialogueState = 0;
                             updatingInteraction = false;
                         }
@@ -342,11 +382,11 @@ namespace ISurvived
                 }
 
                 //--Update the text faster
-                if (scrollDialogueNum < dialogue[dialogueState].Length && (current.IsKeyDown(Keys.Enter) || MyGamePad.currentState.Buttons.A == ButtonState.Pressed))
+                if (scrollDialogueNum < dialogue[dialogueState].Length && (game.current.IsKeyDown(Keys.Enter) || MyGamePad.currentState.Buttons.A == ButtonState.Pressed))
                 {
                     updateFaster = true;
                 }
-                else if (current.IsKeyUp(Keys.Enter) && MyGamePad.currentState.Buttons.A == ButtonState.Released)
+                else if (game.current.IsKeyUp(Keys.Enter) && MyGamePad.currentState.Buttons.A == ButtonState.Released)
                 {
                     updateFaster = false;
                 }
@@ -363,11 +403,11 @@ namespace ISurvived
                 {
                     
                     //--Change choices between yes and no
-                    if (choice == 0 && ((current.IsKeyUp(Keys.Down) && last.IsKeyDown(Keys.Down)) || MyGamePad.DownPadPressed()))
+                    if (choice == 0 && ((game.current.IsKeyUp(Keys.Down) && game.last.IsKeyDown(Keys.Down)) || MyGamePad.DownPadPressed()))
                     {
                         choice = 1;
                     }
-                    else if (choice == 1 && ((current.IsKeyUp(Keys.Up) && last.IsKeyDown(Keys.Up)) || MyGamePad.UpPadPressed()))
+                    else if (choice == 1 && ((game.current.IsKeyUp(Keys.Up) && game.last.IsKeyDown(Keys.Up)) || MyGamePad.UpPadPressed()))
                     {
                         choice = 0;
                     }
@@ -377,11 +417,12 @@ namespace ISurvived
 
                     //--If you say yes, accept the quest, increment the dialogue state, stop talking to the NPC
                     //--Set the chapter's current quest
-                    if (choice == 0 && ((last.IsKeyDown(Keys.Enter) && current.IsKeyUp(Keys.Enter)) || MyGamePad.APressed()) && scrollDialogueNum >= questDialogue[dialogueState].Length && updateFaster == false)
+                    if (choice == 0 && ((game.last.IsKeyDown(Keys.Enter) && game.current.IsKeyUp(Keys.Enter)) || MyGamePad.APressed()) && scrollDialogueNum >= questDialogue[dialogueState].Length && updateFaster == false)
                     {
-
+                        Sound.PlaySoundInstance(Sound.SoundNames.ui_general_text_advance);
                         scrollDialogueNum = 0;
                         scrollDialogue = "";
+                        textScrollSoundIndex = 0;
 
                         acceptedQuest = true;
                         dialogueState++;
@@ -390,6 +431,7 @@ namespace ISurvived
                         acceptQuestPage = false;
                         updatingInteraction = false;
                         game.CurrentQuests.Add(quest);
+                        MyGamePad.ResetStates();
 
                         if (!quest.StoryQuest)
                         {
@@ -400,18 +442,30 @@ namespace ISurvived
                         {
                             if(quest.QuestName != "Daryl's New Friends")
                                 Chapter.effectsManager.NotificationQueue.Enqueue(new QuestReceivedNotification(true));
+
+                            //Remove the old story quest from the quest helper
+                            for (int j = 0; j < Game1.questHUD.questHelperQuests.Count; j++)
+                            {
+                                if (Game1.questHUD.questHelperQuests[j].StoryQuest)
+                                {
+                                    Game1.questHUD.RemoveQuestFromHelper(Game1.questHUD.questHelperQuests[j]);
+                                }
+                            }
                         }
 
                         Game1.questHUD.AddQuestToHelper(quest);
                     }
-                    else if (choice == 1 && ((last.IsKeyDown(Keys.Enter) && current.IsKeyUp(Keys.Enter)) || MyGamePad.APressed()) && scrollDialogueNum >= questDialogue[dialogueState].Length && updateFaster == false)
+                    else if (choice == 1 && ((game.last.IsKeyDown(Keys.Enter) && game.current.IsKeyUp(Keys.Enter)) || MyGamePad.APressed()) && scrollDialogueNum >= questDialogue[dialogueState].Length && updateFaster == false)
                     {
                         scrollDialogueNum = 0;
+                        textScrollSoundIndex = 0;
                         scrollDialogue = "";
-
+                        Sound.PlaySoundInstance(Sound.SoundNames.ui_general_text_advance);
                         dialogueState = 0;
                         game.CurrentChapter.TalkingToNPC = false;
                         talking = false;
+                        MyGamePad.ResetStates();
+
                         updatingInteraction = false;
                         acceptQuestPage = false;
                         choice = 0;
@@ -422,11 +476,11 @@ namespace ISurvived
                 #region Cancel Quest
                 if (acceptQuestPage == false && acceptedQuest == true && quest.CompletedQuest == false)
                 {
-                    if (choice == 0 && ((current.IsKeyUp(Keys.Down) && last.IsKeyDown(Keys.Down)) || MyGamePad.DownPadPressed()))
+                    if (choice == 0 && ((game.current.IsKeyUp(Keys.Down) && game.last.IsKeyDown(Keys.Down)) || MyGamePad.DownPadPressed()))
                     {
                         choice = 1;
                     }
-                    else if (choice == 1 && ((current.IsKeyUp(Keys.Up) && last.IsKeyDown(Keys.Up)) || MyGamePad.UpPadPressed()))
+                    else if (choice == 1 && ((game.current.IsKeyUp(Keys.Up) && game.last.IsKeyDown(Keys.Up)) || MyGamePad.UpPadPressed()))
                     {
                         choice = 0;
                     }
@@ -434,25 +488,31 @@ namespace ISurvived
                     if (quest.StoryQuest)
                         choice = 0;
 
-                    if (choice == 0 && ((last.IsKeyDown(Keys.Enter) && current.IsKeyUp(Keys.Enter)) || MyGamePad.APressed()) && scrollDialogueNum >= questDialogue[dialogueState].Length && updateFaster == false)
+                    if (choice == 0 && ((game.last.IsKeyDown(Keys.Enter) && game.current.IsKeyUp(Keys.Enter)) || MyGamePad.APressed()) && scrollDialogueNum >= questDialogue[dialogueState].Length && updateFaster == false)
                     {
                         scrollDialogueNum = 0;
+                        textScrollSoundIndex = 0;
                         scrollDialogue = "";
-
-
+                        Sound.PlaySoundInstance(Sound.SoundNames.ui_general_text_advance);
                         talking = false;
+                        MyGamePad.ResetStates();
+
                         acceptQuestPage = false;
                         game.CurrentChapter.TalkingToNPC = false;
                         updatingInteraction = false;
                     }
-                    else if (choice == 1 && ((last.IsKeyDown(Keys.Enter) && current.IsKeyUp(Keys.Enter)) || MyGamePad.APressed()) && scrollDialogueNum >= questDialogue[dialogueState].Length && updateFaster == false)
+                    else if (choice == 1 && ((game.last.IsKeyDown(Keys.Enter) && game.current.IsKeyUp(Keys.Enter)) || MyGamePad.APressed()) && scrollDialogueNum >= questDialogue[dialogueState].Length && updateFaster == false)
                     {
                         scrollDialogueNum = 0;
+                        textScrollSoundIndex = 0;
                         scrollDialogue = "";
+                        Sound.PlaySoundInstance(Sound.SoundNames.ui_general_text_advance);
 
                         dialogueState = 0;
                         game.CurrentChapter.TalkingToNPC = false;
                         talking = false;
+                        MyGamePad.ResetStates();
+
                         acceptQuestPage = false;
                         game.CurrentQuests.Remove(quest);
                         if(!quest.StoryQuest)
@@ -468,10 +528,12 @@ namespace ISurvived
                 #endregion
 
                 #region Talk to NPC about quest
-                if (talking && ((last.IsKeyDown(Keys.Enter) && current.IsKeyUp(Keys.Enter)) || MyGamePad.APressed()) && acceptQuestPage == false && scrollDialogueNum >= questDialogue[dialogueState].Length && updateFaster == false)
+                if (talking && ((game.last.IsKeyDown(Keys.Enter) && game.current.IsKeyUp(Keys.Enter)) || MyGamePad.APressed()) && acceptQuestPage == false && scrollDialogueNum >= questDialogue[dialogueState].Length && updateFaster == false)
                 {
                     scrollDialogueNum = 0;
+                    textScrollSoundIndex = 0;
                     scrollDialogue = "";
+                    Sound.PlaySoundInstance(Sound.SoundNames.ui_general_text_advance);
 
                     //--If you haven't completed the quest
                     if (quest.CompletedQuest == false)
@@ -495,6 +557,7 @@ namespace ISurvived
                         if (dialogueState == questDialogue.Count - 1)
                         {
                             scrollDialogueNum = 0;
+                            textScrollSoundIndex = 0;
                             scrollDialogue = "";
                             quest.RewardPlayer();
                             dialogueState = 0;
@@ -505,11 +568,30 @@ namespace ISurvived
                             if (!quest.StoryQuest)
                                 game.CurrentSideQuests.Remove(quest);
 
+                            Boolean storyQuestInHelper = false;
+
+                            if (Game1.questHUD.questHelperQuests.Contains(quest))
+                                storyQuestInHelper = true;
+
                             Game1.questHUD.RemoveQuestFromHelper(quest);
+
+                            if (quest.StoryQuest && storyQuestInHelper)
+                            {
+                                for (int i = game.CurrentQuests.Count - 1; i >= 0; i--)
+                                {
+                                    if (game.CurrentQuests[i].StoryQuest)
+                                    {
+                                        Game1.questHUD.AddQuestToHelper(game.CurrentQuests[i]);
+                                        break;
+                                    }
+                                }
+                            }
 
                             quest = null;
                             game.CurrentChapter.TalkingToNPC = false;
                             talking = false;
+                            MyGamePad.ResetStates();
+
                             updatingInteraction = false;
                         }
                         else
@@ -522,17 +604,58 @@ namespace ISurvived
                 }
                 #endregion
 
-                if (quest != null && scrollDialogueNum < questDialogue[dialogueState].Length && (current.IsKeyDown(Keys.Enter) || MyGamePad.currentState.Buttons.A == ButtonState.Pressed))
+                if (quest != null && scrollDialogueNum < questDialogue[dialogueState].Length && (game.current.IsKeyDown(Keys.Enter) || MyGamePad.currentState.Buttons.A == ButtonState.Pressed))
                 {
                     updateFaster = true;
                 }
-                else if (current.IsKeyUp(Keys.Enter) && MyGamePad.currentState.Buttons.A == ButtonState.Released)
+                else if (game.current.IsKeyUp(Keys.Enter) && MyGamePad.currentState.Buttons.A == ButtonState.Released)
                 {
                     updateFaster = false;
                 }
 
             }
             #endregion
+        }
+
+        public void SkipQuestDialogue()
+        {
+            if (quest != null)
+            {
+                scrollDialogueNum = 0;
+                scrollDialogue = "";
+                textScrollSoundIndex = 0;
+
+                acceptedQuest = true;
+                dialogueState = questDialogue.Count - 1;
+                game.CurrentChapter.TalkingToNPC = false;
+                talking = false;
+                acceptQuestPage = false;
+                updatingInteraction = false;
+                game.CurrentQuests.Add(quest);
+                MyGamePad.ResetStates();
+
+                if (!quest.StoryQuest)
+                {
+                    game.CurrentSideQuests.Add(quest);
+                    Chapter.effectsManager.NotificationQueue.Enqueue(new QuestReceivedNotification(false));
+                }
+                else
+                {
+                    if (quest.QuestName != "Daryl's New Friends")
+                        Chapter.effectsManager.NotificationQueue.Enqueue(new QuestReceivedNotification(true));
+
+                    //Remove the old story quest from the quest helper
+                    for (int j = 0; j < Game1.questHUD.questHelperQuests.Count; j++)
+                    {
+                        if (Game1.questHUD.questHelperQuests[j].StoryQuest)
+                        {
+                            Game1.questHUD.RemoveQuestFromHelper(Game1.questHUD.questHelperQuests[j]);
+                        }
+                    }
+                }
+
+                Game1.questHUD.AddQuestToHelper(quest);
+            }
         }
 
         public void AddQuest(Quest q)
@@ -564,57 +687,59 @@ namespace ISurvived
             }
         }
 
-        public void Wander(int maxToLeft, int maxToRight)
+        public void Wander(int maxToLeft, int maxToRight, Platform.PlatformType floorType = Platform.PlatformType.rock, int footstepFrame1 = 1, int footstepFrame2 = 6)
         {
-
-            if (wanderTimer <= 0)
+            if (game.CurrentChapter.CurrentMap.MapName == mapName)
             {
-                wanderState = moveRandom.Next(0, 3);
-                wanderTimer = moveRandom.Next(70, 160);
-            }
-
-            wanderTimer--;
-
-            if (tempWanderTimer > 1)
-            {
-                tempWanderTimer--;
-
-                if (tempWanderTimer == 1)
+                if (wanderTimer <= 0)
                 {
-                    tempWanderTimer = 0;
-                    wanderState = 0;
-                    wanderTimer = 60;
+                    wanderState = moveRandom.Next(0, 3);
+                    wanderTimer = moveRandom.Next(70, 160);
                 }
-            }
 
-            switch (wanderState)
-            {
-                case 0:
-                    moveState = MoveState.standing;
-                    break;
-                case 1:
-                    if (Chapter.effectsManager.fButtonRecs.Contains(frec))
-                        Chapter.effectsManager.fButtonRecs.Remove(frec);
-                    Move(new Vector2(3, 0));
-                    break;
-                case 2:
-                    if (Chapter.effectsManager.fButtonRecs.Contains(frec))
-                        Chapter.effectsManager.fButtonRecs.Remove(frec);
-                    Move(new Vector2(-3, 0));
-                    break;
-            }
+                wanderTimer--;
 
-            if (PositionX < maxToLeft)
-            {
-                wanderTimer = 20;
-                tempWanderTimer = 20;
-                wanderState = 1;
-            }
-            if (PositionX > maxToRight)
-            {
-                wanderTimer = 20;
-                tempWanderTimer = 20;
-                wanderState = 2;
+                if (tempWanderTimer > 1)
+                {
+                    tempWanderTimer--;
+
+                    if (tempWanderTimer == 1)
+                    {
+                        tempWanderTimer = 0;
+                        wanderState = 0;
+                        wanderTimer = 60;
+                    }
+                }
+
+                switch (wanderState)
+                {
+                    case 0:
+                        moveState = MoveState.standing;
+                        break;
+                    case 1:
+                        if (Chapter.effectsManager.fButtonRecs.Contains(frec))
+                            Chapter.effectsManager.fButtonRecs.Remove(frec);
+                        Move(new Vector2(3, 0), floorType, footstepFrame1, footstepFrame2);
+                        break;
+                    case 2:
+                        if (Chapter.effectsManager.fButtonRecs.Contains(frec))
+                            Chapter.effectsManager.fButtonRecs.Remove(frec);
+                        Move(new Vector2(-3, 0), floorType, footstepFrame1, footstepFrame2);
+                        break;
+                }
+
+                if (PositionX < maxToLeft)
+                {
+                    wanderTimer = 20;
+                    tempWanderTimer = 20;
+                    wanderState = 1;
+                }
+                if (PositionX > maxToRight)
+                {
+                    wanderTimer = 20;
+                    tempWanderTimer = 20;
+                    wanderState = 2;
+                }
             }
         }
 
@@ -629,18 +754,17 @@ namespace ISurvived
                         spriteSheet = game.NPCSprites[name];
                     }
 
-
                 if (facingRight)
                 {
-                    s.Draw(spriteSheet, rec, GetSourceRectangle(moveFrame), Color.White);
+                    s.Draw(game.NPCSprites[name], rec, GetSourceRectangle(moveFrame), Color.White);
                 }
                 else
                 {
-                    s.Draw(spriteSheet, rec, GetSourceRectangle(moveFrame), Color.White, 0f, Vector2.Zero, SpriteEffects.FlipHorizontally, 0f);
+                    s.Draw(game.NPCSprites[name], rec, GetSourceRectangle(moveFrame), Color.White, 0f, Vector2.Zero, SpriteEffects.FlipHorizontally, 0f);
                 }
 
                 //Don't draw their name or the F button if they cannot talk
-                if (canTalk)
+                if (canTalk && !game.CurrentChapter.MakingDecision)
                 {
                     #region Draw NPC names
 
@@ -651,8 +775,9 @@ namespace ISurvived
                     //--If it is less than 250 pixels
                     if (distanceFromNPC.X < 250 && distanceFromNPC.Y < 250 && game.CurrentChapter.state == Chapter.GameState.Game && !game.CurrentChapter.TalkingToNPC && !drawFButton)
                     {
-                        s.DrawString(Game1.font, name, new Vector2(rec.X + ((rec.Width / 2) - (Game1.font.MeasureString(name).X / 2)) - 2, rec.Y + Game1.npcHeightFromRecTop[name] - 40 - 2), Color.Black);
-                        s.DrawString(Game1.font, name, new Vector2(rec.X + ((rec.Width / 2) - (Game1.font.MeasureString(name).X / 2)), rec.Y + Game1.npcHeightFromRecTop[name] - 40), Color.White);//new Color(241, 107, 79));
+
+                        Game1.OutlineFont(Game1.font, s, name, 1, (int)(rec.X + ((rec.Width / 2) - (Game1.font.MeasureString(name).X / 2)) - 2), (int)(rec.Y + Game1.npcHeightFromRecTop[name] - 40 - 2), Color.Black, Color.White);
+
                     }
                     #endregion
                 }
@@ -661,7 +786,7 @@ namespace ISurvived
 
                 frec = new Rectangle((rec.X + rec.Width / 2) - (43 / 2) + fButtonOffset, rec.Y - 65 + Game1.npcHeightFromRecTop[name] - 30, (int)(43), (int)(65));
 
-                if (drawFButton && canTalk)
+                if (drawFButton && canTalk && !game.CurrentChapter.MakingDecision)
                 {
                     if (!Chapter.effectsManager.fButtonRecs.Contains(frec))
                         Chapter.effectsManager.AddFButton(frec);
@@ -770,13 +895,52 @@ namespace ISurvived
 
                 if (facingRight)
                 {
-                    s.Draw(spriteSheet, rec, GetSourceRectangle(moveFrame), Color.White * alpha);
+                    s.Draw(game.NPCSprites[name], rec, GetSourceRectangle(moveFrame), Color.White * alpha);
                 }
                 else
                 {
-                    s.Draw(spriteSheet, rec, GetSourceRectangle(moveFrame), Color.White * alpha, 0f, Vector2.Zero, SpriteEffects.FlipHorizontally, 0f);
+                    s.Draw(game.NPCSprites[name], rec, GetSourceRectangle(moveFrame), Color.White * alpha, 0f, Vector2.Zero, SpriteEffects.FlipHorizontally, 0f);
                 }
             }
+        }
+
+        public void CompleteQuestSilently(Quest q)
+        {
+            scrollDialogueNum = 0;
+            textScrollSoundIndex = 0;
+            scrollDialogue = "";
+            q.RewardPlayer();
+            dialogueState = 0;
+            questDialogue = null;
+            acceptedQuest = false;
+            game.CurrentQuests.Remove(q);
+
+            if (!q.StoryQuest)
+                game.CurrentSideQuests.Remove(q);
+
+            Boolean storyQuestInHelper = false;
+
+            if (Game1.questHUD.questHelperQuests.Contains(q))
+                storyQuestInHelper = true;
+
+            Game1.questHUD.RemoveQuestFromHelper(q);
+
+            if (q.StoryQuest && storyQuestInHelper)
+            {
+                for (int i = game.CurrentQuests.Count - 1; i >= 0; i--)
+                {
+                    if (game.CurrentQuests[i].StoryQuest)
+                    {
+                        Game1.questHUD.AddQuestToHelper(game.CurrentQuests[i]);
+                        break;
+                    }
+                }
+            }
+
+            quest = null;
+            game.CurrentChapter.TalkingToNPC = false;
+            talking = false;
+            updatingInteraction = false;
         }
 
         public virtual void DrawDialogue(SpriteBatch s)
@@ -790,8 +954,7 @@ namespace ISurvived
 
                     s.Draw(Game1.npcFaces[name].faces[currentDialogueFace], new Rectangle(0, (int)(Game1.aspectRatio * 1280) - Game1.npcFaces[name].faces[currentDialogueFace].Height, Game1.npcFaces[name].faces[currentDialogueFace].Width, Game1.npcFaces[name].faces[currentDialogueFace].Height), Color.White);
 
-                s.DrawString(Game1.questNameFont, name, new Vector2(351, (int)(Game1.aspectRatio * 1280 * .75f) - 2), Color.Black * 1f);
-                s.DrawString(Game1.questNameFont, name, new Vector2(353, (int)(Game1.aspectRatio * 1280 * .75f)), Color.White * 1f);
+                Game1.OutlineFont(Game1.questNameFont, s, name, 1, 351, 538, Color.Black, Color.White);
 
                 #region Non Quest
                 if ((questDialogue == null || questDialogue.Count == 0))
@@ -805,21 +968,22 @@ namespace ISurvived
                     {
                         scrollDialogue += currentLine.ElementAt(scrollDialogueNum);
                         scrollDialogueNum++;
-
-                        //--Scroll text noise. Faster then you're updating text quickly
-                        //if (scrollDialogueNum % 5 == 0 && updateFaster == false)
-                        //    Sound.PlaySoundInstance(Sound.SoundNames.TextScroll);
-                        //else if (scrollDialogueNum % 4 == 0 && updateFaster == true)
-                        //    Sound.PlaySoundInstance(Sound.SoundNames.TextScroll);
+                        textScrollSoundIndex++;
 
                         //--Add a second letter for updating faster
                         if (updateFaster && scrollDialogueNum < stringNum)
                         {
                             scrollDialogue += currentLine.ElementAt(scrollDialogueNum);
                             scrollDialogueNum++;
+                            textScrollSoundIndex++;
 
                         }
 
+                        if (textScrollSoundIndex > 4)
+                            textScrollSoundIndex = 0;
+                        //--Scroll text noise. Faster then you're updating text quickly
+                        if (textScrollSoundIndex == 0)
+                            Sound.PlaySoundInstance(Sound.SoundNames.ui_general_text_scroll);
                     }
 
                     if (updatingInteraction && scrollDialogueNum == stringNum)
@@ -839,7 +1003,10 @@ namespace ISurvived
                                 enterAlphaIncreasing = true;
                         }
 
-                        s.Draw(Game1.notificationTextures, new Rectangle(974, 639, 50, 22), new Rectangle(1774, 0, 50, 22), Color.White);
+                        if (!Game1.gamePadConnected)
+                            s.Draw(Game1.notificationTextures, new Rectangle(974, 639, 50, 22), new Rectangle(1774, 0, 50, 22), Color.White);
+                        else
+                            s.Draw(Game1.AButton, new Vector2(0, 0), Color.White);
                     }
 
                     s.DrawString(Game1.dialogueFont, Game1.WrapText(Game1.dialogueFont, scrollDialogue, 660), new Vector2(360, (int)(Game1.aspectRatio * 1280 * .8f)), Color.Black);
@@ -860,23 +1027,31 @@ namespace ISurvived
                     {
                         scrollDialogue += currentLine.ElementAt(scrollDialogueNum);
                         scrollDialogueNum++;
-
-                        //--Scroll text noise. Faster then you're updating text quickly
-                        //if(scrollDialogueNum % 5 == 0 && updateFaster == false)
-                        //    Sound.PlaySoundInstance(Sound.SoundNames.TextScroll);
-                        //else if(scrollDialogueNum % 3 == 0 && updateFaster == true)
-                        //    Sound.PlaySoundInstance(Sound.SoundNames.TextScroll);
+                        textScrollSoundIndex++;
 
                         if (updateFaster && scrollDialogueNum < stringNum)
                         {
                             scrollDialogue += currentLine.ElementAt(scrollDialogueNum);
                             scrollDialogueNum++;
+                            textScrollSoundIndex++;
                         }
+
+
+                        if (textScrollSoundIndex > 4)
+                            textScrollSoundIndex = 0;
+                        //--Scroll text noise. Faster then you're updating text quickly
+                        if (textScrollSoundIndex == 0)
+                            Sound.PlaySoundInstance(Sound.SoundNames.ui_general_text_scroll);
                     }
 
                     if (updatingInteraction && scrollDialogueNum == stringNum && drawEnter)
-                        s.Draw(Game1.notificationTextures, new Rectangle(974, 639, 50, 22), new Rectangle(1774, 0, 50, 22), Color.White);
+                    {
+                        if(!Game1.gamePadConnected)
+                            s.Draw(Game1.notificationTextures, new Rectangle(974, 639, 50, 22), new Rectangle(1774, 0, 50, 22), Color.White);
+                        else
+                            s.Draw(Game1.AButton, new Vector2(0, 0), Color.White);
 
+                    }
                     //--Draw the text
                     s.DrawString(Game1.dialogueFont, Game1.WrapText(Game1.dialogueFont, scrollDialogue, 660), new Vector2(360, (int)(Game1.aspectRatio * 1280 * .8f)), Color.Black);
 
@@ -925,7 +1100,7 @@ namespace ISurvived
                                         s.Draw(Game1.smallTypeIcons["smallWeaponIcon"], new Rectangle(503, 405 + (i * 25), Game1.smallTypeIcons["smallExperienceIcon"].Width, Game1.smallTypeIcons["smallExperienceIcon"].Height), Color.White);
                                     if (quest.RewardObjects[i] is Hat)
                                         s.Draw(Game1.smallTypeIcons["smallHatIcon"], new Rectangle(503, 405 + (i * 25), Game1.smallTypeIcons["smallExperienceIcon"].Width, Game1.smallTypeIcons["smallExperienceIcon"].Height), Color.White);
-                                    if (quest.RewardObjects[i] is Hoodie)
+                                    if (quest.RewardObjects[i] is Outfit)
                                         s.Draw(Game1.smallTypeIcons["smallShirtIcon"], new Rectangle(503, 405 + (i * 25), Game1.smallTypeIcons["smallExperienceIcon"].Width, Game1.smallTypeIcons["smallExperienceIcon"].Height), Color.White);
                                     if (quest.RewardObjects[i] is Accessory)
                                         s.Draw(Game1.smallTypeIcons["smallAccessoryIcon"], new Rectangle(503, 405 + (i * 25), Game1.smallTypeIcons["smallExperienceIcon"].Width, Game1.smallTypeIcons["smallExperienceIcon"].Height), Color.White);
@@ -943,8 +1118,13 @@ namespace ISurvived
                                     s.Draw(Game1.smallTypeIcons["smallSilverKeyIcon"], new Rectangle(503, 405 + (i * 25), Game1.smallTypeIcons["smallExperienceIcon"].Width, Game1.smallTypeIcons["smallExperienceIcon"].Height), Color.White);
                                 if (quest.RewardObjects[i] is GoldKey)
                                     s.Draw(Game1.smallTypeIcons["smallGoldKeyIcon"], new Rectangle(503, 405 + (i * 25), Game1.smallTypeIcons["smallExperienceIcon"].Width, Game1.smallTypeIcons["smallExperienceIcon"].Height), Color.White);
+                                if (quest.RewardObjects[i] is LockerCombo)
+                                    s.Draw(Game1.smallTypeIcons["smallComboIcon"], new Rectangle(503, 405 + (i * 25), Game1.smallTypeIcons["smallExperienceIcon"].Width, Game1.smallTypeIcons["smallExperienceIcon"].Height), Color.White);
 
-                                s.DrawString(Game1.twConQuestHudName, "     " + (quest.RewardObjects[i] as Collectible).collecName, new Vector2(503, 405 + (i * 25)), Color.Black * .8f);
+                                if (!(quest.RewardObjects[i] is LockerCombo))
+                                    s.DrawString(Game1.twConQuestHudName, "     " + (quest.RewardObjects[i] as Collectible).collecName, new Vector2(503, 405 + (i * 25)), Color.Black * .8f);
+                                else
+                                    s.DrawString(Game1.twConQuestHudName, "     " + (quest.RewardObjects[i] as LockerCombo).name + "\'s locker combination", new Vector2(503, 405 + (i * 25)), Color.Black * .8f);
                             }
                         }
                         #endregion
@@ -1011,7 +1191,7 @@ namespace ISurvived
                                         s.Draw(Game1.smallTypeIcons["smallWeaponIcon"], new Rectangle(503, 405 + (i * 25), Game1.smallTypeIcons["smallExperienceIcon"].Width, Game1.smallTypeIcons["smallExperienceIcon"].Height), Color.White);
                                     if (quest.RewardObjects[i] is Hat)
                                         s.Draw(Game1.smallTypeIcons["smallHatIcon"], new Rectangle(503, 405 + (i * 25), Game1.smallTypeIcons["smallExperienceIcon"].Width, Game1.smallTypeIcons["smallExperienceIcon"].Height), Color.White);
-                                    if (quest.RewardObjects[i] is Hoodie)
+                                    if (quest.RewardObjects[i] is Outfit)
                                         s.Draw(Game1.smallTypeIcons["smallShirtIcon"], new Rectangle(503, 405 + (i * 25), Game1.smallTypeIcons["smallExperienceIcon"].Width, Game1.smallTypeIcons["smallExperienceIcon"].Height), Color.White);
                                     if (quest.RewardObjects[i] is Accessory)
                                         s.Draw(Game1.smallTypeIcons["smallAccessoryIcon"], new Rectangle(503, 405 + (i * 25), Game1.smallTypeIcons["smallExperienceIcon"].Width, Game1.smallTypeIcons["smallExperienceIcon"].Height), Color.White);
@@ -1029,8 +1209,19 @@ namespace ISurvived
                                     s.Draw(Game1.smallTypeIcons["smallSilverKeyIcon"], new Rectangle(503, 405 + (i * 25), Game1.smallTypeIcons["smallExperienceIcon"].Width, Game1.smallTypeIcons["smallExperienceIcon"].Height), Color.White);
                                 if (quest.RewardObjects[i] is GoldKey)
                                     s.Draw(Game1.smallTypeIcons["smallGoldKeyIcon"], new Rectangle(503, 405 + (i * 25), Game1.smallTypeIcons["smallExperienceIcon"].Width, Game1.smallTypeIcons["smallExperienceIcon"].Height), Color.White);
+                                if (quest.RewardObjects[i] is LockerCombo)
+                                    s.Draw(Game1.smallTypeIcons["smallComboIcon"], new Rectangle(503, 405 + (i * 25), Game1.smallTypeIcons["smallExperienceIcon"].Width, Game1.smallTypeIcons["smallExperienceIcon"].Height), Color.White);
 
-                                s.DrawString(Game1.twConQuestHudName, "     " + (quest.RewardObjects[i] as Collectible).collecName, new Vector2(503, 405 + (i * 25)), Color.Black * .8f);
+                                if (!(quest.RewardObjects[i] is LockerCombo))
+                                    s.DrawString(Game1.twConQuestHudName, "     " + (quest.RewardObjects[i] as Collectible).collecName, new Vector2(503, 405 + (i * 25)), Color.Black * .8f);
+                                else
+                                    s.DrawString(Game1.twConQuestHudName, "     " + (quest.RewardObjects[i] as LockerCombo).name +"\'s locker combination", new Vector2(503, 405 + (i * 25)), Color.Black * .8f);
+                            }
+                            if (quest.RewardObjects[i] is StoryItem)
+                            {
+                                    s.Draw(Game1.smallTypeIcons["smallStoryItemIcon"], new Rectangle(503, 405 + (i * 25), Game1.smallTypeIcons["smallExperienceIcon"].Width, Game1.smallTypeIcons["smallExperienceIcon"].Height), Color.White);
+
+                                    s.DrawString(Game1.twConQuestHudName, "     " + (quest.RewardObjects[i] as StoryItem).Name, new Vector2(503, 405 + (i * 25)), Color.Black * .8f);
                             }
                         }
                         #endregion

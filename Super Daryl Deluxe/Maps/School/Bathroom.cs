@@ -18,7 +18,6 @@ namespace ISurvived
         Rectangle frec;
         int timerAfterSave = 0;
 
-
         static Portal toLastMap;
         static Portal lastMapPortal;
 
@@ -32,15 +31,13 @@ namespace ISurvived
             mapWidth = 1400;
             mapName = "Bathroom";
 
-            backgroundMusicName = "Noir Halls";
-
-            saveSpot = new Rectangle(830, 350, 200, 200);
+            saveSpot = new Rectangle(915, 350, 100, 200);
 
             mapRec = new Rectangle(0, 0, mapWidth, mapHeight);
 
-            frec = new Rectangle(saveSpot.X + 100 -
-               43 / 2, saveSpot.Y - 100, 43,
-                65);
+            frec = new Rectangle(saveSpot.X + 45 -
+   43 / 2, saveSpot.Y - 60, 43,
+    65);
 
             enemyAmount = 0;
 
@@ -54,7 +51,7 @@ namespace ISurvived
 
         public override void LoadContent()
         {
-            background.Add(content.Load<Texture2D>(@"Maps\Bathroom"));
+            background.Add(content.Load<Texture2D>(@"Maps\School\Bathroom\Bathroom"));
 
             if (game.chapterState == Game1.ChapterState.prologue)
             {
@@ -65,7 +62,7 @@ namespace ISurvived
             SoundEffect am = Sound.ambienceContent.Load<SoundEffect>(@"Sound\Ambience\ambience_bathroom");
             SoundEffectInstance amb = am.CreateInstance();
             amb.IsLooped = true;
-            Sound.ambience.Add("Bathroom", amb);
+            Sound.ambience.Add("ambience_bathroom", amb);
         }
 
         public override void UnloadNPCContent()
@@ -79,13 +76,18 @@ namespace ISurvived
             }
         }
 
+        public override void LeaveMap()
+        {
+            base.LeaveMap();
+        }
+
         public override void PlayBackgroundMusic()
         {
         }
 
         public override void PlayAmbience()
         {
-            Sound.PlayAmbience("Bathroom");
+            Sound.PlayAmbience("ambience_bathroom");
         }
 
         public override void RespawnGroundEnemies()
@@ -110,12 +112,12 @@ namespace ISurvived
             if (timerAfterSave > 0)
                 timerAfterSave--;
 
-            if (player.VitalRec.Intersects(saveSpot) && timerAfterSave == 0)
+            if (player.VitalRec.Intersects(saveSpot) && timerAfterSave == 0 && game.chapterState != Game1.ChapterState.demo) 
             {
                 if (!Chapter.effectsManager.fButtonRecs.Contains(frec))
                     Chapter.effectsManager.AddFButton(frec);
 
-                if((current.IsKeyUp(Keys.F) && last.IsKeyDown(Keys.F)) || MyGamePad.RightBumperPressed())
+                if((current.IsKeyUp(Keys.F) && last.IsKeyDown(Keys.F)) || MyGamePad.LeftBumperPressed())
                 {
                     ////TUTORIAL TOOLTIP
                     //if (!game.MapBooleans.tutorialMapBooleans["TutorialSaved"])
@@ -127,9 +129,11 @@ namespace ISurvived
                     //SAVE ALL MAP DATA
                     Game1.schoolMaps.SaveMapDataToWrapper();
 
+                    Sound.PlaySoundInstance(Sound.SoundNames.popup_save_game);
+
                     game.SaveLoadManager.InitiateSave();
                     timerAfterSave = 180;
-                    player.Health = player.MaxHealth;
+                    player.Health = player.realMaxHealth;
                 }
             }
 
@@ -144,7 +148,7 @@ namespace ISurvived
         {
             base.SetPortals();
 
-            toLastMap = new Portal(50, platforms[0], "Bathroom");
+            toLastMap = new Portal(50, platforms[0], "Bathroom", Portal.DoorType.movement_door_open);
         }
 
         public override void SetDestinationPortals()
@@ -163,7 +167,7 @@ namespace ISurvived
                 s.DrawString(game.Font, "To Save", new Vector2(saveSpot.X + 60, saveSpot.Y), Color.Black);*/
 
             if(timerAfterSave > 130)
-                s.DrawString(game.Font, "Game Saved", new Vector2(saveSpot.X + 60, saveSpot.Y - 50), Color.Black);
+                Game1.OutlineFont(Game1.font, s, "Game Saved", 1, saveSpot.X, saveSpot.Y - 30, Color.Black, Color.White);
         }
     }
 }

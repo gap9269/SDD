@@ -53,8 +53,8 @@ namespace ISurvived
         {
             base.SetPortals();
 
-            toWorkersField = new Portal(50, platforms[0], "TrollsHut");
-            toIrrigationCanal = new Portal(600, platforms[0], "TrollsHut");
+            toWorkersField = new Portal(50, platforms[0], "Trolls Hut");
+            toIrrigationCanal = new Portal(600, platforms[0], "Trolls Hut");
         }
 
         public override void SetDestinationPortals()

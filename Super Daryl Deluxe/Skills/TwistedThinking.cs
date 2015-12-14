@@ -134,7 +134,7 @@ namespace ISurvived
 
                 chargeTime++;
 
-                Console.WriteLine(player.playerState);
+                //Console.Writeline(player.playerState);
 
 
                 if (chargeTime % 15 == 0)
@@ -220,9 +220,9 @@ namespace ISurvived
             }
         }
 
-        public override void ApplyLevelUp()
+        public override void ApplyLevelUp(Boolean silent = false)
         {
-            base.ApplyLevelUp();
+            base.ApplyLevelUp(silent);
 
             switch (skillRank)
             {

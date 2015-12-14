@@ -35,6 +35,9 @@ namespace ISurvived
         float leftPlatY, rightPlatY, platVelocity;
 
         public static Dictionary<String, Texture2D> animationTextures;
+        public static Dictionary<String, SoundEffect> gorillaSounds;
+
+        public static SoundEffectInstance timFightTheme;
 
         Boolean surprised = false;
         Boolean confused = false;
@@ -56,8 +59,8 @@ namespace ISurvived
         int activeShockTime;
         Boolean rightShock;
 
-        int punchDamage = 13;
-        int poundDamage = 14;
+        int punchDamage = 28;
+        int poundDamage = 35;
 
         enum Intentions
         {
@@ -86,7 +89,6 @@ namespace ISurvived
             moveSpeed = 4;
 
             addToHealthWidth = 0;
-            canBeHurt = false;
             canBeKnockbacked = false;
             healthBarRec.Width = 0;
             distanceFromBottomRecToFeet = 0; //Not going to use it for Tim
@@ -111,8 +113,22 @@ namespace ISurvived
             if (!isStunned)
             {
                 canBeKnockbacked = false;
-                canBeHurt = false;
                 Move(currentMap.MapWidth);
+
+                if (bossState == BossState.moving)
+                {
+                    if (moveFrame == 0 && frameDelay == 4)
+                    {
+                        String soundEffectName = "enemy_gorilla_tim_walk_fist_0" + Game1.randomNumberGen.Next(1, 4).ToString();
+                        Sound.PlaySoundInstance(gorillaSounds[soundEffectName], soundEffectName, false, vitalRec.Center.X, vitalRec.Center.Y, 600, 500, 2000);
+                    }
+                    else if (moveFrame == 5 && frameDelay == 4)
+                    {
+                        String soundEffectName = "enemy_gorilla_tim_walk_feet_0" + Game1.randomNumberGen.Next(1, 4).ToString();
+                       // Sound.PlaySoundInstance(gorillaSounds[soundEffectName], soundEffectName, false, vitalRec.Center.X, vitalRec.Center.Y, 600, 500, 2000);
+                    }
+
+                }
             }
             else
             {
@@ -137,7 +153,6 @@ namespace ISurvived
                 confused = false;
                 surprised = false;
                 canBeKnockbacked = true;
-                canBeHurt = true;
             }
 
             xPos = originalHealthWidth - healthBarRec.Width;
@@ -183,6 +198,10 @@ namespace ISurvived
             {
                 bossState = BossState.attacking;
                 pounding = true;
+
+                String soundEffectName = "enemy_gorilla_tim_ground_pound_0" + Game1.randomNumberGen.Next(1, 4).ToString();
+                Sound.PlaySoundInstance(gorillaSounds[soundEffectName], soundEffectName, false, vitalRec.Center.X, vitalRec.Center.Y, 600, 500, 2000);
+
             }
 
             if (attackType == "Punch")
@@ -190,6 +209,9 @@ namespace ISurvived
                 bossState = BossState.attacking;
                 punching = true;
                 punchTimer = 0;
+
+                String soundEffectName = "enemy_gorilla_tim_punch_0" + Game1.randomNumberGen.Next(1, 4).ToString();
+                Sound.PlaySoundInstance(gorillaSounds[soundEffectName], soundEffectName, false, vitalRec.Center.X, vitalRec.Center.Y, 600, 500, 2000);
             }
         }
 
@@ -202,6 +224,9 @@ namespace ISurvived
             intentions = Intentions.wantPound;
             bossState = BossState.attacking;
             punchTimer = 0;
+
+            String soundEffectName = "enemy_gorilla_tim_ground_pound_0" + Game1.randomNumberGen.Next(1, 4).ToString();
+            Sound.PlaySoundInstance(gorillaSounds[soundEffectName], soundEffectName, false, vitalRec.Center.X, vitalRec.Center.Y, 600, 500, 2000);
 
             if (player.VitalRec.Center.X > vitalRec.Center.X)
             {
@@ -237,7 +262,7 @@ namespace ISurvived
 
                         if (player.CheckIfHit(poundRec))
                         {
-                            player.TakeDamage(poundDamage);
+                            player.TakeDamage(poundDamage, level);
 
                             if (player.VelocityY < 0)
                                 player.VelocityY = 0;
@@ -296,7 +321,7 @@ namespace ISurvived
 
                         if (player.CheckIfHit(poundRec))
                         {
-                            player.TakeDamage(poundDamage);
+                            player.TakeDamage(poundDamage, level);
 
 
                             if (facingRight)
@@ -324,6 +349,20 @@ namespace ISurvived
                         }
 
                         game.Camera.ShakeCamera(30, 15);
+
+                        if (poundNum == 1)
+                        {
+                            if (platformsGone)
+                            {
+                                String soundEffectName = "object_tim_fight_platforms_appear";
+                                Sound.PlaySoundInstance(gorillaSounds[soundEffectName], soundEffectName, false, vitalRec.Center.X, vitalRec.Center.Y, 600, 500, 2000);
+                            }
+                            else
+                            {
+                                String soundEffectName = "object_tim_fight_platforms_break";
+                                Sound.PlaySoundInstance(gorillaSounds[soundEffectName], soundEffectName, false, vitalRec.Center.X, vitalRec.Center.Y, 600, 500, 2000);
+                            }
+                        }
                     }
 
                     if (moveFrame > 12)
@@ -351,6 +390,9 @@ namespace ISurvived
                             moveFrame = 0;
                             frameDelay = 5;
 
+                            String soundEffectName = "enemy_gorilla_tim_ground_pound_0" + Game1.randomNumberGen.Next(1, 4).ToString();
+                            Sound.PlaySoundInstance(gorillaSounds[soundEffectName], soundEffectName, false, vitalRec.Center.X, vitalRec.Center.Y, 600, 500, 2000);
+
                             damageDealtBeforePound = 0;
                         }
                     }
@@ -371,7 +413,7 @@ namespace ISurvived
                 {
                     if (player.CheckIfHit(punchRec))
                     {
-                        player.TakeDamage(punchDamage);
+                        player.TakeDamage(punchDamage, level);
 
 
                         if (facingRight)
@@ -441,7 +483,7 @@ namespace ISurvived
 
                 if (player.CheckIfHit(activeShockRec))
                 {
-                    player.TakeDamage(7);
+                   // player.TakeDamage(7);
                     player.KnockPlayerBack(new Vector2(0, -7));
                     activeShockTime = 0;
                 }
@@ -507,7 +549,6 @@ namespace ISurvived
         public override void Move(int mapWidth)
         {
             distanceFromPlayer = Vector2.Distance(new Vector2(VitalRec.Center.X, vitalRec.Center.Y), new Vector2(player.VitalRec.Center.X, player.VitalRec.Center.Y));
-
             timeBeforeRandomPound++;
 
             if (!surprised)
@@ -593,6 +634,10 @@ namespace ISurvived
                     punching = false;
                     quickPounding = false;
                     snarling = false;
+
+
+                    String soundEffectName = "enemy_gorilla_tim_confused";
+                    Sound.PlaySoundInstance(gorillaSounds[soundEffectName], soundEffectName, false, vitalRec.Center.X, vitalRec.Center.Y, 600, 500, 2000);
                 }
 
                 confused = true;
@@ -623,6 +668,10 @@ namespace ISurvived
                     confused = false;
                     surprisedTimer = 0;
                     intentions = Intentions.none;
+
+                    String soundEffectName = "enemy_gorilla_tim_surprise";
+                    Sound.PlaySoundInstance(gorillaSounds[soundEffectName], soundEffectName, false, vitalRec.Center.X, vitalRec.Center.Y, 600, 500, 2000);
+
                 }
                 else if (facingRight == false && player.VitalRec.Center.X < vitalRec.Center.X) //Player lands in front of Tim
                 {
@@ -632,6 +681,9 @@ namespace ISurvived
                     confused = false;
                     surprisedTimer = 0;
                     intentions = Intentions.none;
+                    String soundEffectName = "enemy_gorilla_tim_surprise";
+                    Sound.PlaySoundInstance(gorillaSounds[soundEffectName], soundEffectName, false, vitalRec.Center.X, vitalRec.Center.Y, 600, 500, 2000);
+
                 }
                 else if (confused) //Lands behind tim, wait before turning
                 {
@@ -647,6 +699,9 @@ namespace ISurvived
                     surprisedTimer = 0;
                     confused = false;
                     intentions = Intentions.none;
+                    String soundEffectName = "enemy_gorilla_tim_surprise";
+                    Sound.PlaySoundInstance(gorillaSounds[soundEffectName], soundEffectName, false, vitalRec.Center.X, vitalRec.Center.Y, 600, 500, 2000);
+
                 }
 
             }
@@ -791,6 +846,11 @@ namespace ISurvived
             #region SNARLING
             else if (snarling)
             {
+                if (moveFrame == 0 && frameDelay == 5)
+                {
+                    String soundEffectName = "enemy_gorilla_tim_snarl_0" + Game1.randomNumberGen.Next(1, 4);
+                    Sound.PlaySoundInstance(gorillaSounds[soundEffectName], soundEffectName, false, vitalRec.Center.X, vitalRec.Center.Y, 600, 500, 2000);
+                }
                 bossState = BossState.standing;
                 frameDelay--;
 
@@ -1072,6 +1132,9 @@ namespace ISurvived
                 stunTime = 120;
                 moveFrame = 0;
                 frameDelay = 5;
+
+                String soundEffectName = "enemy_gorilla_tim_stun";
+                Sound.PlaySoundInstance(gorillaSounds[soundEffectName], soundEffectName, false, vitalRec.Center.X, vitalRec.Center.Y, 600, 500, 2000);
             }
         }
 
@@ -1095,6 +1158,9 @@ namespace ISurvived
 
                     if (hasSunglasses == false)
                     {
+                        String soundEffectName = "enemy_gorilla_tim_equip_glasses";
+                        Sound.PlaySoundInstance(gorillaSounds[soundEffectName], soundEffectName, false, vitalRec.Center.X, vitalRec.Center.Y, 600, 500, 2000);
+
                         intentions = Intentions.puttingOnGlasses;
                         bossState = BossState.standing;
                     }

@@ -63,11 +63,70 @@ namespace ISurvived
         public override void Draw(SpriteBatch s)
         {
             if (sideQuestReceivedTimer > 0)
-                s.Draw(Game1.sideQuestReceived, new Rectangle(449, 127, Game1.sideQuestReceived.Width, Game1.sideQuestReceived.Height), Color.White);
+                s.Draw(Game1.sideQuestReceived, new Rectangle(403, 97, Game1.sideQuestReceived.Width, Game1.sideQuestReceived.Height), Color.White);
             else if (questReceivedTimer > 0)
-                s.Draw(Game1.storyQuestReceived, new Rectangle(449, 127, Game1.sideQuestReceived.Width, Game1.sideQuestReceived.Height), Color.White);
+                s.Draw(Game1.storyQuestReceived, new Rectangle(403, 97, Game1.sideQuestReceived.Width, Game1.sideQuestReceived.Height), Color.White);
         }
     }
+
+    public class QuestUpdatedNotification : Notification
+    {
+
+        int questUpdatedTimer;
+        int sideQuestUpdatedTimer;
+
+        //Constructor, sets a timer depending on what type of quest is accepted
+        public QuestUpdatedNotification(bool story)
+        {
+            sideQuestUpdatedTimer = 0;
+            questUpdatedTimer = 0;
+
+            if (story)
+            {
+                questUpdatedTimer = 120;
+            }
+            else
+            {
+                sideQuestUpdatedTimer = 120;
+            }
+        }
+
+        //--Decreases timer
+        public override void Update()
+        {
+            //Story quest
+            if (questUpdatedTimer > 0)
+            {
+                questUpdatedTimer--;
+
+                //Finish the notification when the timer hits 0
+                if (questUpdatedTimer == 0)
+                    finished = true;
+            }
+
+
+            //Side quest
+            if (sideQuestUpdatedTimer > 0)
+            {
+                sideQuestUpdatedTimer--;
+
+                //Finish the notification when the timer hits 0
+                if (sideQuestUpdatedTimer == 0)
+                    finished = true;
+            }
+        }
+
+        //Draws the appropriate graphic depending on type of quest
+        public override void Draw(SpriteBatch s)
+        {
+            if (sideQuestUpdatedTimer > 0)
+                s.Draw(Game1.sideQuestUpdated, new Rectangle(403, 97, Game1.storyQuestUpdated.Width, Game1.storyQuestUpdated.Height), Color.White);
+
+            else if (questUpdatedTimer > 0)
+                s.Draw(Game1.storyQuestUpdated, new Rectangle(403, 97, Game1.storyQuestUpdated.Width, Game1.storyQuestUpdated.Height), Color.White);
+        }
+    }
+
 
     public class QuestCompleteNotification : Notification
     {
@@ -111,6 +170,18 @@ namespace ISurvived
                 {
                     if(q.RewardObjects[i] is Textbook)
                         rewards.Add(Game1.equipmentTextures["Textbook"]);
+                    else if (q.RewardObjects[i] is LockerCombo)
+                        rewards.Add(Game1.storyItemIcons["Piece of Paper"]);
+                    else if (q.RewardObjects[i] is GoldKey)
+                        rewards.Add(Game1.storyItemIcons["Gold Key"]);
+                    else if (q.RewardObjects[i] is SilverKey)
+                        rewards.Add(Game1.storyItemIcons["Silver Key"]);
+                    else if (q.RewardObjects[i] is BronzeKey)
+                        rewards.Add(Game1.storyItemIcons["Bronze Key"]);
+                }
+                if (q.RewardObjects[i] is StoryItem)
+                {
+                    rewards.Add(Game1.storyItems[(q.RewardObjects[i] as StoryItem).Name]);
                 }
             }
 
@@ -152,6 +223,8 @@ namespace ISurvived
                 {
                     if (con[i] is Textbook)
                         rewards.Add(Game1.equipmentTextures["Textbook"]);
+                    else if (con[i] is LockerCombo)
+                        rewards.Add(Game1.storyItemIcons["Piece of Paper"]);
                 }
                 if (con[i] is StoryItem)
                 {
@@ -164,26 +237,30 @@ namespace ISurvived
         public override void Update()
         {
             //Fade the graphic in
-            if (questTimer >= 0)
+            if (Game1.g.CurrentChapter.state == Chapter.GameState.Game)
             {
-                if (questTimer == 300)
+                if (questTimer >= 0)
                 {
+                    if (questTimer == 300)
+                    {
+                        questAlpha = 0f;
+                        Sound.PlaySoundInstance(Sound.SoundNames.popup_quest_completed);
+                    }
+                    if (questAlpha < 1)
+                    {
+                        questAlpha += (1f / 100f);
+                    }
+
+                    questTimer--;
+
+                }
+
+                if (questTimer <= 0 && !(Cursor.last.CursorRec.Intersects(new Rectangle(449, 127, Game1.storyQuestComplete.Width, Game1.storyQuestComplete.Height)) && Cursor.last.active))
+                {
+                    rewards.Clear();
                     questAlpha = 0f;
+                    finished = true;
                 }
-                if (questAlpha < 1)
-                {
-                    questAlpha += (1f / 100f);
-                }
-
-                questTimer--;
-
-            }
-
-            if (questTimer <= 0 && !(Cursor.last.CursorRec.Intersects(new Rectangle(449, 127, Game1.storyQuestComplete.Width, Game1.storyQuestComplete.Height)) && Cursor.last.active))
-            {
-                rewards.Clear();
-                questAlpha = 0f;
-                finished = true;
             }
         }
 
@@ -203,7 +280,10 @@ namespace ISurvived
                     }
                     if (questRewardObjects[i] is Collectible)
                     {
-                        descriptionBox.DrawCollectibleDescriptions((questRewardObjects[i] as Collectible).collecName, (questRewardObjects[i] as Collectible).Description, rewardBoxes[i].ButtonRec);
+                        if (questRewardObjects[i] is LockerCombo)
+                            descriptionBox.DrawCollectibleDescriptions((questRewardObjects[i] as Collectible).collecName, (questRewardObjects[i] as LockerCombo).name + "\'s locker combination", rewardBoxes[i].ButtonRec);
+                        else
+                            descriptionBox.DrawCollectibleDescriptions((questRewardObjects[i] as Collectible).collecName, (questRewardObjects[i] as Collectible).Description, rewardBoxes[i].ButtonRec);
                     }
                 }
             }
@@ -212,13 +292,13 @@ namespace ISurvived
         public override void Draw(SpriteBatch s)
         {
             if(story)
-                s.Draw(Game1.storyQuestComplete, new Rectangle(449, 127, Game1.storyQuestComplete.Width, Game1.storyQuestComplete.Height), Color.White * questAlpha);
+                s.Draw(Game1.storyQuestComplete, new Rectangle(403, 97, Game1.storyQuestComplete.Width, Game1.storyQuestComplete.Height), Color.White * questAlpha);
             else
-                s.Draw(Game1.sideQuestComplete, new Rectangle(449, 127, Game1.storyQuestComplete.Width, Game1.storyQuestComplete.Height), Color.White * questAlpha);
+                s.Draw(Game1.sideQuestComplete, new Rectangle(403, 97, Game1.storyQuestComplete.Width, Game1.storyQuestComplete.Height), Color.White * questAlpha);
 
             for (int i = 0; i < rewards.Count; i++)
             {
-                Rectangle temp = new Rectangle(456 + (i * 80), 353, rewards[i].Width, rewards[i].Height);
+                Rectangle temp = new Rectangle(439 + (i * 80), 353, rewards[i].Width, rewards[i].Height);
 
                 s.Draw(rewards[i], temp, Color.White);
 
@@ -234,12 +314,12 @@ namespace ISurvived
                     s.DrawString(Game1.twConQuestHudInfo, "Weapon", new Vector2(temp.X + 35 - Game1.twConQuestHudInfo.MeasureString("Weapon").X / 2 - 2, 428), Color.Black);
                 else if (questRewardObjects[i] is Hat)
                     s.DrawString(Game1.twConQuestHudInfo, "Hat", new Vector2(temp.X + 35 - Game1.twConQuestHudInfo.MeasureString("Hat").X / 2, 428), Color.Black);
-                else if (questRewardObjects[i] is Hoodie)
+                else if (questRewardObjects[i] is Outfit)
                     s.DrawString(Game1.twConQuestHudInfo, "Outfit", new Vector2(temp.X + 35 - Game1.twConQuestHudInfo.MeasureString("Outfit").X / 2, 428), Color.Black);
                 else if (questRewardObjects[i] is Accessory)
                     s.DrawString(Game1.twConQuestHudInfo, "Accessory", new Vector2(temp.X + 35 - Game1.twConQuestHudInfo.MeasureString("Accessory").X / 2, 428), Color.Black);
                 else if (questRewardObjects[i] is StoryItem)
-                    s.DrawString(Game1.twConQuestHudInfo, "Story Item", new Vector2(temp.X + 35 - Game1.twConQuestHudInfo.MeasureString("Story Item").X / 2, 428), Color.Black);
+                    s.DrawString(Game1.twConQuestHudInfo, "Quest Item", new Vector2(temp.X + 35 - Game1.twConQuestHudInfo.MeasureString("Story Item").X / 2, 428), Color.Black);
                 else if (questRewardObjects[i] is BronzeKey || questRewardObjects[i] is SilverKey || questRewardObjects[i] is GoldKey)
                     s.DrawString(Game1.twConQuestHudInfo, "Key", new Vector2(temp.X + 35 - Game1.twConQuestHudInfo.MeasureString("Key").X / 2, 428), Color.Black);
                 else if (questRewardObjects[i] is Collectible)
@@ -319,6 +399,69 @@ namespace ISurvived
         }
     }
 
+    public class NewSkillsUnlockedNotification : Notification
+    {
+        int timer;
+        float messagePosX;
+
+
+        /// <summary>
+        ///  //1 is NPC, 2 is Monster
+        /// </summary>
+        public NewSkillsUnlockedNotification()
+        {
+            timer = 200;
+            messagePosX = -193; //306 is the width of the texture
+        }
+
+        public override void Update()
+        {
+            if (timer > 0)
+                timer--;
+        }
+
+        public override void Draw(SpriteBatch s)
+        {
+            if (timer == 200)
+                Sound.PlaySoundInstance(Sound.SoundNames.popup_enter);
+
+            if (messagePosX < 562 && timer > 170)
+            {
+                float distance = messagePosX - 550;
+
+                messagePosX -= 8 * (distance / 40);
+
+                if (messagePosX > 562)
+                {
+                    messagePosX = 562;
+                }
+
+            }
+            else if (timer < 50)
+            {
+                if (timer == 49)
+                    Sound.PlaySoundInstance(Sound.SoundNames.popup_exit);
+
+                float distance = messagePosX - 1300;
+
+                messagePosX -= 8 * (distance / 40);
+
+                if (messagePosX > 1290)
+                {
+                    messagePosX = 1290;
+                }
+            }
+
+            if (timer > 0)
+            {
+                s.Draw(Game1.unlockedNewSkillsTexture, new Rectangle((int)messagePosX, 248, Game1.unlockedNewSkillsTexture.Width, Game1.unlockedNewSkillsTexture.Height), Color.White);
+            }
+            else
+                finished = true;
+        }
+    }
+
+
     public class SocialRankUpNotification : Notification
     {
         float alpha = 0f;
@@ -337,6 +480,9 @@ namespace ISurvived
 
         public override void Update()
         {
+            if(timer ==0)
+                Sound.PlaySoundInstance(Sound.SoundNames.popup_social_rank_up);
+
             frameDelay--;
             timer++;
 
@@ -528,17 +674,21 @@ namespace ISurvived
     public class EffectsManager
     {
         protected List<int> damageFXTimes;
+        protected List<float> damageFXRotations;
         protected List<Rectangle> damageFXRecs;
         protected List<String> skillImpactNames;
 
         protected List<int> deathTimes;
-        protected List<int> deathFrames;
-        protected List<Rectangle> deathRecs;
+        public List<int> deathFrames;
+        public List<Rectangle> deathRecs;
         protected List<int> deathTypes; //1 is death, 2 is smoke poof
 
         public Queue<Notification> notificationQueue;
         public Queue<Notification> secondNotificationQueue; //This is for other notifications that can pop up alongside the first queue of notifications
 
+        protected List<Vector2> expVec;
+        protected List<int> expNum;
+        protected List<int> expTimers;
 
         float fAlpha = 0f;
         bool alphaGoingUp = true;
@@ -578,6 +728,8 @@ namespace ISurvived
 
         int decisionState;
         String decisionText;
+        String decisionNPCName;
+
         KeyboardState current;
         KeyboardState last;
 
@@ -605,8 +757,8 @@ namespace ISurvived
 
         //Skill level up
         Color skillLevelColor = Color.White;
-        int skillLevelFrame;
-        int skillLevelTimer = 5;
+        int skillLevelFrame = 0;
+        int skillLevelTimer = -1;
         public int skillMessageTime;
         float skillBoxPosY = -80;
         public Color skillMessageColor;
@@ -636,6 +788,7 @@ namespace ISurvived
         {
             damageFXRecs = new List<Rectangle>();
             damageFXTimes = new List<int>();
+            damageFXRotations = new List<float>();
             skillImpactNames = new List<string>();
             deathRecs = new List<Rectangle>();
             deathTimes = new List<int>();
@@ -651,6 +804,10 @@ namespace ISurvived
             inGameDialogueTimer = new List<int>();
             dialogueSpeakerEmotion = new List<string>();
             dialogueSpeakerName = new List<string>();
+
+            expTimers = new List<int>();
+            expVec = new List<Vector2>();
+            expNum = new List<int>();
 
             dustPoofs = new List<DustPoof>();
             jumpPoofs = new List<JumpPoof>();
@@ -672,13 +829,47 @@ namespace ISurvived
             phoneButton = new Button(new Rectangle(0, 190, 50, 98));
         }
 
+        //--Adds vectors and numbers to the lists, to display when an enemy dies.
+        //--This must be called as "player.addmoneyexpnums" in "enemy", otherwise the lists will be deleted when the enemy is deleted
+        public virtual void AddExpNums(int exp, Rectangle enemyRec, int vitalRecY)
+        {
+            expVec.Add(new Vector2(enemyRec.X + enemyRec.Width / 2, vitalRecY));
+            expNum.Add(exp);
+            expTimers.Add(200);
+        }
+
+        //--Draws the money and exp numbers above where the enemy was killed
+        public virtual void DrawExpNums(SpriteBatch s)
+        {
+            #region Exp
+            for (int i = 0; i < expVec.Count; i++)
+            {
+                expTimers[i]--;
+
+                //  if (expTimers[i] < 15 || (expTimers[i] > 20 && expTimers[i] < 35) || (expTimers[i] > 40 && expTimers[i] < 55) || (expTimers[i] > 60 && expTimers[i] < 75) || (expTimers[i] > 80 && expTimers[i] < 95) || (expTimers[i] > 100 && expTimers[i] < 115))
+                //   {
+                s.DrawString(Game1.xpFont, "+" + expNum[i].ToString() + "XP", new Vector2(expVec[i].X - Game1.xpFont.MeasureString("+" + expNum[i].ToString() + " XP").X / 2, expVec[i].Y - Game1.xpFont.MeasureString("+" + expNum[i].ToString() + "XP").Y), Color.White);
+                expTimers[i]--;
+                //   }
+
+                if (expTimers[i] <= 0)
+                {
+                    expVec.RemoveAt(i);
+                    expNum.RemoveAt(i);
+                    expTimers.RemoveAt(i);
+                    i--;
+                }
+            }
+            #endregion
+        }
+
         public void AddSkillLevelUp(Color skillCol, String skillLevelName)
         {
             skillLevelColor = skillCol;
             skillMessageColor = skillCol;
             skillLevelFrame = 0;
-            skillLevelTimer = 2;
-            skillMessageTime = 160;
+            skillLevelTimer = 4;
+            skillMessageTime = 200;
             skillBoxPosY = -80;
             this.skillLevelName = skillLevelName;
         }
@@ -687,13 +878,16 @@ namespace ISurvived
         {
             if (skillLevelColor != Color.White)
             {
-                s.Draw(Game1.skillLevelUpTexture, new Rectangle(Game1.Player.Rec.X + 110, Game1.Player.Rec.Y + 39, 300, 320), new Rectangle(2400, 0, 300, 320), skillLevelColor);
-                s.Draw(Game1.skillLevelUpTexture, new Rectangle(Game1.Player.Rec.X + 110, Game1.Player.Rec.Y + 39, 300, 320), new Rectangle(skillLevelFrame * 300, 0, 300, 320), skillLevelColor);
+                s.Draw(Game1.skillLevelUpTexture["skill level up" + skillLevelFrame], new Vector2(Game1.Player.Rec.X - 10, Game1.Player.Rec.Y - 1591 + Game1.Player.Rec.Height), skillLevelColor);
             }
         }
 
         public void DrawSkillLevelUpBox(SpriteBatch s)
         {
+
+            if(skillMessageTime == 200)
+                Sound.PlaySoundInstance(Sound.SoundNames.popup_enter);
+
             if (skillMessageTime > 0)
             {
                 if (skillBoxPosY != 108 && skillMessageTime >= 50)
@@ -713,6 +907,9 @@ namespace ISurvived
                 }
                 else if (skillMessageTime < 50)
                 {
+                    if(skillMessageTime == 49)
+                        Sound.PlaySoundInstance(Sound.SoundNames.popup_exit);
+
                     if (skillBoxPosY != -80)
                     {
                         if (skillBoxPosY > -80)
@@ -746,7 +943,6 @@ namespace ISurvived
         public void PopulateTextsAndSenders()
         {
             SenderAndTexts.Add(NewSenderAndText("Greg", "Yo Balto, wats up?"));
-            SenderAndTexts.Add(NewSenderAndText("Johnny", "Sup fatass"));
             SenderAndTexts.Add(NewSenderAndText("Mom", "Don't forget! Grandma's birthday is today. \nText her something nice :-)"));
             SenderAndTexts.Add(NewSenderAndText("Chelsea", "I hate you Balto."));
             SenderAndTexts.Add(NewSenderAndText("Chris", "Hey bro did you ever get your phone back from \nthat ugly weird kid?"));
@@ -758,13 +954,14 @@ namespace ISurvived
             SenderAndTexts.Add(NewSenderAndText("Kenny T.", "Yo man i sold u the wrong shit this mornin. Dont smoke it wutever u do"));
             SenderAndTexts.Add(NewSenderAndText("Old McDonald.", "E I E I O"));
             SenderAndTexts.Add(NewSenderAndText("Mom", "You forgot to unclog the toilet again"));
-            SenderAndTexts.Add(NewSenderAndText("Chubby Cheez Pizza", "Text CHUBBY4ME on your next order to \nreceive a free case of Chubby's famous Fried \nGrease Balls!"));
+            SenderAndTexts.Add(NewSenderAndText("Chubby Cheez Pizza", "Text CHUBBY4ME on your next order to receive a free case of Chubby's famous Fried Grease Balls!"));
             SenderAndTexts.Add(NewSenderAndText("Mr. Lard Boy's Donuts", "Thank you for your loyalty to Mr. Lard Boy's! To show our appreciation, here's a coupon for a free box of Mayonnaise Donuts: EXV3T480"));
             SenderAndTexts.Add(NewSenderAndText("Bucket Fried Chicken", "Happy birthday! Show this text to your cashier today and receive an extra ladle of gravy on your order!"));
         }
 
         public void AddTextMessage(String sender, String message)
         {
+            Sound.PlaySoundInstance(Sound.SoundNames.popup_text_message);
             textMessage.message = message;
             textMessage.sender = sender;
             textMessage.showing = true;
@@ -773,12 +970,14 @@ namespace ISurvived
         //Add a poof and a new timer/frame
         public void AddRunningDustPoof(Rectangle rec, int startFrame, Boolean faceRight, Boolean sprinting)
         {
+            if(Game1.g.CurrentChapter.state != Chapter.GameState.mapEdit)
             dustPoofs.Add(new DustPoof(startFrame, rec, faceRight, sprinting));
         }
 
         //Add a poof and a new timer/frame
         public void AddJumpDustPoof(Rectangle rec, Boolean faceRight)
         {
+            if (Game1.g.CurrentChapter.state != Chapter.GameState.mapEdit)
             jumpPoofs.Add(new JumpPoof(rec, faceRight));
         }
 
@@ -801,6 +1000,7 @@ namespace ISurvived
         {
             damageFXRecs = new List<Rectangle>();
             damageFXTimes = new List<int>();
+            damageFXRotations = new List<float>();
             deathRecs = new List<Rectangle>();
             deathTimes = new List<int>();
             deathFrames = new List<int>();
@@ -971,6 +1171,7 @@ namespace ISurvived
         {
             damageFXRecs.Add(rec);
             damageFXTimes.Add(time);
+            damageFXRotations.Add(Game1.randomNumberGen.Next(0, 360));
             skillImpactNames.Add("");
         }
 
@@ -978,6 +1179,7 @@ namespace ISurvived
         {
             damageFXRecs.Add(rec);
             damageFXTimes.Add(time);
+            damageFXRotations.Add(Game1.randomNumberGen.Next(0, 360));
             skillImpactNames.Add(skillName);
 
         }
@@ -1046,6 +1248,23 @@ namespace ISurvived
 
         }
 
+        public void AddSmokePoofSpecifySize(Rectangle rec, int type)
+        {
+            deathTimes.Add(0);
+            deathRecs.Add(rec);
+            deathFrames.Add(0);
+            deathTypes.Add(type);
+
+        }
+
+        public void ClearSmokePoofs()
+        {
+            deathTimes.Clear();
+            deathRecs.Clear();
+            deathFrames.Clear();
+            deathTypes.Clear();
+        }
+
         public Rectangle GetDeathSource(int recNum)
         {
             //Death
@@ -1061,23 +1280,30 @@ namespace ISurvived
                 return new Rectangle(deathFrames[recNum] * 400, 300, 400, 300);
         }
 
-        public int UpdateDecision(String text)
+        public int UpdateDecision(String text, String npcName = null)
         {
             decisionText = text;
+            decisionNPCName = npcName;
+
             //last = current;
            // current = Keyboard.GetState();
 
             if (decisionState == 0)
-                decisionState = 1;
+                decisionState = 2;
 
             if ((last.IsKeyDown(Keys.Enter) && current.IsKeyUp(Keys.Enter)) || MyGamePad.APressed())
             {
                 if (decisionState == 1)
+                {
+                    decisionState = 2;
                     return 1;
+                }
                 else
+                {
+                    decisionState = 2; //Reset the state for the next decision
                     return 2;
+                }
             }
-
             if (decisionState == 1 && (last.IsKeyDown(Keys.Down) && current.IsKeyUp(Keys.Down)) || MyGamePad.DownPadPressed())
                 decisionState = 2;
             else if (decisionState == 2 && (last.IsKeyDown(Keys.Up) && current.IsKeyUp(Keys.Up)) || MyGamePad.UpPadPressed())
@@ -1097,18 +1323,24 @@ namespace ISurvived
             {
                 skillLevelTimer--;
 
-                if (skillLevelTimer == 0)
+                if (skillLevelTimer <= 0 && skillLevelColor != Color.White)
                 {
                     skillLevelFrame++;
-                    skillLevelTimer = 2;
+                    skillLevelTimer = 4;
 
-                    if (skillLevelFrame == 8)
+                    if (skillLevelFrame == 2)
+                    {
+                        Game1.camera.ShakeCamera(23, 23);
+                    }
+
+                    if (skillLevelFrame == 31)
                     {
                         skillLevelColor = Color.White;
                     }
                 }
 
-                skillMessageTime--;
+                if (skillMessageTime > -1)
+                    skillMessageTime--;
             }
             #endregion
 
@@ -1128,7 +1360,7 @@ namespace ISurvived
                 }
 
                 //Close the text if you press 'Enter' while an NPC isn't talking
-                if (last.IsKeyDown(Keys.Enter) && current.IsKeyUp(Keys.Enter) && textMessage.showing == true && !Game1.currentChapter.TalkingToNPC)
+                if (((last.IsKeyDown(Keys.Enter) && current.IsKeyUp(Keys.Enter)) || MyGamePad.LeftAnalogPressedIn()) && textMessage.showing == true && !Game1.currentChapter.TalkingToNPC)
                 {
                     textMessage.showing = false;
                 }
@@ -1168,7 +1400,7 @@ namespace ISurvived
                 }//CLICK THE PHONE TO OPEN IT
                 else if (textMessage.showing == false && phonePosX == -197)
                 {
-                    if (phoneButton.Clicked())
+                    if (phoneButton.Clicked() || MyGamePad.LeftAnalogPressedIn())
                     {
                         phoneButton.ButtonRec = new Rectangle(0, 190, 236, 98);
                         textMessage.showing = true;
@@ -1238,7 +1470,7 @@ namespace ISurvived
                 {
                     fAlpha -= .01f;
 
-                    if (fAlpha <= 0)
+                    if (fAlpha <= 0 || (Game1.gamePadConnected && fAlpha <= .3f))
                         alphaGoingUp = true;
                 }
 
@@ -1289,13 +1521,19 @@ namespace ISurvived
 
             if (timerStart > 0)
             {
-                if (timerIncrement < 60)
-                    timerIncrement++;
-                else
+                timerStart -= .01f;
+                double decim = Math.Round(timerStart - Math.Truncate(timerStart), 2);
+                if (decim == 0.99)
                 {
-                    timerIncrement = 0;
-                    timerStart -= .01;
+                    timerStart -= .39f;
                 }
+                //if (timerIncrement < 60)
+                //    timerIncrement++;
+                //else
+                //{
+                //    timerIncrement = 0;
+                //    timerStart -= 1;
+                //}
             }
             else
             {
@@ -1313,6 +1551,7 @@ namespace ISurvived
                 {
                     skillImpactNames.RemoveAt(i);
                     damageFXRecs.RemoveAt(i);
+                    damageFXRotations.RemoveAt(i);
                     damageFXTimes.RemoveAt(i);
                     i--;
                 }
@@ -1402,28 +1641,59 @@ namespace ISurvived
 
         public void DrawDecision(SpriteBatch s)
         {
-            s.Draw(Game1.decisionBox, new Rectangle(187, 483, Game1.decisionBox.Width, Game1.decisionBox.Height), Color.White);
-
-            Vector2 meas = Game1.dialogueFont.MeasureString(decisionText);
-
-            s.DrawString(Game1.dialogueFont, decisionText, new Vector2(610 - meas.X / 2, 610), Color.Black);
-
-            //--Draw the choices
-            if (decisionState == 1)
+            if (decisionText != null)
             {
+                if (decisionNPCName == null)
+                {
+                    s.Draw(Game1.decisionBox, new Rectangle(187, 483, Game1.decisionBox.Width, Game1.decisionBox.Height), Color.White);
 
-                s.Draw(Game1.notificationTextures, new Rectangle(922, 532, 151, 115), new Rectangle(3137, 0, 151, 115), Color.White);
-                s.Draw(Game1.notificationTextures, new Rectangle(922, 588, 151, 115), new Rectangle(2676, 0, 151, 115), Color.White);
-            }
-            else if(decisionState == 2)
-            {
-                s.Draw(Game1.notificationTextures, new Rectangle(922, 532, 151, 115), new Rectangle(3288, 0, 151, 115), Color.White);
-                s.Draw(Game1.notificationTextures, new Rectangle(922, 588, 151, 115), new Rectangle(2525, 0, 151, 115), Color.White);
+                    Vector2 meas = Game1.dialogueFont.MeasureString(decisionText);
+
+                    s.DrawString(Game1.dialogueFont, decisionText, new Vector2(610 - meas.X / 2, 610), Color.Black);
+
+                    //--Draw the choices
+                    if (decisionState == 1)
+                    {
+
+                        s.Draw(Game1.notificationTextures, new Rectangle(922, 532, 151, 115), new Rectangle(3137, 0, 151, 115), Color.White);
+                        s.Draw(Game1.notificationTextures, new Rectangle(922, 588, 151, 115), new Rectangle(2676, 0, 151, 115), Color.White);
+                    }
+                    else if (decisionState == 2)
+                    {
+                        s.Draw(Game1.notificationTextures, new Rectangle(922, 532, 151, 115), new Rectangle(3288, 0, 151, 115), Color.White);
+                        s.Draw(Game1.notificationTextures, new Rectangle(922, 588, 151, 115), new Rectangle(2525, 0, 151, 115), Color.White);
+                    }
+                }
+                else
+                {
+
+                    s.Draw(Game1.notificationTextures, new Rectangle(38, 393, 1080, 327), new Rectangle(0, 155, 1080, 327), Color.White);
+
+                    //Oh fuck this code blows
+                    s.Draw(Game1.npcFaces[decisionNPCName].faces["Normal"], new Rectangle(0, (int)(Game1.aspectRatio * 1280) - Game1.npcFaces[decisionNPCName].faces["Normal"].Height, Game1.npcFaces[decisionNPCName].faces["Normal"].Width, Game1.npcFaces[decisionNPCName].faces["Normal"].Height), Color.White);
+
+                    s.DrawString(Game1.dialogueFont, Game1.WrapText(Game1.dialogueFont, decisionText, 660), new Vector2(360, (int)(Game1.aspectRatio * 1280 * .8f)), Color.Black);
+
+                    //--Draw the choices
+                    if (decisionState == 1)
+                    {
+
+                        s.Draw(Game1.notificationTextures, new Rectangle(1012, 532, 151, 115), new Rectangle(3137, 0, 151, 115), Color.White);
+                        s.Draw(Game1.notificationTextures, new Rectangle(1012, 588, 151, 115), new Rectangle(2676, 0, 151, 115), Color.White);
+                    }
+                    else if (decisionState == 2)
+                    {
+                        s.Draw(Game1.notificationTextures, new Rectangle(1012, 532, 151, 115), new Rectangle(3288, 0, 151, 115), Color.White);
+                        s.Draw(Game1.notificationTextures, new Rectangle(1012, 588, 151, 115), new Rectangle(2525, 0, 151, 115), Color.White);
+                    }
+                }
             }
         }
 
         public void DrawLockedDoorMessage(SpriteBatch s)
         {
+            if(lockedTimer == 150)
+                Sound.PlaySoundInstance(Sound.SoundNames.popup_enter);
 
             if (lockedDoorMessagePosX < 496 && lockedTimer > 120)
             {
@@ -1439,6 +1709,9 @@ namespace ISurvived
             }
             else if (lockedTimer < 50)
             {
+                if(lockedTimer == 49)
+                    Sound.PlaySoundInstance(Sound.SoundNames.popup_exit);
+
                 float distance = lockedDoorMessagePosX - 1300;
 
                 lockedDoorMessagePosX -= 8 * (distance / 40);
@@ -1472,14 +1745,11 @@ namespace ISurvived
             if (inGameDialogue.Count > 0 && lockedTimer <= 0)
             {
                 s.Draw(Game1.notificationTextures, new Rectangle(38, 393, 1080, 327), new Rectangle(0, 155, 1080, 327), Color.White);
-                //s.Draw(Game1.npcFaces[dialogueSpeakerName[dialogueState]][dialogueSpeakerEmotion[dialogueState]], new Rectangle(0, 0, 1280, (int)(Game1.aspectRatio * 1280)), Color.White);
 
                 //Oh fuck this code blows
                 s.Draw(Game1.npcFaces[dialogueSpeakerName[dialogueState]].faces[dialogueSpeakerEmotion[dialogueState]], new Rectangle(0, (int)(Game1.aspectRatio * 1280) - Game1.npcFaces[dialogueSpeakerName[dialogueState]].faces[dialogueSpeakerEmotion[dialogueState]].Height, Game1.npcFaces[dialogueSpeakerName[dialogueState]].faces[dialogueSpeakerEmotion[dialogueState]].Width, Game1.npcFaces[dialogueSpeakerName[dialogueState]].faces[dialogueSpeakerEmotion[dialogueState]].Height), Color.White);
 
                 s.DrawString(Game1.dialogueFont, Game1.WrapText(Game1.dialogueFont, inGameDialogue[dialogueState], 660), new Vector2(360, (int)(Game1.aspectRatio * 1280 * .8f)), Color.Black);
-
-                
             }
         }
 
@@ -1515,12 +1785,14 @@ namespace ISurvived
             #region Draw Impact Effects
             for (int i = 0; i < damageFXRecs.Count; i++)
             {
-                if (skillImpactNames[i] != "" && SkillManager.skillImpactEffects[skillImpactNames[i]] != Game1.bangFX1)
-                    s.Draw(SkillManager.skillImpactEffects[skillImpactNames[i]], new Rectangle(damageFXRecs[i].X - 125, damageFXRecs[i].Y - 125, SkillManager.skillImpactEffects[skillImpactNames[i]].Width, SkillManager.skillImpactEffects[skillImpactNames[i]].Height), Color.White);
-                else
-                    s.Draw(Game1.bangFX1, new Rectangle(damageFXRecs[i].X - 125, damageFXRecs[i].Y - 125, 250, 250), Color.White);
+               
+                if (skillImpactNames[i] != "" && SkillManager.skillImpactEffects.ContainsKey(skillImpactNames[i]))
+                {
+                    List<Texture2D> textures = SkillManager.skillImpactEffects[skillImpactNames[i]];
 
-
+                    Texture2D texture = textures[Game1.randomNumberGen.Next(textures.Count)];
+                    s.Draw(texture, new Rectangle(damageFXRecs[i].Center.X, damageFXRecs[i].Center.Y, texture.Width, texture.Height), null, Color.White * .75f, (float)(damageFXRotations[i] * (Math.PI / 180)), new Vector2(texture.Width / 2, texture.Height / 2), SpriteEffects.None, 0f);
+                }
             }
             #endregion
         }
@@ -1537,7 +1809,7 @@ namespace ISurvived
         public void DrawTimer(SpriteBatch s)
         {
             if (timerStart > 0)
-                s.DrawString(Game1.HUDFont, timerStart.ToString(), new Vector2(600, 100), Color.Black);
+                Game1.OutlineFont(Game1.twConMedium, s, timerStart.ToString("N2"), 1, 600, 30, Color.Black, Color.White);
         }
 
         public void AddForeroundFButton(Rectangle rec)
@@ -1550,11 +1822,20 @@ namespace ISurvived
             for (int i = 0; i < foregroundFButtonRecs.Count; i++)
             {
 
-                s.Draw(Game1.fInner, foregroundFButtonRecs[i], Color.White * fAlpha);
+
                 if (Game1.gamePadConnected)
-                    s.Draw(Game1.rightBumperTexture, foregroundFButtonRecs[i], Color.White);
+                {
+                    s.Draw(Game1.lbBack, new Vector2(foregroundFButtonRecs[i].X - 12, foregroundFButtonRecs[i].Y + 20), Color.White * fAlpha);
+                    s.Draw(Game1.lbOutline, new Vector2(foregroundFButtonRecs[i].X - 12, foregroundFButtonRecs[i].Y + 20), Color.White * .7f);
+                }
                 else
+                {
+                    s.Draw(Game1.fInner, foregroundFButtonRecs[i], Color.White * fAlpha);
+
                     s.Draw(Game1.fOuter, foregroundFButtonRecs[i], Color.White * .7f);
+
+                }
+
 
             }
         }
@@ -1574,11 +1855,16 @@ namespace ISurvived
             for (int i = 0; i < fButtonRecs.Count; i++)
             {
 
-                s.Draw(Game1.fInner, fButtonRecs[i],Color.White * fAlpha);
                 if (Game1.gamePadConnected)
-                    s.Draw(Game1.rightBumperTexture, fButtonRecs[i], Color.White);
+                {
+                    s.Draw(Game1.lbBack, new Vector2(fButtonRecs[i].X - 12, fButtonRecs[i].Y + 20), Color.White * fAlpha);
+                    s.Draw(Game1.lbOutline, new Vector2(fButtonRecs[i].X - 12, fButtonRecs[i].Y + 20), Color.White * .7f);
+                }
                 else
+                {
+                    s.Draw(Game1.fInner, fButtonRecs[i], Color.White * fAlpha);
                     s.Draw(Game1.fOuter, fButtonRecs[i], Color.White * .7f);
+                }
 
             }
         }
@@ -1587,12 +1873,16 @@ namespace ISurvived
         {
             for (int i = 0; i < spaceButtonRecs.Count; i++)
             {
-
-                s.Draw(Game1.spaceInner, spaceButtonRecs[i], Color.White * fAlpha);
                 if (Game1.gamePadConnected)
-                    s.Draw(Game1.rightBumperTexture, spaceButtonRecs[i], Color.White);
+                {
+                    s.Draw(Game1.rtOutline, new Vector2(spaceButtonRecs[i].X + spaceButtonRecs[i].Width / 4, spaceButtonRecs[i].Y - 15), Color.White * fAlpha);
+                    s.Draw(Game1.rtBack, new Vector2(spaceButtonRecs[i].X + spaceButtonRecs[i].Width / 4, spaceButtonRecs[i].Y - 15), Color.White * .7f);
+                }
                 else
+                {
+                    s.Draw(Game1.spaceInner, spaceButtonRecs[i], Color.White * fAlpha);
                     s.Draw(Game1.spaceOuter, spaceButtonRecs[i], Color.White * .7f);
+                }
 
             }
         }
@@ -1601,7 +1891,12 @@ namespace ISurvived
         {
             if (Game1.Player.HasCellPhone)
             {
-                s.Draw(Game1.phoneTexture, new Rectangle((int)phonePosX, 190, Game1.phoneTexture.Width, Game1.phoneTexture.Height), Color.White);
+                if (Game1.gamePadConnected)
+                    s.Draw(Game1.phoneTextureController, new Rectangle((int)phonePosX, 190, Game1.phoneTexture.Width, Game1.phoneTexture.Height), Color.White);
+                else
+                    s.Draw(Game1.phoneTexture, new Rectangle((int)phonePosX, 190, Game1.phoneTexture.Width, Game1.phoneTexture.Height), Color.White);
+
+
                 if (textMessage.message != null)
                 {
                     s.DrawString(Game1.expMoneyFloatingNumFont, "From : " + textMessage.sender, new Vector2(29 + (int)phonePosX, 200), Color.White);

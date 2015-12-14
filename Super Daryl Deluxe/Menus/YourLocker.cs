@@ -18,7 +18,7 @@ namespace ISurvived
         #region ATTRIBUTES
         // ATTRIBUTES \\
         float rayRotation;
-        Texture2D rays, textbook;
+        Texture2D rays, textbook, backspace, b;
         public static ContentManager Content;
         Dictionary<String,Texture2D> largeSkillIcons;
         Dictionary<String, Texture2D> mediumSkillIcons;
@@ -30,6 +30,11 @@ namespace ISurvived
         Button toShop;
         List<Button> ownedSkillBoxes;
 
+        Skill currentlyDraggingSkill;
+        int currentlyDraggingSkillIndex;
+        Boolean currentlyDraggingSkillFromEquippedBar;
+        Button unequippedSkillsSection;
+
         Button skillQ;
         Button skillW;
         Button skillE;
@@ -40,6 +45,7 @@ namespace ISurvived
         Button previousShopPage;
         Button toLocker;
         Button buy;
+        int shopPage;
         List<Skill> skillsOnSale;
         List<Button> saleIcons;
         List<Button> skillPages;
@@ -49,12 +55,13 @@ namespace ISurvived
 
         //--Other
         Dictionary<String, Texture2D> textures;
+        Dictionary<String, Texture2D> tutorialTextures;
         Boolean goingToShop = true;
         float backgroundPosX;
 
         Player player;
         int page;
-
+        Button backspaceButton;
         Boolean blur = false;
         Skill selectedSkill = null;
 
@@ -63,6 +70,9 @@ namespace ISurvived
         int maxTimeBeforeBlur = 30;
         int timeBeforeMove;
         int maxTimeBeforeMove = 10;
+
+        Boolean skillShopTutorial = false;
+        int skillShopTutorialState = 0;
 
         //--Enum that shows which tab is selected
         enum tabState
@@ -98,6 +108,9 @@ namespace ISurvived
             previousLockerPage = new Button(Game1.whiteFilter, new Rectangle(803, 590, 30, 30));
             nextLockerPage = new Button(Game1.whiteFilter, new Rectangle(908, 590, 30, 30));
 
+            previousShopPage = new Button(Game1.whiteFilter, new Rectangle(180, 290, 45, 220));
+            nextShopPage = new Button(Game1.whiteFilter, new Rectangle(625, 290, 45, 220));
+
             toShop = new Button(new Rectangle(210, 70, 200, 50));
             toLocker = new Button(new Rectangle(975, 70, 175, 50));
 
@@ -130,11 +143,20 @@ namespace ISurvived
             textures = new Dictionary<string, Texture2D>();
             largeSkillIcons = new Dictionary<String, Texture2D>();
             mediumSkillIcons = new Dictionary<string, Texture2D>();
+
+            unequippedSkillsSection = new Button(new Rectangle(680, 250, 400, 400));
+
+            backspaceButton = new Button(new Rectangle(1166, 7, 110, 18));
+
         }
 
         public void LoadContent()
         {
+            Sound.PauseAllSoundEffects();
             rays = Content.Load<Texture2D>(@"Menus\Shop\PiggyRay");
+
+            if (game.Prologue.PrologueBooleans["skillShopTutorialCompleted"] == false)
+                tutorialTextures = ContentLoader.LoadContent(Content, @"Menus\SkillShopTutorial");
 
             background = Content.Load<Texture2D>(@"Menus\Locker\lockerMenu");
             textures.Add("blurBackground", Content.Load<Texture2D>(@"Menus\Locker\lockerBlur"));
@@ -164,6 +186,9 @@ namespace ISurvived
             textures.Add("darkBackground", Content.Load<Texture2D>(@"Menus\Locker\darkBackground"));
             textures.Add("shopBox", Content.Load<Texture2D>(@"Menus\Locker\shopBox"));
             textures.Add("skillBox", Content.Load<Texture2D>(@"Menus\Locker\skillBox"));
+            textures.Add("dLeft", Content.Load<Texture2D>(@"Menus\bigLeft"));
+            textures.Add("dRight", Content.Load<Texture2D>(@"Menus\bigRight"));
+
             textbook = Content.Load<Texture2D>(@"Menus\Locker\textbook");
             //Skill Icons
             for (int i = 0; i < SkillManager.AllSkills.Count; i++)
@@ -175,6 +200,16 @@ namespace ISurvived
             {
                 mediumSkillIcons.Add(SkillManager.AllSkills.ElementAt(i).Value.Name, Content.Load<Texture2D>(@"Menus\Locker\MediumIcons\" + SkillManager.AllSkills.ElementAt(i).Value.Name));
             }
+
+            backspace = Content.Load<Texture2D>(@"Menus\BackspaceNotebook");
+            b = Content.Load<Texture2D>(@"Menus\B");
+
+            Sound.LoadDarylLockerSounds();
+            ResetSkillBoxes();
+            if(player.LearnedSkills.Count > 0)
+                selectedSkill = player.LearnedSkills[0];
+
+            Sound.PlaySoundInstance(Sound.SoundNames.ui_locker_player_open);
         }
 
         public void UnloadContent()
@@ -183,6 +218,8 @@ namespace ISurvived
             largeSkillIcons.Clear();
             textures.Clear();
             Content.Unload();
+            Sound.UnloadMenuSounds();
+            Sound.ResumeAllSoundEffects();
         }
 
         public void UpdateResolution()
@@ -247,171 +284,47 @@ namespace ISurvived
         {
             base.Update();
 
-            //Rotate the ray
-            rayRotation += .5f;
-            if (rayRotation == 360)
-                rayRotation = 0;
-
-            switch (state)
+            if (skillShopTutorial)
             {
-                case tabState.locker:
+                if (KeyPressed(Keys.Enter) || MyGamePad.APressed())
+                {
+                    Sound.PlaySoundInstance(Sound.SoundNames.ui_general_text_advance);
+                    skillShopTutorialState++;
+                }
+                if (skillShopTutorialState > 3)
+                {
+                    game.Prologue.PrologueBooleans["skillShopTutorialCompleted"] = true;
+                    skillShopTutorial = false;
+                }
+            }
+            else
+            {
+                //Rotate the ray
+                rayRotation += .5f;
+                if (rayRotation == 360)
+                    rayRotation = 0;
 
-                    //TOOLTIP FOR FIRST TIME
-                    //if (blur && blurAlpha == 1 && game.Prologue.PrologueBooleans["firstSkillLocker"] == true)
-                    //{
-                    //    game.Prologue.PrologueBooleans["firstSkillLocker"] = false;
-                    //    Chapter.effectsManager.AddToolTip("Here you can view and equip the skills you have \npurchased. You currently own no skills. They can \nbe bought in the Skill Shop.", 625, 130);
-                    //}
+                switch (state)
+                {
+                    case tabState.locker:
 
-                    //if (blur && blurAlpha == 1 && game.Prologue.PrologueBooleans["firstSkillLockerWithSkill"] == true && player.LearnedSkills.Count > 0 && game.Prologue.PrologueBooleans["firstSkillLocker"] == false)
-                    //{
-                    //    Chapter.effectsManager.AddToolTip("Click a skill to see its details, then click \"Equip\" to \nequip it. Right clicking will automatically equip the skill. \nYou can only equip a skill if you have matched its level \nrequirement.", 625, 130);
-                    //}
+                        //--Update the inventory boxes
+                        UpdateSkillInventory();
+                        RemoveSkills();
 
-                    //if (blur && blurAlpha == 1 && game.Prologue.PrologueBooleans["firstSkillLockerWithSkill"] == true && player.LearnedSkills.Count > 0 && game.Prologue.PrologueBooleans["firstSkillLocker"] == false && player.EquippedSkills.Count > 0)
-                    //{
-                    //    game.Prologue.PrologueBooleans["firstSkillLockerWithSkill"] = false;
-                    //    Chapter.effectsManager.AddToolTip("Your equipped skills are displayed here. You can unequip\nthem the same way you equipped them: by clicking one, \nthen \"Unequip\", or simply right clicking it.", 625, 250);
-                    //}
-
-                    //--Update the inventory boxes
-                    UpdateSkillInventory();
-                    RemoveSkills();
-
-                    if (toShop.Clicked())
-                    {
-                        state = tabState.moving;
-                        blur = false;
-                        goingToShop = true;
-                    }
-
-                    //--Exit the locker
-                    if (KeyPressed(Keys.Escape) || KeyPressed(Keys.Back) || MyGamePad.BPressed())
-                    {
-                        Chapter.effectsManager.RemoveToolTip();
-                        game.CurrentChapter.state = Chapter.GameState.Game;
-                        backgroundRec.X = -1280;
-                        backgroundPosX = -1280;
-                        state = tabState.locker;
-                        timeBeforeBlur = 0;
-                        timeBeforeMove = 0;
-                        blurAlpha = 0f;
-                        page = 0;
-                        selectedSkill = null;
-                        UnloadContent();
-                    }
-
-                    //backgroundPosX = -1280;
-                    break;
-                case tabState.moving:
-
-                    Chapter.effectsManager.RemoveToolTip();
-
-                    if (timeBeforeMove < maxTimeBeforeMove)
-                        timeBeforeMove++;
-
-                    if (timeBeforeMove == maxTimeBeforeMove)
-                    {
-                        if (goingToShop)
+                        if (toShop.Clicked() || (toShop.IsOver() && MyGamePad.APressed()))
                         {
-                            if (backgroundPosX != 0)
-                            {
-                                if (backgroundPosX < 0)
-                                {
-                                    float distance = backgroundPosX - 300;
-
-                                    backgroundPosX -= 1.2f * (distance / 40);
-
-                                    if (backgroundPosX >= 0)
-                                    {
-                                        backgroundPosX = 0;
-                                    }
-                                }
-                            }
-                            backgroundRec.X = (int)backgroundPosX;
-
-                            if (backgroundPosX >= 0)
-                            {
-                                paulHandY = 720;
-                                backgroundPosX = 0;
-                                state = tabState.shop;
-                                timeBeforeBlur = 0;
-                                timeBeforeMove = 0;
-                                blurAlpha = 0f;
-                                page = 0;
-                                selectedSkill = null;
-                            }
-                        }
-                        else
-                        {
-                            if (backgroundPosX != -1280)
-                            {
-                                if (backgroundPosX > -1280)
-                                {
-                                    float distance = backgroundPosX + 1600;
-
-                                    backgroundPosX -= 1.2f * (distance / 40);
-
-                                    if (backgroundPosX <= -1280)
-                                    {
-                                        backgroundPosX = -1280;
-                                    }
-                                }
-                            }
-                            backgroundRec.X = (int)backgroundPosX;
-
-                            if (backgroundPosX <= -1280)
-                            {
-                                backgroundPosX = -1280;
-                                state = tabState.locker;
-                                timeBeforeBlur = 0;
-                                timeBeforeMove = 0;
-                                blurAlpha = 0f;
-                                page = 0;
-                                selectedSkill = null;
-                            }
-                        }
-                    }
-                    break;
-
-                case tabState.shop:
-
-                    if (paulHandY != 0 && blur && blurAlpha == 1)
-                    {
-                        if (paulHandY > 0)
-                        {
-                            float distance = paulHandY + 30;
-
-                            paulHandY -= 3 * (distance / 40);
-
-                            if (paulHandY <= 0)
-                            {
-                                paulHandY = 0;
-                            }
-
-                        }
-                    }
-                    else
-                    {
-                        ////TOOLTIP FOR FIRST TIME
-                        //if (blur && blurAlpha == 1 && game.Prologue.PrologueBooleans["firstShop"] == true)
-                        //{
-                        //    game.Prologue.PrologueBooleans["firstShop"] = false;
-                        //    Chapter.effectsManager.AddToolTip("Here you can trade Textbooks for Skills. Clicking a \nskill on the left will display it on the right, where \nyou can click \"Buy\" to purchase it.", 430, 10);
-                        //}
-
-                        if (toLocker.Clicked())
-                        {
+                            Sound.PlaySoundInstance(Sound.SoundNames.ui_general_tab);
+                            Sound.PlaySoundInstance(Sound.SoundNames.ui_locker_change_menu);
                             state = tabState.moving;
                             blur = false;
-                            goingToShop = false;
+                            goingToShop = true;
                         }
 
-                        UpdateShopInventory();
-
                         //--Exit the locker
-                        if (KeyPressed(Keys.Escape) || KeyPressed(Keys.Back) || MyGamePad.BPressed())
+                        if (KeyPressed(Keys.Escape) || KeyPressed(Keys.Back) || MyGamePad.BPressed() || backspaceButton.Clicked())
                         {
+                            Sound.PlaySoundInstance(Sound.SoundNames.ui_locker_shut);
                             Chapter.effectsManager.RemoveToolTip();
                             game.CurrentChapter.state = Chapter.GameState.Game;
                             backgroundRec.X = -1280;
@@ -423,9 +336,147 @@ namespace ISurvived
                             page = 0;
                             selectedSkill = null;
                             UnloadContent();
+
+                            MyGamePad.ResetStates();
                         }
-                    }
-                    break;
+
+                        //backgroundPosX = -1280;
+                        break;
+                    case tabState.moving:
+
+                        Chapter.effectsManager.RemoveToolTip();
+
+                        if (timeBeforeMove < maxTimeBeforeMove)
+                            timeBeforeMove++;
+
+                        if (timeBeforeMove == maxTimeBeforeMove)
+                        {
+                            if (goingToShop)
+                            {
+                                if (backgroundPosX != 0)
+                                {
+                                    if (backgroundPosX < 0)
+                                    {
+                                        float distance = backgroundPosX - 300;
+
+                                        backgroundPosX -= 1.2f * (distance / 40);
+
+                                        if (backgroundPosX >= 0)
+                                        {
+                                            backgroundPosX = 0;
+                                        }
+                                    }
+                                }
+                                backgroundRec.X = (int)backgroundPosX;
+
+                                if (backgroundPosX >= 0)
+                                {
+                                    paulHandY = 720;
+                                    backgroundPosX = 0;
+                                    state = tabState.shop;
+                                    timeBeforeBlur = 0;
+                                    timeBeforeMove = 0;
+                                    blurAlpha = 0f;
+                                    page = 0;
+                                    selectedSkill = null;
+
+                                    if (skillsOnSale.Count > 0)
+                                        selectedSkill = skillsOnSale[0];
+                                }
+                            }
+                            else
+                            {
+                                if (backgroundPosX != -1280)
+                                {
+                                    if (backgroundPosX > -1280)
+                                    {
+                                        float distance = backgroundPosX + 1600;
+
+                                        backgroundPosX -= 1.2f * (distance / 40);
+
+                                        if (backgroundPosX <= -1280)
+                                        {
+                                            backgroundPosX = -1280;
+                                        }
+                                    }
+                                }
+                                backgroundRec.X = (int)backgroundPosX;
+
+                                if (backgroundPosX <= -1280)
+                                {
+                                    backgroundPosX = -1280;
+                                    state = tabState.locker;
+                                    timeBeforeBlur = 0;
+                                    timeBeforeMove = 0;
+                                    blurAlpha = 0f;
+                                    page = 0;
+                                    selectedSkill = null;
+
+                                    if (player.LearnedSkills.Count > 0)
+                                        selectedSkill = player.LearnedSkills[0];
+                                }
+                            }
+                        }
+                        break;
+
+                    case tabState.shop:
+
+                        if (paulHandY != 0 && blur && blurAlpha == 1)
+                        {
+
+                            if (paulHandY > 0)
+                            {
+                                float distance = paulHandY + 30;
+
+                                paulHandY -= 3 * (distance / 40);
+
+                                if (paulHandY <= 0)
+                                {
+                                    paulHandY = 0;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            ////TOOLTIP FOR FIRST TIME
+                            //if (blur && blurAlpha == 1 && game.Prologue.PrologueBooleans["firstShop"] == true)
+                            //{
+                            //    game.Prologue.PrologueBooleans["firstShop"] = false;
+                            //    Chapter.effectsManager.AddToolTip("Here you can trade Textbooks for Skills. Clicking a \nskill on the left will display it on the right, where \nyou can click \"Buy\" to purchase it.", 430, 10);
+                            //}
+
+                            if (toLocker.Clicked() || (toLocker.IsOver() && MyGamePad.APressed()))
+                            {
+                                Sound.PlaySoundInstance(Sound.SoundNames.ui_general_tab);
+                                Sound.PlaySoundInstance(Sound.SoundNames.ui_locker_change_menu);
+                                state = tabState.moving;
+                                blur = false;
+                                goingToShop = false;
+                            }
+
+                            UpdateShopInventory();
+
+                            //--Exit the locker
+                            if (KeyPressed(Keys.Escape) || KeyPressed(Keys.Back) || MyGamePad.BPressed() || backspaceButton.Clicked())
+                            {
+                                Sound.PlaySoundInstance(Sound.SoundNames.ui_locker_shut);
+                                Chapter.effectsManager.RemoveToolTip();
+                                game.CurrentChapter.state = Chapter.GameState.Game;
+                                backgroundRec.X = -1280;
+                                backgroundPosX = -1280;
+                                state = tabState.locker;
+                                timeBeforeBlur = 0;
+                                timeBeforeMove = 0;
+                                blurAlpha = 0f;
+                                page = 0;
+                                selectedSkill = null;
+                                UnloadContent();
+                                MyGamePad.ResetStates();
+
+                            }
+                        }
+                        break;
+                }
             }
 
             #region Blur the screen
@@ -442,7 +493,17 @@ namespace ISurvived
                 blurAlpha += .03f;
 
                 if (blurAlpha >= 1)
+                {
                     blurAlpha = 1;
+
+                    if (game.Prologue.PrologueBooleans["skillShopTutorialCompleted"] == false)
+                        skillShopTutorial = true;
+
+                    if(state == tabState.locker)
+                        Sound.PlaySoundInstance(Sound.SoundNames.ui_locker_playermenu_appear);
+                    else
+                        Sound.PlaySoundInstance(Sound.SoundNames.ui_locker_shopmenu_appear);
+                }
             }
             #endregion
 
@@ -511,6 +572,8 @@ namespace ISurvived
                 selectedSkill.UnloadContent();
                 selectedSkill.Equipped = false;
                 player.EquippedSkills.Remove(selectedSkill);
+                Sound.PlaySoundInstance(Sound.SoundNames.ui_locker_unequip_skill);
+
 
                 if(selectedSkill.Icon == skillQ.ButtonTexture)
                     skillQ.ButtonTexture = Game1.emptyBox;
@@ -567,6 +630,7 @@ namespace ISurvived
                         skillQ.ButtonTexture = Game1.emptyBox;
 
                         ResetSkillBoxes();
+                        Sound.PlaySoundInstance(Sound.SoundNames.ui_locker_unequip_skill);
                         selectedSkill = null;
                     }
 
@@ -579,6 +643,7 @@ namespace ISurvived
                         skillW.ButtonTexture = Game1.emptyBox;
 
                         ResetSkillBoxes();
+                        Sound.PlaySoundInstance(Sound.SoundNames.ui_locker_unequip_skill);
                         selectedSkill = null;
                     }
                     if (buttons[i] == skillE && player.EquippedSkills.Count > 2)
@@ -590,6 +655,7 @@ namespace ISurvived
                         skillE.ButtonTexture = Game1.emptyBox;
 
                         ResetSkillBoxes();
+                        Sound.PlaySoundInstance(Sound.SoundNames.ui_locker_unequip_skill);
                         selectedSkill = null;
                     }
                     if (buttons[i] == skillR && player.EquippedSkills.Count > 3)
@@ -601,6 +667,7 @@ namespace ISurvived
                         skillR.ButtonTexture = Game1.emptyBox;
 
                         ResetSkillBoxes();
+                        Sound.PlaySoundInstance(Sound.SoundNames.ui_locker_unequip_skill);
                         selectedSkill = null;
                     }
                     #endregion
@@ -615,10 +682,14 @@ namespace ISurvived
             #region BUYING THE SKILL
             if (buy.Clicked() && selectedSkill != null && player.Textbooks >= selectedSkill.CostToBuy)
             {
+                Sound.PlaySoundInstance(Sound.SoundNames.ui_locker_buy_skill);
                 player.Textbooks -= selectedSkill.CostToBuy;
                 player.LearnedSkills.Add(selectedSkill);
                 skillsOnSale.Remove(selectedSkill);
                 selectedSkill = null;
+
+                if (skillsOnSale.Count > 0)
+                    selectedSkill = skillsOnSale[0];
 
                 ResetInventoryBoxes();
             }
@@ -635,25 +706,277 @@ namespace ISurvived
 
                     if (saleIcons[i].Clicked())
                     {
+                        PlayClickSkillSound();
                         selectedSkill = skillsOnSale[boxNumber];
                     }
                 }
             }
             #endregion
+
+            while(page  > (skillsOnSale.Count / 10))
+                page--;
+
+            if ((nextShopPage.Clicked() || (Game1.gamePadConnected && MyGamePad.RightPadPressed())) && page< (skillsOnSale.Count / 10))
+            {
+                page++;
+                PlayChangePageSound();
+                ResetInventoryBoxes();
+            }
+            //--If you aren't on the first page, go back a page and reset textures
+            if ((previousShopPage.Clicked() || (Game1.gamePadConnected && MyGamePad.LeftPadPressed()))&& page > 0)
+            {
+                page--;
+                PlayChangePageSound();
+                ResetInventoryBoxes();
+            }
         }
 
         //--Update inventory boxes
         public void UpdateSkillInventory()
         {
+            #region Clicking & Dragging Skills
 
-            if (equipButton.Clicked() && selectedSkill != null && player.EquippedSkills.Count < 4 &&
-    selectedSkill.Equipped == false && selectedSkill.LevelToUse <= player.Level)
+            if (skillQ.MouseDown() && currentlyDraggingSkill == null && player.EquippedSkills.Count > 0 && MouseManager.previous == ButtonState.Released && MyGamePad.previousState.Buttons.A == ButtonState.Released)
             {
-                //--Add dat skill and set it to equipped
-                selectedSkill.LoadContent();
-                player.EquippedSkills.Add(selectedSkill);
-                selectedSkill.Equipped = true;
-                selectedSkill = null;
+                currentlyDraggingSkill = player.EquippedSkills[0];
+                currentlyDraggingSkillIndex = 0;
+                currentlyDraggingSkillFromEquippedBar = true;
+            }
+            if (skillW.MouseDown() && currentlyDraggingSkill == null && player.EquippedSkills.Count > 1 && MouseManager.previous == ButtonState.Released && MyGamePad.previousState.Buttons.A == ButtonState.Released)
+            {
+                currentlyDraggingSkill = player.EquippedSkills[1];
+                currentlyDraggingSkillIndex = 1;
+                currentlyDraggingSkillFromEquippedBar = true;
+
+            }
+            if (skillE.MouseDown() && currentlyDraggingSkill == null && player.EquippedSkills.Count > 2 && MouseManager.previous == ButtonState.Released && MyGamePad.previousState.Buttons.A == ButtonState.Released)
+            {
+                currentlyDraggingSkill = player.EquippedSkills[2];
+                currentlyDraggingSkillIndex = 2;
+                currentlyDraggingSkillFromEquippedBar = true;
+
+            }
+            if (skillR.MouseDown() && currentlyDraggingSkill == null && player.EquippedSkills.Count > 3 && MouseManager.previous == ButtonState.Released && MyGamePad.previousState.Buttons.A == ButtonState.Released)
+            {
+                currentlyDraggingSkill = player.EquippedSkills[3];
+                currentlyDraggingSkillIndex = 3;
+                currentlyDraggingSkillFromEquippedBar = true;
+
+            }
+
+            if (MouseManager.current == ButtonState.Released && MyGamePad.currentState.Buttons.A == ButtonState.Released && currentlyDraggingSkill != null)
+            {
+                if (skillQ.IsOver())
+                {
+
+                    if (currentlyDraggingSkill.Equipped)
+                    {
+                        if(currentlyDraggingSkillIndex != 0)
+                            player.EquippedSkills.Swap(0, currentlyDraggingSkillIndex);
+                    }
+                    else
+                    {
+                        if (player.EquippedSkills.Count == 0)
+                        {
+                            //--Add dat skill and set it to equipped
+                            currentlyDraggingSkill.LoadContent();
+                            player.EquippedSkills.Add(currentlyDraggingSkill);
+                            currentlyDraggingSkill.Equipped = true;
+                            selectedSkill = null;
+
+                            Sound.PlaySoundInstance(Sound.SoundNames.ui_locker_equip_skill);
+                        }
+                        else
+                        {
+                            player.EquippedSkills[0].UnloadContent();
+                            player.EquippedSkills[0].Equipped = false;
+                            player.EquippedSkills.Remove(player.EquippedSkills[0]);
+
+                            skillQ.ButtonTexture = Game1.emptyBox;
+
+                            ResetSkillBoxes();
+
+                            //--Add dat skill and set it to equipped
+                            currentlyDraggingSkill.LoadContent();
+                            player.EquippedSkills.Insert(0, currentlyDraggingSkill);
+                            currentlyDraggingSkill.Equipped = true;
+                            selectedSkill = null;
+
+                            Sound.PlaySoundInstance(Sound.SoundNames.ui_locker_equip_skill);
+
+                        }
+                    }
+
+                }
+                else if (skillW.IsOver())
+                {
+                    if (currentlyDraggingSkill.Equipped)
+                    {
+                        if (currentlyDraggingSkillIndex != 1 && player.EquippedSkills.Count >= 2)
+                            player.EquippedSkills.Swap(1, currentlyDraggingSkillIndex);
+                    }
+                    else
+                    {
+                        if (player.EquippedSkills.Count <= 1)
+                        {
+                            //--Add dat skill and set it to equipped
+                            currentlyDraggingSkill.LoadContent();
+                            player.EquippedSkills.Add(currentlyDraggingSkill);
+                            currentlyDraggingSkill.Equipped = true;
+                            selectedSkill = null;
+
+                            Sound.PlaySoundInstance(Sound.SoundNames.ui_locker_equip_skill);
+                        }
+                        else
+                        {
+                            player.EquippedSkills[1].UnloadContent();
+                            player.EquippedSkills[1].Equipped = false;
+                            player.EquippedSkills.Remove(player.EquippedSkills[1]);
+
+                            skillW.ButtonTexture = Game1.emptyBox;
+
+                            ResetSkillBoxes();
+
+                            //--Add dat skill and set it to equipped
+                            currentlyDraggingSkill.LoadContent();
+                            player.EquippedSkills.Insert(1, currentlyDraggingSkill);
+                            currentlyDraggingSkill.Equipped = true;
+                            selectedSkill = null;
+
+                            Sound.PlaySoundInstance(Sound.SoundNames.ui_locker_equip_skill);
+
+                        }
+                    }
+                }
+                else if (skillE.IsOver())
+                {
+                    if (currentlyDraggingSkill.Equipped)
+                    {
+                        if (currentlyDraggingSkillIndex != 2 && player.EquippedSkills.Count >= 3)
+                            player.EquippedSkills.Swap(2, currentlyDraggingSkillIndex);
+                    }
+                    else
+                    {
+                        if (player.EquippedSkills.Count <= 2)
+                        {
+                            //--Add dat skill and set it to equipped
+                            currentlyDraggingSkill.LoadContent();
+                            player.EquippedSkills.Add(currentlyDraggingSkill);
+                            currentlyDraggingSkill.Equipped = true;
+                            selectedSkill = null;
+
+                            Sound.PlaySoundInstance(Sound.SoundNames.ui_locker_equip_skill);
+                        }
+                        else
+                        {
+                            player.EquippedSkills[2].UnloadContent();
+                            player.EquippedSkills[2].Equipped = false;
+                            player.EquippedSkills.Remove(player.EquippedSkills[2]);
+
+                            skillE.ButtonTexture = Game1.emptyBox;
+
+                            ResetSkillBoxes();
+
+                            //--Add dat skill and set it to equipped
+                            currentlyDraggingSkill.LoadContent();
+                            player.EquippedSkills.Insert(2, currentlyDraggingSkill);
+                            currentlyDraggingSkill.Equipped = true;
+                            selectedSkill = null;
+
+                            Sound.PlaySoundInstance(Sound.SoundNames.ui_locker_equip_skill);
+
+                        }
+                    }
+                }
+                else if (skillR.IsOver())
+                {
+                    if (currentlyDraggingSkill.Equipped)
+                    {
+                        if (currentlyDraggingSkillIndex != 3 && player.EquippedSkills.Count == 4)
+                            player.EquippedSkills.Swap(3, currentlyDraggingSkillIndex);
+                    }
+                    else
+                    {
+                        if (player.EquippedSkills.Count <= 3)
+                        {
+                            //--Add dat skill and set it to equipped
+                            currentlyDraggingSkill.LoadContent();
+                            player.EquippedSkills.Add(currentlyDraggingSkill);
+                            currentlyDraggingSkill.Equipped = true;
+                            selectedSkill = null;
+
+                            Sound.PlaySoundInstance(Sound.SoundNames.ui_locker_equip_skill);
+                        }
+                        else
+                        {
+                            player.EquippedSkills[3].UnloadContent();
+                            player.EquippedSkills[3].Equipped = false;
+                            player.EquippedSkills.Remove(player.EquippedSkills[3]);
+
+                            skillR.ButtonTexture = Game1.emptyBox;
+
+                            ResetSkillBoxes();
+
+                            //--Add dat skill and set it to equipped
+                            currentlyDraggingSkill.LoadContent();
+                            player.EquippedSkills.Insert(3, currentlyDraggingSkill);
+                            currentlyDraggingSkill.Equipped = true;
+                            selectedSkill = null;
+
+                            Sound.PlaySoundInstance(Sound.SoundNames.ui_locker_equip_skill);
+
+                        }
+                    }
+                }
+                else if (unequippedSkillsSection.IsOver() && currentlyDraggingSkill.Equipped && currentlyDraggingSkillFromEquippedBar)
+                {
+                    currentlyDraggingSkill.UnloadContent();
+                    currentlyDraggingSkill.Equipped = false;
+                    player.EquippedSkills.Remove(currentlyDraggingSkill);
+
+                    switch(currentlyDraggingSkillIndex)
+                    {
+                        case 0:
+                            skillQ.ButtonTexture = Game1.emptyBox;
+                            break;
+                        case 1:
+                            skillW.ButtonTexture = Game1.emptyBox;
+                            break;
+                        case 2:
+                            skillE.ButtonTexture = Game1.emptyBox;
+                            break;
+                        case 3:
+                            skillR.ButtonTexture = Game1.emptyBox;
+                            break;
+                    }
+
+                    ResetSkillBoxes();
+                    Sound.PlaySoundInstance(Sound.SoundNames.ui_locker_unequip_skill);
+                    selectedSkill = null;
+                }
+                currentlyDraggingSkill = null;
+                currentlyDraggingSkillFromEquippedBar = false;
+            }
+            #endregion
+
+            if (equipButton.Clicked() && selectedSkill != null && currentlyDraggingSkill == null)
+            {
+                if (player.EquippedSkills.Count < 4 &&
+    selectedSkill.Equipped == false && selectedSkill.LevelToUse <= player.Level)
+                {
+                    //--Add dat skill and set it to equipped
+                    selectedSkill.LoadContent();
+                    player.EquippedSkills.Add(selectedSkill);
+                    selectedSkill.Equipped = true;
+                    selectedSkill = null;
+
+                    Sound.PlaySoundInstance(Sound.SoundNames.ui_locker_equip_skill);
+                }
+                else
+                {
+                    Sound.PlaySoundInstance(Sound.SoundNames.ui_locker_cant_equip_skill);
+
+                }
             }
 
             #region Set equipped skill textures
@@ -699,21 +1022,35 @@ namespace ISurvived
                     //So if it is the 2nd box on page 1, that means it is the 7th skill. 2 + (1 * 2
                     ownedSkillBoxes[i].ButtonTexture = mediumSkillIcons[player.LearnedSkills[boxNumber].Name];
                     //--If the player clicks the box and doesn't have 4 skills equipped already, and the skill is currently unequipped
-                    if (ownedSkillBoxes[i].Clicked())
+                    if (ownedSkillBoxes[i].Clicked() && currentlyDraggingSkill == null)
                     {
+                        PlayClickSkillSound();
                         selectedSkill = player.LearnedSkills[boxNumber];
                     }
 
                     //Right click to auto equip
-                    else if (ownedSkillBoxes[i].RightClicked() && player.EquippedSkills.Count < 4 &&
-   player.LearnedSkills[boxNumber].Equipped == false && player.LearnedSkills[boxNumber].LevelToUse <= player.Level)
+                    else if (ownedSkillBoxes[i].RightClicked() && currentlyDraggingSkill == null)
                     {
+                        if (player.EquippedSkills.Count < 4 &&
+   player.LearnedSkills[boxNumber].Equipped == false && player.LearnedSkills[boxNumber].LevelToUse <= player.Level)
+                        {
+                            Sound.PlaySoundInstance(Sound.SoundNames.ui_locker_equip_skill);
+                            //--Add dat skill and set it to equipped
+                            player.LearnedSkills[boxNumber].LoadContent();
+                            player.EquippedSkills.Add(player.LearnedSkills[boxNumber]);
+                            player.LearnedSkills[boxNumber].Equipped = true;
+                            selectedSkill = null;
+                        }
+                        else
+                        {
+                            Sound.PlaySoundInstance(Sound.SoundNames.ui_locker_cant_equip_skill);
+                        }
+                    }
 
-                        //--Add dat skill and set it to equipped
-                        player.LearnedSkills[boxNumber].LoadContent();
-                        player.EquippedSkills.Add(player.LearnedSkills[boxNumber]);
-                        player.LearnedSkills[boxNumber].Equipped = true;
-                        selectedSkill = null;
+                    if (ownedSkillBoxes[i].MouseDown() && currentlyDraggingSkill == null && MouseManager.previous == ButtonState.Released && MyGamePad.previousState.Buttons.A == ButtonState.Released)
+                    {
+                        currentlyDraggingSkill = player.LearnedSkills[boxNumber];
+                        currentlyDraggingSkillFromEquippedBar = false;
                     }
                 }
 
@@ -725,21 +1062,33 @@ namespace ISurvived
 
             #region Change Pages
             //--If you are not on the last page, go up a page and reset textures
-            if (nextLockerPage.Clicked() && page < 4)
+            if (((Game1.gamePadConnected && MyGamePad.RightPadPressed()) || nextLockerPage.Clicked()) && page < 4 && currentlyDraggingSkill == null)
             {
                 page++;
-
+                PlayChangePageSound();
                 ResetInventoryBoxes();
             }
             //--If you aren't on the first page, go back a page and reset textures
-            if (previousLockerPage.Clicked() && page > 0)
+            if (((Game1.gamePadConnected && MyGamePad.LeftPadPressed()) || previousLockerPage.Clicked()) && page > 0 && currentlyDraggingSkill == null)
             {
                 page--;
-
+                PlayChangePageSound();
                 ResetInventoryBoxes();
             }
             #endregion
 
+        }
+
+        public void PlayChangePageSound()
+        {
+            String soundEffectName = "ui_inventory_list_0" + Game1.randomNumberGen.Next(1, 3);
+            Sound.PlaySoundInstance(Sound.menuSoundEffects[soundEffectName], soundEffectName, false);
+        }
+
+        public void PlayClickSkillSound()
+        {
+            String soundEffectName = "ui_locker_click_skill_0" + Game1.randomNumberGen.Next(1, 3);
+            Sound.PlaySoundInstance(Sound.menuSoundEffects[soundEffectName], soundEffectName, false);
         }
 
         //--Reset all of the inventory box textures back to empty
@@ -799,16 +1148,23 @@ namespace ISurvived
 
                         s.DrawString(Game1.font, "Page " + (page + 1).ToString(), new Vector2(844, (int)(Game1.aspectRatio * 1280 * .89f) - 6), Color.Black);
 
-                        if(nextLockerPage.IsOver())
-                            s.Draw(textures["ownedSkillsRightActive"], new Rectangle(2070 - 1280, 574, textures["ownedSkillsLeftStatic"].Width, textures["ownedSkillsLeftStatic"].Height), Color.White);
-                        else
-                            s.Draw(textures["ownedSkillsRightStatic"], new Rectangle(2070 - 1280, 574, textures["ownedSkillsLeftStatic"].Width, textures["ownedSkillsLeftStatic"].Height), Color.White);
+                        if (!Game1.gamePadConnected)
+                        {
+                            if (nextLockerPage.IsOver())
+                                s.Draw(textures["ownedSkillsRightActive"], new Rectangle(2070 - 1280, 574, textures["ownedSkillsLeftStatic"].Width, textures["ownedSkillsLeftStatic"].Height), Color.White);
+                            else
+                                s.Draw(textures["ownedSkillsRightStatic"], new Rectangle(2070 - 1280, 574, textures["ownedSkillsLeftStatic"].Width, textures["ownedSkillsLeftStatic"].Height), Color.White);
 
-                        if(previousLockerPage.IsOver())
-                            s.Draw(textures["ownedSkillsLeftActive"], new Rectangle(2070 - 1280, 574, textures["ownedSkillsLeftStatic"].Width, textures["ownedSkillsLeftStatic"].Height), Color.White);
+                            if (previousLockerPage.IsOver())
+                                s.Draw(textures["ownedSkillsLeftActive"], new Rectangle(2070 - 1280, 574, textures["ownedSkillsLeftStatic"].Width, textures["ownedSkillsLeftStatic"].Height), Color.White);
+                            else
+                                s.Draw(textures["ownedSkillsLeftStatic"], new Rectangle(2070 - 1280, 574, textures["ownedSkillsLeftStatic"].Width, textures["ownedSkillsLeftStatic"].Height), Color.White);
+                        }
                         else
-                            s.Draw(textures["ownedSkillsLeftStatic"], new Rectangle(2070 - 1280, 574, textures["ownedSkillsLeftStatic"].Width, textures["ownedSkillsLeftStatic"].Height), Color.White);
-
+                        {
+                            s.Draw(textures["dRight"], new Vector2(2185 - 1280, 584), Color.White);
+                            s.Draw(textures["dLeft"], new Vector2(2070 - 1280, 584), Color.White);
+                        }
                         //--Draw the inventory boxes
                         for (int i = 0; i < ownedSkillBoxes.Count; i++)
                         {
@@ -836,27 +1192,36 @@ namespace ISurvived
                             else
                                 s.DrawString(Game1.skillLevelMoireFont, "LEVEL REQUIRED: " + selectedSkill.LevelToUse, new Vector2(428 - Game1.skillLevelMoireFont.MeasureString("LEVEL REQUIRED: " + selectedSkill.LevelToUse).X / 2, (int)(Game1.aspectRatio * 1280 * .5f) + 17), Color.Red);
 
-                            s.DrawString(Game1.skillNameMoireFont, selectedSkill.Name.ToUpper(), new Vector2(1715 - 1280 - Game1.skillNameMoireFont.MeasureString(selectedSkill.Name.ToUpper()).X / 2, (int)(Game1.aspectRatio * 1280 * .475f) + 4), Color.Black);
+                            Vector2 nameLength = Game1.skillNameMoireFont.MeasureString(selectedSkill.Name.ToUpper());
+
+                            if (nameLength.X < 400)
+                                s.DrawString(Game1.skillNameMoireFont, selectedSkill.Name.ToUpper(), new Vector2(1707 - 1280 - Game1.skillNameMoireFont.MeasureString(selectedSkill.Name.ToUpper()).X / 2, (int)(Game1.aspectRatio * 1280 * .475f) + 4), Color.Black);
+                            else
+                                s.DrawString(Game1.skillNameSmallerMoireFont, selectedSkill.Name.ToUpper(), new Vector2(1707 - 1280 - Game1.skillNameSmallerMoireFont.MeasureString(selectedSkill.Name.ToUpper()).X / 2, (int)(Game1.aspectRatio * 1280 * .475f) + 4), Color.Black);
+
+
 
                             s.DrawString(Game1.skillInfoImpactFont, selectedSkill.SkillRank.ToString(), new Vector2(300, (int)(Game1.aspectRatio * 1280 * .59f) - 14), Color.Black);
 
-                            //Tell the player when they can rank up the skill if they can't yet
-                            if (selectedSkill.SkillRank > 1 && Game1.Player.Level < selectedSkill.PlayerLevelsRequiredToLevel[selectedSkill.SkillRank - 1])
-                            {
-                                s.DrawString(Game1.twConQuestHudInfo, "(NEXT RANK AT LVL. " + selectedSkill.PlayerLevelsRequiredToLevel[selectedSkill.SkillRank - 1] + ")", new Vector2(300, (int)(Game1.aspectRatio * 1280 * .59f) - 12) + new Vector2(Game1.skillInfoImpactFont.MeasureString(selectedSkill.SkillRank.ToString()).X + 5, 0), Color.Red);
-                            }
+                            ////Tell the player when they can rank up the skill if they can't yet
+                            //if (selectedSkill.SkillRank > 1 && Game1.Player.Level < selectedSkill.PlayerLevelsRequiredToLevel[selectedSkill.SkillRank - 1])
+                            //{
+                            //    s.DrawString(Game1.twConQuestHudInfo, "(NEXT RANK AT LVL. " + selectedSkill.PlayerLevelsRequiredToLevel[selectedSkill.SkillRank - 1] + ")", new Vector2(300, (int)(Game1.aspectRatio * 1280 * .59f) - 12) + new Vector2(Game1.skillInfoImpactFont.MeasureString(selectedSkill.SkillRank.ToString()).X + 5, 0), Color.Red);
+                            //}
 
-                            s.DrawString(Game1.skillInfoImpactFont, selectedSkill.Damage.ToString("N2") + "%", new Vector2(545, (int)(Game1.aspectRatio * 1280 * .59f) - 13), Color.Black);
+                            s.DrawString(Game1.skillInfoImpactFont, (selectedSkill.Damage * 100).ToString() + "%", new Vector2(545, (int)(Game1.aspectRatio * 1280 * .59f) - 13), Color.Black);
 
                             s.DrawString(Game1.skillInfoImpactFont, Game1.WrapText(Game1.skillInfoImpactFont, selectedSkill.Description, 345), new Vector2(250, (int)(Game1.aspectRatio * 1280 * .59f + 10)), Color.DarkGreen);
 
                             //-If the skill isn't max level show the experience, otherwise write "Max level"
-                            if (selectedSkill.SkillRank < 4)
+                            if (selectedSkill.SkillRank < Skill.maxLevel)
                             {
                                 //Tell the player when they can rank up the skill if they can't yet
-                                if (selectedSkill.SkillRank > 1 && Game1.Player.Level < selectedSkill.PlayerLevelsRequiredToLevel[selectedSkill.SkillRank - 1])
+                                if (Game1.Player.Level < selectedSkill.PlayerLevelsRequiredToLevel[selectedSkill.SkillRank - 1])
                                 {
-                                    s.DrawString(Game1.twConQuestHudInfo, "(NEXT RANK AT LVL. " + selectedSkill.PlayerLevelsRequiredToLevel[selectedSkill.SkillRank - 1] + ")", new Vector2(295, (int)(Game1.aspectRatio * 1280 * .69f) + 8) + new Vector2(Game1.skillInfoImpactFont.MeasureString(selectedSkill.Experience + " / " + selectedSkill.ExperienceUntilLevel).X, 0), Color.Red);
+                                    //s.DrawString(Game1.twConQuestHudInfo, "(NEXT RANK AT LVL. " + selectedSkill.PlayerLevelsRequiredToLevel[selectedSkill.SkillRank - 1] + ")", new Vector2(295, (int)(Game1.aspectRatio * 1280 * .69f) + 8) + new Vector2(Game1.skillInfoImpactFont.MeasureString(selectedSkill.Experience + " / " + selectedSkill.ExperienceUntilLevel).X, 0), Color.Red);
+
+                                    Game1.OutlineFont(Game1.twConQuestHudInfo, s, "NEXT RANK AT LVL. " + selectedSkill.PlayerLevelsRequiredToLevel[selectedSkill.SkillRank - 1], 1, (int)(295 + Game1.skillInfoImpactFont.MeasureString(selectedSkill.Experience + " / " + selectedSkill.ExperienceUntilLevel).X), (int)(Game1.aspectRatio * 1280 * .69f) + 8, Color.White, Color.DarkRed);
 
                                     s.DrawString(Game1.skillInfoImpactFont, selectedSkill.Experience + " / " + selectedSkill.ExperienceUntilLevel, new Vector2(290, (int)(Game1.aspectRatio * 1280 * .69f) + 6), Color.Black * .8f);
                                 }
@@ -875,6 +1240,15 @@ namespace ISurvived
                                 s.Draw(textures["unequipActive"], new Rectangle(1505 - 1280, 515, textures["unequipActive"].Width, textures["equipActive"].Height), Color.White);
                             else
                                 s.Draw(textures["unequipStatic"], new Rectangle(1505 - 1280, 515, textures["unequipActive"].Width, textures["equipActive"].Height), Color.White);
+
+                            for (int i = 0; i < selectedSkill.transformLevels.Length; i++)
+                            {
+                                float starAlpha = 1f;
+                                if (selectedSkill.SkillRank < selectedSkill.transformLevels[i])
+                                    starAlpha = .3f;
+
+                                s.Draw(Game1.skillStar, new Vector2(237 + 262 + ((3 - selectedSkill.transformLevels.Length) * 25) + (28 * (i + 1)), 501), Color.White * starAlpha);
+                            }
                         }
                         #endregion
 
@@ -942,11 +1316,16 @@ namespace ISurvived
                                 else
                                     s.DrawString(Game1.skillLevelMoireFont, "LEVEL REQUIRED: " + selectedSkill.LevelToUse, new Vector2(922 - Game1.skillLevelMoireFont.MeasureString("LEVEL REQUIRED: " + selectedSkill.LevelToUse).X / 2, (int)(Game1.aspectRatio * 1280 * .5f) + 14), Color.Red);
 
-                                s.DrawString(Game1.skillNameMoireFont, selectedSkill.Name.ToUpper(), new Vector2(923 - Game1.skillNameMoireFont.MeasureString(selectedSkill.Name.ToUpper()).X / 2, (int)(Game1.aspectRatio * 1280 * .475f) - 2), Color.Black);
+                                Vector2 nameLength = Game1.skillNameMoireFont.MeasureString(selectedSkill.Name.ToUpper());
+
+                                if(nameLength.X < 400)
+                                    s.DrawString(Game1.skillNameMoireFont, selectedSkill.Name.ToUpper(), new Vector2(913 - Game1.skillNameMoireFont.MeasureString(selectedSkill.Name.ToUpper()).X / 2, (int)(Game1.aspectRatio * 1280 * .475f) - 2), Color.Black);
+                                else
+                                    s.DrawString(Game1.skillNameSmallerMoireFont, selectedSkill.Name.ToUpper(), new Vector2(913 - Game1.skillNameSmallerMoireFont.MeasureString(selectedSkill.Name.ToUpper()).X / 2, (int)(Game1.aspectRatio * 1280 * .475f) - 2), Color.Black);
 
                                 s.DrawString(Game1.skillInfoImpactFont, selectedSkill.SkillRank.ToString(), new Vector2(793, (int)(Game1.aspectRatio * 1280 * .59f) - 18), Color.Black);
 
-                                s.DrawString(Game1.skillInfoImpactFont, selectedSkill.Damage.ToString("N2") + "%", new Vector2(1037, (int)(Game1.aspectRatio * 1280 * .59f) - 20), Color.Black);
+                                s.DrawString(Game1.skillInfoImpactFont, (selectedSkill.Damage * 100).ToString() + "%", new Vector2(1037, (int)(Game1.aspectRatio * 1280 * .59f) - 20), Color.Black);
 
                                 s.DrawString(Game1.skillInfoImpactFont, Game1.WrapText(Game1.skillInfoImpactFont, selectedSkill.Description, 345), new Vector2(745, (int)(Game1.aspectRatio * 1280 * .6f)), Color.DarkGreen);
 
@@ -962,7 +1341,14 @@ namespace ISurvived
                                 else
                                     s.Draw(textures["buyStatic"], new Rectangle(815, 505, textures["buyActive"].Width, textures["buyActive"].Height), Color.Gray * .5f);
 
+                                for (int i = 0; i < selectedSkill.transformLevels.Length; i++)
+                                {
+                                    float starAlpha = 1f;
+                                    if (selectedSkill.nextRankOfSkill.SkillRank < selectedSkill.transformLevels[i])
+                                        starAlpha = .3f;
 
+                                    s.Draw(Game1.skillStar, new Vector2(729 + 262 + ((3 - selectedSkill.transformLevels.Length) * 25) + (28 * (i + 1)), 499), Color.White * starAlpha);
+                                }
                             }
                             #endregion
 
@@ -975,13 +1361,77 @@ namespace ISurvived
                                     s.DrawString(Game1.lockerCostFont, "Cost: " + skillsOnSale[i].CostToBuy, new Vector2(saleIcons[i].ButtonRecX + saleIcons[i].ButtonRecWidth / 2 - Game1.lockerCostFont.MeasureString("Cost: " + skillsOnSale[i].CostToBuy).X / 2, saleIcons[i].ButtonRecY + saleIcons[i].ButtonRecHeight + 5), Color.Purple);
                                 }
                             }
+
+                            if (page < skillsOnSale.Count / 10)
+                            {
+                                if (!Game1.gamePadConnected)
+                                {
+                                    if (nextShopPage.IsOver())
+                                        s.Draw(textures["shopRightActive"], new Vector2(1448 - 1280, 274), Color.White);
+                                    else
+                                        s.Draw(textures["shopRightStatic"], new Vector2(1448 - 1280, 274), Color.White);
+                                }
+                                else
+                                {
+                                    s.Draw(textures["dRight"], new Vector2(1914 - 1280, 378), Color.White);
+                                }
+                            }
+                            if (page > 0)
+                            {
+                                if (!Game1.gamePadConnected)
+                                {
+                                    if (previousShopPage.IsOver())
+                                        s.Draw(textures["shopLeftActive"], new Vector2(1448 - 1280, 274), Color.White);
+                                    else
+                                        s.Draw(textures["shopLeftStatic"], new Vector2(1448 - 1280, 274), Color.White);
+                                }
+                                else
+                                {
+                                    s.Draw(textures["dLeft"], new Vector2(1458 - 1280, 378), Color.White);
+                                }
+                            }
+
                         }
                         break;
 
                     #endregion
                 }
 
-                s.Draw(Game1.backspaceTexture, new Rectangle(1126, 16, Game1.backspaceTexture.Width, Game1.backspaceTexture.Height), Color.White);
+                if(currentlyDraggingSkill != null)
+                    s.Draw(mediumSkillIcons[currentlyDraggingSkill.Name], new Vector2(Cursor.last.CursorRec.X - 35, Cursor.last.CursorRec.Y - 35), Color.White * .5f);
+
+                if (!Game1.gamePadConnected)
+                    s.Draw(backspace, new Vector2(1280 - backspace.Width - 5, 5), Color.White);
+                else
+                    s.Draw(b, new Vector2(1280 - backspace.Width + 20, 5), Color.White);
+            }
+
+            if (skillShopTutorial)
+            {
+                s.Draw(tutorialTextures["overlay"], new Vector2(0, 0), Color.White);
+                s.Draw(tutorialTextures["box"], new Vector2(0, 0), Color.White);
+
+                if(!Game1.gamePadConnected)
+                    s.Draw(tutorialTextures["enter"], new Vector2(1280 - tutorialTextures["enter"].Width, 0), Color.White);
+                else
+                    s.Draw(tutorialTextures["a"], new Vector2(1280 - tutorialTextures["a"].Width, 0), Color.White);
+
+
+                switch (skillShopTutorialState)
+                {
+                    case 0:
+                        s.Draw(tutorialTextures["exp"], new Vector2(0, 0), Color.White);
+                        break;
+                    case 1:
+                        s.Draw(tutorialTextures["levelUp"], new Vector2(0, 0), Color.White);
+                        break;
+                    case 2:
+                        s.Draw(tutorialTextures["transform"], new Vector2(0, 0), Color.White);
+                        break;
+                    case 3:
+                        s.Draw(tutorialTextures["hover"], new Vector2(0, 0), Color.White);
+                        break;
+                }
             }
         }
     }

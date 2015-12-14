@@ -77,9 +77,9 @@ namespace ISurvived
                         {
                             player.AddHatToInventory(eq as Hat);
                         }
-                        if (eq is Hoodie)
+                        if (eq is Outfit)
                         {
-                            player.AddShirtToInventory(eq as Hoodie);
+                            player.AddShirtToInventory(eq as Outfit);
                         }
                         if (eq is Accessory)
                         {
@@ -135,52 +135,52 @@ namespace ISurvived
         {
             if (rewards != null)
             {
-                s.DrawString(Game1.font, "Rewards:", new Vector2(rec.X + rec.Width / 2 - Game1.font.MeasureString(quest).X / 2 + 2, rec.Y + 75), Color.Black);
+                s.DrawString(Game1.font, "Rewards:", new Vector2(rec.X + 30, rec.Y + 75), Color.Black);
                 for (int i = 0; i < rewards.Count; i++)
                 {
                     if (rewards[i] is Equipment)
                     {
                         if (rewards[i] is Money)
                         {
-                            s.Draw(Game1.smallTypeIcons["smallMoneyIcon"], new Rectangle(rec.X + rec.Width / 2 - (int)Game1.font.MeasureString(quest).X / 2 + 2, rec.Y + 98 + (i * 23), Game1.smallTypeIcons["smallMoneyIcon"].Width, Game1.smallTypeIcons["smallMoneyIcon"].Height), Color.White);
-                            s.DrawString(Game1.font, "     " + (rewards[i] as Money).Amount.ToString("N2"), new Vector2(rec.X + rec.Width / 2 - Game1.font.MeasureString(quest).X / 2 + 2, rec.Y + 96 + (i * 23)), Color.Black);
+                            s.Draw(Game1.smallTypeIcons["smallMoneyIcon"], new Rectangle(rec.X + 30, rec.Y + 98 + (i * 23), Game1.smallTypeIcons["smallMoneyIcon"].Width, Game1.smallTypeIcons["smallMoneyIcon"].Height), Color.White);
+                            s.DrawString(Game1.font, "     " + (rewards[i] as Money).Amount.ToString("N2"), new Vector2(rec.X + 30, rec.Y + 96 + (i * 23)), Color.Black);
                         }
                         else if (rewards[i] is Karma)
                         {
-                            s.Draw(Game1.smallTypeIcons["smallKarmaIcon"], new Rectangle(rec.X + rec.Width / 2 - (int)Game1.font.MeasureString(quest).X / 2 + 2, rec.Y + 98 + (i * 23), Game1.smallTypeIcons["smallExperienceIcon"].Width, Game1.smallTypeIcons["smallExperienceIcon"].Height), Color.White);
-                            s.DrawString(Game1.font, "     " + (rewards[i] as Karma).Amount, new Vector2(rec.X + rec.Width / 2 - Game1.font.MeasureString(quest).X / 2 + 2, rec.Y + 96 + (i * 23)), Color.Black);
+                            s.Draw(Game1.smallTypeIcons["smallKarmaIcon"], new Rectangle(rec.X + 30, rec.Y + 98 + (i * 23), Game1.smallTypeIcons["smallExperienceIcon"].Width, Game1.smallTypeIcons["smallExperienceIcon"].Height), Color.White);
+                            s.DrawString(Game1.font, "     " + (rewards[i] as Karma).Amount, new Vector2(rec.X + 30, rec.Y + 96 + (i * 23)), Color.Black);
                         }
                         else if (rewards[i] is Experience)
                         {
-                            s.Draw(Game1.smallTypeIcons["smallExperienceIcon"], new Rectangle(rec.X + rec.Width / 2 - (int)Game1.font.MeasureString(quest).X / 2 + 2, rec.Y + 98 + (i * 23), Game1.smallTypeIcons["smallExperienceIcon"].Width, Game1.smallTypeIcons["smallExperienceIcon"].Height), Color.White);
-                            s.DrawString(Game1.font, "     " + (rewards[i] as Experience).Amount, new Vector2(rec.X + rec.Width / 2 - Game1.font.MeasureString(quest).X / 2 + 2, rec.Y + 96 + (i * 23)), Color.Black);
+                            s.Draw(Game1.smallTypeIcons["smallExperienceIcon"], new Rectangle(rec.X + 30, rec.Y + 98 + (i * 23), Game1.smallTypeIcons["smallExperienceIcon"].Width, Game1.smallTypeIcons["smallExperienceIcon"].Height), Color.White);
+                            s.DrawString(Game1.font, "     " + (rewards[i] as Experience).Amount, new Vector2(rec.X + 30, rec.Y + 96 + (i * 23)), Color.Black);
                         }
                         else
                         {
                             if(rewards[i] is Weapon)
-                                s.Draw(Game1.smallTypeIcons["smallWeaponIcon"], new Rectangle(rec.X + rec.Width / 2 - (int)Game1.font.MeasureString(quest).X / 2 + 2, rec.Y + 98 + (i * 23), Game1.smallTypeIcons["smallExperienceIcon"].Width, Game1.smallTypeIcons["smallExperienceIcon"].Height), Color.White);
+                                s.Draw(Game1.smallTypeIcons["smallWeaponIcon"], new Rectangle(rec.X + 30, rec.Y + 98 + (i * 23), Game1.smallTypeIcons["smallExperienceIcon"].Width, Game1.smallTypeIcons["smallExperienceIcon"].Height), Color.White);
                             if (rewards[i] is Hat)
-                                s.Draw(Game1.smallTypeIcons["smallHatIcon"], new Rectangle(rec.X + rec.Width / 2 - (int)Game1.font.MeasureString(quest).X / 2 + 2, rec.Y + 98 + (i * 23), Game1.smallTypeIcons["smallExperienceIcon"].Width, Game1.smallTypeIcons["smallExperienceIcon"].Height), Color.White);
-                            if (rewards[i] is Hoodie)
-                                s.Draw(Game1.smallTypeIcons["smallShirtIcon"], new Rectangle(rec.X + rec.Width / 2 - (int)Game1.font.MeasureString(quest).X / 2 + 2, rec.Y + 98 + (i * 23), Game1.smallTypeIcons["smallExperienceIcon"].Width, Game1.smallTypeIcons["smallExperienceIcon"].Height), Color.White);
+                                s.Draw(Game1.smallTypeIcons["smallHatIcon"], new Rectangle(rec.X + 30, rec.Y + 98 + (i * 23), Game1.smallTypeIcons["smallExperienceIcon"].Width, Game1.smallTypeIcons["smallExperienceIcon"].Height), Color.White);
+                            if (rewards[i] is Outfit)
+                                s.Draw(Game1.smallTypeIcons["smallShirtIcon"], new Rectangle(rec.X + 30, rec.Y + 98 + (i * 23), Game1.smallTypeIcons["smallExperienceIcon"].Width, Game1.smallTypeIcons["smallExperienceIcon"].Height), Color.White);
                             if (rewards[i] is Accessory)
-                                s.Draw(Game1.smallTypeIcons["smallAccessoryIcon"], new Rectangle(rec.X + rec.Width / 2 - (int)Game1.font.MeasureString(quest).X / 2 + 2, rec.Y + 98 + (i * 23), Game1.smallTypeIcons["smallExperienceIcon"].Width, Game1.smallTypeIcons["smallExperienceIcon"].Height), Color.White);
+                                s.Draw(Game1.smallTypeIcons["smallAccessoryIcon"], new Rectangle(rec.X + 30, rec.Y + 98 + (i * 23), Game1.smallTypeIcons["smallExperienceIcon"].Width, Game1.smallTypeIcons["smallExperienceIcon"].Height), Color.White);
 
-                            s.DrawString(Game1.font, "     " + (rewards[i] as Equipment).Name, new Vector2(rec.X + rec.Width / 2 - Game1.font.MeasureString(quest).X / 2 + 2, rec.Y + 96 + (i * 23)), Color.Black);
+                            s.DrawString(Game1.font, "     " + (rewards[i] as Equipment).Name, new Vector2(rec.X + 30, rec.Y + 96 + (i * 23)), Color.Black);
                         }
                     }
                     if (rewards[i] is Collectible)
                     {
                         if(rewards[i] is Textbook)
-                            s.Draw(Game1.smallTypeIcons["smallTextbookIcon"], new Rectangle(rec.X + rec.Width / 2 - (int)Game1.font.MeasureString(quest).X / 2 + 2, rec.Y + 98 + (i * 23), Game1.smallTypeIcons["smallExperienceIcon"].Width, Game1.smallTypeIcons["smallExperienceIcon"].Height), Color.White);
+                            s.Draw(Game1.smallTypeIcons["smallTextbookIcon"], new Rectangle(rec.X + 30, rec.Y + 98 + (i * 23), Game1.smallTypeIcons["smallExperienceIcon"].Width, Game1.smallTypeIcons["smallExperienceIcon"].Height), Color.White);
                         if (rewards[i] is BronzeKey)
-                            s.Draw(Game1.smallTypeIcons["smallBronzeKeyIcon"], new Rectangle(rec.X + rec.Width / 2 - (int)Game1.font.MeasureString(quest).X / 2 + 2, rec.Y + 98 + (i * 23), Game1.smallTypeIcons["smallExperienceIcon"].Width, Game1.smallTypeIcons["smallExperienceIcon"].Height), Color.White);
+                            s.Draw(Game1.smallTypeIcons["smallBronzeKeyIcon"], new Rectangle(rec.X + 30, rec.Y + 98 + (i * 23), Game1.smallTypeIcons["smallExperienceIcon"].Width, Game1.smallTypeIcons["smallExperienceIcon"].Height), Color.White);
                         if (rewards[i] is SilverKey)
-                            s.Draw(Game1.smallTypeIcons["smallSilverKeyIcon"], new Rectangle(rec.X + rec.Width / 2 - (int)Game1.font.MeasureString(quest).X / 2 + 2, rec.Y + 98 + (i * 23), Game1.smallTypeIcons["smallExperienceIcon"].Width, Game1.smallTypeIcons["smallExperienceIcon"].Height), Color.White);
+                            s.Draw(Game1.smallTypeIcons["smallSilverKeyIcon"], new Rectangle(rec.X + 30, rec.Y + 98 + (i * 23), Game1.smallTypeIcons["smallExperienceIcon"].Width, Game1.smallTypeIcons["smallExperienceIcon"].Height), Color.White);
                         if (rewards[i] is GoldKey)
-                            s.Draw(Game1.smallTypeIcons["smallGoldKeyIcon"], new Rectangle(rec.X + rec.Width / 2 - (int)Game1.font.MeasureString(quest).X / 2 + 2, rec.Y + 98 + (i * 23), Game1.smallTypeIcons["smallExperienceIcon"].Width, Game1.smallTypeIcons["smallExperienceIcon"].Height), Color.White);
+                            s.Draw(Game1.smallTypeIcons["smallGoldKeyIcon"], new Rectangle(rec.X + 30, rec.Y + 98 + (i * 23), Game1.smallTypeIcons["smallExperienceIcon"].Width, Game1.smallTypeIcons["smallExperienceIcon"].Height), Color.White);
 
-                        s.DrawString(Game1.font, "     " + (rewards[i] as Collectible).collecName, new Vector2(rec.X + rec.Width / 2 - Game1.font.MeasureString(quest).X / 2 + 2, rec.Y + 96 + (i * 23)), Color.Black);
+                        s.DrawString(Game1.font, "     " + (rewards[i] as Collectible).collecName, new Vector2(rec.X + 30, rec.Y + 96 + (i * 23)), Color.Black);
                     }
                 }
             }
@@ -212,10 +212,10 @@ namespace ISurvived
                 {
                     s.Draw(Game1.mapSign, rec, new Rectangle(496, 0, 248, 409), Color.White);
                     s.DrawString(Game1.font, "MAP QUEST", new Vector2(rec.X + rec.Width / 2 - Game1.font.MeasureString("MAP QUEST").X / 2,
-                        rec.Y + 15), Color.White);
+                        rec.Y + 55), Color.Black);
 
                     s.DrawString(Game1.font, "COMPLETED!", new Vector2(rec.X + rec.Width / 2 - Game1.font.MeasureString("COMPLETED!").X / 2,
-    rec.Y + 35), Color.White);
+    rec.Y + 85), Color.Black);
                 }
             }
             else

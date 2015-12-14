@@ -68,10 +68,10 @@ namespace ISurvived
 
             if (game.MapBooleans.tutorialMapBooleans["TutorialTipEightUsed"] == false)
             {
-                if(game.CurrentQuests.Count == 0)
-                    Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][18], 100, 170, game.ChapterTwo.associateOneTex);
-                else
-                    Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][19], 360, 0, game.ChapterTwo.associateOneTex);
+                //if(game.CurrentQuests.Count == 0)
+                    //Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][18], 100, 170, game.ChapterTwo.associateOneTex);
+               // else
+                    //Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][19], 360, 0, game.ChapterTwo.associateOneTex);
             }
 
             if (player.PositionX > 1400 && game.MapBooleans.tutorialMapBooleans["TutorialTipEightUsed"] == false)

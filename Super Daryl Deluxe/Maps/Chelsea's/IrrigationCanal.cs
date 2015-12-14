@@ -58,17 +58,17 @@ namespace ISurvived
         {
             base.SetPortals();
 
-            toWorkersField = new Portal(100, platforms[0], "IrrigationCanal");
-            toOokySpookyBarn = new Portal(1000, platforms[0], "IrrigationCanal");
-            toHut = new Portal(400, platforms[0], "IrrigationCanal");
+            toWorkersField = new Portal(100, platforms[0], "Irrigation Canal");
+            toOokySpookyBarn = new Portal(1000, platforms[0], "Irrigation Canal");
+            toHut = new Portal(400, platforms[0], "Irrigation Canal");
         }
 
         public override void Draw(SpriteBatch s)
         {
             base.Draw(s);
 
-            if(game.ChapterTwo.buildBridgeOne.CompletedQuest && !game.CurrentQuests.Contains(game.ChapterTwo.buildBridgeOne))
-                s.Draw(bridge, mapRec, Color.White);
+           // if(game.ChapterTwo.buildBridgeOne.CompletedQuest && !game.CurrentQuests.Contains(game.ChapterTwo.buildBridgeOne))
+             //   s.Draw(bridge, mapRec, Color.White);
         }
 
         public override void SetDestinationPortals()

@@ -85,32 +85,81 @@ namespace ISurvived
                     Rectangle topPlay = new Rectangle((int)Game1.Player.VitalRec.X + 5, (int)Game1.Player.VitalRec.Y, Game1.Player.VitalRec.Width - 5, 10);
                     Rectangle botPlay = new Rectangle((int)Game1.Player.VitalRec.X, (int)Game1.Player.VitalRec.Y + Game1.Player.VitalRec.Height + 20, Game1.Player.VitalRec.Width, 20);
 
+                    #region NON PASSABLE PLATFORMS
 
-                    if (rightPlay.Intersects(left))
-                    {
-                        if (Game1.Player.playerState != Player.PlayerState.jumping)
+                        if (Game1.Player.KnockedBack)
                         {
-                            Game1.Player.PositionX -= Game1.Player.MoveSpeed;
-                        }
-                        else
-                        {
-                            Game1.Player.PositionX -= Game1.Player.AirMoveSpeed;
-                        }
-                        Game1.Player.VelocityX = 0;
-                    }
+                            Rectangle checkPlatRec;
 
-                    if (leftPlay.Intersects(right))
+                            if (Game1.Player.VelocityX >= 0)
+                            {
+                                checkPlatRec = new Rectangle(rightPlay.X, rightPlay.Y, (int)Game1.Player.VelocityX, rightPlay.Height);
+
+                                if (checkPlatRec.Intersects(left))
+                                {
+                                    //playerState = PlayerState.standing;
+                                    Game1.Player.PositionX -= Game1.Player.VelocityX;
+                                    Game1.Player.KnockedBack = false;
+                                    Game1.Player.VelocityX = 0;
+                                    // playerState = PlayerState.standing;
+                                }
+                            }
+                            else
+                            {
+                                checkPlatRec = new Rectangle(leftPlay.X - Math.Abs((int)Game1.Player.VelocityX), leftPlay.Y, Math.Abs((int)Game1.Player.VelocityX), leftPlay.Height);
+
+                                if (checkPlatRec.Intersects(right))
+                                {
+                                    // playerState = PlayerState.standing;
+                                    Game1.Player.PositionX += Math.Abs(Game1.Player.VelocityX);
+                                    Game1.Player.KnockedBack = false;
+                                    Game1.Player.VelocityX = 0;
+                                    //playerState = PlayerState.standing;
+                                }
+                            }
+                        }
+
+                        if ((rightPlay.Intersects(left) || leftPlay.Intersects(right)))
+                        {
+                            if (rightPlay.Intersects(left))
+                            {
+
+                                if (Game1.Player.playerState != Player.PlayerState.jumping)
+                                {
+                                    Game1.Player.PositionX -= Game1.Player.MoveSpeed;
+                                }
+                                else
+                                {
+                                    Game1.Player.PositionX -= Game1.Player.AirMoveSpeed;
+                                }
+
+                                Game1.Player.VelocityX = 0;
+                            }
+
+                            if (leftPlay.Intersects(right))
+                            {
+
+                                if (Game1.Player.playerState != Player.PlayerState.jumping)
+                                {
+                                    Game1.Player.PositionX += Game1.Player.MoveSpeed;
+                                }
+                                else
+                                {
+                                    Game1.Player.PositionX += Game1.Player.AirMoveSpeed;
+                                }
+                                Game1.Player.VelocityX = 0;
+                            }
+                        }
+                    
+
+                    //--If you jump up into a nonpassable wall, push him back down
+                    if (topPlay.Intersects(bottom) && Game1.Player.VelocityY < 0)
                     {
-                        if (Game1.Player.playerState != Player.PlayerState.jumping)
-                        {
-                            Game1.Player.PositionX += Game1.Player.MoveSpeed;
-                        }
-                        else
-                        {
-                            Game1.Player.PositionX += Game1.Player.AirMoveSpeed;
-                        }
-                        Game1.Player.VelocityX = 0;
+                        Game1.Player.VelocityY = 0;
+                        Game1.Player.VelocityY = GameConstants.GRAVITY;
+                        Game1.Player.playerState = Player.PlayerState.jumping;
                     }
+                    #endregion
                 }
                 #endregion
             }
@@ -171,7 +220,7 @@ namespace ISurvived
         {
             base.Draw(s);
 
-            if (!finished)
+            if (!finished && !isHidden && sprite != Game1.whiteFilter)
             {
                 //s.Draw(Game1.whiteFilter, vitalRec, Color.Black);
 

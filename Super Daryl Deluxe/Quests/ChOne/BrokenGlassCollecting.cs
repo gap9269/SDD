@@ -10,29 +10,32 @@ namespace ISurvived
         public BrokenGlassCollecting(Boolean story)
             : base(story)
         {
-            questDialogue.Add("You look like a guy that can get things done!");
-            questDialogue.Add("My dad is in the glass business. I get a raise in my allowance for every day \nthat I bring " +
-                "glass home for him to work his magic on.");
-            questDialogue.Add("If you get me 20 pieces of glass, preferably broken, I'm sure I can give you \nsomething really useful.");
-            questDialogue.Add("I'm not sure where you'll get some without getting caught. I mean the old science room has loads of" +
-                "\nold flasks and other glassy sciency things, but the room has been locked for months.");
-            questDialogue.Add("Well, care to give it a shot anyway?");
-            questDialogue.Add("Did you find any glass?");
-            completedDialogue.Add("Thanks! I'll be rolling in dough this week.");
+            questDialogue.Add("I saw this awesome documentary last night about a guy who can eat glass. It was really inspiring!");
+            questDialogue.Add("I bet if I could do that I would have a ton of friends and be rich.");
+            questDialogue.Add("Hey, you look like a guy that can get things done.");
+            questDialogue.Add("If you get me 10 pieces of glass, preferably broken, I'm sure I can cut you in on my future career as a glass-eater.");
+            questDialogue.Add("Of course I'll give you something nice up front too. Consider it an investment. Care to give it a shot?");
+            questDialogue.Add("Did you find any glass? I haven't eaten all day!");
+            completedDialogue.Add("Thanks! These look delicious.");
 
-            rewardObjects.Add(new Experience(20));
-            rewardObjects.Add(new LabCoat());
+            rewardObjects.Add(new Textbook());
+            rewardObjects.Add(new Experience(50));
+            rewardObjects.Add(new Karma(2));
+
+            npcName = "Drew";
 
             itemNames.Add("Broken Glass");
-            itemsToGather.Add(20);
+            itemsToGather.Add(10);
 
             questName = "Collecting Broken Glass";
 
-            conditionsToComplete = "Collect 20 pieces of Broken Glass for that weird glass kid.";
+            conditionsToComplete = "Collect 10 pieces of Broken Glass to further Drew's dream of becoming a famous glass-eater.";
 
-            rewards = "- (1) Dirty Gym Shirt\n\n- 20 Experience";
+            taskForQuestsPage = "Collect 10 pieces of Broken Glass";
 
-            descriptionForJournal = "A student asked you to find a bunch of broken glass \nfor him to take home to his father, who seems to pay \nhis son for" + " each piece he brings him. I'm not sure what the \n'Glass Business' even is. \n\nRewards:\n" + rewards;
+            rewards = "1 Textbook\n20 Experience\n2 Karma";
+
+            descriptionForJournal = "We've all heard of those people that can swallow swords, but what about glass? You may have just helped create the world's first glass-eater after giving Drew 10 pieces of broken glass to practice with. Keep an eye on your local newspaper for stories of a student swallowing glass, he's going places!";
         }
 
         public override void UpdateQuest()
@@ -54,7 +57,10 @@ namespace ISurvived
             for (int i = 0; i < completedParts.Count; i++)
             {
                 if (completedParts[i] == false)
+                {
+                    completedQuest = false;
                     break;
+                }
 
                 if (i == completedParts.Count - 1)
                     completedQuest = true;
@@ -66,7 +72,7 @@ namespace ISurvived
         {
             base.RewardPlayer();
 
-            Game1.Player.RemoveStoryItem("Broken Glass", 20);
+            Game1.Player.RemoveDrops("Broken Glass", 10);
 
             Chapter.effectsManager.NotificationQueue.Enqueue(new QuestCompleteNotification(this));
         }

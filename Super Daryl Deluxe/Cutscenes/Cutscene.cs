@@ -35,11 +35,16 @@ namespace ISurvived
         protected String scrollDialogue;
         protected int scrollDialogueNum;
         protected ContentManager content;
+        public Boolean canSkip = false;
+        public Boolean skippingCutscene = false;
         int stringNum;
 
         protected int topBarPos;
         protected int botBarPos;
         bool firstFrameOfCutscene = true;
+
+        public float skipSceneAlpha = 0f;
+        public int skipSceneTimer = 0;
 
         protected int DialogueState
         {
@@ -89,6 +94,11 @@ namespace ISurvived
             content.RootDirectory = "Content";
         }
 
+        public virtual void SkipCutscene()
+        {
+
+        }
+
         public virtual void LoadContent()
         {
 
@@ -108,25 +118,20 @@ namespace ISurvived
         // IMPORTANT: Play each cutscene in the form of a switch statement based on 'state'
         //
 
-        public void SkipScene()
-        {
-            last = current;
-            current = Keyboard.GetState();
-
-            if (current.IsKeyUp(Keys.Escape) && last.IsKeyDown(Keys.Escape))
-            {
-                state++;
-                timer = 0;
-            }
-
-        }
-
         /// <summary>
         /// Updates the timer and the position of the dialogue and text box
         /// </summary>
         public virtual void Play()
         {
-            //SkipScene();
+            if (game.current.IsKeyUp(Keys.Escape) && game.last.IsKeyDown(Keys.Escape) && !skippingCutscene)
+            {
+                if (canSkip)
+                {
+                    skippingCutscene = true;
+                }
+                else
+                    canSkip = true;
+            }
             if (firstFrameOfCutscene)
             {
                 firstFrameOfCutscene = false;
@@ -141,6 +146,14 @@ namespace ISurvived
                 firstFrameOfTheState = true;
             else
                 firstFrameOfTheState = false;
+
+            if (game.CurrentChapter != null && game.CurrentChapter.CurrentMap != null && game.CurrentChapter.state != Chapter.GameState.dead)
+            {
+                for (int i = 0; i < game.CurrentChapter.CurrentMap.InteractiveObjects.Count; i++)
+                {
+                    game.CurrentChapter.CurrentMap.InteractiveObjects[i].Update();
+                }
+            }
         }
 
         //-- FADES ARE DONE BY USING A BLACK SQUARE PLACED OVER THE SCREEN AND CHANGING THE ALPHA --\\
@@ -211,6 +224,26 @@ namespace ISurvived
         public virtual void Draw(SpriteBatch s)
         {
 
+        }
+
+        public void DrawSkipCutscene(SpriteBatch s)
+        {
+            s.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                null, null, null, null, camera.StaticTransform);
+            skipSceneAlpha += .01f;
+
+            s.Draw(Game1.whiteFilter, new Rectangle(0, 0, 1280, (int)(Game1.aspectRatio * 1280)), Color.Black * skipSceneAlpha);
+
+            if (skipSceneAlpha >= 1f)
+            {
+                skipSceneTimer++;
+
+                if (skipSceneTimer >= 60)
+                {
+                    SkipCutscene();
+                }
+            }
+            s.End();
         }
 
         public void DrawFade(SpriteBatch s, float startAlpha)
@@ -332,9 +365,6 @@ namespace ISurvived
                 {
                     scrollDialogue += currentLine.ElementAt(scrollDialogueNum);
                     scrollDialogueNum++;
-
-                   // if (scrollDialogueNum % 5 == 0)
-                     // Sound.PlaySoundInstance(Sound.SoundNames.TextScroll);
                 }
 
                 s.Draw(Game1.notificationTextures, new Rectangle(38, (int)(Game1.aspectRatio * 1280 * .55) - 3, 1080, 327), new Rectangle(0, 155, 1080, 327), Color.White);

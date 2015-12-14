@@ -32,6 +32,9 @@ namespace ISurvived
 
         Vector2 photoPos, equationPos;
 
+        SoundEffectInstance object_portal_loop;
+        SoundEffectInstance object_portal_pulse;
+
         Texture2D elevator, equation, float1, float2, photosynthesis, planet, platform, pyramid, sunStuff, portalSheet, eyeSheet;
 
         Boolean startEquationMovement = false;
@@ -61,13 +64,13 @@ namespace ISurvived
             SetPortals();
             targets = new List<Vector2>();
             movingPlat = new MovingPlatform(Game1.platformTextures.ElementAt(0).Value, new Rectangle(1820, -137, 370, 50),
-                false, false, false, targets, 3, 100);
+                false, false, false, targets, 3, 100, Platform.PlatformType.science);
 
             platforms.Add(movingPlat);
 
             targets2 = new List<Vector2>();
             movingPlat2 = new MovingPlatform(Game1.platformTextures.ElementAt(0).Value, new Rectangle(3640, -740, 300, 50),
-                true, false, false, targets2, 3, 100);
+                true, false, false, targets2, 3, 100, Platform.PlatformType.rock);
 
             platforms.Add(movingPlat2);
 
@@ -82,8 +85,10 @@ namespace ISurvived
 
             eyeFrame = -1;
 
-            Barrel bar = new Barrel(game, 1300, -280 + 155, Game1.interactiveObjects["Barrel"], true, 1, 0, .12f, false, Barrel.BarrelType.ScienceBarrel);
+            Barrel bar = new Barrel(game, 1300, -280 + 155, Game1.interactiveObjects["Barrel"], true, 2, 0, .12f, false, Barrel.BarrelType.ScienceBarrel);
             interactiveObjects.Add(bar);
+
+            currentBackgroundMusic = Sound.MusicNames.DoingScienceLow;
         }
 
         public override void ResetMapAssetsOnEnter()
@@ -97,6 +102,19 @@ namespace ISurvived
             startEyeAnimation = false;
             eyeFrame = -1;
             eyeFrameDelay = 5;
+        }
+
+        public override void StopSounds()
+        {
+            base.StopSounds();
+
+            object_portal_loop.Stop();
+            object_portal_pulse.Stop();
+        }
+
+        public override void LeaveMap()
+        {
+            base.LeaveMap();
         }
 
         public override void LoadContent()
@@ -115,7 +133,31 @@ namespace ISurvived
             sunStuff = content.Load<Texture2D>(@"Maps/Science/101/sunStuff");
             portalSheet = content.Load<Texture2D>(@"Maps/Science/101/portalSheet");
             eyeSheet = content.Load<Texture2D>(@"Maps/Science/101/EyeSheet");
+
+            Sound.LoadScienceZoneSounds();
+
+            object_portal_loop = Sound.mapZoneSoundEffects["object_portal_loop"].CreateInstance();
+
+            Sound.PlaySoundInstance(object_portal_loop, Game1.GetFileName(() => object_portal_loop), true, toIntroRoom.PortalRec.Center.X, toIntroRoom.PortalRec.Center.Y, 600, 500, 2000);
+
+            object_portal_pulse = Sound.mapZoneSoundEffects["object_portal_pulse"].CreateInstance();
         }
+
+        public override void UnloadNPCContent()
+        {
+            base.UnloadNPCContent();
+        }
+
+        public override void PlayAmbience()
+        {
+            Sound.PlayAmbience("ambience_wasteland");
+        }
+
+        public override void PlayBackgroundMusic()
+        {
+            Sound.PlayBackGroundMusic(currentBackgroundMusic.ToString());
+        }
+
         public Rectangle GetEyeSourceRec()
         {
             if (eyeFrame < 15)
@@ -128,6 +170,20 @@ namespace ISurvived
         public override void Update()
         {
             base.Update();
+            PlayAmbience();
+            PlayBackgroundMusic();
+
+            if (player.VitalRec.Center.X < 2000)
+            {
+                Sound.PlaySoundInstance(object_portal_loop, Game1.GetFileName(() => object_portal_loop), true, toIntroRoom.PortalRec.Center.X, toIntroRoom.PortalRec.Center.Y, 600, 500, 2000);
+            }
+            else
+            {
+                if (object_portal_loop.State == SoundState.Playing)
+                    object_portal_loop.Stop();
+            }
+
+            #region floating objects
 
             if (!up2)
             {
@@ -162,6 +218,7 @@ namespace ISurvived
                 if (v1 <= -.45)
                     up1 = false;
             }
+            #endregion
 
             #region Move the words across the foreground
             if (startPhotoMovement)
@@ -193,8 +250,14 @@ namespace ISurvived
                 portalFrame++;
 
                 if (portalFrame > 17)
+                {
+                    if (player.VitalRec.Center.X < 2000)
+                    {
+                        object_portal_pulse = Sound.mapZoneSoundEffects["object_portal_pulse"].CreateInstance();
+                        Sound.PlaySoundInstance(object_portal_pulse, Game1.GetFileName(() => object_portal_pulse), false, toIntroRoom.PortalRec.Center.X, toIntroRoom.PortalRec.Center.Y, 600, 500, 2000);
+                    }
                     portalFrame = 0;
-
+                }
                 portalFrameDelay = 4;
             }
 
@@ -229,12 +292,14 @@ namespace ISurvived
 
             if (game.MapBooleans.prologueMapBooleans["targetsAdded"] && targets.Count == 0)
             {
+                Sound.PlaySoundInstance(Sound.SoundNames.object_platform_start);
                 targets.Add(new Vector2(2910, -137));
                 targets.Add(new Vector2(1820, -137));
             }
 
             if (game.MapBooleans.prologueMapBooleans["targets2Added"] && targets2.Count == 0)
             {
+                Sound.PlaySoundInstance(Sound.SoundNames.object_platform_start);
                 targets2.Clear();
                 targets2.Add(new Vector2(3640, -455));
                 targets2.Add(new Vector2(3640, -740));
@@ -297,9 +362,9 @@ null, null, null, null, Game1.camera.GetTransform(.95f, this, game));
         {
             base.SetPortals();
 
-            toIntroRoom = new Portal(20, platforms[0], "Science101");
-            toScience102 = new Portal(4175, -228, "Science101");
-            toScience104 = new Portal(4153, -740, "Science101");
+            toIntroRoom = new Portal(20, platforms[0], "Science 101");
+            toScience102 = new Portal(4175, -228, "Science 101", Portal.DoorType.movement_door_open);
+            toScience104 = new Portal(4153, -740, "Science 101", Portal.DoorType.movement_door_open);
 
             toScience104.FButtonYOffset = -30;
             toScience104.PortalNameYOffset = -30;

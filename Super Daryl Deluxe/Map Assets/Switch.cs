@@ -25,6 +25,8 @@ namespace ISurvived
         public Boolean Active { get { return active; } set { active = value; } }
         public Boolean TimedSwitch { get { return timedSwitch; } set { timedSwitch = value; } }
         public int TimeActive { get { return timeActive; } }
+        public int RecX { get { return rec.X; } set { rec.X = value; } }
+        public int RecY { get { return rec.Y; } set { rec.Y = value; } }
 
         public Switch(Texture2D tex, Rectangle r)
         {
@@ -68,6 +70,8 @@ namespace ISurvived
                 active = true;
             else
                 active = false;
+
+            Sound.PlaySoundInstance(Sound.SoundNames.object_button_large);
         }
 
         public virtual void Draw(SpriteBatch s)

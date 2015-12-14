@@ -28,6 +28,9 @@ namespace ISurvived
 
         Boolean up1, up2, up3, up4, up5;
 
+        SoundEffectInstance object_portal_loop;
+        SoundEffectInstance object_portal_pulse;
+
         int portalFrame, portalFrameDelay;
 
         public ScienceIntroRoom(List<Texture2D> bg, Game1 g, ref Player play)
@@ -35,7 +38,7 @@ namespace ISurvived
         {
             mapHeight = 720;
             mapWidth = 2500;
-            mapName = "Intro To Science";
+            mapName = "Intro to Science";
             portalFrameDelay = 5;
 
             mapRec = new Rectangle(0, 0, mapWidth, mapHeight);
@@ -71,6 +74,18 @@ namespace ISurvived
         {
             base.Update();
 
+            if (Math.Abs(player.VitalRec.Center.X - toScience101.PortalRec.Center.X) < 1500)
+            {
+                Sound.PlaySoundInstance(object_portal_loop, Game1.GetFileName(() => object_portal_loop), true, toScience101.PortalRec.Center.X, toScience101.PortalRec.Center.Y, 600, 500, 2000);
+            }
+            else
+            {
+                if (object_portal_loop.State == SoundState.Playing)
+                    object_portal_loop.Stop();
+            }
+
+
+            #region floating stuff
             if (!up5)
             {
                 v5 += .01f;
@@ -155,7 +170,7 @@ namespace ISurvived
                 if (v1 <= -.45)
                     up1 = false;
             }
-
+#endregion
             portalFrameDelay--;
 
             if (portalFrameDelay <= 0)
@@ -163,10 +178,19 @@ namespace ISurvived
                 portalFrame++;
 
                 if (portalFrame > 20)
-                    portalFrame = 0;
+                {
+                    if (Math.Abs(player.VitalRec.Center.X - toScience101.PortalRec.Center.X) < 1500)
+                    {
+                        object_portal_pulse = Sound.mapZoneSoundEffects["object_portal_pulse"].CreateInstance();
+                        Sound.PlaySoundInstance(object_portal_pulse, Game1.GetFileName(() => object_portal_pulse), false, toScience101.PortalRec.Center.X, toScience101.PortalRec.Center.Y, 600, 500, 2000);
+                    }
 
+                    portalFrame = 0;
+                }
                 portalFrameDelay = 4;
             }
+
+            PlayAmbience();
         }
 
         public override void LoadContent()
@@ -180,6 +204,63 @@ namespace ISurvived
             rock3 = content.Load<Texture2D>(@"Maps\Science\rockThree");
             rock4 = content.Load<Texture2D>(@"Maps\Science\rockFour");
             rock5 = content.Load<Texture2D>(@"Maps\Science\rockFive");
+
+            Sound.LoadScienceZoneSounds();
+
+            object_portal_loop = Sound.mapZoneSoundEffects["object_portal_loop"].CreateInstance();
+            Sound.PlaySoundInstance(object_portal_loop, Game1.GetFileName(() => object_portal_loop), true, toScience101.PortalRec.Center.X, toScience101.PortalRec.Center.Y, 600, 500, 2000);
+
+            object_portal_pulse = Sound.mapZoneSoundEffects["object_portal_pulse"].CreateInstance();
+
+            if (Chapter.lastMap != "Science 101")
+            {
+                SoundEffect am = Sound.ambienceContent.Load<SoundEffect>(@"Sound\Ambience\ambience_wasteland");
+                SoundEffectInstance amb = am.CreateInstance();
+                amb.IsLooped = true;
+                Sound.ambience.Add("ambience_wasteland", amb);
+
+                SoundEffect bg = Sound.backgroundMusicContent.Load<SoundEffect>(@"Sound\Music\Science\DoingScienceLow");
+                SoundEffectInstance backgroundMusic = bg.CreateInstance();
+                backgroundMusic.IsLooped = true;
+                Sound.music.Add("DoingScienceLow", backgroundMusic);
+
+                SoundEffect bg2 = Sound.backgroundMusicContent.Load<SoundEffect>(@"Sound\Music\Science\DoingScienceMed");
+                SoundEffectInstance backgroundMusic2 = bg2.CreateInstance();
+                backgroundMusic2.IsLooped = true;
+                Sound.music.Add("DoingScienceMed", backgroundMusic2);
+
+                SoundEffect bg3 = Sound.backgroundMusicContent.Load<SoundEffect>(@"Sound\Music\Science\DoingScienceHigh");
+                SoundEffectInstance backgroundMusic3 = bg3.CreateInstance();
+                backgroundMusic3.IsLooped = true;
+                Sound.music.Add("DoingScienceHigh", backgroundMusic3);
+            }
+        }
+
+
+        public override void LeaveMap()
+        {
+            base.LeaveMap();
+
+            object_portal_loop.Stop();
+            object_portal_pulse.Stop();
+        }
+
+        public override void PlayAmbience()
+        {
+            Sound.PlayAmbience("ambience_wasteland");
+            Sound.PauseBackgroundMusic();
+        }
+
+        public override void UnloadContent()
+        {
+            base.UnloadContent();
+
+            if (nextMapName == "North Hall")
+            {
+                Sound.UnloadBackgroundMusic();
+                Sound.UnloadAmbience();
+                Sound.UnloadMapZoneSounds();
+            }
         }
 
         public override void DrawBackgroundAndParallax(SpriteBatch s)
@@ -218,10 +299,10 @@ null, null, null, null, Game1.camera.Transform);
         {
             base.SetPortals();
 
-            toNorthHall = new Portal(0, platforms[0], "IntroToScience");
+            toNorthHall = new Portal(0, platforms[0], "Intro to Science", Portal.DoorType.movement_door_open);
             toNorthHall.FButtonYOffset = -10;
             toNorthHall.PortalNameYOffset = -10;
-            toScience101 = new Portal(2240, platforms[0], "IntroToScience");
+            toScience101 = new Portal(2240, platforms[0], "Intro to Science");
         }
 
         public override void SetDestinationPortals()

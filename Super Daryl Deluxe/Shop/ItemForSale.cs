@@ -244,7 +244,7 @@ namespace ISurvived
                 #endregion
 
                 #region Draw the stat differences for Outfits
-                if (this is HoodieForSale)
+                if (this is OutfitForSale)
                 {
                     if (Game1.Player.EquippedHoodie != null)
                     {
@@ -296,7 +296,7 @@ namespace ISurvived
             : base(c)
         {
             name = "Textbook";
-            description = "Our baseline product. Top quality stuff, \nguaranteed.";
+            description = "Our main product. Top quality stuff, \nguaranteed.";
 
             textureNum = texture;
             icon = Game1.textbookTextures;
@@ -416,11 +416,11 @@ namespace ISurvived
         }
     }
 
-    public class HoodieForSale : ItemForSale
+    public class OutfitForSale : ItemForSale
     {
-        public Hoodie hoodie;
+        public Outfit hoodie;
 
-        public HoodieForSale(Hoodie h, float c)
+        public OutfitForSale(Outfit h, float c)
             : base(c)
         {
             hoodie = h;

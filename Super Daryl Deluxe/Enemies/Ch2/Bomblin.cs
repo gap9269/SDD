@@ -16,11 +16,14 @@ namespace ISurvived
     {
 
         int standState = 0, runAwayTimer;
+        int altAttackCooldown = 200;
         Random standRand;
         Boolean throwing, swiping, summoningBomb;
 
         Boolean hasBomb = true;
         Rectangle attackExtensionRec;
+
+        public static Dictionary<String, SoundEffect> bomblinSounds;
 
         int swipeDamage, bombDamage, throwCooldown, bombCollisionDamage;
 
@@ -28,33 +31,59 @@ namespace ISurvived
 
         public int StandState { get { return standState; } set { standState = value; } }
 
-        public Bomblin(Vector2 pos, String type, Game1 g, ref Player play, MapClass cur)
+        public enum EnemyLevel
+        {
+            ten,
+            fifteen,
+            eighteen
+        }
+        public EnemyLevel enemyLevel;
+
+        public Bomblin(Vector2 pos, String type, Game1 g, ref Player play, MapClass cur, EnemyLevel enemyLevel = EnemyLevel.ten)
             : base(pos, type, g, ref play, cur)
         {
 
-            health = 6300;
-            maxHealth = 6300;
-            level = 15;
-            experienceGiven = 75;
+            this.enemyLevel = enemyLevel;
+            switch (enemyLevel)
+            {
+                case EnemyLevel.fifteen:
+                    health = 6000;
+                    maxHealth = 6000;
+                    level = 15;
+                    experienceGiven = 75;
+                    maxHealthDrop = 160;
+                    moneyToDrop = .15f;
+                    tolerance = 200;
+                    maxAttackCooldown = 70;
+                    swipeDamage = 155;
+                    bombDamage = 145;
+                    bombCollisionDamage = 100;
+                    break;
+                case EnemyLevel.ten:
+                    health = 550;
+                    maxHealth = 550;
+                    level = 10;
+                    experienceGiven = 65;
+                    maxHealthDrop = 8;
+                    moneyToDrop = .22f;
+                    tolerance = 30;
+                    maxAttackCooldown = 70;
+                    swipeDamage = 40;
+                    bombDamage = 45;
+                    bombCollisionDamage = 20;
+                    break;
+            }
+
+           
             rec = new Rectangle((int)position.X, (int)position.Y, 360, 408);
             currentlyInMoveState = false;
             enemySpeed = 3;
-            tolerance = 190;
             vitalRec = new Rectangle(rec.X, rec.Y, 61, 220);
-            maxHealthDrop = 260;
-            moneyToDrop = .15f;
-
             standRand = new Random();
             throwing = false;
             swiping = false;
-
-            maxAttackCooldown = 70;
-
-            swipeDamage = 155;
-            bombDamage = 145;
-            bombCollisionDamage = 100;
-
-            
+            rectanglePaddingLeftRight = 100;
+            distanceFromFeetToBottomOfRectangle = 0;
         }
 
         public override void Update(int mapwidth)
@@ -63,22 +92,196 @@ namespace ISurvived
 
             if (!respawning && !isStunned)
             {
-
                 if (hostile)
                 {
                     throwCooldown--;
                     attackCooldown--;
                 }
 
-                Move(mapwidth);
+                if (hitPauseTimer <= 0)
+                {
+                    if (objectToAttack != null)
+                        MoveWithAttackableObjectInMap(mapwidth);
+                    else
+                        Move(mapwidth);
 
-                CheckWalkCollisions(135, new Vector2(15, -5));
+                    //CheckWalkCollisions(135, new Vector2(15, -5));
+                }
             }
 
             vitalRec.X = rec.X + 150;
             vitalRec.Y = rec.Y + 130;
             deathRec = vitalRec;
 
+        }
+
+        public void MoveWithAttackableObjectInMap(int mapWidth)
+        {
+            if (altAttackCooldown > 0)
+                altAttackCooldown--;
+
+            float distanceToHorse = Math.Abs(vitalRec.Center.X - objectToAttack.VitalRec.Center.X);
+
+            if (!summoningBomb && (health == MaxHealth || (hostile && distanceToHorse < horizontalDistanceToPlayer && horizontalDistanceToPlayer > 300) || horizontalDistanceToPlayer > 1000) && enemyState != EnemyState.attacking &&!attackingOtherObject)
+            {
+                if (!vitalRec.Intersects(objectToAttack.VitalRec) && knockedBack == false && altAttackCooldown <= 40)
+                {
+                    if (objectToAttack.Rec.Center.X > vitalRec.Center.X)
+                    {
+                        facingRight = true;
+                        enemyState = EnemyState.moving;
+                        if (currentlyInMoveState == false)
+                            moveFrame = 0;
+
+                        frameDelay--;
+                        if (frameDelay == 0)
+                        {
+                            moveFrame++;
+                            frameDelay = 4;
+                        }
+
+                        if (moveFrame > 10)
+                            moveFrame = 0;
+
+                        currentlyInMoveState = true;
+                        if (position.X <= mapWidth - 6)
+                            position.X += enemySpeed;
+                    }
+                    else
+                    {
+                        facingRight = false;
+                        enemyState = EnemyState.moving;
+                        if (currentlyInMoveState == false)
+                            moveFrame = 0;
+
+                        frameDelay--;
+                        if (frameDelay == 0)
+                        {
+                            moveFrame++;
+                            frameDelay = 4;
+                        }
+
+                        if (moveFrame > 10)
+                            moveFrame = 0;
+
+                        currentlyInMoveState = true;
+                        if (position.X >= 6)
+                            position.X -= enemySpeed;
+                    }
+                }
+                else if (altAttackCooldown > 0 && knockedBack == false && enemyState != EnemyState.attacking)
+                {
+                    standState = 1;
+                    enemyState = EnemyState.standing;
+                    frameDelay--;
+                    if (frameDelay == 0)
+                    {
+                        moveFrame++;
+
+                        frameDelay = 7;
+                    }
+
+                    if (moveFrame > 15)
+                        moveFrame = 0;
+
+                    currentlyInMoveState = true;
+                }
+                else if (altAttackCooldown <= 0)
+                {
+                    swiping = true;
+                    attackingOtherObject = true;
+                }
+            }
+            else if (attackingOtherObject)
+                AttackOtherObject();
+            else
+            {
+                Move(mapWidth);
+            }
+        }
+
+        public void AttackOtherObject()
+        {
+            moveFrame = 0;
+
+            if (objectToAttack.Rec.Center.X > vitalRec.Center.X)
+                facingRight = true;
+            else
+                facingRight = false;
+
+            //--First frame of attack, set the attack rec up and reset the frames
+            if (enemyState != EnemyState.attacking)
+            {
+                attackFrame = 0;
+
+                frameDelay = 5;
+
+                if (facingRight)
+                {
+                    attackRec = new Rectangle(vitalRec.X + vitalRec.Width - 60, vitalRec.Y + 20, 200, 180);
+                }
+                else
+                {
+                    attackRec = new Rectangle(vitalRec.X - 140, vitalRec.Y + 20, 200, 180);
+                }
+                
+            }
+            enemyState = EnemyState.attacking;
+
+            #region SMACK ATTACK
+            if (swiping)
+            {
+                //--Go through the animation
+                frameDelay--;
+                if (frameDelay == 0)
+                {
+                    attackFrame++;
+                    frameDelay = 2;
+                }
+
+                //--If the player gets hit in the middle of the animation, do damage and knockback
+                if (attackFrame == 1 && frameDelay == 2)
+                {
+                    if(objectToAttack is TrojanHorse)
+                        (objectToAttack as TrojanHorse).TakeHit(1, Vector2.Zero, Rectangle.Intersect(attackRec, objectToAttack.VitalRec));
+                }
+
+                //--Once it has ended, reset
+                if (attackFrame > 4)
+                {
+                    altAttackCooldown = 200;
+
+                    attackFrame = 0;
+                    enemyState = EnemyState.standing;
+                    currentlyInMoveState = false;
+                    attackRec = new Rectangle(0, 0, 0, 0);
+                    throwing = false;
+                    swiping = false;
+                    attackingOtherObject = false;
+                }
+            }
+            #endregion
+
+            currentlyInMoveState = true;
+
+            //--If the enemy gets hit during the attack, cancel the attack. Keep this at the end
+            if (knockedBack)
+            {
+                if (throwing && attackFrame >= 14)
+                {
+                    hasBomb = false;
+                    summoningBomb = true;
+                }
+
+                attackFrame = 0;
+                attackCooldown = maxAttackCooldown;
+                enemyState = EnemyState.standing;
+                currentlyInMoveState = false;
+                attackRec = new Rectangle(0, 0, 0, 0);
+                throwing = false;
+                swiping = false;
+                attackingOtherObject = false;
+            }
         }
 
         public override void Move(int mapWidth)
@@ -95,6 +298,12 @@ namespace ISurvived
                 {
                     moveFrame++;
                     frameDelay = 4;
+
+                    if (moveFrame == 5)
+                    {
+                        String soundEffectName = "enemy_bomblin_summon_bomb_0" + Game1.randomNumberGen.Next(1, 4).ToString();
+                        Sound.PlaySoundInstance(Bomblin.bomblinSounds[soundEffectName], soundEffectName, false, rec.Center.X, rec.Center.Y, 600, 500, 1500);
+                    }
                 }
 
                 if (moveFrame > 18)
@@ -297,6 +506,9 @@ namespace ISurvived
 
                 if (swiping)
                 {
+                    String soundEffectName = "enemy_bomblin_claw_0" + Game1.randomNumberGen.Next(1, 4).ToString();
+                    Sound.PlaySoundInstance(Bomblin.bomblinSounds[soundEffectName], soundEffectName, false, rec.Center.X, rec.Center.Y, 600, 500, 1500);
+
                     if (facingRight)
                     {
                         attackRec = new Rectangle(vitalRec.X + vitalRec.Width - 60, vitalRec.Y + 20, 200, 180);
@@ -330,6 +542,9 @@ namespace ISurvived
 
                         if (randomExplode == 0)
                         {
+                            String soundEffectName = "enemy_bomblin_bomb_explode_0" + Game1.randomNumberGen.Next(1, 4).ToString();
+                            Sound.PlaySoundInstance(Bomblin.bomblinSounds[soundEffectName], soundEffectName, false, rec.Center.X, rec.Center.Y, 600, 500, 1500);
+
                             hasBomb = false;
                             summoningBomb = true;
                             Chapter.effectsManager.AddSmokePoof(new Rectangle(attackRec.X, attackRec.Y + 30, 150, 150), 3);
@@ -342,14 +557,15 @@ namespace ISurvived
 
                             TakeHit(bombDamage * 4, kb1, new Rectangle(attackRec.X, attackRec.Y, 190, 190), AttackType.AttackTypes.Blunt, AttackType.RangedOrMelee.Melee);
 
-                            Game1.Player.TakeDamage(damage);
+                            Game1.Player.TakeDamage(damage, level);
 
                             if (rec.Center.X < Game1.Player.VitalRec.Center.X)
                                 Game1.Player.KnockPlayerBack(new Vector2(25, -8));
                             else
                                 Game1.Player.KnockPlayerBack(new Vector2(-25, -8));
 
-                            Game1.Player.HitPauseTimer = 3;
+                            hitPauseTimer = 5;
+                            Game1.Player.HitPauseTimer = 5;
                             Game1.camera.ShakeCamera(3, 5);
                             MyGamePad.SetRumble(3, (float)((float)5 / 100f) * 10f);
 
@@ -357,7 +573,7 @@ namespace ISurvived
                         }
                         else
                         {
-                            player.TakeDamage(damage);
+                            player.TakeDamage(damage, level);
                             player.KnockPlayerBack(kb);
                             hitPauseTimer = 3;
                             player.HitPauseTimer = 3;
@@ -393,10 +609,19 @@ namespace ISurvived
                 {
                     attackFrame++;
 
+                    if (attackFrame == 2)
+                    {
+                        String soundEffectName = "enemy_bomblin_bomb_throw_0" + Game1.randomNumberGen.Next(1, 4).ToString();
+                        Sound.PlaySoundInstance(Bomblin.bomblinSounds[soundEffectName], soundEffectName, false, rec.Center.X, rec.Center.Y, 600, 500, 1500);
+                    }
+
                     frameDelay = 4;
 
                     if (attackFrame == 14)
                     {
+                        String soundEffectName = "enemy_bomblin_headbutt_0" + Game1.randomNumberGen.Next(1, 4).ToString();
+                        Sound.PlaySoundInstance(Bomblin.bomblinSounds[soundEffectName], soundEffectName, false, rec.Center.X, rec.Center.Y, 600, 500, 1500);
+
                         hasBomb = false;
                         Bomb arrow;
 
@@ -409,11 +634,11 @@ namespace ISurvived
 
                         if (facingRight)
                         {
-                            arrow = new Bomb((int)vitalRec.X + VitalRecWidth + 20, (int)vitalRec.Y + 30, new Vector2(bombVelocity, 0), bombDamage, new Vector2(25, -8), bombCollisionDamage);
+                            arrow = new Bomb((int)vitalRec.X + VitalRecWidth + 20, (int)vitalRec.Y + 30, new Vector2(bombVelocity, 0), bombDamage, new Vector2(25, -8), bombCollisionDamage, level);
                         }
                         else
                         {
-                            arrow = new Bomb((int)vitalRec.X - 20, (int)vitalRec.Y + 30, new Vector2(-bombVelocity, 0), bombDamage, new Vector2(-25, -8), bombCollisionDamage);
+                            arrow = new Bomb((int)vitalRec.X - 20, (int)vitalRec.Y + 30, new Vector2(-bombVelocity, 0), bombDamage, new Vector2(-25, -8), bombCollisionDamage, level);
                         }
 
                         currentMap.Projectiles.Add(arrow);
@@ -440,18 +665,19 @@ namespace ISurvived
             //--If the enemy gets hit during the attack, cancel the attack. Keep this at the end
             if (knockedBack)
             {
-                if (throwing && attackFrame >= 14)
+                if (throwing && hasBomb == false)
                 {
+                    throwing = false;
                     hasBomb = false;
                     summoningBomb = true;
                 }
+                else
+                    attackFrame = 0;
 
-                attackFrame = 0;
                 attackCooldown = maxAttackCooldown;
                 enemyState = EnemyState.standing;
                 currentlyInMoveState = false;
                 attackRec = new Rectangle(0, 0, 0, 0);
-                throwing = false;
                 swiping = false;
             }
         }
@@ -464,7 +690,14 @@ namespace ISurvived
             
             #region Draw Enemy
 
-            if (knockedBack)
+            if (isStunned)
+            {
+                texName = "flinchBomb";
+
+                if (!hasBomb)
+                    texName = "flinch";
+            }
+            else if (knockedBack)
             {
                 texName = "flinchBomb";
 
@@ -531,12 +764,20 @@ namespace ISurvived
 
                 float measX = Game1.descriptionFont.MeasureString("Lv." + level + "  " + displayName).X;
 
-                s.DrawString(Game1.descriptionFont, "Lv." + level + " " + displayName, new Vector2(rec.X + rec.Width / 2 - measX / 2 - 2, vitalRec.Y - 35 - 2), Color.Black);
-                s.DrawString(Game1.descriptionFont, "Lv." + level + " " + displayName, new Vector2(rec.X + rec.Width / 2 - measX / 2, vitalRec.Y - 35), Color.White);
+                if (facingRight)
+                {
+                    Game1.OutlineFont(Game1.font, s, "Lv. " + level + " " + displayName, 1, (int)(rec.X + rec.Width / 2 - measX / 2) - 2, healthBoxRec.Y - 25 - 2, Color.Black, Color.White);
+                }
+                else
+                {
+                    Game1.OutlineFont(Game1.font, s, "Lv. " + level + " " + displayName, 1, (int)(rec.X + rec.Width / 2 - measX / 2) - 2, healthBoxRec.Y - 25 - 2, Color.Black, Color.White);
+                }
             }
             #endregion
 
-            //s.Draw(Game1.whiteFilter, vitalRec, Color.Black * .5f);
+            //Rectangle feet = new Rectangle((int)vitalRec.X, (int)position.Y + rec.Height - 20, vitalRec.Width, 20);
+
+           // s.Draw(Game1.whiteFilter, feet, Color.Black * .5f);
 
             // if (enemyState == EnemyState.attacking)
             //s.Draw(Game1.emptyBox, attackRec, Color.Blue);
@@ -660,7 +901,7 @@ namespace ISurvived
                         knockback.X = Math.Abs(knockback.X);
 
                     //--Take damage and knock the player back
-                    player.TakeDamage(damage);
+                    player.TakeDamage(damage, level);
                     player.KnockPlayerBack(knockback);
 
 
@@ -677,6 +918,7 @@ namespace ISurvived
             //--If this is the first time being hit, make him hostile
             if (hostile == false)
             {
+                int x = attackFrame;
                 //--Don't allow it to attack immediately
                 attackCooldown = maxAttackCooldown;
                 hostile = true;
@@ -689,12 +931,21 @@ namespace ISurvived
 
             int dropType = moveNum.Next(0, 101);
 
-            if (dropType < 25)
+            if (dropType < 35)
             {
-                //currentMap.Drops.Add(new EnemyDrop("Acorn Sack", new Rectangle(rec.Center.X, rec.Center.Y, dropDiameter, dropDiameter)));
+                currentMap.Drops.Add(new EnemyDrop("Insta-Bomb!", new Rectangle(rec.Center.X, rec.Center.Y, dropDiameter, dropDiameter)));
+            }
+            else if (dropType < 37)
+            {
+                if (enemyLevel == EnemyLevel.ten)
+                {
+                    currentMap.Drops.Add(new EnemyDrop(new LoinCloth(), new Rectangle(rec.Center.X, rec.Center.Y, dropDiameter, dropDiameter)));
+                }
             }
         }
 
+        //--Make the monster fall back to the ground if it is in the air
+        //--Update all forces, X and Y
         public override void ImplementGravity()
         {
             if (VelocityY < 1 && VelocityY > -1 && hangInAir)
@@ -714,7 +965,8 @@ namespace ISurvived
 
             position += velocity;
 
-            Rectangle feet = new Rectangle((int)position.X, (int)position.Y + rec.Height - 20, rec.Width, 20);
+            Rectangle feet = new Rectangle((int)vitalRec.X, (int)position.Y + rec.Height - 20 - distanceFromFeetToBottomOfRectangle - distanceFromFeetToBottomOfRectangleRandomOffset, vitalRec.Width, 20);
+            Rectangle vitalRecFeet = new Rectangle((int)vitalRec.X, (int)position.Y + rec.Height - 20 - distanceFromFeetToBottomOfRectangle - distanceFromFeetToBottomOfRectangleRandomOffset, vitalRec.Width, 20);
             Rectangle topEn = new Rectangle((int)vitalRec.X + 5, (int)vitalRec.Y, vitalRec.Width - 5, 10);
             Rectangle rightEn = new Rectangle((int)vitalRec.X + vitalRec.Width, (int)vitalRec.Y + 5, 15, vitalRec.Height + 35);
             Rectangle leftEn = new Rectangle((int)vitalRec.X - 15, (int)vitalRec.Y + 5, 15, vitalRec.Height + 35);
@@ -725,15 +977,41 @@ namespace ISurvived
                 Rectangle top = new Rectangle(plat.Rec.X, plat.Rec.Y, plat.Rec.Width, 5);
                 Rectangle bottom = new Rectangle(plat.Rec.X + 5, plat.Rec.Y + plat.Rec.Height - 10, plat.Rec.Width - 5, 10);
 
-                Rectangle left = new Rectangle(plat.Rec.X, plat.Rec.Y + 5, 20, plat.Rec.Height - 3);
-                Rectangle right = new Rectangle(plat.Rec.X + plat.Rec.Width - 20, plat.Rec.Y + 5, 20, plat.Rec.Height - 3);
+                Rectangle left = new Rectangle(plat.Rec.X, plat.Rec.Y + 5, 10, plat.Rec.Height - 3);
+                Rectangle right = new Rectangle(plat.Rec.X + plat.Rec.Width - 10, plat.Rec.Y + 5, 10, plat.Rec.Height - 3);
 
-                //Don't move through non passable platforms
+
+
+                if (knockedBack)
+                {
+                    Rectangle checkPlatRec;
+
+                    if (VelocityX >= 0)
+                    {
+                        checkPlatRec = new Rectangle(rightEn.X, rightEn.Y, Math.Abs((int)velocity.X), rightEn.Height);
+
+                        if (checkPlatRec.Intersects(left))
+                        {
+                            PositionX -= VelocityX;
+                            VelocityX = 0;
+                        }
+                    }
+                    else
+                    {
+                        checkPlatRec = new Rectangle(leftEn.X - Math.Abs((int)VelocityX), leftEn.Y, Math.Abs((int)velocity.X), leftEn.Height);
+
+                        if (checkPlatRec.Intersects(right))
+                        {
+                            PositionX += Math.Abs(VelocityX);
+                            VelocityX = 0;
+                        }
+                    }
+                }
+                //DOn't move through non passable platforms
                 if ((rightEn.Intersects(left) || leftEn.Intersects(right)) && plat.Passable == false)
                 {
                     if (rightEn.Intersects(left))
                     {
-
                         position.X -= enemySpeed;
 
                         if (VelocityX > 0)
@@ -741,8 +1019,6 @@ namespace ISurvived
                             PositionX -= (int)VelocityX;
                             velocity.X = 0;
                         }
-
-
                     }
 
                     if (leftEn.Intersects(right))
@@ -758,53 +1034,19 @@ namespace ISurvived
                     }
                 }
 
-                if (knockedBack)
-                {
-                    Rectangle checkPlatRec;
-
-                    if (VelocityX >= 0)
-                    {
-                        checkPlatRec = new Rectangle(rightEn.X, rightEn.Y, (int)velocity.X, rightEn.Height);
-
-                        if (checkPlatRec.Intersects(left))
-                        {
-                            //playerState = PlayerState.standing;
-                            PositionX -= VelocityX;
-                            knockedBack = false;
-                            VelocityX = 0;
-                            Console.WriteLine("hit left");
-                            // playerState = PlayerState.standing;
-                        }
-                    }
-                    else
-                    {
-                        checkPlatRec = new Rectangle(leftEn.X - Math.Abs((int)VelocityX), leftEn.Y, Math.Abs((int)velocity.X), leftEn.Height);
-
-                        if (checkPlatRec.Intersects(right))
-                        {
-                            // playerState = PlayerState.standing;
-                            Console.WriteLine("hit right");
-                            PositionX += Math.Abs(VelocityX);
-                            knockedBack = false;
-                            VelocityX = 0;
-
-                            //playerState = PlayerState.standing;
-                        }
-                    }
-                }
-
 
                 //--If you jump up into a nonpassable wall, push him back down
 
                 #region Landing on a platform
                 //--REPLACE THIS WITH COLLIDES WITH GROUND CHECK
-                if (feet.Intersects(top) && velocity.Y > 0)
+                if (((feet.Intersects(top) && !knockedBack) || (vitalRecFeet.Intersects(top) && knockedBack) || new Rectangle(feet.X, feet.Y, feet.Width, (int)velocity.Y).Intersects(top)) && velocity.Y > 0)
                 {
                     //Set the platform it's currently on to currentPlat
                     currentPlat = plat;
 
-                    position.Y = currentMap.Platforms[i].Rec.Y - rec.Height;
+                    position.Y = currentMap.Platforms[i].Rec.Y - rec.Height + distanceFromFeetToBottomOfRectangle + distanceFromFeetToBottomOfRectangleRandomOffset;
                     velocity.Y = 0;
+
 
                     //--Once it collides with the ground, set the moveTimer to 0 and the boolean to false
                     //--This will make the monster start moving again
@@ -826,23 +1068,35 @@ namespace ISurvived
                 }
             }
 
-            #region Not falling off a platform
-            //--Don't fall off the platform you're on!
+            //#region Not falling off a platform
+            ////--Don't fall off the platform you're on!
+            //if (currentPlat != null)
+            //{
+            //    if (position.X < currentPlat.Rec.X - rectanglePaddingLeftRight)
+            //    {
+            //        velocity.X = 0;
+            //        position.X = currentPlat.Rec.X - rectanglePaddingLeftRight;
+            //    }
+            //    if (position.X + rec.Width > currentPlat.Rec.X + currentPlat.Rec.Width + rectanglePaddingLeftRight)
+            //    {
+            //        velocity.X = 0;
+            //        position.X = (currentPlat.Rec.X + currentPlat.Rec.Width) - rec.Width + rectanglePaddingLeftRight;
+            //    }
+            //}
+            //#endregion
             if (currentPlat != null)
             {
-                if (position.X < currentPlat.Rec.X)
+                if (position.X + (Math.Abs(rec.X - feet.X)) < currentPlat.Rec.X)
                 {
                     velocity.X = 0;
-                    position.X = currentPlat.Rec.X;
+                    position.X = currentPlat.Rec.X - (Math.Abs(rec.X - feet.X));
                 }
-                if (position.X + rec.Width > currentPlat.Rec.X + currentPlat.Rec.Width)
+                if (position.X + (Math.Abs(rec.X - feet.X)) + feet.Width > currentPlat.Rec.X + currentPlat.Rec.Width)
                 {
                     velocity.X = 0;
-                    position.X = (currentPlat.Rec.X + currentPlat.Rec.Width) - rec.Width;
+                    position.X = (currentPlat.Rec.X + currentPlat.Rec.Width) - feet.Width - (Math.Abs(rec.X - feet.X));
                 }
             }
-            #endregion
-
         }
     }
 }

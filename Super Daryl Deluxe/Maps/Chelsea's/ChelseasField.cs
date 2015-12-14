@@ -42,8 +42,6 @@ namespace ISurvived
             AddBounds();
             AddNPCs();
             SetPortals();
-
-            backgroundMusicName = "Outside the Party";
         }
 
         public override void PlayBackgroundMusic()
@@ -63,13 +61,18 @@ namespace ISurvived
             outhouse = content.Load<Texture2D>(@"Maps\Outhouse");
 
             ////If the last map does not have the same music
-            //if (Chapter.lastMap != "The Goats")
-            //{
-            //    SoundEffect bg1 = Sound.backgroundMusicContent.Load<SoundEffect>(@"Sound\Hidden Agenda");
-            //    SoundEffectInstance backgroundMusic1 = bg1.CreateInstance();
-            //    backgroundMusic1.IsLooped = true;
-            //    Sound.music.Add("Exploring", backgroundMusic1);
-            //}
+            if (Chapter.lastMap != "The Goats")
+            {
+                //SoundEffect bg1 = Sound.backgroundMusicContent.Load<SoundEffect>(@"Sound\Hidden Agenda");
+                //SoundEffectInstance backgroundMusic1 = bg1.CreateInstance();
+                //backgroundMusic1.IsLooped = true;
+                //Sound.music.Add("Exploring", backgroundMusic1);
+
+                SoundEffect am = Sound.ambienceContent.Load<SoundEffect>(@"Sound\Ambience\ambience_outdoors_night");
+                SoundEffectInstance amb = am.CreateInstance();
+                amb.IsLooped = true;
+                Sound.ambience.Add("ambience_outdoors_night", amb);
+            }
 
             //Sound.backgroundVolume = 1f;
 
@@ -96,10 +99,16 @@ namespace ISurvived
             Game1.npcFaces["Saving Instructor"].faces["Normal"] = Game1.whiteFilter;
             Game1.npcFaces["Skill Sorceress"].faces["Normal"] = Game1.whiteFilter;
 
-            //if (Chapter.theNextMap != "TheGoats")
-            //{
-            //    Sound.UnloadBackgroundMusic();
-            //}
+            if (Chapter.theNextMap != "The Goats")
+            {
+                //Sound.UnloadBackgroundMusic();
+                Sound.UnloadAmbience();
+            }
+        }
+
+        public override void PlayAmbience()
+        {
+            Sound.PlayAmbience("ambience_outdoors_night");
         }
 
         public override void Update()
@@ -107,6 +116,7 @@ namespace ISurvived
             base.Update();
 
             PlayBackgroundMusic();
+            PlayAmbience();
         }
 
         public override void Draw(SpriteBatch s)
@@ -120,11 +130,11 @@ namespace ISurvived
         {
             base.SetPortals();
 
-            toSpookyField = new Portal(1525, platforms[0], "ChelseasField");
-            toTheGoats = new Portal(2350, platforms[0], "ChelseasField");
-            toTheWoods = new Portal(100, platforms[0], "ChelseasField");
+            toSpookyField = new Portal(1525, platforms[0], "Chelsea's Field");
+            toTheGoats = new Portal(2350, platforms[0], "Chelsea's Field");
+            toTheWoods = new Portal(100, platforms[0], "Chelsea's Field");
             ToTheWoods.IsUseable = false;
-            toBathroom = new Portal(2040, 330, "ChelseasField");
+            toBathroom = new Portal(2040, 330, "Chelsea's Field");
             toBathroom.PortalRecY = 330;
         }
 

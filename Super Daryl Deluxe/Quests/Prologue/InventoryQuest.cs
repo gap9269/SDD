@@ -49,11 +49,12 @@ namespace ISurvived
         {
             base.UpdateQuest();
 
-            if (!game.Prologue.PrologueBooleans["markerGiven"] && Chapter.effectsManager.notificationQueue.Count == 0)
+            if (!game.Prologue.PrologueBooleans["markerGiven"])
             {
                 game.Prologue.PrologueBooleans["markerGiven"] = true;
                 Game1.Player.AddWeaponToInventory(new Marker());
                 Chapter.effectsManager.AddFoundItem("a Dried Out Marker", Game1.equipmentTextures["Dried Out Marker"]);
+                Sound.PlaySoundInstance(Sound.SoundNames.object_pickup_misc);
             }
 
             if (Game1.Player.EquippedWeapon is Marker)

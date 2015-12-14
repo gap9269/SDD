@@ -28,8 +28,9 @@ namespace ISurvived
             enemySpeed = 2;
             tolerance = 2;
             maxHealthDrop = 3;
-            moneyToDrop = .05f;
+            moneyToDrop = .03f;
             vitalRec = new Rectangle(100, 100, 100, 100);
+            distanceFromFeetToBottomOfRectangle = 26;
         }
 
         //--Return the source rectangle for the enemy move frames
@@ -68,8 +69,11 @@ namespace ISurvived
 
             if (!respawning && !isStunned)
             {
-                Move(mapwidth);
-                CheckWalkCollisions(3, new Vector2(10, -5));
+                if (hitPauseTimer <= 0)
+                {
+                    Move(mapwidth);
+                    CheckWalkCollisions(25, new Vector2(10, -5));
+                }
             }
                 vitalRec.X = rec.X + (rec.Width / 4) - 10;
                 vitalRec.Y = rec.Y + (rec.Height / 4) + 10;
@@ -79,7 +83,7 @@ namespace ISurvived
         public override void Move(int mapWidth)
         {
             base.Move(mapWidth);
-            if (isStunned == false)
+            if (!respawning && !isStunned)
             {
                 if (currentlyInMoveState == false)
                 {
@@ -159,7 +163,72 @@ namespace ISurvived
 
         public override void Draw(SpriteBatch s)
         {
-            base.Draw(s);
+            #region Draw Enemy
+            if (facingRight == true)
+                s.Draw(game.EnemySpriteSheets[name], rec, GetSourceRectangle(moveFrame), Color.White * alpha);
+
+            if (facingRight == false)
+                s.Draw(game.EnemySpriteSheets[name], rec, GetSourceRectangle(moveFrame), Color.White * alpha, 0f, Vector2.Zero, SpriteEffects.FlipHorizontally, 0f);
+            #endregion
+
+            #region Health Bar
+            if (health < maxHealth)
+            {
+                healthBoxRec.Y = vitalRec.Y - 70;
+                healthBarRec.Y = vitalRec.Y - 68;
+
+                s.Draw(healthBack, healthBoxRec, Color.White);
+
+                if (health > (maxHealth / 2))
+                {
+                    greenColor = 1;
+                    redColor = (1f - ((float)health / (float)maxHealth));
+                }
+                else
+                {
+                    redColor = 1;
+                    greenColor = (((float)health / ((float)maxHealth / 2f)));
+                }
+
+
+                s.Draw(healthFore, healthBarRec, new Color(redColor, greenColor, 0));
+                s.Draw(healthFore, healthBarRec, Color.Gray * .4f);
+
+                float measX = Game1.descriptionFont.MeasureString("Lv." + level + " " + displayName).X;
+
+                if (facingRight)
+                {
+                    Game1.OutlineFont(Game1.font, s, "Lv. " + level + " " + displayName, 1, (int)(rec.X + rec.Width / 2 - measX / 2 - 13), healthBoxRec.Y - 25 - 2, Color.Black, Color.White);
+                }
+                else
+                {
+                    Game1.OutlineFont(Game1.font, s, "Lv. " + level + " " + displayName, 1, (int)(rec.X + rec.Width / 2 - measX / 2 - 13), healthBoxRec.Y - 25 - 2, Color.Black, Color.White);
+                }
+            }
+            #endregion
+
+            //Draw the stars above his head when he's stunned
+            if (isStunned)
+            {
+                //Stars
+                starTimer--;
+
+                if (starTimer <= 0)
+                {
+                    starFrame++;
+                    starTimer = 15;
+
+                    if (starFrame > 3)
+                    {
+                        starFrame = 0;
+                    }
+                }
+
+                if (facingRight)
+                    s.Draw(player.PlayerSheet, rec, new Rectangle(530 + (530 * starFrame), 3610, 530, 398), Color.White * alpha);
+                else
+                    s.Draw(player.PlayerSheet, rec, new Rectangle(530 + (530 * starFrame), 3610, 530, 398), Color.White * alpha, 0f, Vector2.Zero, SpriteEffects.FlipHorizontally, 0f);
+            }
         }
 
         public override void CheckWalkCollisions(int damage, Vector2 knockback)

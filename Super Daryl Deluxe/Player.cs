@@ -14,11 +14,32 @@ namespace ISurvived
 {
     public class Player : GameObject
     {
+        int rampDistanceY;
+        int currentTargetY;
+        Boolean lastRunningRight;
+        Boolean currentRunningRight;
+
+        public int idleTime;
+
         // ATTRIBUTES \\
-        int maxHealth;
+        int baseMaxHealth;
         int health; //health
-        int defense; //defense
-        int strength;
+        int baseDefense; //defense
+        int baseStrength;
+        int luck = 0;
+
+        public int realMaxHealth, realDefense, realStrength;
+
+        public float healthModifier = 0;
+        public float defenseModifier = 0;
+        public float strengthModifier = 0;
+        public float moneyModifier = 0;
+        public float extraExperiencePerKill = 0;
+        public Rectangle pickUpDropsRec;
+        public float pickUpRectangleModifier = 0;
+        public int specialDefense = 0;
+        public int specialStrength = 0;
+
         int moveSpeed;
         int pushBlockSpeed;
         int jumpHeight;
@@ -60,6 +81,8 @@ namespace ISurvived
         int danceState;
         int jumpDowntimer = 0;
 
+       public static float damageAlpha = 0f;
+
         List<Passive> ownedPassives;
 
         public int healthAddedDuringLevel, defenseAddedDuringLevel, strengthAddedDuringLevel;
@@ -93,7 +116,7 @@ namespace ISurvived
 
         List<Weapon> ownedWeapons;
         List<Hat> ownedHats;
-        List<Hoodie> ownedHoodies;
+        List<Outfit> ownedHoodies;
         List<Accessory> ownedAccessories;
         Dictionary<String, Boolean> allMonsterBios;
         Dictionary<String, Boolean> allCharacterBios;
@@ -101,7 +124,7 @@ namespace ISurvived
         Weapon equippedWeapon = null;
         Weapon secondWeapon = null;
         Hat equippedHat = null;
-        Hoodie equippedHoodie = null;
+        Outfit equippedHoodie = null;
         Accessory equippedAccessory = null;
         Accessory secondAccessory= null;
 
@@ -113,8 +136,8 @@ namespace ISurvived
         List<int> pickUpTimers; //Holds ints relating to how long the text for picking an item up stays on the screen
 
         Boolean ducking = false;
-        Boolean standingBackUp = false;
-        Boolean drawStandingBackUpLines = false;
+        public Boolean standingBackUp = false;
+        public Boolean drawStandingBackUpLines = false;
 
         int deathTimer; //Increases after death to tell when to go to the game over screen
 
@@ -123,6 +146,11 @@ namespace ISurvived
         Random selectFlinch;
 
         int starFrame, starTimer;
+
+        public QuickRetort quickRetort;
+        int leftTapped, rightTapped;
+        int quickRetortDoubleTapTimer;
+        int maxQuickRetortDoubleTapTimer = 15;
 
         // STATE MACHINE \\
         public enum PlayerState
@@ -161,7 +189,6 @@ namespace ISurvived
         public int SocialRankIndex { get { return socialRankIndex; } set { socialRankIndex = value; } }
         public Texture2D PlayerSheet { get { return playerSheet; } }
         public Rectangle PlayerRec { get { return rec; } set { rec = value; } }
-        public Rectangle VitalRec { get { return vitalRec; } set { vitalRec = value; } }
         public Rectangle JumpingVitalRec { get { return jumpingVitalRec; } set { jumpingVitalRec = value; } }
         public Rectangle DuckingVitalRec { get { return duckingVitalRec; } set { duckingVitalRec = value; } }
         public bool FacingRight { get { return facingRight; } set { facingRight = value; } }
@@ -173,10 +200,10 @@ namespace ISurvived
         public bool Sprinting { get { return sprinting; } set { sprinting = value; } }
 
         //--Base states
-        public int Strength { get { return strength; } set { strength = value; } }
-        public int Health { get { return health; } set { health = value; if (health > maxHealth) health = maxHealth; else if (health < 0) health = 0; } }
-        public int MaxHealth { get { return maxHealth; } set { maxHealth = value; } }
-        public int Defense { get { return defense; } set { defense = value; } }
+        public int BaseStrength { get { return baseStrength; } set { baseStrength = value; } }
+        public int Health { get { return health; } set { health = value; if (health > realMaxHealth) health = realMaxHealth; else if (health < 0) health = 0; } }
+        public int BaseMaxHealth { get { return baseMaxHealth; } set { baseMaxHealth = value; } }
+        public int BaseDefense { get { return baseDefense; } set { baseDefense = value; } }
         public int MoveSpeed { get { return moveSpeed; } set { moveSpeed = value; } }
         public int AirMoveSpeed { get { return airMoveSpeed; } set { airMoveSpeed = value; } }
         public int PushBlockSpeed { get { return pushBlockSpeed; } set { pushBlockSpeed = value; } }
@@ -184,7 +211,8 @@ namespace ISurvived
         public int Level { get { return level; } set { level = value; } }
         public int Experience { get { return experience; } set { experience = value; } }
         public int ExperienceUntilLevel { get { return experienceUntilLevel; } set { experienceUntilLevel = value; } }
-        public double Money { get { return money; } set { money = value; } }
+        public double Money { get { return money; } set { money = value; if (money > 9999.99) money = 9999.99; } }
+        public int Luck { get { return luck; } set { luck = value; } }
         public int Karma { get { return karma; } set { karma = value; CheckSocialRankUp();} }
         public int StatPoints { get { return statPoints; } set { statPoints = value; } }
         public int StrengthPoints { get { return strengthPoints; } set { strengthPoints = value; } }
@@ -230,7 +258,7 @@ namespace ISurvived
         }
         public Hat EquippedHat { get { return equippedHat; } set { equippedHat = value; } }
 
-        public List<Hoodie> OwnedHoodies 
+        public List<Outfit> OwnedHoodies 
         { 
             get 
             { 
@@ -238,7 +266,7 @@ namespace ISurvived
             }
             set 
             {
-                List<Hoodie> temp = ownedHoodies;
+                List<Outfit> temp = ownedHoodies;
                 ownedHoodies = value;
                 if (ownedHoodies.Count > temp.Count)
                 {
@@ -246,7 +274,7 @@ namespace ISurvived
                 } 
             } 
         }
-        public Hoodie EquippedHoodie { get { return equippedHoodie; } set { equippedHoodie = value; } }
+        public Outfit EquippedHoodie { get { return equippedHoodie; } set { equippedHoodie = value; } }
 
         public List<Accessory> OwnedAccessories
         {
@@ -312,7 +340,7 @@ namespace ISurvived
             position = new Vector2(1050, 290); //1350/1050, 290 for DEMO 
             ownedWeapons = new List<Weapon>();
             ownedHats = new List<Hat>();
-            ownedHoodies = new List<Hoodie>();
+            ownedHoodies = new List<Outfit>();
             ownedAccessories = new List<Accessory>();
             allCharacterBios = new Dictionary<string, bool>();
             allMonsterBios = new Dictionary<string, bool>();
@@ -334,16 +362,19 @@ namespace ISurvived
             //--Base stats
             socialRank = "New Kid";
             karma = 0;
-            maxHealth = 20;
-            health = maxHealth;
-            strength = 18;
-            defense = 1;
+            baseMaxHealth = 100;
+            health = baseMaxHealth;
+            baseStrength = 18;
+            baseDefense = 15;
             moveSpeed = 7;
             airMoveSpeed = 7;
             jumpHeight = -21;
             level = 1;
             experience = 0;
             experienceUntilLevel = 4;
+            luck = 0;
+
+            UpdateStats();
 
             //--Status
             playerState = PlayerState.standing;
@@ -352,6 +383,7 @@ namespace ISurvived
             invincible = false;
 
             platGrabRec = new Rectangle(0, 0, 50, 125);
+
         }
 
         // METHODS \\
@@ -407,12 +439,12 @@ namespace ISurvived
                     {
                         if (dancing)
                         {
-                            //if (frame < 6)
-                            //    return new Rectangle(530 * frame, 0, 530, 398);
-                            //else
-                            //    return new Rectangle(530 * (frame - 5), 398, 530, 398);
+                            if (frame < 6)
+                                return new Rectangle(530 * frame, 0, 530, 398);
+                            else
+                                return new Rectangle(530 * (frame - 5), 398, 530, 398);
                         }
-                        /*else */if (frame == 0)
+                        else if (frame == 0)
                             return new Rectangle(3180, 1194, 530, 398);
                         else
                             return new Rectangle(530 * (frame - 1), 1592, 530, 398);
@@ -456,6 +488,8 @@ namespace ISurvived
                         int column = frame - 7;
                         return new Rectangle(column * 530, 1990, 530, 398);
                     }
+                case PlayerState.attackJumping:
+                    return new Rectangle(3180, 398, 530, 398);
                 case PlayerState.jumping:
                     if (attackFalling)
                     {
@@ -470,8 +504,6 @@ namespace ISurvived
                         return new Rectangle((frame - 10) * 530, 2786, 530, 398);
                     else
                         return new Rectangle((frame - 17) * 530, 3184, 530, 398);
-                case PlayerState.attackJumping:
-                    return new Rectangle(3180, 398, 530, 398);
 
                 case PlayerState.climbingLadder:
                     return new Rectangle(3180, 3980, 530, 398);
@@ -499,11 +531,32 @@ namespace ISurvived
 
             duckingVitalRec.X = rec.X + (rec.Width / 2) - 30;
             duckingVitalRec.Y = rec.Y + rec.Height - 100;
+
+            pickUpDropsRec = new Rectangle((int)(rec.X - ((rec.Width * (1f + pickUpRectangleModifier) - rec.Width) / 2)), (int)(rec.Y - ((rec.Height * (1f + pickUpRectangleModifier) - rec.Height) / 2)), (int)(rec.Width * (1f + pickUpRectangleModifier)), (int)(rec.Height * (1f + pickUpRectangleModifier)));
+        }
+
+        public void UpdateStats()
+        {
+
+            //Calculate final stat numbers
+            realMaxHealth = (int)(baseMaxHealth + baseMaxHealth * healthModifier / 100);
+
+            if (specialDefense > 0)
+                realDefense = (int)(specialDefense + specialDefense * defenseModifier / 100);
+            else
+                realDefense = (int)(baseDefense + baseDefense * defenseModifier / 100);
+
+            if(specialStrength > 0 && specialStrength > baseStrength)
+                realStrength = (int)(specialStrength + specialStrength * strengthModifier / 100);
+            else
+                realStrength = (int)(baseStrength + baseStrength * strengthModifier / 100);
+
         }
 
         public override void Update()
         {
             base.Update();
+            UpdateStats();
 
             if (dead && game.CurrentChapter.state != Chapter.GameState.dead)
             {
@@ -512,7 +565,7 @@ namespace ISurvived
 
                 deathTimer++;
 
-                if (deathTimer >= 500)
+                if (deathTimer >= 350)
                 {
                     deathTimer = 0;
                     Game1.deathScreen.LoadContent();
@@ -521,7 +574,6 @@ namespace ISurvived
             }
             else if (hitPauseTimer >= 0)
                 hitPauseTimer--;
-
             else
             {
                 CheckIsDead();
@@ -651,18 +703,160 @@ namespace ISurvived
             }
         }
 
+
+        //Use this to transition from a battle to cutscene easily
+        public void CutsceneUpdate()
+        {
+            UpdateStats();
+            StopSkills();
+            current = new KeyboardState();
+            last = new KeyboardState();
+            if (hitPauseTimer >= 0)
+                hitPauseTimer--;
+            else
+            {
+                if (flinchTimer > 0)
+                    flinchTimer--;
+
+                //--Update position
+                currentMap = game.CurrentChapter.CurrentMap;
+                UpdatePosition();
+
+                //--Call other updating methods every frame.
+                //--Gravity, skills, and knockback must be updated every frame
+                ImplementGravity();
+                UpdateSkills();
+                UpdateKnockBack();
+                UpdateInvincible();
+
+                if (moneyJustPickedUpTimer > 0)
+                {
+                    UpdateMoneyJustPickedUp();
+                }
+
+                //Update passive skills
+                for (int i = 0; i < ownedPassives.Count; i++)
+                {
+                    ownedPassives[i].Update();
+                }
+
+                //Set velocity equal to the current platforms velocity
+                if (currentPlat != null && currentPlat.Velocity != Vector2.Zero)
+                {
+                    velocity = currentPlat.Velocity;
+                }
+
+                //Only do this shit if you aren't stunned
+                if (!isStunned)
+                {
+                    Move();
+                }
+                else
+                {
+                    //If the stun isn't up
+                    if (moveFrame < 4)
+                    {
+                        //Stars
+                        starTimer--;
+
+                        if (starTimer <= 0)
+                        {
+                            starFrame++;
+                            starTimer = 15;
+
+                            if (starFrame > 3)
+                            {
+                                starFrame = 0;
+                            }
+                        }
+
+                        //End stars
+
+
+                        frameDelay--;
+
+                        if (moveFrame == 3)
+                        {
+                            if (frameDelay < 5)
+                                alpha = 0;
+                            else if (frameDelay > 9 && frameDelay < 15)
+                                alpha = 0;
+                            else if (frameDelay > 19 && frameDelay < 25)
+                                alpha = 0;
+                            else if (frameDelay > 29 && frameDelay < 40)
+                                alpha = 0;
+                            else if (frameDelay > 49 && frameDelay < 60)
+                                alpha = 0;
+                            else
+                                alpha = 1f;
+                        }
+
+                        if (frameDelay == 0)
+                        {
+                            frameDelay = 5;
+                            moveFrame++;
+
+                            if (moveFrame == 3)
+                            {
+                                frameDelay = stunTime;
+                            }
+
+                            if (moveFrame == 4)
+                            {
+                                isStunned = false;
+                                Invincible(45);
+                                stunTime = 0;
+                                alpha = 1f;
+                                playerState = PlayerState.standing;
+                                moveFrame = 0;
+                                landing = false;
+                            }
+                        }
+                    }
+                }
+
+                for (int i = 0; i < pickUpTimers.Count; i++)
+                {
+                    pickUpTimers[i]--;
+
+                    if (pickUpTimers[i] <= 0)
+                    {
+                        pickUpTimers.RemoveAt(i);
+                        pickUps.RemoveAt(i);
+                        i--;
+                    }
+                }
+            }
+        }
+
         public void Move()
         {
-
             if (isStunned == false || dead)
             {
-                ClimbLadder();
                 //If you start running or something after landing, make it so the player isn't standing back up
                 if (playerState != PlayerState.standing && drawStandingBackUpLines)
                     drawStandingBackUpLines = false;
                 if (playerState != PlayerState.standing && standingBackUp)
                     standingBackUp = false;
 
+                if (playerState == PlayerState.standing && !ducking && game.CurrentChapter.state == Chapter.GameState.Game)
+                {
+                    idleTime++;
+
+                    if (idleTime == 3000)
+                    {
+                        moveFrame = 0;
+                        frameDelay = 5;
+                        dancing = true;
+                    }
+                }
+                else if (idleTime != 0)
+                {
+                    dancing = false;
+                    moveFrame = 0;
+                    frameDelay = 5;
+                    idleTime = 0;
+                }
 
                 //--Switch based on player state
                 switch (playerState)
@@ -698,11 +892,12 @@ namespace ISurvived
                             }
 
                             //If you try to duck as you land, make it wait a little bit first
-                            if ((current.IsKeyDown(Keys.Down) || MyGamePad.DownAnalogHeld()) && (frameDelay < 3 || moveFrame != 0))
+                            if ((current.IsKeyDown(Keys.Down) || MyGamePad.DownPadHeld()) && (frameDelay < 3 || moveFrame != 0))
                             {
                                 moveFrame = 0;
                                 frameDelay = 2;
                                 ducking = true;
+                                Sound.PlaySoundInstance(Sound.SoundNames.movement_duck);
                                 landing = false;
                             }
 
@@ -714,7 +909,6 @@ namespace ISurvived
                         //DUCKING
                         else if (ducking)
                         {
-                            Console.WriteLine(frameDelay);
                             //Ducking animation
                             if (moveFrame < 2)
                             {
@@ -728,9 +922,9 @@ namespace ISurvived
                             }
 
                             //If you aren't holding DOWN anymore, stand back up
-                            if (!current.IsKeyDown(Keys.Down) && !MyGamePad.DownAnalogHeld())
+                            if (!current.IsKeyDown(Keys.Down) && !MyGamePad.DownPadHeld())
                             {
-
+                                Sound.PlaySoundInstance(Sound.SoundNames.movement_unduck);
                                 ducking = false;
                                 frameDelay = 5;
                                 standingBackUp = true;
@@ -827,10 +1021,11 @@ namespace ISurvived
                         #endregion
 
                         //GOING TO DUCK
-                        if (current.IsKeyDown(Keys.Down) || MyGamePad.DownAnalogHeld())
+                        if (current.IsKeyDown(Keys.Down) || MyGamePad.DownPadHeld())
                         {
                             if (!ducking)
                             {
+                                Sound.PlaySoundInstance(Sound.SoundNames.movement_duck);
                                 ducking = true;
                                 moveFrame = 0;
                                 frameDelay = 2;
@@ -841,11 +1036,11 @@ namespace ISurvived
                         #region RUNNING
 
                         //--Avoid running in place
-                        if ((current.IsKeyDown(Keys.Left) && current.IsKeyDown(Keys.Right)) || (MyGamePad.RightAnalogHeld() && current.IsKeyDown(Keys.Left)) || (MyGamePad.LeftAnalogHeld() && current.IsKeyDown(Keys.Right)))
+                        if ((current.IsKeyDown(Keys.Left) && current.IsKeyDown(Keys.Right)) || (MyGamePad.RightPadHeld() && current.IsKeyDown(Keys.Left)) || (MyGamePad.LeftPadHeld() && current.IsKeyDown(Keys.Right)))
                         {
                             playerState = PlayerState.standing;
                         }
-                        else if ((current.IsKeyDown(Keys.Right) || current.IsKeyDown(Keys.Left) || MyGamePad.LeftAnalogHeld() || MyGamePad.RightAnalogHeld()) && !ducking)
+                        else if ((current.IsKeyDown(Keys.Right) || current.IsKeyDown(Keys.Left) || MyGamePad.LeftPadHeld() || MyGamePad.RightPadHeld()) && !ducking)
                         {
                             playerState = PlayerState.running;
                             landing = false;
@@ -855,7 +1050,7 @@ namespace ISurvived
                         if (canJump)
                         {
                             #region JUMPING
-                            if (knockedBack == false && (current.IsKeyDown(Keys.Up) || MyGamePad.currentState.Buttons.A == ButtonState.Pressed) && falling == false && currentPlat != null && !ducking)
+                            if (knockedBack == false && (current.IsKeyDown(Keys.Up) || MyGamePad.UpPadHeld()) && falling == false && currentPlat != null && !ducking)
                             {
                                 sprinting = false;
                                 playerState = PlayerState.jumping;
@@ -864,10 +1059,7 @@ namespace ISurvived
                                 landing = false;
                                 Chapter.effectsManager.AddJumpDustPoof(rec, facingRight);
 
-                                if(selectFlinch.Next(2) == 0)
-                                    Sound.PlaySoundInstance(Sound.SoundNames.PlayerJumpOutside1);
-                                else
-                                    Sound.PlaySoundInstance(Sound.SoundNames.PlayerJumpOutside2);
+                                Sound.PlayJumpSound(currentPlat.type);
                             }
                             #endregion
                         }
@@ -880,14 +1072,15 @@ namespace ISurvived
                     #region PUSHING BLOX
                     case PlayerState.pushingBlock:
 
-                        if ((current.IsKeyDown(Keys.Left) && current.IsKeyDown(Keys.Right)) || (MyGamePad.RightAnalogHeld() && current.IsKeyDown(Keys.Left)) || (MyGamePad.LeftAnalogHeld() && current.IsKeyDown(Keys.Right)))
+                        if ((current.IsKeyDown(Keys.Left) && current.IsKeyDown(Keys.Right)) || (MyGamePad.RightPadHeld() && current.IsKeyDown(Keys.Left)) || (MyGamePad.LeftPadHeld() && current.IsKeyDown(Keys.Right)))
                         {
                             playerState = PlayerState.standing;
                         }
 
                         //DUCK
-                        if (current.IsKeyDown(Keys.Down) || MyGamePad.DownAnalogHeld())
+                        if (current.IsKeyDown(Keys.Down) || MyGamePad.DownPadHeld())
                         {
+                            Sound.PlaySoundInstance(Sound.SoundNames.movement_duck);
                             ducking = true;
                             moveFrame = 0;
                             playerState = PlayerState.standing;
@@ -895,11 +1088,11 @@ namespace ISurvived
                         }
 
                         #region RUN LEFT
-                        else if (current.IsKeyDown(Keys.Left) || MyGamePad.LeftAnalogHeld())
+                        else if (current.IsKeyDown(Keys.Left) || MyGamePad.LeftPadHeld())
                         {
                             position.X -= pushBlockSpeed;
 
-                            if (!(last.IsKeyDown(Keys.Left)) && MyGamePad.previousState.ThumbSticks.Left.X >= 0)
+                            if (!(last.IsKeyDown(Keys.Left)) && MyGamePad.previousState.DPad.Left == ButtonState.Released)
                                 moveFrame = 0;
 
                             if (facingRight)
@@ -923,12 +1116,12 @@ namespace ISurvived
                         #endregion
 
                         #region RUN RIGHT
-                        else if (current.IsKeyDown(Keys.Right) || MyGamePad.RightAnalogHeld())
+                        else if (current.IsKeyDown(Keys.Right) || MyGamePad.RightPadHeld())
                         {
 
                             position.X += pushBlockSpeed;
 
-                            if (!(last.IsKeyDown(Keys.Right)) && MyGamePad.previousState.ThumbSticks.Left.X <= 0)
+                            if (!(last.IsKeyDown(Keys.Right)) && MyGamePad.previousState.DPad.Right == ButtonState.Released)
                                 moveFrame = 0;
 
                             if (facingRight == false)
@@ -951,7 +1144,7 @@ namespace ISurvived
                         #endregion
 
                         #region STAND
-                        if (current.IsKeyUp(Keys.Right) && current.IsKeyUp(Keys.Left) && current.IsKeyUp(Keys.Up) && MyGamePad.previousState.ThumbSticks.Left.X == 0 && MyGamePad.previousState.ThumbSticks.Left.Y >= 0)
+                        if (current.IsKeyUp(Keys.Right) && current.IsKeyUp(Keys.Left) && current.IsKeyUp(Keys.Up) && MyGamePad.previousState.DPad.Left == ButtonState.Released && MyGamePad.previousState.DPad.Right == ButtonState.Released && MyGamePad.previousState.DPad.Up == ButtonState.Released)
                         {
                             playerState = PlayerState.standing;
                         }
@@ -961,7 +1154,7 @@ namespace ISurvived
                         if (canJump)
                         {
                             #region JUMP
-                            if (knockedBack == false && (current.IsKeyDown(Keys.Up) || MyGamePad.currentState.Buttons.A == ButtonState.Pressed) && falling == false && currentPlat != null)
+                            if (knockedBack == false && (current.IsKeyDown(Keys.Up) || MyGamePad.UpPadHeld()) && falling == false && currentPlat != null)
                             {
 
                                 velocity.Y += jumpHeight;
@@ -979,21 +1172,10 @@ namespace ISurvived
 
                     #region RUNNING
                     case PlayerState.running:
-                        if ((moveFrame == 2 || moveFrame == 9) && frameDelay == 3)
+                        if ((!sprinting && (moveFrame == 2 || moveFrame == 9) && frameDelay == 3) || (sprinting && (moveFrame == 2 || moveFrame == 8) && frameDelay == 3))
                         {
-                            //int ran = selectFlinch.Next(3);
-                            //if (ran == 0)
-                            //    Sound.PlaySoundInstance(Sound.SoundNames.PlayerRunOutside1);
-                            //else if (ran == 1)
-                            //    Sound.PlaySoundInstance(Sound.SoundNames.PlayerRunOutside2);
-                            //else if (ran == 2)
-                            //    Sound.PlaySoundInstance(Sound.SoundNames.PlayerRunOutside3);
-                            //else if (ran == 3)
-                            //    Sound.PlaySoundInstance(Sound.SoundNames.PlayerRunOutside4);
-                            //else if (ran == 4)
-                            //    Sound.PlaySoundInstance(Sound.SoundNames.PlayerRunOutside5);
-                            //else
-                            //    Sound.PlaySoundInstance(Sound.SoundNames.PlayerRunOutside6);
+                            if(currentPlat != null)
+                                Sound.PlaySteppingSound(currentPlat.type);
                         }
 
                         if ((moveFrame == 5 || moveFrame == 12) && frameDelay == 5 && !sprinting)
@@ -1001,7 +1183,7 @@ namespace ISurvived
                         else if (moveFrame == 3 && sprinting && frameDelay == 4)
                             Chapter.effectsManager.AddRunningDustPoof(rec, moveFrame, facingRight, true);
 
-                        if (current.IsKeyDown(Keys.LeftShift) || MyGamePad.currentState.Triggers.Left > 0)
+                        if (current.IsKeyDown(Keys.LeftShift) || current.IsKeyDown(Keys.RightShift) || MyGamePad.currentState.Triggers.Left > 0)
                         {
                             if (!sprinting)
                             {
@@ -1021,7 +1203,7 @@ namespace ISurvived
                         }
 
                         //--Avoid running in place
-                        if ((current.IsKeyDown(Keys.Left) && current.IsKeyDown(Keys.Right)) || (MyGamePad.RightAnalogHeld() && current.IsKeyDown(Keys.Left)) || (MyGamePad.LeftAnalogHeld() && current.IsKeyDown(Keys.Right)))
+                        if ((current.IsKeyDown(Keys.Left) && current.IsKeyDown(Keys.Right)) || (MyGamePad.RightPadHeld() && current.IsKeyDown(Keys.Left)) || (MyGamePad.LeftPadHeld() && current.IsKeyDown(Keys.Right)))
                         {
                             frameDelay = 8;
                             moveFrame = 0;
@@ -1029,11 +1211,11 @@ namespace ISurvived
                         }
 
                         #region RUN LEFT
-                        else if ((current.IsKeyDown(Keys.Left) || MyGamePad.LeftAnalogHeld()) && !knockedBack)
+                        else if ((current.IsKeyDown(Keys.Left) || MyGamePad.LeftPadHeld()) && !knockedBack)
                         {
                             position.X -= moveSpeed;
 
-                            if (!(last.IsKeyDown(Keys.Left)) && MyGamePad.previousState.ThumbSticks.Left.X >= 0)
+                            if (!(last.IsKeyDown(Keys.Left)) && MyGamePad.previousState.DPad.Left == ButtonState.Released)
                                 moveFrame = 0;
 
                             facingRight = false;
@@ -1055,12 +1237,12 @@ namespace ISurvived
                         #endregion
 
                         #region RUN RIGHT
-                        else if ((current.IsKeyDown(Keys.Right) || MyGamePad.RightAnalogHeld()) && !knockedBack)
+                        else if ((current.IsKeyDown(Keys.Right) || MyGamePad.RightPadHeld()) && !knockedBack)
                         {
 
                             position.X += moveSpeed;
 
-                            if (!(last.IsKeyDown(Keys.Right)) && MyGamePad.previousState.ThumbSticks.Left.X <= 0)
+                            if (!(last.IsKeyDown(Keys.Right)) && MyGamePad.previousState.DPad.Right == ButtonState.Released)
                                 moveFrame = 0;
 
                             facingRight = true;
@@ -1082,7 +1264,7 @@ namespace ISurvived
                         #endregion
 
                         #region STAND
-                        if (current.IsKeyUp(Keys.Right) && current.IsKeyUp(Keys.Left) && current.IsKeyUp(Keys.Up) && MyGamePad.previousState.ThumbSticks.Left.X == 0 && MyGamePad.previousState.ThumbSticks.Left.Y >= 0)
+                        if (current.IsKeyUp(Keys.Right) && current.IsKeyUp(Keys.Left) && current.IsKeyUp(Keys.Up) && MyGamePad.previousState.DPad.Left == ButtonState.Released && MyGamePad.previousState.DPad.Right == ButtonState.Released && MyGamePad.previousState.DPad.Up == ButtonState.Released)
                         {
                             frameDelay = 8;
                             moveFrame = 0;
@@ -1091,8 +1273,9 @@ namespace ISurvived
                         #endregion
 
                         //DUCK
-                        if (current.IsKeyDown(Keys.Down) || MyGamePad.DownAnalogHeld())
+                        if (current.IsKeyDown(Keys.Down) || MyGamePad.DownPadHeld())
                         {
+                            Sound.PlaySoundInstance(Sound.SoundNames.movement_duck);
                             ducking = true;
                             moveFrame = 0;
                             playerState = PlayerState.standing;
@@ -1102,7 +1285,7 @@ namespace ISurvived
                         if (canJump)
                         {
                             #region JUMP
-                            if (knockedBack == false && (current.IsKeyDown(Keys.Up) || MyGamePad.currentState.Buttons.A == ButtonState.Pressed) && falling == false && currentPlat != null)
+                            if (knockedBack == false && (current.IsKeyDown(Keys.Up) || MyGamePad.UpPadHeld()) && falling == false && currentPlat != null)
                             {
 
                                 if (sprinting)
@@ -1121,10 +1304,7 @@ namespace ISurvived
                                 playerState = PlayerState.jumping;
                                 Chapter.effectsManager.AddJumpDustPoof(rec, facingRight);
 
-                                if (selectFlinch.Next(2) == 0)
-                                    Sound.PlaySoundInstance(Sound.SoundNames.PlayerJumpOutside1);
-                                else
-                                    Sound.PlaySoundInstance(Sound.SoundNames.PlayerJumpOutside2);
+                                Sound.PlayJumpSound(currentPlat.type);
                                 moveFrame = 0;
                             }
                             #endregion
@@ -1156,12 +1336,12 @@ namespace ISurvived
                         }
 
                         #region MOVING IN AIR
-                        if (current.IsKeyDown(Keys.Right) || MyGamePad.RightAnalogHeld())
+                        if (current.IsKeyDown(Keys.Right) || MyGamePad.RightPadHeld())
                         {
                             facingRight = true;
                             position.X += airMoveSpeed;
                         }
-                        if (current.IsKeyDown(Keys.Left) || MyGamePad.LeftAnalogHeld())
+                        if (current.IsKeyDown(Keys.Left) || MyGamePad.LeftPadHeld())
                         {
                             facingRight = false;
                             position.X -= airMoveSpeed;
@@ -1290,9 +1470,11 @@ namespace ISurvived
             else if(!isStunned)
                 alpha = 1f;
 
-            //s.Draw(Game1.whitefilter, vitalRec, Color.Black * .5f);
-            //s.Draw(Game1.whiteFilter, jumpingVitalRec, Color.Red * .5f);
-           // s.Draw(Game1.whiteFilter, duckingVitalRec, Color.Purple * .4f);
+            //Update passive skills
+            for (int i = 0; i < ownedPassives.Count; i++)
+            {
+                ownedPassives[i].DrawBehindPlayer(s);
+            }
 
             #region FACING DIRECTION
             if (playerState != PlayerState.attacking && playerState != PlayerState.attackJumping && !levelingUp)
@@ -1388,6 +1570,9 @@ namespace ISurvived
                 {
                     equippedSkills[i].Draw(s);
                 }
+
+                if (game.ChapterOne.ChapterOneBooleans["quickRetortObtained"])
+                    quickRetort.Draw(s);
             }
             #endregion
 
@@ -1399,7 +1584,17 @@ namespace ISurvived
             {
                 ownedPassives[i].Draw(s);
             }
-
+            //Rectangle feet = new Rectangle((int)vitalRec.X - 15, (int)vitalRec.Y + vitalRec.Height + 20, vitalRec.Width + 30, 20);
+            //Rectangle rightPlay = new Rectangle((int)vitalRec.X + vitalRec.Width, (int)vitalRec.Y + 5, 25, vitalRec.Height + 35);
+            //Rectangle leftPlay = new Rectangle((int)vitalRec.X - 25, (int)vitalRec.Y + 5, 25, vitalRec.Height + 35);
+            //Rectangle topPlay = new Rectangle((int)vitalRec.X + 5, (int)vitalRec.Y, vitalRec.Width - 5, 10);
+            //Rectangle checkForStairs = new Rectangle(feet.X, feet.Y, feet.Width, 150);
+            //Rectangle checkForRampLeft = new Rectangle(vitalRec.X - 26, feet.Y - 30, 25, 50);
+            //Rectangle checkForRampRight = new Rectangle(vitalRec.X + vitalRec.Width, feet.Y - 30, 26, 50);
+            //s.Draw(Game1.whiteFilter, checkForRampLeft, Color.Black * .5f);
+            //s.Draw(Game1.whiteFilter, checkForRampRight, Color.Black * .5f);
+            //s.Draw(Game1.whiteFilter, new Rectangle(rightPlay.X, rightPlay.Y, (int)rightPlay.Width, rightPlay.Height), Color.Red * .5f);
+            //s.Draw(Game1.whiteFilter, new Rectangle(leftPlay.X, leftPlay.Y, (int)leftPlay.Width, leftPlay.Height), Color.Red * .5f);
         }
 
         public void DrawDamage(SpriteBatch s)
@@ -1445,6 +1640,9 @@ namespace ISurvived
             {
                 StopSkills();
                 velocity = Vector2.Zero;
+                isStunned = false;
+                stunTime = 0;
+                alpha = 1f;
                 knockedBack = false;
                 moveFrame = 0;
                 frameDelay = 5;
@@ -1472,7 +1670,7 @@ namespace ISurvived
             position = new Vector2(1050, 290); //1350/1050, 290 for DEMO 
             ownedWeapons = new List<Weapon>();
             ownedHats = new List<Hat>();
-            ownedHoodies = new List<Hoodie>();
+            ownedHoodies = new List<Outfit>();
             ownedAccessories = new List<Accessory>();
             allCharacterBios = new Dictionary<string, bool>();
             allMonsterBios = new Dictionary<string, bool>();
@@ -1499,16 +1697,27 @@ namespace ISurvived
             socialRank = "New Kid";
             socialRankIndex = 0;
             karma = 0;
-            maxHealth = 20;
-            health = maxHealth;
-            strength = 18;
-            defense = 1;
+            strengthModifier = 0;
+            extraExperiencePerKill = 0;
+            defenseModifier = 0;
+            healthModifier = 0;
+            moneyModifier = 0;
+            specialDefense = 0;
+            specialStrength = 0;
+            pickUpRectangleModifier = 0;
+            baseMaxHealth = 100;
+            health = baseMaxHealth;
+            baseStrength = 18;
+            baseDefense = 15;
             moveSpeed = 7;
             airMoveSpeed = 7;
             jumpHeight = -21;
             level = 1;
             experience = 0;
             experienceUntilLevel = 4;
+            luck = 0;
+
+            UpdateStats();
 
             //--Status
             playerState = PlayerState.standing;
@@ -1557,7 +1766,7 @@ namespace ISurvived
             if (currentPlat != null && currentPlat.Passable)
             {
                 //--Hold space and press down
-                if ((last.IsKeyDown(Keys.LeftShift) || MyGamePad.currentState.Triggers.Left > 0) && (last.IsKeyDown(Keys.Down) && current.IsKeyUp(Keys.Down) || MyGamePad.currentState.ThumbSticks.Left.Y == -1))
+                if ((last.IsKeyDown(Keys.LeftShift) || last.IsKeyDown(Keys.RightShift) || MyGamePad.currentState.Triggers.Left > 0) && (last.IsKeyDown(Keys.Down) && current.IsKeyUp(Keys.Down) || MyGamePad.DownPadPressed()))
                 {
                     //--You jump down for 3 frames and move downward
                     //--Essentially, gravity is only used if you are in mid-air, so you have to remove the currentPlat attribute
@@ -1565,7 +1774,7 @@ namespace ISurvived
                     //--Set the velocity a bit hit to start so gravity doesn't have to do all the work, and move the player down a few
                     //--Pixels to simulate him jumping down
                     jumpingDown = true;
-                    jumpDowntimer = 3;
+                    jumpDowntimer = 8;
                     currentPlat = null;
                     PositionY += 20;
                     velocity.Y += 10;
@@ -1664,6 +1873,30 @@ namespace ISurvived
             }
         }
 
+        public void MoveDuringAttackJump()
+        {
+            if (playerState == PlayerState.jumping)
+                playerState = PlayerState.attackJumping;
+
+            if (playerState == PlayerState.attackJumping)
+            {
+                if (facingRight)
+                {
+                    if ((current.IsKeyDown(Keys.Right) || MyGamePad.RightPadHeld()) && !knockedBack)
+                    {
+                        position.X += 5;
+                    }
+                }
+                else
+                {
+                    if ((current.IsKeyDown(Keys.Left) || MyGamePad.LeftPadHeld()) && !knockedBack)
+                    {
+                        position.X -= 5;
+                    }
+                }
+            }
+        }
+
         //--Calls a skill to be used
         public void Attack()
         {
@@ -1673,7 +1906,7 @@ namespace ISurvived
                 if (skillUsed == 0)
                 {
                     //Use next part of combo if it is a combo skill
-                    if ((last.IsKeyDown(Keys.Q) && current.IsKeyUp(Keys.Q)) || MyGamePad.RightTriggerPressed())
+                    if ((last.IsKeyDown(Keys.Q) && current.IsKeyUp(Keys.Q)) || MyGamePad.APressed())
                     {
                         if (equippedSkills[0].UseNext[0] == true)
                             equippedSkills[0].UseNext[1] = true;
@@ -1693,7 +1926,7 @@ namespace ISurvived
                 }
                 if (skillUsed == 1)
                 {
-                    if ((last.IsKeyDown(Keys.W) && current.IsKeyUp(Keys.W)) || MyGamePad.XPressed())
+                    if ((last.IsKeyDown(Keys.W) && current.IsKeyUp(Keys.W)) || MyGamePad.BPressed())
                     {
                         if (equippedSkills[1].UseNext[0] == true)
                             equippedSkills[1].UseNext[1] = true;
@@ -1713,7 +1946,7 @@ namespace ISurvived
                 }
                 if (skillUsed == 2)
                 {
-                    if ((last.IsKeyDown(Keys.E) && current.IsKeyUp(Keys.E)) || MyGamePad.YPressed())
+                    if ((last.IsKeyDown(Keys.E) && current.IsKeyUp(Keys.E)) || MyGamePad.XPressed())
                     {
                         if (equippedSkills[2].UseNext[0] == true)
                             equippedSkills[2].UseNext[1] = true;
@@ -1733,7 +1966,7 @@ namespace ISurvived
                 }
                 if (skillUsed == 3)
                 {
-                    if ((last.IsKeyDown(Keys.R) && current.IsKeyUp(Keys.R)) || MyGamePad.BPressed())
+                    if ((last.IsKeyDown(Keys.R) && current.IsKeyUp(Keys.R)) || MyGamePad.YPressed())
                     {
                         if (equippedSkills[3].UseNext[0] == true)
                             equippedSkills[3].UseNext[1] = true;
@@ -1751,6 +1984,23 @@ namespace ISurvived
                             playerState = PlayerState.standing;
                     }
                 }
+                if (game.ChapterOne.ChapterOneBooleans["quickRetortObtained"])
+                {
+                    if (skillUsed == 4)
+                    {
+                        quickRetort.Use(game, Keys.None);
+
+                        if (quickRetort.AnimationLength <= 0)
+                        {
+                            if (playerState == PlayerState.attackJumping)
+                                playerState = PlayerState.jumping;
+                            else
+                                playerState = PlayerState.standing;
+                        }
+                    }
+                }
+
+                CheckEarlySkillPress();
             }
         }
 
@@ -1838,13 +2088,56 @@ namespace ISurvived
 
             Rectangle rightPlay = new Rectangle((int)vitalRec.X + vitalRec.Width, (int)vitalRec.Y + 5, 25, vitalRec.Height + 35);
             Rectangle leftPlay = new Rectangle((int)vitalRec.X - 25, (int)vitalRec.Y + 5, 25, vitalRec.Height + 35);
-            Rectangle topPlay = new Rectangle((int)vitalRec.X + 5, (int)vitalRec.Y, vitalRec.Width - 5, 10);
+            Rectangle topPlay = new Rectangle((int)vitalRec.X + 5, (int)vitalRec.Y, vitalRec.Width - 5, 20);
             Rectangle checkForStairs = new Rectangle(feet.X, feet.Y, feet.Width, 150);
-            Rectangle checkForRampLeft = new Rectangle(vitalRec.X - 26, feet.Y - 30, 25, 50);
-            Rectangle checkForRampRight = new Rectangle(vitalRec.X + vitalRec.Width, feet.Y - 30, 26, 50);
+            Rectangle checkForRampLeft = new Rectangle(vitalRec.X - 26, feet.Y - 30, 50, 50);
+            Rectangle checkForRampRight = new Rectangle(vitalRec.X + vitalRec.Width - 25, feet.Y - 30, 51, 50);
 
             platBelowPlayerForStairs = false;
 
+            if (jumpingDown)
+            {
+                rampDistanceY = 0;
+            }
+            else
+            {
+                if (playerState != PlayerState.running || falling)
+                {
+                    if (rampDistanceY != 0)
+                    {
+                        PositionY = currentTargetY;
+                        rampDistanceY = 0;
+                    }
+                }
+                else
+                {
+                    lastRunningRight = currentRunningRight;
+                    currentRunningRight = facingRight;
+
+                    if (currentRunningRight != lastRunningRight)
+                        rampDistanceY = 0;
+
+                    if (rampDistanceY > 0)
+                    {
+                        if (rampDistanceY - 5 > 0)
+                        {
+                            rampDistanceY -= 5;//(int)(rampDistanceY / 3);
+                            PositionY -= 5;//(int)(rampDistanceY / 3);
+
+                            if (PositionY <= currentTargetY)
+                            {
+                                PositionY = currentTargetY;
+                                rampDistanceY = 0;
+                            }
+                        }
+                        else
+                        {
+                            rampDistanceY = 0;
+                            PositionY -= rampDistanceY;
+                        }
+                    }
+                }
+            }
             for (int i = 0; i < currentMap.Platforms.Count; i++)
             {
 
@@ -1869,63 +2162,7 @@ namespace ISurvived
                 //--Depending on what side you're on, and if you're jumping or not, move the player back a frame
                 if (playerState != PlayerState.pushingBlock)
                 {
-
-                        if ((rightPlay.Intersects(left) || leftPlay.Intersects(right)) && plat.Passable == false)
-                        {
-                            if (rightPlay.Intersects(left))
-                            {
-                                if (checkForRampRight.Intersects(left) && checkForRampRight.Y < left.Y && playerState != PlayerState.jumping && playerState != PlayerState.attackJumping)
-                                {
-                                    position.Y = plat.Rec.Y - 170 - 135 - 37;
-                                    velocity.Y = 0;
-
-                                    if (VelocityX == 0)
-                                        knockedBack = false;
-
-                                    falling = false;
-                                }
-                                else
-                                {
-                                    if (playerState != PlayerState.jumping)
-                                    {
-                                        position.X -= moveSpeed;
-                                    }
-                                    else
-                                    {
-                                        position.X -= airMoveSpeed;
-                                    }
-                                    velocity.X = 0;
-                                }
-
-                                Console.WriteLine("hit left side of plat");
-                            }
-
-                            if (leftPlay.Intersects(right))
-                            {
-                                if (checkForRampLeft.Intersects(right) && checkForRampLeft.Y < right.Y && playerState != PlayerState.jumping && playerState != PlayerState.attackJumping)
-                                {
-                                    position.Y = plat.Rec.Y - 170 - 135 - 37;
-                                    velocity.Y = 0;
-
-                                    if (VelocityX == 0)
-                                        knockedBack = false;
-
-                                    falling = false;
-                                }
-                                if (playerState != PlayerState.jumping)
-                                {
-                                    position.X += moveSpeed;
-                                }
-                                else
-                                {
-                                    position.X += airMoveSpeed;
-                                }
-                                velocity.X = 0;
-                                Console.WriteLine("hit right side of plat");
-                            }
-                        }
-                    
-                    if(knockedBack)
+                    if (knockedBack)
                     {
                         Rectangle checkPlatRec;
 
@@ -1936,11 +2173,10 @@ namespace ISurvived
                             if (checkPlatRec.Intersects(left))
                             {
                                 //playerState = PlayerState.standing;
-                                Console.WriteLine("hit left");
                                 PositionX -= VelocityX;
                                 knockedBack = false;
                                 VelocityX = 0;
-                               // playerState = PlayerState.standing;
+                                // playerState = PlayerState.standing;
                             }
                         }
                         else
@@ -1949,8 +2185,7 @@ namespace ISurvived
 
                             if (checkPlatRec.Intersects(right))
                             {
-                               // playerState = PlayerState.standing;
-                                Console.WriteLine("hit right");
+                                // playerState = PlayerState.standing;
                                 PositionX += Math.Abs(VelocityX);
                                 knockedBack = false;
                                 VelocityX = 0;
@@ -1958,10 +2193,74 @@ namespace ISurvived
                             }
                         }
                     }
+
+                    if ((rightPlay.Intersects(left) || leftPlay.Intersects(right)))
+                    {
+                        if (rightPlay.Intersects(left))
+                        {
+                            if (checkForRampRight.Intersects(left) && checkForRampRight.Y < left.Y && playerState != PlayerState.jumping && playerState != PlayerState.attackJumping && !jumpingDown && currentPlat != null)
+                            {
+                                rampDistanceY += Math.Abs((int)(position.Y - (plat.Rec.Y - 170 - 135 - 37)));
+                                currentTargetY = plat.Rec.Y - 170 - 135 - 37;
+                                //position.Y = plat.Rec.Y - 170 - 135 - 37;
+                                velocity.Y = 0;
+
+                                if (VelocityX == 0)
+                                    knockedBack = false;
+
+                                falling = false;
+                            }
+                            else if( plat.Passable == false)
+                            {
+                                if (playerState != PlayerState.jumping)
+                                {
+                                    position.X -= moveSpeed;
+                                }
+                                else
+                                {
+                                    position.X -= airMoveSpeed;
+                                }
+
+                                velocity.X = 0;
+                            }
+
+
+                        }
+
+                        if (leftPlay.Intersects(right))
+                        {
+                            if (checkForRampLeft.Intersects(right) && checkForRampLeft.Y < right.Y && playerState != PlayerState.jumping && playerState != PlayerState.attackJumping && !jumpingDown && currentPlat != null)
+                            {
+                                rampDistanceY += Math.Abs((int)(position.Y - (plat.Rec.Y - 170 - 135 - 37)));
+                                currentTargetY = plat.Rec.Y - 170 - 135 - 37;
+
+//                                position.Y = plat.Rec.Y - 170 - 135 - 37;
+                                velocity.Y = 0;
+
+                                if (VelocityX == 0)
+                                    knockedBack = false;
+
+                                falling = false;
+                            }
+                            else if( plat.Passable == false)
+                            {
+                                if (playerState != PlayerState.jumping)
+                                {
+                                    position.X += moveSpeed;
+                                }
+                                else
+                                {
+                                    position.X += airMoveSpeed;
+                                }
+                                velocity.X = 0;
+                            }
+
+                        }
+                    }
                 }
 
                 //--If you jump up into a nonpassable wall, push him back down
-                if (topPlay.Intersects(bottom) && velocity.Y < 0 && plat.Passable == false)
+                if ((topPlay.Intersects(bottom) || (VelocityY < 0 && new Rectangle(topPlay.X, topPlay.Y - (int)VelocityY, topPlay.Width, (int)VelocityY + topPlay.Height).Intersects(bottom))) && velocity.Y < 0 && plat.Passable == false)
                 {
                     velocity.Y = 0;
                     velocity.Y = GameConstants.GRAVITY;
@@ -1979,13 +2278,17 @@ namespace ISurvived
                         //170 is the height of the vital rec, but it changes during the jump, so just hardcode the number
                         //135 is the magic number of setting the player above platforms
                         //37 is the difference between the placement of daryl on the earlier spritesheets and this one
-                        position.Y = plat.Rec.Y - 170 - 135 - 37;
-                        velocity.Y = 0;
 
-                        if (VelocityX == 0)
-                            knockedBack = false;
+                        if (rampDistanceY == 0)
+                        {
+                            position.Y = plat.Rec.Y - 170 - 135 - 37;
+                            velocity.Y = 0;
 
-                        falling = false;
+                            if (VelocityX == 0)
+                                knockedBack = false;
+
+                            falling = false;
+                        }
                     }
 
                     currentPlat = plat;
@@ -1997,15 +2300,14 @@ namespace ISurvived
 
                         if (!isStunned)
                         {
-                            Chapter.effectsManager.AddJumpDustPoof(rec, facingRight);
+                            if(!jumpingDown)
+                                Chapter.effectsManager.AddJumpDustPoof(rec, facingRight);
                             landing = true;
                             frameDelay = 8;
                             moveFrame = 0;
                         }
-                        //if(selectFlinch.Next(2) == 0)
-                        //    Sound.PlaySoundInstance(Sound.SoundNames.PlayerLandingOutside1);
-                        //else
-                        //    Sound.PlaySoundInstance(Sound.SoundNames.PlayerLandingOutside2);
+
+                        Sound.PlayLandingSound(currentPlat.type);
 
                         attackFalling = false;
                     }
@@ -2091,11 +2393,13 @@ namespace ISurvived
         //--Call the Update method of all skills currently equipped
         public void UpdateSkills()
         {
-
             for (int i = 0; i < equippedSkills.Count; i++)
             {
                 equippedSkills[i].Update();
             }
+
+            if (game.ChapterOne.ChapterOneBooleans["quickRetortObtained"])
+                quickRetort.Update();
         }
 
         /// <summary>
@@ -2103,203 +2407,350 @@ namespace ISurvived
         /// </summary>
         public void StopSkills()
         {
+            if (playerState == PlayerState.attacking)
+                playerState = PlayerState.standing;
+
+            if (playerState == PlayerState.attackJumping)
+                playerState = PlayerState.jumping;
+
             for (int i = 0; i < equippedSkills.Count; i++)
             {
-                equippedSkills[i].AnimationLength = -1;
+                equippedSkills[i].StopSkill();
             }
+
+            if (game.ChapterOne.ChapterOneBooleans["quickRetortObtained"])
+                quickRetort.StopSkill();
+        }
+
+        public void CheckEarlySkillPress()
+        {
+            CheckSkillPress(true);
         }
 
         //--Checks to see which key was pressed: Q, W, E, or R
-        public void CheckSkillPress()
+        //4 is Quick Retort, which doesn't have to be equipped to be used
+        public void CheckSkillPress(Boolean currentlyAttacking = false)
         {
 
-            #region Non-hold skills
-            //--If Q was pressed, use the skill that is first in the list
-            //--Only use it if the cooldown is up, which means canUse is true
-            //--Only use if there is a skill in that slot
-            //The velocity check makes sure the player just use the skill as soon as he jumps, which could cause errors
-            if ((last.IsKeyDown(Keys.Q) && current.IsKeyUp(Keys.Q)) || MyGamePad.RightTriggerPressed())
+            if (!currentlyAttacking || (skillUsed < 4 && equippedSkills[skillUsed].AnimationLength <= 4))
             {
-                if (equippedSkills.Count > 0 && equippedSkills[0].canUse == true && equippedSkills[0].HoldToUse == false)
+                #region Quick Retort stuff
+                if (game.ChapterOne.ChapterOneBooleans["quickRetortObtained"])
                 {
-                    if (playerState == PlayerState.jumping)
+
+                    if (current.IsKeyDown(Keys.LeftShift) && current.IsKeyUp(Keys.RightShift) && last.IsKeyUp(Keys.LeftShift))
                     {
-                        if (equippedSkills[0].CanUseInAir)
+                        quickRetortDoubleTapTimer = 10;
+                        leftTapped = 1;
+                    }
+                    else if (current.IsKeyDown(Keys.RightShift) && current.IsKeyUp(Keys.LeftShift) && last.IsKeyUp(Keys.RightShift))
+                    {
+                        quickRetortDoubleTapTimer = 10;
+                        rightTapped = 1;
+                    }
+
+                    if ((leftTapped == 1 && current.IsKeyUp(Keys.LeftShift)) || (rightTapped == 1 && current.IsKeyUp(Keys.RightShift)))
+                    {
+                        if (quickRetort.canUse == true)
                         {
-                            attackFalling = true;
-                            playerState = PlayerState.attackJumping;
+                            quickRetortDoubleTapTimer = 0;
+                            leftTapped = 0;
+                            rightTapped = 0;
+
+                            if (playerState == PlayerState.jumping)
+                            {
+                                attackFalling = true;
+                                playerState = PlayerState.attackJumping;
+                                skillUsed = 4;
+                            }
+                            else
+                            {
+                                playerState = PlayerState.attacking;
+                                skillUsed = 4;
+                            }
+
+                        }
+                    }
+
+                    if (quickRetortDoubleTapTimer > 0)
+                        quickRetortDoubleTapTimer--;
+                    else
+                    {
+                        leftTapped = 0;
+                        rightTapped = 0;
+                    }
+
+                    //if ((current.IsKeyDown(Keys.Left) && last.IsKeyUp(Keys.Left)))
+                    //{
+                    //    if (quickRetortDoubleTapTimer > 0 && leftTapped == 1)
+                    //    {
+                    //        leftTapped = 2;
+                    //        rightTapped = 0;
+                    //    }
+                    //    else
+                    //    {
+                    //        leftTapped = 1;
+                    //        rightTapped = 0;
+                    //        quickRetortDoubleTapTimer = maxQuickRetortDoubleTapTimer;
+                    //    }
+
+                    //}
+
+                    //else if ((current.IsKeyDown(Keys.Right) && last.IsKeyUp(Keys.Right)))
+                    //{
+                    //    if (quickRetortDoubleTapTimer > 0 && rightTapped == 1)
+                    //    {
+                    //        rightTapped = 2;
+                    //        leftTapped = 0;
+                    //    }
+                    //    else
+                    //    {
+                    //        rightTapped = 1;
+                    //        leftTapped = 0;
+                    //        quickRetortDoubleTapTimer = maxQuickRetortDoubleTapTimer;
+                    //    }
+
+                    //}
+
+                    //if (quickRetort.canUse == true && (leftTapped == 2 || rightTapped == 2))
+                    //{
+
+                    //    if (playerState == PlayerState.jumping)
+                    //    {
+                    //        attackFalling = true;
+                    //        playerState = PlayerState.attackJumping;
+                    //        skillUsed = 4;
+                    //    }
+                    //    else
+                    //    {
+                    //        playerState = PlayerState.attacking;
+                    //        skillUsed = 4;
+                    //    }
+
+                    //}
+                }
+                #endregion
+
+                #region Non-hold skills
+                //--If Q was pressed, use the skill that is first in the list
+                //--Only use it if the cooldown is up, which means canUse is true
+                //--Only use if there is a skill in that slot
+                //The velocity check makes sure the player just use the skill as soon as he jumps, which could cause errors
+                if ((last.IsKeyDown(Keys.Q) && current.IsKeyUp(Keys.Q)) || MyGamePad.APressed())
+                {
+                    if (equippedSkills.Count > 0 && equippedSkills[0].canUse == true && equippedSkills[0].HoldToUse == false)
+                    {
+                        if (currentlyAttacking)
+                        {
+                            StopSkills();
+                        }
+                        if (playerState == PlayerState.jumping)
+                        {
+                            if (equippedSkills[0].CanUseInAir)
+                            {
+                                attackFalling = true;
+                                playerState = PlayerState.attackJumping;
+                                skillUsed = 0;
+                            }
+                        }
+                        else
+                        {
+                            playerState = PlayerState.attacking;
                             skillUsed = 0;
                         }
                     }
-                    else
-                    {
-                        playerState = PlayerState.attacking;
-                        skillUsed = 0;
-                    }
                 }
-            }
 
 
-            if ((last.IsKeyDown(Keys.W) && current.IsKeyUp(Keys.W)) || MyGamePad.XPressed())
-            {
-                if (equippedSkills.Count > 1 && equippedSkills[1].canUse == true && equippedSkills[1].HoldToUse == false)
+                if ((last.IsKeyDown(Keys.W) && current.IsKeyUp(Keys.W)) || MyGamePad.BPressed())
                 {
-                    if (playerState == PlayerState.jumping)
+                    if (equippedSkills.Count > 1 && equippedSkills[1].canUse == true && equippedSkills[1].HoldToUse == false)
                     {
-                        if (equippedSkills[1].CanUseInAir)
+                        if (currentlyAttacking)
                         {
-                            attackFalling = true;
-                            playerState = PlayerState.attackJumping;
+                            StopSkills();
+                        }
+                        if (playerState == PlayerState.jumping)
+                        {
+                            if (equippedSkills[1].CanUseInAir)
+                            {
+                                attackFalling = true;
+                                playerState = PlayerState.attackJumping;
+                                skillUsed = 1;
+                            }
+                        }
+                        else
+                        {
+                            playerState = PlayerState.attacking;
                             skillUsed = 1;
                         }
                     }
-                    else
-                    {
-                        playerState = PlayerState.attacking;
-                        skillUsed = 1;
-                    }
                 }
-            }
 
 
-            if ((last.IsKeyDown(Keys.E) && current.IsKeyUp(Keys.E)) || MyGamePad.YPressed())
-            {
-                if (equippedSkills.Count > 2 && equippedSkills[2].canUse == true && equippedSkills[2].HoldToUse == false)
+                if ((last.IsKeyDown(Keys.E) && current.IsKeyUp(Keys.E)) || MyGamePad.XPressed())
                 {
-                    if (playerState == PlayerState.jumping)
+                    if (equippedSkills.Count > 2 && equippedSkills[2].canUse == true && equippedSkills[2].HoldToUse == false)
                     {
-                        if (equippedSkills[2].CanUseInAir)
+                        if (currentlyAttacking)
                         {
-                            attackFalling = true;
-                            playerState = PlayerState.attackJumping;
+                            StopSkills();
+                        }
+                        if (playerState == PlayerState.jumping)
+                        {
+                            if (equippedSkills[2].CanUseInAir)
+                            {
+                                attackFalling = true;
+                                playerState = PlayerState.attackJumping;
+                                skillUsed = 2;
+                            }
+                        }
+                        else
+                        {
+                            playerState = PlayerState.attacking;
                             skillUsed = 2;
                         }
                     }
-                    else
-                    {
-                        playerState = PlayerState.attacking;
-                        skillUsed = 2;
-                    }
                 }
-            }
 
 
-            if ((last.IsKeyDown(Keys.R) && current.IsKeyUp(Keys.R)) || MyGamePad.BPressed())
-            {
-                if (equippedSkills.Count > 3 && equippedSkills[3].canUse == true && equippedSkills[3].HoldToUse == false)
+                if ((last.IsKeyDown(Keys.R) && current.IsKeyUp(Keys.R)) || MyGamePad.YPressed())
                 {
-                    if (playerState == PlayerState.jumping)
+                    if (equippedSkills.Count > 3 && equippedSkills[3].canUse == true && equippedSkills[3].HoldToUse == false)
                     {
-                        if (equippedSkills[3].CanUseInAir)
+                        if (currentlyAttacking)
                         {
-                            attackFalling = true;
-                            playerState = PlayerState.attackJumping;
+                            StopSkills();
+                        }
+                        if (playerState == PlayerState.jumping)
+                        {
+                            if (equippedSkills[3].CanUseInAir)
+                            {
+                                attackFalling = true;
+                                playerState = PlayerState.attackJumping;
+                                skillUsed = 3;
+                            }
+                        }
+                        else
+                        {
+                            playerState = PlayerState.attacking;
                             skillUsed = 3;
                         }
                     }
-                    else
-                    {
-                        playerState = PlayerState.attacking;
-                        skillUsed = 3;
-                    }
                 }
-            }
-            #endregion
+                #endregion
 
-            #region Hold skills
-            //--If Q was pressed, use the skill that is first in the list
-            //--Only use it if the cooldown is up, which means canUse is true
-            //--Only use if there is a skill in that slot
-            //The velocity check makes sure the player just use the skill as soon as he jumps, which could cause errors
-            if (last.IsKeyDown(Keys.Q) || MyGamePad.currentState.Triggers.Right > 0)
-            {
-                if (equippedSkills.Count > 0 && equippedSkills[0].canUse == true && equippedSkills[0].HoldToUse == true)
+                #region Hold skills
+                //--If Q was pressed, use the skill that is first in the list
+                //--Only use it if the cooldown is up, which means canUse is true
+                //--Only use if there is a skill in that slot
+                //The velocity check makes sure the player just use the skill as soon as he jumps, which could cause errors
+                if (last.IsKeyDown(Keys.Q) || MyGamePad.AHeld())
                 {
-                    if (playerState == PlayerState.jumping)
+                    if (equippedSkills.Count > 0 && equippedSkills[0].canUse == true && equippedSkills[0].HoldToUse == true)
                     {
-                        if (equippedSkills[0].CanUseInAir)
+                        if (currentlyAttacking)
                         {
-                            attackFalling = true;
-                            playerState = PlayerState.attackJumping;
+                            StopSkills();
+                        }
+                        if (playerState == PlayerState.jumping)
+                        {
+                            if (equippedSkills[0].CanUseInAir)
+                            {
+                                attackFalling = true;
+                                playerState = PlayerState.attackJumping;
+                                skillUsed = 0;
+                            }
+                        }
+                        else
+                        {
+                            playerState = PlayerState.attacking;
                             skillUsed = 0;
                         }
-                    }
-                    else
-                    {
-                        playerState = PlayerState.attacking;
-                        skillUsed = 0;
-                    }
 
 
+                    }
                 }
-            }
 
 
-            if (last.IsKeyDown(Keys.W) || MyGamePad.currentState.Buttons.X == ButtonState.Pressed)
-            {
-                if (equippedSkills.Count > 1 && equippedSkills[1].canUse == true && equippedSkills[1].HoldToUse == true)
+                if (last.IsKeyDown(Keys.W) || MyGamePad.BHeld())
                 {
-                    if (playerState == PlayerState.jumping)
+                    if (equippedSkills.Count > 1 && equippedSkills[1].canUse == true && equippedSkills[1].HoldToUse == true)
                     {
-                        if (equippedSkills[1].CanUseInAir)
+                        if (currentlyAttacking)
                         {
-                            attackFalling = true;
-                            playerState = PlayerState.attackJumping;
+                            StopSkills();
+                        }
+                        if (playerState == PlayerState.jumping)
+                        {
+                            if (equippedSkills[1].CanUseInAir)
+                            {
+                                attackFalling = true;
+                                playerState = PlayerState.attackJumping;
+                                skillUsed = 1;
+                            }
+                        }
+                        else
+                        {
+                            playerState = PlayerState.attacking;
                             skillUsed = 1;
                         }
                     }
-                    else
-                    {
-                        playerState = PlayerState.attacking;
-                        skillUsed = 1;
-                    }
                 }
-            }
 
 
-            if (last.IsKeyDown(Keys.E) || MyGamePad.currentState.Buttons.Y == ButtonState.Pressed)
-            {
-                if (equippedSkills.Count > 2 && equippedSkills[2].canUse == true && equippedSkills[2].HoldToUse == true)
+                if (last.IsKeyDown(Keys.E) || MyGamePad.XHeld())
                 {
-                    if (playerState == PlayerState.jumping)
+                    if (equippedSkills.Count > 2 && equippedSkills[2].canUse == true && equippedSkills[2].HoldToUse == true)
                     {
-                        if (equippedSkills[2].CanUseInAir)
+                        if (currentlyAttacking)
                         {
-                            attackFalling = true;
-                            playerState = PlayerState.attackJumping;
+                            StopSkills();
+                        }
+                        if (playerState == PlayerState.jumping)
+                        {
+                            if (equippedSkills[2].CanUseInAir)
+                            {
+                                attackFalling = true;
+                                playerState = PlayerState.attackJumping;
+                                skillUsed = 2;
+                            }
+                        }
+                        else
+                        {
+                            playerState = PlayerState.attacking;
                             skillUsed = 2;
                         }
                     }
-                    else
-                    {
-                        playerState = PlayerState.attacking;
-                        skillUsed = 2;
-                    }
                 }
-            }
 
 
-            if (last.IsKeyDown(Keys.R) || MyGamePad.currentState.Buttons.B == ButtonState.Pressed)
-            {
-                if (equippedSkills.Count > 3 && equippedSkills[3].canUse == true && equippedSkills[3].HoldToUse == true)
+                if (last.IsKeyDown(Keys.R) || MyGamePad.YHeld())
                 {
-                    if (playerState == PlayerState.jumping)
+                    if (equippedSkills.Count > 3 && equippedSkills[3].canUse == true && equippedSkills[3].HoldToUse == true)
                     {
-                        if (equippedSkills[3].CanUseInAir)
+                        if (currentlyAttacking)
                         {
-                            attackFalling = true;
-                            playerState = PlayerState.attackJumping;
+                            StopSkills();
+                        }
+                        if (playerState == PlayerState.jumping)
+                        {
+                            if (equippedSkills[3].CanUseInAir)
+                            {
+                                attackFalling = true;
+                                playerState = PlayerState.attackJumping;
+                                skillUsed = 3;
+                            }
+                        }
+                        else
+                        {
+                            playerState = PlayerState.attacking;
                             skillUsed = 3;
                         }
                     }
-                    else
-                    {
-                        playerState = PlayerState.attacking;
-                        skillUsed = 3;
-                    }
                 }
+                #endregion
             }
-            #endregion
 
         }
 
@@ -2376,7 +2827,7 @@ namespace ISurvived
                 #region TO THE LEFT
                 //--If the player is thrown to the left
                 //--Increase velocity by 2, then when it hits 0 set to false
-                if (velocity.X < 0)
+                if (velocity.X <= 0)
                 {
                     velocity.X += 2;
 
@@ -2411,11 +2862,13 @@ namespace ISurvived
         }
 
         //--Take damage after subtracting tolerance
-        public void TakeDamage(int dmg)
+        public void TakeDamage(int dmg, int enemyLevel)
         {
             if (invincible == false)
             {
-                int newDmg = dmg - defense;
+                int newDmg = (int)(dmg * ((20f * enemyLevel) / ((10f * enemyLevel) + realDefense * 2f)));
+
+                damageAlpha = .6f;
 
                 //--If the player is taking no damage, make him take 1
                 if (newDmg <= 0)
@@ -2452,17 +2905,29 @@ namespace ISurvived
             }
         }
 
+        public void LevelUpToLevel(int lvl)
+        {
+            while (level < lvl)
+            {
+                experience = experienceUntilLevel;
+                LevelUp();
+                Sound.StopAllSoundEffects();
+                levelingUp = false;
+            }
+        }
+
         public void LevelUp()
         {
             if (experience >= experienceUntilLevel)
             {
                 level++;
                 levelingUp = true;
+                Sound.PlaySoundInstance(Sound.SoundNames.popup_level_up);
                 switch (level)
                 {
                     case 2:
-                        healthAddedDuringLevel = 2;
-                        defenseAddedDuringLevel = 1;
+                        healthAddedDuringLevel = 8;
+                        defenseAddedDuringLevel = 5;
                         strengthAddedDuringLevel = 1;
                         experience -= experienceUntilLevel;
                         experienceUntilLevel = 40;
@@ -2475,22 +2940,98 @@ namespace ISurvived
                         experienceUntilLevel = 250;
                         break;
                     case 4:
-                        healthAddedDuringLevel = 6;
-                        strengthAddedDuringLevel = 4;
-                        defenseAddedDuringLevel = 2;
+                        healthAddedDuringLevel = 12;
+                        strengthAddedDuringLevel = 2;
+                        defenseAddedDuringLevel = 9;
                         experience -= experienceUntilLevel;
-                        experienceUntilLevel = 50000;
+                        experienceUntilLevel = 500;
                         break;
 
                     case 5:
-                        healthAddedDuringLevel = 1;
-                        strengthAddedDuringLevel = 1;
-                        defenseAddedDuringLevel = 1;
+                        healthAddedDuringLevel = 15;
+                        strengthAddedDuringLevel = 5;
+                        defenseAddedDuringLevel = 7;
                         experience -= experienceUntilLevel;
-                        experienceUntilLevel = 50000;
+                        experienceUntilLevel = 650;
                         break;
-
+                    case 6:
+                        healthAddedDuringLevel = 5;
+                        strengthAddedDuringLevel = 3;
+                        defenseAddedDuringLevel = 7;
+                        experience -= experienceUntilLevel;
+                        experienceUntilLevel = 1200;
+                        break;
+                    case 7:
+                        healthAddedDuringLevel = 15;
+                        strengthAddedDuringLevel = 6;
+                        defenseAddedDuringLevel = 4;
+                        experience -= experienceUntilLevel;
+                        experienceUntilLevel = 2400;
+                        break;
+                    case 8:
+                        healthAddedDuringLevel = 12;
+                        strengthAddedDuringLevel = 5;
+                        defenseAddedDuringLevel = 7;
+                        experience -= experienceUntilLevel;
+                        experienceUntilLevel = 3000;
+                        break;
+                    case 9:
+                        healthAddedDuringLevel = 20;
+                        strengthAddedDuringLevel = 8;
+                        defenseAddedDuringLevel = 15;
+                        experience -= experienceUntilLevel;
+                        experienceUntilLevel = 3500;
+                        break;
+                    case 10:
+                        healthAddedDuringLevel = 20;
+                        strengthAddedDuringLevel = 5;
+                        defenseAddedDuringLevel = 20;
+                        experience -= experienceUntilLevel;
+                        experienceUntilLevel = 4500;
+                        break;
+                    case 11:
+                        healthAddedDuringLevel = 15;
+                        strengthAddedDuringLevel = 10;
+                        defenseAddedDuringLevel = 12;
+                        experience -= experienceUntilLevel;
+                        experienceUntilLevel = 5200;
+                        break;
+                    case 12:
+                        healthAddedDuringLevel = 19;
+                        strengthAddedDuringLevel = 12;
+                        defenseAddedDuringLevel = 10;
+                        experience -= experienceUntilLevel;
+                        experienceUntilLevel = 6000;
+                        break;
+                    case 13:
+                        healthAddedDuringLevel = 20;
+                        strengthAddedDuringLevel = 17;
+                        defenseAddedDuringLevel = 11;
+                        experience -= experienceUntilLevel;
+                        experienceUntilLevel = 8500;
+                        break;
+                    case 14:
+                        healthAddedDuringLevel = 35;
+                        strengthAddedDuringLevel = 21;
+                        defenseAddedDuringLevel = 38;
+                        experienceUntilLevel = 10000;
+                        experience = 0;
+                        break;
                     case 15:
+                        healthAddedDuringLevel = 30;
+                        strengthAddedDuringLevel = 24;
+                        defenseAddedDuringLevel = 23;
+                        experienceUntilLevel = 14000;
+                        experience = 0;
+                        break;
+                    case 16:
+                        healthAddedDuringLevel = 60;
+                        strengthAddedDuringLevel = 25;
+                        defenseAddedDuringLevel = 27;
+                        experienceUntilLevel = 20000;
+                        experience = 0;
+                        break;
+                    case 17:
                         healthAddedDuringLevel = 50;
                         strengthAddedDuringLevel = 30;
                         defenseAddedDuringLevel = 6;
@@ -2499,16 +3040,24 @@ namespace ISurvived
                         break;
 
                     default:
-                        experienceUntilLevel = 10000;
+                        healthAddedDuringLevel = 50;
+                        strengthAddedDuringLevel = 10;
+                        defenseAddedDuringLevel = 7;
+                        experienceUntilLevel = 1800;
                         experience = 0;
                         break;
                 }
 
-                maxHealth += healthAddedDuringLevel;
-                strength += strengthAddedDuringLevel;
-                defense += defenseAddedDuringLevel;
-                health = maxHealth;
+                baseMaxHealth += healthAddedDuringLevel;
+                baseStrength += strengthAddedDuringLevel;
+                baseDefense += defenseAddedDuringLevel;
+
+                UpdateStats();
+
+                health = realMaxHealth;
             }
+
+
         }
 
         public void AddStoryItem(String name, String pickUpName, int num)
@@ -2527,6 +3076,7 @@ namespace ISurvived
                     storyItems[name]+= num;
             }
 
+            Sound.PlaySoundInstance(Sound.SoundNames.object_pickup_misc);
             Chapter.effectsManager.AddFoundItem(pickUpName, Game1.storyItemIcons[name]);
         }
 
@@ -2547,10 +3097,42 @@ namespace ISurvived
             }
         }
 
+        public Boolean AddLoot(String name, int num)
+        {
+
+            if (num > 99)
+                num = 99;
+            if (num < 1)
+                num = 1;
+
+            //--If the player doesn't already have a drop of this type
+            if (!(enemyDrops.ContainsKey(name)))
+            {
+                //--Add it to the dictionary
+                enemyDrops.Add(name, num);
+                game.Notebook.Inventory.newLoot = true;
+
+                return true;
+            }
+            else
+            {
+                //--Otherwise, increase how many he has, up to 99
+                if (enemyDrops[name] + num <= 99)
+                {
+                    enemyDrops[name]+= num;
+                    game.Notebook.Inventory.newLoot = true;
+
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         public void PickUpDrops()
         {
             //--If the player presses shift and is touching a drop
-            if (current.IsKeyDown(Keys.Space) || MyGamePad.currentState.Buttons.LeftShoulder == ButtonState.Pressed)
+            if (current.IsKeyDown(Keys.Space) || MyGamePad.currentState.Triggers.Right > 0)
             {
                 pickUpCooldown++;
 
@@ -2587,12 +3169,12 @@ namespace ISurvived
                                     else if (drop.Equip is Hat && ownedHats.Count >= 75)
                                         cantPickUp = true;
 
-                                    if (drop.Equip is Hoodie && OwnedHoodies.Count < 75)
+                                    if (drop.Equip is Outfit && OwnedHoodies.Count < 75)
                                     {
-                                        ownedHoodies.Add(drop.Equip as Hoodie);
+                                        ownedHoodies.Add(drop.Equip as Outfit);
                                         game.Notebook.Inventory.newShirt = true;
                                     }
-                                    else if (drop.Equip is Hoodie && ownedHoodies.Count >= 75)
+                                    else if (drop.Equip is Outfit && ownedHoodies.Count >= 75)
                                         cantPickUp = true;
 
                                     if (drop.Equip is Accessory && OwnedAccessories.Count < 75)
@@ -2720,6 +3302,7 @@ namespace ISurvived
                                 //--Make it so the drop is picked up
                                 if (!cantPickUp)
                                 {
+                                    Sound.PlaySoundInstance(Sound.SoundNames.object_pickup_loot);
                                     drop.PickedUp = true;
 
                                     if (game.Prologue.PrologueBooleans["PickedUpDrop"] == false)
@@ -2754,7 +3337,7 @@ namespace ISurvived
         {
             if (VitalRecY > 1000)
             {
-                health -= (int)maxHealth / 10;
+                health -= (int)realMaxHealth / 10;
 
                 //Sets the player's position equal to the chapter's starting portal
                 //A starting portal is set every time the player enters a map, it is the portal he entered from
@@ -2873,6 +3456,7 @@ namespace ISurvived
             landing = false;
             ducking = false;
             drawStandingBackUpLines = false;
+            sprinting = false;
             if (velocity.X > 0)
             {
                 facingRight = true;
@@ -2887,22 +3471,10 @@ namespace ISurvived
             if (cutsceneMoving == false)
                 moveFrame = 0;
 
-            //if ((moveFrame == 2 || moveFrame == 7) && frameDelay == 3)
-            //{
-            //    int ran = selectFlinch.Next(6);
-            //    if (ran == 0)
-            //        Sound.PlaySoundInstance(Sound.SoundNames.PlayerRunOutside1);
-            //    else if (ran == 1)
-            //        Sound.PlaySoundInstance(Sound.SoundNames.PlayerRunOutside2);
-            //    else if (ran == 2)
-            //        Sound.PlaySoundInstance(Sound.SoundNames.PlayerRunOutside3);
-            //    else if (ran == 3)
-            //        Sound.PlaySoundInstance(Sound.SoundNames.PlayerRunOutside4);
-            //    else if (ran == 4)
-            //        Sound.PlaySoundInstance(Sound.SoundNames.PlayerRunOutside5);
-            //    else
-            //        Sound.PlaySoundInstance(Sound.SoundNames.PlayerRunOutside6);
-            //}
+            if ((moveFrame == 2 || moveFrame == 7) && frameDelay == 3)
+            {
+                Sound.PlaySteppingSound(currentPlat.type);
+            }
 
             frameDelay--;
             if (frameDelay == 0)
@@ -2930,6 +3502,8 @@ namespace ISurvived
             landing = false;
             ducking = false;
             drawStandingBackUpLines = false;
+            sprinting = false;
+
             if (velocity.X > 0)
             {
                 facingRight = true;
@@ -2944,22 +3518,14 @@ namespace ISurvived
             if (cutsceneMoving == false)
                 moveFrame = 0;
 
-            //if ((moveFrame == 2 || moveFrame == 7) && frameDelay == 3)
-            //{
-            //    int ran = selectFlinch.Next(6);
-            //    if (ran == 0)
-            //        Sound.PlaySoundInstance(Sound.SoundNames.PlayerRunOutside1);
-            //    else if (ran == 1)
-            //        Sound.PlaySoundInstance(Sound.SoundNames.PlayerRunOutside2);
-            //    else if (ran == 2)
-            //        Sound.PlaySoundInstance(Sound.SoundNames.PlayerRunOutside3);
-            //    else if (ran == 3)
-            //        Sound.PlaySoundInstance(Sound.SoundNames.PlayerRunOutside4);
-            //    else if (ran == 4)
-            //        Sound.PlaySoundInstance(Sound.SoundNames.PlayerRunOutside5);
-            //    else
-            //        Sound.PlaySoundInstance(Sound.SoundNames.PlayerRunOutside6);
-            //}
+            if ((moveFrame == 2 || moveFrame == 7) && frameDelay == 3)
+            {
+                if(currentPlat != null)
+                    Sound.PlaySteppingSound(currentPlat.type);
+                else
+                    Sound.PlaySteppingSound(Platform.PlatformType.rock);
+
+            }
 
             frameDelay--;
             if (frameDelay == 0)
@@ -3003,10 +3569,10 @@ namespace ISurvived
         {
             if (equippedWeapon != null)
             {
-                Strength -= EquippedWeapon.Strength;
-                MaxHealth -= EquippedWeapon.Health;
+                BaseStrength -= EquippedWeapon.Strength;
+                BaseMaxHealth -= EquippedWeapon.Health;
                 Health -= EquippedWeapon.Health;
-                Defense -= EquippedWeapon.Defense;
+                BaseDefense -= EquippedWeapon.Defense;
                 JumpHeight -= EquippedWeapon.JumpHeight;
                 MoveSpeed -= EquippedWeapon.MoveSpeed;
 
@@ -3014,10 +3580,10 @@ namespace ISurvived
             }
             if (secondWeapon != null)
             {
-                Strength -= secondWeapon.Strength;
-                MaxHealth -= secondWeapon.Health;
+                BaseStrength -= secondWeapon.Strength;
+                BaseMaxHealth -= secondWeapon.Health;
                 Health -= secondWeapon.Health;
-                Defense -= secondWeapon.Defense;
+                BaseDefense -= secondWeapon.Defense;
                 JumpHeight -= secondWeapon.JumpHeight;
                 MoveSpeed -= secondWeapon.MoveSpeed;
 
@@ -3025,10 +3591,10 @@ namespace ISurvived
             }
             if (equippedHoodie != null)
             {
-                Strength -= equippedHoodie.Strength;
-                MaxHealth -= equippedHoodie.Health;
+                BaseStrength -= equippedHoodie.Strength;
+                BaseMaxHealth -= equippedHoodie.Health;
                 Health -= equippedHoodie.Health;
-                Defense -= equippedHoodie.Defense;
+                BaseDefense -= equippedHoodie.Defense;
                 JumpHeight -= equippedHoodie.JumpHeight;
                 MoveSpeed -= equippedHoodie.MoveSpeed;
 
@@ -3037,10 +3603,10 @@ namespace ISurvived
             }
             if (equippedHat != null)
             {
-                Strength -= equippedHat.Strength;
-                MaxHealth -= equippedHat.Health;
+                BaseStrength -= equippedHat.Strength;
+                BaseMaxHealth -= equippedHat.Health;
                 Health -= equippedHat.Health;
-                Defense -= equippedHat.Defense;
+                BaseDefense -= equippedHat.Defense;
                 JumpHeight -= equippedHat.JumpHeight;
                 MoveSpeed -= equippedHat.MoveSpeed;
 
@@ -3048,10 +3614,10 @@ namespace ISurvived
             }
             if (equippedAccessory != null)
             {
-                Strength -= equippedAccessory.Strength;
-                MaxHealth -= equippedAccessory.Health;
+                BaseStrength -= equippedAccessory.Strength;
+                BaseMaxHealth -= equippedAccessory.Health;
                 Health -= equippedAccessory.Health;
-                Defense -= equippedAccessory.Defense;
+                BaseDefense -= equippedAccessory.Defense;
                 JumpHeight -= equippedAccessory.JumpHeight;
                 MoveSpeed -= equippedAccessory.MoveSpeed;
 
@@ -3059,10 +3625,10 @@ namespace ISurvived
             }
             if (secondAccessory != null)
             {
-                Strength -= secondAccessory.Strength;
-                MaxHealth -= secondAccessory.Health;
+                BaseStrength -= secondAccessory.Strength;
+                BaseMaxHealth -= secondAccessory.Health;
                 Health -= secondAccessory.Health;
-                Defense -= secondAccessory.Defense;
+                BaseDefense -= secondAccessory.Defense;
                 JumpHeight -= secondAccessory.JumpHeight;
                 MoveSpeed -= secondAccessory.MoveSpeed;
 
@@ -3080,6 +3646,15 @@ namespace ISurvived
         {
             allMonsterBios[name] = true;
             Chapter.effectsManager.secondNotificationQueue.Enqueue(new BioUnlockNotification(2));
+        }
+
+        public void UnlockAllCharacterBios()
+        {
+            for (int i = 0; i < allCharacterBios.Count; i++)
+            {
+                if (allCharacterBios.ElementAt(i).Key != "Hangerman" && allCharacterBios.ElementAt(i).Key != "Author" && allCharacterBios.ElementAt(i).Key != "Princess" && allCharacterBios.ElementAt(i).Key != "Janitor")
+                    allCharacterBios[allCharacterBios.ElementAt(i).Key] = true;
+            }
         }
 
         public void SetCharacterBioDictionary()
@@ -3104,9 +3679,9 @@ namespace ISurvived
             allCharacterBios.Add("Julius Caesar", false);
             allCharacterBios.Add("Pelt Kid", false);
             allCharacterBios.Add("Jesse", false);
-            allCharacterBios.Add("Squirrel Boy", false);
-            allCharacterBios.Add("Bob the Construction Guy", false);
-            allCharacterBios.Add("Journal Kid", false);
+           // allCharacterBios.Add("Squirrel Boy", false);
+           // allCharacterBios.Add("Bob the Construction Guy", false);
+            //allCharacterBios.Add("Journal Kid", false);
         }
 
         public void SetMonsterBioDictionary()
@@ -3114,12 +3689,38 @@ namespace ISurvived
             allMonsterBios.Add("Fez", false);
             allMonsterBios.Add("Erl The Flask", false);
             allMonsterBios.Add("Benny Beaker", false);
+            allMonsterBios.Add("Vent Bat", false);
+            allMonsterBios.Add("Fluffles the Rat", false);
+            allMonsterBios.Add("Tuba Ghost", false);
+            allMonsterBios.Add("Maracas Hermanos", false);
+            allMonsterBios.Add("Sergeant Cymbal", false);
+            allMonsterBios.Add("Captain Sax", false);
+            allMonsterBios.Add("Lord Glockenspiel", false);
+            allMonsterBios.Add("Slay Dough", false);
+            allMonsterBios.Add("Eatball", false);
+            allMonsterBios.Add("Fluffles the Bandit", false);
+            allMonsterBios.Add("Goblin", false);
+            allMonsterBios.Add("Nurse Goblin", false);
+            allMonsterBios.Add("Bomblin", false);
+            allMonsterBios.Add("Goblin Mortar", false);
+            allMonsterBios.Add("Tree Ent", false);
+            allMonsterBios.Add("Spooky Present", false);
+            allMonsterBios.Add("Eerie Elf", false);
+            allMonsterBios.Add("Haunted Nutcracker", false);
+            allMonsterBios.Add("Sexy Saguaro", false);
+            allMonsterBios.Add("Burnie Buzzard", false);
+            allMonsterBios.Add("Scorpadillo", false);
+            allMonsterBios.Add("Mummy", false);
+            allMonsterBios.Add("Vile Mummy", false);
             allMonsterBios.Add("Crow", false);
             allMonsterBios.Add("Scarecrow", false);
             allMonsterBios.Add("Goblin Gate", false);
-            allMonsterBios.Add("Goblin", false);
             allMonsterBios.Add("Field Goblin", false);
-            allMonsterBios.Add("Bomblin", false);
+            allMonsterBios.Add("Goblin Soldier", false);
+            allMonsterBios.Add("Commander Goblin", false);
+            allMonsterBios.Add("Anubis Warrior", false);
+            allMonsterBios.Add("Locust", false);
+            allMonsterBios.Add("Commander Anubis", false);
             allMonsterBios.Add("Troll", false);
         }
 
@@ -3135,7 +3736,7 @@ namespace ISurvived
             game.Notebook.Inventory.newHat = true;
         }
 
-        public void AddShirtToInventory(Hoodie s)
+        public void AddShirtToInventory(Outfit s)
         {
             ownedHoodies.Add(s);
             game.Notebook.Inventory.newShirt = true;

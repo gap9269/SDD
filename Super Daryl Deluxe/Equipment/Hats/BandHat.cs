@@ -11,13 +11,14 @@ namespace ISurvived
         public BandHat()
             : base()
         {
-            health = 6;
+            health = 40;
             strength = 0;
             defense = 0;
             moveSpeed = 0;
             jumpHeight = 0;
             name = "Band Hat";
-            level = 5;
+            level = 7;
+            sellPrice = 8.00f;
             description = "This one time, at Band Hat camp... \n\n";
 icon = Game1.equipmentTextures[name];
         }

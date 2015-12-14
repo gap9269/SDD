@@ -92,37 +92,39 @@ namespace ISurvived
             base.Update(mapWidth);
             if (!respawning && !isStunned)
             {
-
-                UpdatePlayerAttackPoints();
-
-                frameDelay--;
-
-                if (frameDelay <= 0)
+                if (hitPauseTimer <= 0)
                 {
-                    frameDelay = 4;
-                    moveFrame++;
-                }
+                    UpdatePlayerAttackPoints();
 
-                if (moveFrame > 4)
-                {
-                    if (!hostile && !blinking)
-                    {
-                        loopsBeforeBlink++;
-                        if (loopsBeforeBlink == 3)
-                            blinking = true;
-                    }
-                    else if (blinking)
-                    {
-                        loopsBeforeBlink = 0;
-                        blinking = false;
-                    }
-                    moveFrame = 0;
-                }
+                    frameDelay--;
 
-                if (attacking)
-                    CheckWalkCollisions(135, new Vector2(3, -5));
-                else
-                    CheckWalkCollisions(125, new Vector2(3, -5));
+                    if (frameDelay <= 0)
+                    {
+                        frameDelay = 4;
+                        moveFrame++;
+                    }
+
+                    if (moveFrame > 4)
+                    {
+                        if (!hostile && !blinking)
+                        {
+                            loopsBeforeBlink++;
+                            if (loopsBeforeBlink == 3)
+                                blinking = true;
+                        }
+                        else if (blinking)
+                        {
+                            loopsBeforeBlink = 0;
+                            blinking = false;
+                        }
+                        moveFrame = 0;
+                    }
+
+                    if (attacking)
+                        CheckWalkCollisions(135, new Vector2(3, -5));
+                    else
+                        CheckWalkCollisions(125, new Vector2(3, -5));
+                }
             }
             vitalRec.X = rec.X;
             vitalRec.Y = rec.Y;

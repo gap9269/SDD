@@ -33,12 +33,12 @@ namespace ISurvived
         Random shakeNum;
         Vector2 shakeOffset;
         Matrix parallaxTransform;
-        
+
         public static float cursorScale;
 
         public Matrix Transform { get { return transform; } }
         public Matrix StaticTransform { get { return staticTransform; } }
-        public Vector2 Center { get { return center; } }
+        public Vector2 Center { get { return center; } set { center = value; } }
         public Viewport View { get { return view; } }
         public float Width { get { return (720f / Game1.aspectRatio) / zoom; } }
 
@@ -50,7 +50,7 @@ namespace ISurvived
 
         public void ShakeCamera(int time, float mag)
         {
-            if (!shaking || mag > shakeMagnitude)
+            if ((!shaking || mag > shakeMagnitude) && mag > 0)
             {
                 shaking = true;
                 shakeMagnitude = mag;
@@ -107,8 +107,6 @@ namespace ISurvived
 
         public void Update(GameObject obj, Game1 g, MapClass current)
         {
-
-
             //--Possibly replace this with a "zoom out" boolean in the mapclass
             if (current.ZoomLevel != 1)
                 zoomTarget = current.ZoomLevel;
@@ -117,7 +115,7 @@ namespace ISurvived
                 zoomTarget = 1f;
                 zoom = 1f;
             }
-            if (zoomTarget > zoom)
+            if (zoomTarget > zoom || zoomTarget < .6f)
             {
                 zoom = zoomTarget;
             }
@@ -197,8 +195,7 @@ namespace ISurvived
             transform = Matrix.CreateScale(scaleY * zoom, scaleY * zoom, 1) 
                     * Matrix.CreateTranslation(transX, transY, 0);
 
-            staticTransform = Matrix.CreateScale(scaleX, scaleX, 1);
-
+            staticTransform = Matrix.CreateScale(scaleX, scaleY, 1);
             cursorScale = scaleX;
 
         }
@@ -216,7 +213,7 @@ namespace ISurvived
             float scale = Math.Min(g.res.X / 1280f, g.res.Y / 720f);
             scale = Math.Max(scaleX, scaleY);
 
-            staticTransform = Matrix.CreateScale(scaleX, scaleX, 1);
+            staticTransform = Matrix.CreateScale(scaleX, scaleY, 1);
         }
 
         public Matrix GetTransform(float parallax, MapClass current, Game1 g)

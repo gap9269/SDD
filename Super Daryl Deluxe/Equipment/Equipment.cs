@@ -24,12 +24,12 @@ namespace ISurvived
         protected int level;
         protected Texture2D icon;
         protected string description;
-        protected int sellPrice;
+        protected float sellPrice;
         protected Random randomStats;
         protected Passive passiveAbility;
 
         public Passive PassiveAbility { get { return passiveAbility; } set { passiveAbility = value; } }
-        public int SellPrice { get { return sellPrice; } set { sellPrice = value; } }
+        public float SellPrice { get { return sellPrice; } set { sellPrice = value; } }
         public int Health { get { return health; } set { health = value; if (health < 0) health = 0; } }
         public int Strength { get { return strength; } set { strength = value; if (strength < 0) strength = 0; } }
         public int Defense { get { return defense; } set { defense = value; if (defense < 0) defense = 0; } }

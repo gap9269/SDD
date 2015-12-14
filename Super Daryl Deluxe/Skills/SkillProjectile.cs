@@ -38,11 +38,13 @@ namespace ISurvived
         Game1 game;
         Boolean piercingShot = false;
         int pierceAmount = 0;
+        protected Dictionary<String, SoundEffect> skillHitSounds;
 
         public Boolean Dead { get { return dead; } set { dead = value; } }
         Rectangle sourceRectangle;
+        protected int hitSoundsLeftThisAttack = 2; //Decrease this number by 1 each time an attack is landed, and reset on Use()
 
-        public SkillProjectile(Texture2D tex, Rectangle r, int time, Vector2 normVel, float rot, float dam, Vector2 kb, int hitPause, int shake, int shakeTim, int spd, Game1 g, Boolean pierce, int pierceAmnt, Rectangle sourceRec, Boolean facingRite, AttackType.AttackTypes type, AttackType.RangedOrMelee meleeOrRanged)
+        public SkillProjectile(Texture2D tex, Rectangle r, int time, Vector2 normVel, float rot, float dam, Vector2 kb, int hitPause, int shake, int shakeTim, int spd, Game1 g, Boolean pierce, int pierceAmnt, Rectangle sourceRec, Boolean facingRite, AttackType.AttackTypes type, AttackType.RangedOrMelee meleeOrRanged, Dictionary<String, SoundEffect> skillHitSounds)
         {
             facingRight = facingRite;
             sourceRectangle = sourceRec;
@@ -51,7 +53,7 @@ namespace ISurvived
             position = new Vector2(r.X, r.Y);
             knockback = kb;
             damage = dam;
-            damage *= Game1.Player.Strength;
+            damage *= Game1.Player.realStrength;
             maxTimeInAir = time;
             normalizedVelocity = normVel;
             speed = spd;
@@ -63,6 +65,7 @@ namespace ISurvived
             piercingShot = pierce;
             skillType = type;
             rangedOrMelee = meleeOrRanged;
+            this.skillHitSounds = skillHitSounds;
         }
 
         public void Update()
@@ -81,6 +84,20 @@ namespace ISurvived
             if (timeInAir >= maxTimeInAir)
             {
                 dead = true;
+            }
+        }
+
+        public void PlayRandomHitSound(Rectangle collision)
+        {
+            if (hitSoundsLeftThisAttack > 0)
+            {
+                hitSoundsLeftThisAttack--;
+
+                if (skillHitSounds != null && skillHitSounds.Count > 0)
+                {
+                    int num = Game1.randomNumberGen.Next(skillHitSounds.Count);
+                    Sound.PlaySoundInstance(skillHitSounds.ElementAt(num).Value, skillHitSounds.ElementAt(num).Key, false, collision.Center.X, collision.Center.Y, 600, 500, 2000);
+                }
             }
         }
 
@@ -119,6 +136,8 @@ namespace ISurvived
                     enemies[i].HitPauseTimer = hitPauseTime;
                     Game1.Player.HitPauseTimer = hitPauseTime;
 
+                    PlayRandomHitSound(Rectangle.Intersect(rec, enemies[i].VitalRec));
+
                     //Piece through enemies and objects if it has any pierce left. Otherwise, kill the bullet
                     if (piercingShot)
                     {
@@ -135,7 +154,7 @@ namespace ISurvived
             for (int i = 0; i < interactiveObjectsInMap.Count; i++)
             {
                 //--If the skill's attack hits the enemy vitals
-                if (rec.Intersects(interactiveObjectsInMap[i].VitalRec) && interactiveObjectsInMap[i].Finished == false)
+                if (rec.Intersects(interactiveObjectsInMap[i].VitalRec) && interactiveObjectsInMap[i].Finished == false && interactiveObjectsInMap[i].IsHidden == false)
                 {
                     if (shakeTime > 0)
                     {
@@ -147,6 +166,9 @@ namespace ISurvived
                     Chapter.effectsManager.AddDamageFX(10, Rectangle.Intersect(rec, interactiveObjectsInMap[i].VitalRec));
 
                     interactiveObjectsInMap[i].TakeHit();
+
+                    PlayRandomHitSound(Rectangle.Intersect(rec, interactiveObjectsInMap[i].VitalRec));
+
 
                     if (piercingShot)
                     {
@@ -160,7 +182,7 @@ namespace ISurvived
                 }
             }
 
-            if (game.CurrentChapter.BossFight && rec.Intersects(currentBoss.VitalRec))
+            if (game.CurrentChapter.BossFight && rec.Intersects(currentBoss.VitalRec) && currentBoss.CanBeHurt)
             {
                 float kbX = 0;
 
@@ -179,6 +201,7 @@ namespace ISurvived
                 }
 
                 Chapter.effectsManager.AddDamageFX(10, Rectangle.Intersect(rec, currentBoss.VitalRec));
+                PlayRandomHitSound(Rectangle.Intersect(rec, currentBoss.VitalRec));
 
                 currentBoss.TakeHit((int)damage, new Vector2(kbX, knockback.Y), Rectangle.Intersect(rec, currentBoss.VitalRec));
                 currentBoss.HitPauseTimer = hitPauseTime;

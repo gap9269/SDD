@@ -28,7 +28,7 @@ namespace ISurvived
         protected Game1 game;
         protected Player player;
         protected int level;
-        protected bool facingRight;
+        public bool facingRight;
         protected bool knockedBack;
         protected int experienceGiven;
         protected int maxHealth;
@@ -43,6 +43,9 @@ namespace ISurvived
         protected Boolean drawHUDName = false;
         protected int xPos;
         protected int distanceFromBottomRecToFeet; //This is the distance from the bottom of the texture to where the boss should be standing on a platform
+        protected Boolean hangInAir = false;
+        protected int hangInAirTime = 0;
+        public float horizontalDistanceToPlayer, rectanglePaddingLeftRight;
 
         //--Health bar stuff
         protected Random healthShakeNum;
@@ -69,7 +72,8 @@ namespace ISurvived
         static Random ranX = new Random();
         static Random ranY = new Random();
 
-
+        int hudRecX = 580;
+        int hudRecY = 490;
         //--State Machine
         protected enum BossState
         {
@@ -81,7 +85,7 @@ namespace ISurvived
         protected BossState bossState;
 
         protected Boolean hasBeenHit = false;
-        public Boolean HasBeenHit { get { return hasBeenHit; } }
+        public Boolean HasBeenHit { get { return hasBeenHit; } set { hasBeenHit = value; } }
 
         // PROPERTIES \\
         public Rectangle VitalRec { get { return vitalRec; } set { vitalRec = value; } }
@@ -93,6 +97,7 @@ namespace ISurvived
         public MapClass CurrentMap { get { return currentMap; } set { currentMap = value; } }
         public Boolean DrawHUDName { get { return drawHUDName; } set { drawHUDName = value; } }
         public Boolean CanBeStunned { get { return canBeStunned; } }
+        public Boolean CanBeHurt { get { return canBeHurt; } }
         public List<Platform> Boundaries { get { return boundaries; } set { boundaries = value; } }
 
         // CONSTRUCTOR \\
@@ -122,9 +127,11 @@ namespace ISurvived
             boundaries = new List<Platform>();
 
 
-            bossHUDRec = new Rectangle(1280 - 731, 461, game.EnemySpriteSheets["BossHUD"].Width, game.EnemySpriteSheets["BossHUD"].Height);
-            healthBarRec = new Rectangle(1280 - 731, 461, game.EnemySpriteSheets["BossHealthBar"].Width, game.EnemySpriteSheets["BossHealthBar"].Height);
-            originalHealthX = 1280 - 731;
+            bossHUDRec = new Rectangle(hudRecX, hudRecY, game.EnemySpriteSheets["BossHUD"].Width, game.EnemySpriteSheets["BossHUD"].Height);
+            healthBarRec = new Rectangle(hudRecX, hudRecY, game.EnemySpriteSheets["BossHealthBar"].Width, game.EnemySpriteSheets["BossHealthBar"].Height);
+            originalHealthX = hudRecX;
+
+            rectanglePaddingLeftRight = 0;
         }
 
         //--Return the source rectangle for the enemy move frames
@@ -186,10 +193,10 @@ namespace ISurvived
 
                 if (shakeTimer % 2 == 0 || healthShaking == false)
                 {
-                    bossHUDRec.X = 1280 - 731;
-                    bossHUDRec.Y = 461;
+                    bossHUDRec.X = hudRecX;
+                    bossHUDRec.Y = 490;
                     healthBarRec.X = healthBarRec.X = originalHealthX + xPos;
-                    healthBarRec.Y = 461;
+                    healthBarRec.Y = 490;
                 }
             }
         }
@@ -234,18 +241,18 @@ namespace ISurvived
 
                 if (shakeTimer % 2 == 0 || healthShaking == false)
                 {
-                    bossHUDRec.X = 1280 - 731;
-                    bossHUDRec.Y = 461;
+                    bossHUDRec.X = hudRecX;
+                    bossHUDRec.Y = 490;
                     healthBarRec.X = healthBarRec.X = originalHealthX + xPos;
-                    healthBarRec.Y = 461;
+                    healthBarRec.Y = 490;
                 }
             }
             else
             {
-                bossHUDRec.X = 1280 - 731;
-                bossHUDRec.Y = 461;
+                bossHUDRec.X = hudRecX;
+                bossHUDRec.Y = 490;
                 healthBarRec.X = healthBarRec.X = originalHealthX + xPos;
-                healthBarRec.Y = 461;
+                healthBarRec.Y = 490;
             }
             #endregion
 
@@ -304,23 +311,22 @@ namespace ISurvived
         public virtual void CheckWalkCollisions(int damage, Vector2 knockback)
         {
 
-                #region Runs into player
-                if (player.CheckIfHit(vitalRec))
-                {
-                    //--If the player is standing to the left of the enemy, make the knockback.X direction negative so he goes left
-                    if (player.Position.X + (player.PlayerRec.Width / 2) < (int)(position.X + (rec.Width / 2)))
-                        knockback.X = -(knockback.X);
+            #region Runs into player
+            if (player.CheckIfHit(vitalRec))
+            {
+                //--If the player is standing to the left of the enemy, make the knockback.X direction negative so he goes left
+                if (player.Position.X + (player.PlayerRec.Width / 2) < (int)(position.X + (rec.Width / 2)))
+                    knockback.X = -(knockback.X);
 
-                    //--Otherwise, bounce to the right and keep the knockback.X positive
-                    else if (player.Position.X + (player.PlayerRec.Width / 2) > (int)(position.X + (rec.Width / 2)))
-                        knockback.X = Math.Abs(knockback.X);
+                //--Otherwise, bounce to the right and keep the knockback.X positive
+                else if (player.Position.X + (player.PlayerRec.Width / 2) > (int)(position.X + (rec.Width / 2)))
+                    knockback.X = Math.Abs(knockback.X);
 
-                    //--Take damage and knock the player back
-                    player.TakeDamage(damage);
-                    player.KnockPlayerBack(knockback);
-                
-                #endregion
+                //--Take damage and knock the player back
+                player.TakeDamage(damage, level);
+                player.KnockPlayerBack(knockback);
             }
+                #endregion
         }
 
         //--Take damage
@@ -551,17 +557,18 @@ namespace ISurvived
 
         public virtual void DrawHud(SpriteBatch s)
         {
+
             s.Draw(game.EnemySpriteSheets["BossHUD"], bossHUDRec, Color.White);
             s.Draw(game.EnemySpriteSheets["BossHealthBar"], healthBarRec, GetHealthSourceRectangle(), Color.White);
             s.Draw(game.EnemySpriteSheets["BossLine"], bossHUDRec, Color.White);
 
+
             if(faceTexture != null)
-                s.Draw(faceTexture, new Rectangle(1280 - faceTexture.Width, (int)(Game1.aspectRatio * 1280) - faceTexture.Height, faceTexture.Width, faceTexture.Height), Color.White);
+                s.Draw(faceTexture, new Rectangle(1280 - faceTexture.Width + 31, (int)(Game1.aspectRatio * 1280) - faceTexture.Height + 29, faceTexture.Width, faceTexture.Height), Color.White);
 
             if (drawHUDName)
             {
-                s.DrawString(Game1.questNameFont, name, new Vector2(1070 - (Game1.font.MeasureString(name).X), (int)(Game1.aspectRatio * 1280 * .9f) - 26), Color.Black);
-                s.DrawString(Game1.questNameFont, name, new Vector2(1071 - (Game1.font.MeasureString(name).X), (int)(Game1.aspectRatio * 1280 * .9f) - 28), Color.White);
+                Game1.OutlineFont(Game1.questNameFont, s, name, 1, (int)(1070 - (Game1.questNameFont.MeasureString(name).X) + 80), (int)(Game1.aspectRatio * 1280 * .9f) - 26 + 29, Color.Black, Color.White);
 
             }
         }
@@ -608,14 +615,14 @@ namespace ISurvived
             #endregion
 
             #region Dont run off map
-            if (position.X <= 0)
+            if (position.X + rectanglePaddingLeftRight <= 0)
             {
-                position.X = 0;
+                position.X = -(rectanglePaddingLeftRight);
             }
 
-            if (position.X + rec.Width >= mapwidth)
+            if (position.X + rec.Width - rectanglePaddingLeftRight >= mapwidth)
             {
-                position.X = mapwidth - rec.Width;
+                position.X = mapwidth - rec.Width + rectanglePaddingLeftRight;
             }
             #endregion
 

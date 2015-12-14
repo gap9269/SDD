@@ -39,8 +39,8 @@ namespace ISurvived
                         
                         sci.FacingRight = true;
                         sci.Alpha = 1f;
-                        game.CurrentChapter.CurrentMap.EnemiesInMap.Add(sci);
-                        game.CurrentChapter.CurrentMap.EnemiesInMap.Add(new Scientist(new Vector2(1800, 400), "Scientist", game, ref player, game.CurrentChapter.CurrentMap));
+                        game.CurrentChapter.CurrentMap.AddEnemyToEnemyList(sci);
+                        game.CurrentChapter.CurrentMap.AddEnemyToEnemyList(new Scientist(new Vector2(1800, 400), "Scientist", game, ref player, game.CurrentChapter.CurrentMap));
                         scientist = game.CurrentChapter.NPCs["ScientistOne"];
                     }
 

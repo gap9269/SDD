@@ -55,7 +55,7 @@ namespace ISurvived
             }
             else
             {
-                enemiesInMap.Add(en);
+                AddEnemyToEnemyList(en);
             }
 
         }
@@ -84,8 +84,8 @@ namespace ISurvived
         {
             base.SetPortals();
 
-            toCrossroads = new Portal(100, platforms[0], "HiddenPath");
-            toDeerShack = new Portal(1600, platforms[0], "HiddenPath");//, "Gold Key");
+            toCrossroads = new Portal(100, platforms[0], "Hidden Path");
+            toDeerShack = new Portal(1600, platforms[0], "Hidden Path");//, "Gold Key");
         }
 
         public override void Draw(SpriteBatch s)

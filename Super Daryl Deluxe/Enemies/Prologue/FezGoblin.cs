@@ -25,7 +25,7 @@ namespace ISurvived
             vitalRec = new Rectangle(rec.X, rec.Y, rec.Width, rec.Height);
             currentlyInMoveState = false;
             enemySpeed = 0;
-            tolerance = 100;
+            tolerance = 10000;
             maxHealthDrop = 0;
             canBeKnockbacked = false;
         }
@@ -75,8 +75,14 @@ namespace ISurvived
 
                 float measX = Game1.descriptionFont.MeasureString("Lv." + level + "  " + displayName).X;
 
-                s.DrawString(Game1.descriptionFont, "Lv." + level + " " + displayName, new Vector2(rec.X + rec.Width / 2 - measX / 2 - 32, rec.Y - 35 - 2), Color.Black);
-                s.DrawString(Game1.descriptionFont, "Lv." + level + " " + displayName, new Vector2(rec.X + rec.Width / 2 - measX / 2 - 30, rec.Y - 35), Color.White);
+                if (facingRight)
+                {
+                    Game1.OutlineFont(Game1.font, s, "Lv. " + level + " " + displayName, 1, (int)(rec.X + rec.Width / 2 - measX / 2) - 25, healthBoxRec.Y - 25 - 2, Color.Black, Color.White);
+                }
+                else
+                {
+                    Game1.OutlineFont(Game1.font, s, "Lv. " + level + " " + displayName, 1, (int)(rec.X + rec.Width / 2 - measX / 2) - 27, healthBoxRec.Y - 25 - 2, Color.Black, Color.White);
+                }
             }
             #endregion
 

@@ -105,7 +105,7 @@ namespace ISurvived
             //One
             if (player.PositionX > 650 && game.MapBooleans.tutorialMapBooleans["TutorialTipFourUsed"] == false)
             {
-                Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][3], 300, 100, game.ChapterTwo.associateOneTex);
+                //Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][3], 300, 100, game.ChapterTwo.associateOneTex);
 
             }
             if (player.PositionX > 1400 && game.MapBooleans.tutorialMapBooleans["TutorialTipFourUsed"] == false)
@@ -121,7 +121,7 @@ namespace ISurvived
 
             if (player.PositionX > 2250 && game.MapBooleans.tutorialMapBooleans["TreeFell"] == true && game.MapBooleans.tutorialMapBooleans["TutorialTipFiveUsed"] == false)
             {
-                Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][4], 400, (int)(Game1.aspectRatio * 1280 * .75f) + 10, game.ChapterTwo.associateOneTex);
+                //Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][4], 400, (int)(Game1.aspectRatio * 1280 * .75f) + 10, game.ChapterTwo.associateOneTex);
             }
 
             if (player.PositionY > -280 && game.MapBooleans.tutorialMapBooleans["TutorialTipFiveUsed"] == false)
@@ -132,7 +132,7 @@ namespace ISurvived
 
             if (game.MapBooleans.tutorialMapBooleans["TutorialTipFiveUsed"] == true && game.MapBooleans.tutorialMapBooleans["TutorialTipSixUsed"] == false)
             {
-                Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][5], 730, 130, game.ChapterTwo.associateOneTex);
+                //Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][5], 730, 130, game.ChapterTwo.associateOneTex);
             }
 
             if (player.PositionX > 2850 && player.Position.Y > -280 && game.MapBooleans.tutorialMapBooleans["TutorialTipSixUsed"] == false)
@@ -146,31 +146,31 @@ namespace ISurvived
                 switch (timesFailedGapJump)
                 {
                     case 1:
-                        Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][6], 450, -5, game.ChapterTwo.associateOneTex);
+                        //Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][6], 450, -5, game.ChapterTwo.associateOneTex);
                         break;
                     case 2:
-                        Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][7], 450, -5, game.ChapterTwo.associateOneTex);
+                        //Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][7], 450, -5, game.ChapterTwo.associateOneTex);
                         break;
                     case 3:
-                        Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][8], 450, -5, game.ChapterTwo.associateOneTex);
+                        //Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][8], 450, -5, game.ChapterTwo.associateOneTex);
                         break;
                     case 4:
-                        Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][9], 450, -5, game.ChapterTwo.associateOneTex);
+                        //Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][9], 450, -5, game.ChapterTwo.associateOneTex);
                         break;
                     case 5:
-                        Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][10], 450, -5, game.ChapterTwo.associateOneTex);
+                        //Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][10], 450, -5, game.ChapterTwo.associateOneTex);
                         break;
                     case 6:
-                        Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][11], 450, -5, game.ChapterTwo.associateOneTex);
+                        //Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][11], 450, -5, game.ChapterTwo.associateOneTex);
                         break;
                     case 7:
-                        Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][12], 450, -5, game.ChapterTwo.associateOneTex);
+                        //Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][12], 450, -5, game.ChapterTwo.associateOneTex);
                         break;
                     case 8:
-                        Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][13], 450, -5, game.ChapterTwo.associateOneTex);
+                        //Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][13], 450, -5, game.ChapterTwo.associateOneTex);
                         break;
                     case 9:
-                        Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][14], 450, -5, game.ChapterTwo.associateOneTex);
+                        //Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][14], 450, -5, game.ChapterTwo.associateOneTex);
                         break;
                 }
             }
@@ -185,7 +185,7 @@ namespace ISurvived
 
             if (player.PositionX >= 4220 && game.MapBooleans.tutorialMapBooleans["TutorialTipSevenUsed"] == false && game.MapBooleans.tutorialMapBooleans["JumpedGap"] == false)
             {
-                Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][15], 200, 80, game.ChapterTwo.associateOneTex);
+                //Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][15], 200, 80, game.ChapterTwo.associateOneTex);
                 game.MapBooleans.tutorialMapBooleans["JumpedGap"] = true;
             }
 
@@ -197,10 +197,10 @@ namespace ISurvived
 
             if (player.VitalRec.Intersects(colliderInGap) && game.MapBooleans.tutorialMapBooleans["JumpedGap"] == true && game.MapBooleans.tutorialMapBooleans["FellBackInGap"] == false)
             {
-                if(timesFailedGapJump > 7)
-                    Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][16], 450, -5, game.ChapterTwo.associateOneTex);
-                else
-                    Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][17], 450, -5, game.ChapterTwo.associateOneTex);
+                //if(timesFailedGapJump > 7)
+                    //Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][16], 450, -5, game.ChapterTwo.associateOneTex);
+                //else
+                    //Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][17], 450, -5, game.ChapterTwo.associateOneTex);
 
                 game.MapBooleans.tutorialMapBooleans["FellBackInGap"] = true;
             }

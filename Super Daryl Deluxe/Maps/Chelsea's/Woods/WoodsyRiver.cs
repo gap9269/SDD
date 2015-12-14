@@ -44,7 +44,7 @@ namespace ISurvived
             barrier = new Platform(Game1.whiteFilter, new Rectangle(1060, 0, 100, 720), false, false, false);
             platforms.Add(barrier);
 
-            kidCage = new KidCage(Game1.interactiveObjects["KidCage"], 2700, 440, player);
+            kidCage = new KidCage(Game1.whiteFilter, 2700, 440, player);
         }
 
         public override void LoadContent()
@@ -60,8 +60,8 @@ namespace ISurvived
             base.Update();
 
             //Remove the barrier once the quest to build the bridge is complete
-            if (platforms.Contains(barrier) && game.ChapterTwo.buildBridgeTwo.CompletedQuest && !game.CurrentQuests.Contains(game.ChapterTwo.buildBridgeTwo))
-                platforms.Remove(barrier);
+          //  if (platforms.Contains(barrier) && game.ChapterTwo.buildBridgeTwo.CompletedQuest && !game.CurrentQuests.Contains(game.ChapterTwo.buildBridgeTwo))
+           //     platforms.Remove(barrier);
 
             if (player.VitalRecX > 1700 && game.ChapterTwo.ChapterTwoBooleans["ApproachedTim"] == false)
             {
@@ -96,15 +96,15 @@ namespace ISurvived
         {
             base.SetPortals();
 
-            toCrossroads = new Portal(100, platforms[0], "WoodsyRiver");
+            toCrossroads = new Portal(100, platforms[0], "Woodsy River");
         }
 
         public override void Draw(SpriteBatch s)
         {
             base.Draw(s);
 
-            if (game.ChapterTwo.buildBridgeTwo.CompletedQuest && !game.CurrentQuests.Contains(game.ChapterTwo.buildBridgeTwo))
-                s.Draw(bridge, new Rectangle(735, 160, 1102, 561) , Color.White);
+            //if (game.ChapterTwo.buildBridgeTwo.CompletedQuest && !game.CurrentQuests.Contains(game.ChapterTwo.buildBridgeTwo))
+            //    s.Draw(bridge, new Rectangle(735, 160, 1102, 561) , Color.White);
 
             //Only draw the cage if it hasn't been opened
             if (!kidCage.Finished)

@@ -145,9 +145,9 @@ namespace ISurvived
                 int boxNumber = i + (page * bioButtons.Count);
                 characterPictures[i].ButtonTexture = null;
 
-                if (boxNumber < Game1.Player.AllCharacterBios.Count)
+                if (bioState == BioState.Character)
                 {
-                    if (bioState == BioState.Character)
+                    if (boxNumber < Game1.Player.AllCharacterBios.Count)
                     {
                         //OwnedBios is a dictionary of Strings to Booleans. If Bios -> "Paul" = true, it means you own the "Paul" bio
                         if (Game1.Player.AllCharacterBios.ElementAt(boxNumber).Value == true)
@@ -155,9 +155,11 @@ namespace ISurvived
                             //Set the picture equal to the dialogue face of the NPC
                             characterPictures[i].ButtonTexture = game.Notebook.smallCharacterPortraits[Game1.Player.AllCharacterBios.ElementAt(boxNumber).Key.ToLower()];
                         }
-
                     }
-                    else if (bioState == BioState.Monster)
+                }
+                else
+                {
+                    if (boxNumber < Game1.Player.AllMonsterBios.Count)
                     {
                         //MonsterBios is a dictionary of Strings to Booleans. If Bios -> "Crow" = true, it means you own the "Crow" bio
                         if (Game1.Player.AllMonsterBios.Count > boxNumber && Game1.Player.AllMonsterBios.ElementAt(boxNumber).Value == true)
@@ -167,12 +169,12 @@ namespace ISurvived
                         }
                     }
                 }
-
+                
                 if (bioState == BioState.Character)
                 {
                     if (Game1.Player.AllCharacterBios.Count > boxNumber && bioButtons[i].Clicked() && Game1.Player.AllCharacterBios.ElementAt(boxNumber).Value == true)
                     {
-                        Sound.PlaySoundInstance(Sound.SoundNames.UIPaperTab3);
+                        Sound.PlaySoundInstance(Sound.SoundNames.ui_inventory_tab_03);
                         selectedIndex = i;
                         selectedBioName = Game1.Player.AllCharacterBios.ElementAt(boxNumber).Key;
                     }
@@ -182,32 +184,12 @@ namespace ISurvived
                 {
                     if (Game1.Player.AllMonsterBios.Count > boxNumber && bioButtons[i].Clicked() && Game1.Player.AllMonsterBios.ElementAt(boxNumber).Value == true)
                     {
-                        Sound.PlaySoundInstance(Sound.SoundNames.UIPaperTab3);
+                        Sound.PlaySoundInstance(Sound.SoundNames.ui_inventory_tab_03);
                         selectedIndex = i;
                         selectedBioName = Game1.Player.AllMonsterBios.ElementAt(boxNumber).Key;
                     }
                 }
             }
-
-            #region Change Pages
-
-            //--If you are not on the last page, go up a page and reset textures
-            if (nextPage.Clicked() && page < 2)
-            {
-                pageUpSound = true;
-                page++;
-                loadedNPCEnemySprites = false;
-            }
-            //--If you aren't on the first page, go back a page and reset textures
-            if (previousPage.Clicked() && page > 0)
-            {
-                pageDownSound = true;
-                page--;
-                loadedNPCEnemySprites = false;
-            }
-
-
-            #endregion
         }
 
         public void UnloadNPCAndEnemySprites()
@@ -253,29 +235,57 @@ namespace ISurvived
             {
                 game.Notebook.state = DarylsNotebook.State.journal;
                 Chapter.effectsManager.RemoveToolTip();
-                Sound.PlaySoundInstance(Sound.SoundNames.UITab);
+                Sound.PlaySoundInstance(Sound.SoundNames.ui_general_tab);
             }
 
             if (DarylsNotebook.combosTab.Clicked())
             {
                 game.Notebook.state = DarylsNotebook.State.combos;
                 Chapter.effectsManager.RemoveToolTip();
-                Sound.PlaySoundInstance(Sound.SoundNames.UITab);
+                Sound.PlaySoundInstance(Sound.SoundNames.ui_general_tab);
             }
 
             if (DarylsNotebook.inventoryTab.Clicked())
             {
                 game.Notebook.state = DarylsNotebook.State.inventory;
                 Chapter.effectsManager.RemoveToolTip();
-                Sound.PlaySoundInstance(Sound.SoundNames.UITab);
+                Sound.PlaySoundInstance(Sound.SoundNames.ui_general_tab);
             }
 
             if (DarylsNotebook.questsTab.Clicked())
             {
                 game.Notebook.state = DarylsNotebook.State.quests;
                 Chapter.effectsManager.RemoveToolTip();
-                Sound.PlaySoundInstance(Sound.SoundNames.UITab);
+                Sound.PlaySoundInstance(Sound.SoundNames.ui_general_tab);
             }
+
+            if (DarylsNotebook.mapsTab.Clicked())
+            {
+                game.Notebook.state = DarylsNotebook.State.maps;
+                Chapter.effectsManager.RemoveToolTip();
+                Sound.PlaySoundInstance(Sound.SoundNames.ui_general_tab);
+            }
+            #endregion
+
+
+            #region Change Pages
+
+            //--If you are not on the last page, go up a page and reset textures
+            if ((nextPage.Clicked() || MyGamePad.RightPadPressed()) && page < 5)
+            {
+                pageUpSound = true;
+                page++;
+                loadedNPCEnemySprites = false;
+            }
+            //--If you aren't on the first page, go back a page and reset textures
+            if ((previousPage.Clicked()|| MyGamePad.LeftPadPressed()) && page > 0)
+            {
+                pageDownSound = true;
+                page--;
+                loadedNPCEnemySprites = false;
+            }
+
+
             #endregion
         }
 
@@ -350,11 +360,11 @@ namespace ISurvived
             }
 
             if(pageUpSound)
-                Sound.PlaySoundInstance(Sound.SoundNames.UIPage2);
+                Sound.PlaySoundInstance(Sound.SoundNames.ui_inventory_page_02);
             else if(pageDownSound)
-                Sound.PlaySoundInstance(Sound.SoundNames.UIPage1);
+                Sound.PlaySoundInstance(Sound.SoundNames.ui_inventory_page_01);
             else if(changeTabSound)
-                Sound.PlaySoundInstance(Sound.SoundNames.UIPaperTab1);
+                Sound.PlaySoundInstance(Sound.SoundNames.ui_inventory_tab_01);
 
             pageUpSound = false;
             pageDownSound = false;
@@ -391,7 +401,7 @@ namespace ISurvived
                 UpdateBioPage();
             }
 
-            if(bioState == BioState.Character)
+            if (bioState == BioState.Character)
                 s.Draw(textures["npcBackground"], new Rectangle(0, 0, 1280, (int)(Game1.aspectRatio * 1280)), Color.White);
             else
                 s.Draw(textures["enemyBackground"], new Rectangle(0, 0, 1280, (int)(Game1.aspectRatio * 1280)), Color.White);
@@ -407,8 +417,8 @@ namespace ISurvived
                 s.Draw(textures["enemyActive"], new Rectangle(652, 74, textures["enemyActive"].Width, textures["enemyActive"].Height), Color.White);
             else
                 s.Draw(textures["enemyStatic"], new Rectangle(652, 74, textures["enemyActive"].Width, textures["enemyActive"].Height), Color.White);
-            
-            
+
+
             #endregion
 
 
@@ -430,7 +440,7 @@ namespace ISurvived
                     }
                 }
             }
-            
+
 
             if (selectedBioName != null && selectedBioName != "")
             {
@@ -452,7 +462,7 @@ namespace ISurvived
                     s.DrawString(Game1.twConQuestHudInfo, CharacterMonsterBioDictionary.enemyNameAndInfo[selectedBioName].itemDrop, new Vector2(450, 603), Color.Black);
                     s.DrawString(Game1.font, "Level " + CharacterMonsterBioDictionary.enemyNameAndInfo[selectedBioName].level, new Vector2(479, 525), Color.White);
 
-                    if(Game1.WrapText(Game1.twConQuestHudInfo, "HOBBY: " + CharacterMonsterBioDictionary.enemyNameAndInfo[selectedBioName].hobby, 220).Contains("\n"))
+                    if (Game1.WrapText(Game1.twConQuestHudInfo, "HOBBY: " + CharacterMonsterBioDictionary.enemyNameAndInfo[selectedBioName].hobby, 220).Contains("\n"))
                         s.DrawString(Game1.twConQuestHudInfo, Game1.WrapText(Game1.twConQuestHudInfo, "HOBBY: " + CharacterMonsterBioDictionary.enemyNameAndInfo[selectedBioName].hobby, 220), new Vector2(400, 630), Color.Black);
                     else
                         s.DrawString(Game1.twConQuestHudInfo, Game1.WrapText(Game1.twConQuestHudInfo, "HOBBY: " + CharacterMonsterBioDictionary.enemyNameAndInfo[selectedBioName].hobby, 220), new Vector2(400, 637), Color.Black);
@@ -467,19 +477,27 @@ namespace ISurvived
 
             #region ARROWS
 
-            s.DrawString(Game1.font, (page + 1).ToString() + " / 3", new Vector2(925, 660), Color.Black);
+            s.DrawString(Game1.font, (page + 1).ToString() + " / 6", new Vector2(925, 660), Color.Black);
 
-            if (nextPage.IsOver())
-                s.Draw(textures["rightActive"], new Rectangle(851, 652, textures["leftActive"].Width, textures["leftActive"].Height), Color.White);
+            if (Game1.gamePadConnected)
+                s.Draw(DarylsNotebook.dRight, new Vector2(986, 655), Color.White);
             else
-                s.Draw(textures["rightStatic"], new Rectangle(851, 652, textures["leftActive"].Width, textures["leftActive"].Height), Color.White);
+            {
+                if (nextPage.IsOver())
+                    s.Draw(textures["rightActive"], new Rectangle(851, 652, textures["leftActive"].Width, textures["leftActive"].Height), Color.White);
+                else
+                    s.Draw(textures["rightStatic"], new Rectangle(851, 652, textures["leftActive"].Width, textures["leftActive"].Height), Color.White);
+            }
+            if (Game1.gamePadConnected)
+                s.Draw(DarylsNotebook.dLeft, new Vector2(870, 655), Color.White);
+            else
+            {
+                if (previousPage.IsOver())
+                    s.Draw(textures["leftActive"], new Rectangle(851, 652, textures["leftActive"].Width, textures["leftActive"].Height), Color.White);
+                else
+                    s.Draw(textures["leftStatic"], new Rectangle(851, 652, textures["leftActive"].Width, textures["leftActive"].Height), Color.White);
+            }
 
-            if (previousPage.IsOver())
-                s.Draw(textures["leftActive"], new Rectangle(851, 652, textures["leftActive"].Width, textures["leftActive"].Height), Color.White);
-            else
-                s.Draw(textures["leftStatic"], new Rectangle(851, 652, textures["leftActive"].Width, textures["leftActive"].Height), Color.White);
-            
-            
             #endregion
 
         }

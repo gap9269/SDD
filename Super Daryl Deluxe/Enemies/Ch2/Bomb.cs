@@ -14,7 +14,7 @@ namespace ISurvived
 {
     public class Bomb : Projectile
     {
-        int timeUntilExplode = 80;
+        int timeUntilExplode = 60;
         Boolean inAir = true;
         Boolean resting = false;
         int collisionDamage;
@@ -22,10 +22,13 @@ namespace ISurvived
         int frame;
         int frameDelay = 3;
 
-        public Bomb(int x, int y, Vector2 vel, int dam, Vector2 kb, int collisionDamage) 
-            : base (x, y, -1, vel, 0, dam, kb, 1, 1, -1, ProjType.bomb)
+        SoundEffectInstance enemy_bomblin_bomb_fuse;
+
+        public Bomb(int x, int y, Vector2 vel, int dam, Vector2 kb, int collisionDamage, int level)
+            : base(x, y, -1, vel, 0, dam, kb, 1, 1, -1, ProjType.bomb, level)
         {
             this.collisionDamage = collisionDamage;
+            enemy_bomblin_bomb_fuse = Bomblin.bomblinSounds["enemy_bomblin_bomb_fuse"].CreateInstance();
         }
 
         public override void Update()
@@ -56,6 +59,14 @@ namespace ISurvived
             rec.Y += (int)velocity.Y;
 
             velocity.Y += GameConstants.GRAVITY;
+
+            if (!inAir)
+            {
+                if (enemy_bomblin_bomb_fuse.State != SoundState.Playing && timeUntilExplode >= 3)
+                {
+                    Sound.PlaySoundInstance(enemy_bomblin_bomb_fuse, Game1.GetFileName(() => enemy_bomblin_bomb_fuse), true, rec.Center.X, rec.Center.Y, 300, 300, 800, false);
+                }
+            }
          
             //--Check to see if it is colliding with a platform
             for (int i = 0; i < Game1.currentChapter.CurrentMap.Platforms.Count; i++)
@@ -92,9 +103,14 @@ namespace ISurvived
 
                     if (Math.Abs(temp.Y) < 1.5f)
                     {
-                        Console.WriteLine(rec.X - 2037);
                         resting = true;
                         velocity.Y = 0;
+                    }
+
+                    if (velocity.X != 0 && velocity.Y != 0)
+                    {
+                        String soundEffectName = "enemy_bomblin_bomb_bounce_0" + Game1.randomNumberGen.Next(1, 4).ToString();
+                        Sound.PlaySoundInstance(Bomblin.bomblinSounds[soundEffectName], soundEffectName, false, rec.Center.X, rec.Center.Y, 600, 500, 1500);
                     }
                 }
 
@@ -108,11 +124,14 @@ namespace ISurvived
             {
                 timeUntilExplode--;
 
+                if(timeUntilExplode < 3 && enemy_bomblin_bomb_fuse.State != SoundState.Stopped)
+                    enemy_bomblin_bomb_fuse.Stop();
+
                 if (timeUntilExplode <= 0)
                 {
                     if (Game1.Player.CheckIfHit(new Rectangle(rec.X + rec.Width / 2 - 105, rec.Y + rec.Height / 2 - 105, 210, 210)) && Game1.Player.InvincibleTime <= 0)
                     {
-                        Game1.Player.TakeDamage(damage);
+                        Game1.Player.TakeDamage(damage, level);
 
                         if (rec.Center.X < Game1.Player.VitalRec.Center.X)
                             Game1.Player.KnockPlayerBack(new Vector2(25, -8));
@@ -126,6 +145,9 @@ namespace ISurvived
                         Chapter.effectsManager.AddDamageFX(10, Rectangle.Intersect(rec, Game1.Player.VitalRec));
                     }
 
+                    String soundEffectName = "enemy_bomblin_bomb_explode_0" + Game1.randomNumberGen.Next(1, 4).ToString();
+                    Sound.PlaySoundInstance(Bomblin.bomblinSounds[soundEffectName], soundEffectName, false, rec.Center.X, rec.Center.Y, 600, 500, 1500);
+
                     Chapter.effectsManager.AddSmokePoof(new Rectangle(rec.X + rec.Width / 2 - 75, rec.Y + rec.Height / 2 - 45, 150, 150), 3);
                     dead = true;
                 }
@@ -133,7 +155,7 @@ namespace ISurvived
 
             if (Game1.Player.CheckIfHit(rec) && Game1.Player.InvincibleTime <= 0 && velocity.X > 7)
             {
-                Game1.Player.TakeDamage(collisionDamage);
+                Game1.Player.TakeDamage(collisionDamage, level);
                 
                 if(rec.Center.X < Game1.Player.VitalRec.Center.X)
                     Game1.Player.KnockPlayerBack(new Vector2(3, -3));

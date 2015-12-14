@@ -60,7 +60,7 @@ namespace ISurvived
                     if (firstFrameOfTheState)
                     {
                         player.UpdatePosition();
-                        game.CurrentChapter.CurrentMap = Game1.schoolMaps.maps["OutsidetheParty"];
+                        game.CurrentChapter.CurrentMap = Game1.schoolMaps.maps["Outside the Party"];
                     }
 
                     camera.Update(camFollow, game, game.CurrentChapter.CurrentMap);
@@ -113,7 +113,7 @@ namespace ISurvived
                             }
                         }
 
-                        game.CurrentChapter.CurrentMap = Game1.schoolMaps.maps["TheParty"];
+                        game.CurrentChapter.CurrentMap = Game1.schoolMaps.maps["The Party"];
                         game.CurrentChapter.CurrentMap.LoadContent();
                     }
 
@@ -271,7 +271,7 @@ namespace ISurvived
                     game.CurrentChapter.CutsceneState++;
                     game.CurrentChapter.state = Chapter.GameState.Game;
                     game.CurrentChapter.MakingDecision = true;
-                    game.ChapterTwo.decisions = ChapterTwo.Decisions.tutorialResolution;
+                    //game.ChapterTwo.decisions = ChapterTwo.Decisions.tutorialResolution;
                     game.CurrentChapter.NPCs["Alan"].PositionX = 213;
                     game.CurrentChapter.NPCs["Alan"].CurrentDialogueFace = "Tutorial";
                     game.CurrentChapter.NPCs["Alan"].MapName = "Tutorial Map Seven";

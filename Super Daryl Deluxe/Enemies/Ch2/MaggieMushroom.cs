@@ -287,11 +287,11 @@ namespace ISurvived
                 rotation = (float)Math.Atan2(difference.Y, difference.X);
                 rotation -= (float)((3 * Math.PI) / 2);
 
-                Console.WriteLine(rotation);
+                //Console.Writeline(rotation);
 
                 if ((player.CheckIfHit(attackRec) || player.CheckIfHit(attackRec)) && player.InvincibleTime <= 0)
                 {
-                    player.TakeDamage(damage);
+                    player.TakeDamage(damage, level);
                     player.KnockPlayerBack(kb);
                     hitPauseTimer = 3;
                     player.HitPauseTimer = 3;
@@ -496,7 +496,7 @@ namespace ISurvived
             {
                 if ((player.CheckIfHit(attackRec) || player.CheckIfHit(attackRec)) && player.InvincibleTime <= 0)
                 {
-                    player.TakeDamage(damage);
+                    player.TakeDamage(damage, level);
 
                     Chapter.effectsManager.AddDamageFX(10, Rectangle.Intersect(attackRec, player.VitalRec));
                 }

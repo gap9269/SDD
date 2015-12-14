@@ -18,21 +18,47 @@ namespace ISurvived
         public DaddysLittlePrincess(Boolean story)
             : base(story)
         {
-            questDialogue.Add("Let's make a deal, stupid boy. I won't tell my Daddy about you finding me if you promise to go find me one of my \ninstruments that he took away. He says that it's dangerous to express myself around here, and it's especially dangerous to make \nnoise because people might find me.");
+            questDialogue.Add(".....");
 
-            questDialogue.Add("But I don't care! I'm so bored here and I want them back! I bet he locked them up in the Music Room. You did a \npretty good job of breaking in here, so I'm sure you can figure out how to get into the Music room. You'll know they're my \ninstruments when you see them. Go!");
+            questDialogue.Add("What a surprise. Did you hit your head or something on the way down? Why were you crawling around in the vents anyway?");
 
-            questDialogue.Add("I'm going to tell Daddy you found me if you don't hurry up. And he will be soooo mad.");
+            questDialogue.Add("...Actually, you can probably get anywhere from those vents, right? I have an idea, and maybe I won't have to tell anyone about you being here if you do me a favor.");
 
-            questName = "Daddy's Little Princess";
+            questDialogue.Add("As generous as Daddy is, he has neglected to provide me with some outlet for creativity. Rather than trouble him about it, I think now that you've ruined my bed, you owe it to me to bring me back something fun.");
 
-            conditionsToComplete = "Go to the Music room and find one of the Princess's instruments.";
-            descriptionForJournal = "blahblah";
+            questDialogue.Add("Yes - If you value your well-being, I suggest you crawl off into those vents and bring me back something entertaining. An instrument, in fact. Something fit for a princess. I've been feeling very musical lately.");
+
+            questDialogue.Add("And don't you dare come back here until you have something to give me.");
+
+            questDialogue.Add("UGH. Why are you still here??");
+
+            completedDialogue.Add("Well that took you long enough. Who in their right mind would keep a princess waiting so long?");
+
+            questName = "The Urge to Make Music";
+
+            specialConditions.Add("Find a musical instrument for The Princess", false);
+
+            taskForQuestsPage = "Find a musical instrument for The Princess.";
+
+            conditionsToComplete = "Find a musical instrument for The Princess.";
+
+            rewards = "";
+
+            descriptionForJournal = "Pending";
+
+            npcName = "The Princess";
+
         }
 
         public override void UpdateQuest()
         {
             base.UpdateQuest();
+
+            if (Game1.g.ChapterOne.ChapterOneBooleans["completedFundingQuest"])
+            {
+                completedQuest = true;
+                specialConditions["Find a musical instrument for The Princess"] = true;
+            }
         }
 
         public override void RewardPlayer()

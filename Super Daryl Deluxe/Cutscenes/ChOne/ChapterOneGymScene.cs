@@ -41,7 +41,7 @@ namespace ISurvived
 
                     if (timer >= 240)
                     {
-                        state++;
+                        state=4;
                         timer = 0;
                     }
 
@@ -108,7 +108,7 @@ namespace ISurvived
                         game.CurrentChapter.CutsceneState++;
                         player.PositionX = 1000;
                         player.RecX = 1000;
-                        player.PositionY = game.CurrentChapter.CurrentMap.Platforms[0].Rec.Y - player.VitalRecHeight - 135;
+                        player.PositionY = game.CurrentChapter.CurrentMap.Platforms[0].Rec.Y - player.VitalRecHeight - 140;
                         player.RecY = (int)player.PositionY;
 
                         game.Camera.centerTarget = new Vector2(player.PositionX + (player.Rec.Width / 2), 0);

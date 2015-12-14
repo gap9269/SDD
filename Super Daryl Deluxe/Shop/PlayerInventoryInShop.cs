@@ -175,22 +175,27 @@ namespace ISurvived
                     if (tab == weaponTab)
                     {
                         tabState = TabState.weapon;
+                        Sound.PlaySoundInstance(Sound.SoundNames.ui_inventory_tab_01);
                     }
                     else if (tab == shirtTab)
                     {
                         tabState = TabState.shirts;
+                        Sound.PlaySoundInstance(Sound.SoundNames.ui_inventory_tab_01);
                     }
                     else if (tab == hatTab)
                     {
                         tabState = TabState.hats;
+                        Sound.PlaySoundInstance(Sound.SoundNames.ui_inventory_tab_01);
                     }
                     else if (tab == accessoryTab)
                     {
                         tabState = TabState.accessory;
+                        Sound.PlaySoundInstance(Sound.SoundNames.ui_inventory_tab_01);
                     }
                     else if (tab == lootTab)
                     {
                         tabState = TabState.loot;
+                        Sound.PlaySoundInstance(Sound.SoundNames.ui_inventory_tab_01);
                     }
                 }
             }
@@ -218,6 +223,7 @@ namespace ISurvived
                             {
                                 selectedItem = player.OwnedWeapons[boxNumber];
                                 selectedItemIndex = boxNumber;
+                                Sound.PlaySoundInstance(Sound.SoundNames.ui_trenchcoat_select);
                             }
 
                         }
@@ -233,6 +239,7 @@ namespace ISurvived
                             {
                                 selectedItem = player.OwnedHats[boxNumber];
                                 selectedItemIndex = boxNumber;
+                                Sound.PlaySoundInstance(Sound.SoundNames.ui_trenchcoat_select);
                             }
                         } 
                         break;
@@ -246,6 +253,7 @@ namespace ISurvived
                             {
                                 selectedItem = player.OwnedHoodies[boxNumber];
                                 selectedItemIndex = boxNumber;
+                                Sound.PlaySoundInstance(Sound.SoundNames.ui_trenchcoat_select);
                             }
                         }
                         break;
@@ -259,6 +267,7 @@ namespace ISurvived
                             {
                                 selectedItem = player.OwnedAccessories[boxNumber];
                                 selectedItemIndex = boxNumber;
+                                Sound.PlaySoundInstance(Sound.SoundNames.ui_trenchcoat_select);
                             }
                         }
                         break;
@@ -272,6 +281,7 @@ namespace ISurvived
                             {
                                 selectedItem = EnemyDrop.allDrops[player.EnemyDrops.ElementAt(boxNumber).Key];
                                 selectedItemIndex = boxNumber;
+                                Sound.PlaySoundInstance(Sound.SoundNames.ui_trenchcoat_select);
                             }
                         }
                         break;
@@ -294,6 +304,7 @@ namespace ISurvived
             if (nextEquipmentPage.Clicked() && equipmentPage < 4)
             {
                 equipmentPage++;
+                Sound.PlaySoundInstance(Sound.SoundNames.ui_inventory_list_02);
 
                 ResetInventoryBoxes();
             }
@@ -301,6 +312,7 @@ namespace ISurvived
             if (previousEquipmentPage.Clicked() && equipmentPage > 0)
             {
                 equipmentPage--;
+                Sound.PlaySoundInstance(Sound.SoundNames.ui_inventory_list_01);
 
                 ResetInventoryBoxes();
             }
@@ -427,8 +439,10 @@ namespace ISurvived
 
                     if (tabState == TabState.loot)
                     {
-                        s.DrawString(Game1.descriptionFont, player.EnemyDrops.ElementAt(i).Value.ToString(),
-                            new Vector2(inventoryBoxes[i].ButtonRec.X + 7, inventoryBoxes[i].ButtonRec.Y + 5), Color.DarkRed);
+                        //s.DrawString(Game1.descriptionFont, player.EnemyDrops.ElementAt(i).Value.ToString(),
+                        //    new Vector2(inventoryBoxes[i].ButtonRec.X + 7, inventoryBoxes[i].ButtonRec.Y + 5), Color.DarkRed);
+
+                        Game1.OutlineFont(Game1.font, s, player.EnemyDrops.ElementAt(i).Value.ToString(), 2, inventoryBoxes[i].ButtonRec.X + 65 - (int)Game1.font.MeasureString(player.EnemyDrops.ElementAt(i).Value.ToString()).X, inventoryBoxes[i].ButtonRec.Y + 48, Color.White, Color.Black);
                     }
                 }
             }

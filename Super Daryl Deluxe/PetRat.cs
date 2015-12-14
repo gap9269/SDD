@@ -23,7 +23,7 @@ namespace ISurvived
         int timesAnimationLooped = 0;
         int moveState = 0; //0 or 1, determines movement pattern
         Boolean facingRight = true;
-
+        public static SoundEffect object_prologue_rat_die;
         enum State
         {
             blinking,
@@ -158,6 +158,7 @@ namespace ISurvived
                     if (Game1.Player.VitalRec.Intersects(vitalRec))
                     {
                         game.Prologue.PrologueBooleans["ratDead"] = true;
+                        Sound.PlaySoundInstance(object_prologue_rat_die, Game1.GetFileName(()=>object_prologue_rat_die));
                     }
                 }
             }

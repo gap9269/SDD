@@ -270,9 +270,9 @@ namespace ISurvived
 
         //--If the experience hits what is needed to level up, this is called
         //--Increase stats and other things based on level
-        public override void ApplyLevelUp()
+        public override void ApplyLevelUp(Boolean silent = false)
         {
-            base.ApplyLevelUp();
+            base.ApplyLevelUp(silent);
 
             switch (skillRank)
             {

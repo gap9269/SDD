@@ -59,8 +59,8 @@ namespace ISurvived
         {
             base.SetDestinationPortals();
 
-            portals.Add(toMainLobby, MainLobby.ToSideHall);
-            portals.Add(toSouthHall, SouthHall.ToSideHall);
+            portals.Add(toMainLobby, MainLobby.ToSouthHall);
+            portals.Add(toSouthHall, SouthHall.ToMainLobby);
             portals.Add(toBasement, Basement.ToSideHall);
         }
 

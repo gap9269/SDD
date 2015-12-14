@@ -100,7 +100,7 @@ namespace ISurvived
             Barrel bar1 = new Barrel(game, 500, 710, Game1.interactiveObjects["Barrel"], true, 3, 5, .3f, true, Barrel.BarrelType.WoodenLeft);
             interactiveObjects.Add(bar1);
 
-            Barrel bar2 = new Barrel(game, 1300, 650, Game1.interactiveObjects["Barrel"], true, 3, 7, 0, false, Barrel.BarrelType.Radioactive);
+            Barrel bar2 = new Barrel(game, 1300, 650, Game1.interactiveObjects["Barrel"], true, 3, 7, 0, false, Barrel.BarrelType.MetalRadioactive);
             interactiveObjects.Add(bar2);
 
             Barrel bar3 = new Barrel(game, 1700, 710, Game1.interactiveObjects["Barrel"], true, 3, 6, .7f, true, Barrel.BarrelType.MetalLabel);
@@ -154,12 +154,12 @@ namespace ISurvived
             SoundEffect am = Sound.ambienceContent.Load<SoundEffect>(@"Sound\Ambience\ambience_cave");
             SoundEffectInstance amb = am.CreateInstance();
             amb.IsLooped = true;
-            Sound.ambience.Add("Cave", amb);
+            Sound.ambience.Add("ambience_cave", amb);
 
             SoundEffect fieldAm = Sound.ambienceContent.Load<SoundEffect>(@"Sound\Ambience\ambience_outdoors_night");
             SoundEffectInstance fieldAmb = fieldAm.CreateInstance();
             fieldAmb.IsLooped = true;
-            Sound.ambience.Add("Field", fieldAmb);
+            Sound.ambience.Add("ambience_outdoors_night", fieldAmb);
 
                 //SoundEffect bg = Sound.backgroundMusicContent.Load<SoundEffect>(@"Sound\Hitman");
                 //SoundEffectInstance backgroundMusic = bg.CreateInstance();
@@ -176,7 +176,7 @@ namespace ISurvived
                 //backgroundMusic2.IsLooped = true;
                 //Sound.music.Add("Troll", backgroundMusic2);
 
-            Sound.backgroundVolume = 1f;
+            Sound.currentBackgroundVolume = 1f;
         }
 
         public override void PlayBackgroundMusic()
@@ -203,9 +203,9 @@ namespace ISurvived
         public override void PlayAmbience()
         {
             if (player.VitalRecY < -1000)
-                Sound.PlayAmbience("Field");
+                Sound.PlayAmbience("ambience_outdoors_night");
             else
-                Sound.PlayAmbience("Cave");
+                Sound.PlayAmbience("ambience_cave");
         }
 
         public override void UnloadNPCContent()
@@ -222,8 +222,9 @@ namespace ISurvived
             base.LoadEnemyData();
 
             EnemyContentLoader.Scarecrow(content);
-            EnemyContentLoader.Goblin(content);
+            EnemyContentLoader.GoblinEnemy(content);
             EnemyContentLoader.Crow(content);
+            EnemyContentLoader.SharedGoblinSounds(content);
 
             if (game.ChapterTwo.ChapterTwoBooleans["goblinGateDestroyed"] == false)
             {
@@ -266,7 +267,7 @@ namespace ISurvived
                         }
                         else
                         {
-                            enemiesInMap.Add(ben);
+                            AddEnemyToEnemyList(ben);
                             enemyNamesAndNumberInMap["Scarecrow"]++;
                             enemiesSpawned++;
                         }
@@ -288,7 +289,7 @@ namespace ISurvived
                         }
                         else
                         {
-                            enemiesInMap.Add(ben);
+                            AddEnemyToEnemyList(ben);
                             enemyNamesAndNumberInMap["Goblin"]++;
                         }
                     }
@@ -317,7 +318,7 @@ namespace ISurvived
                         }
                         else
                         {
-                            enemiesInMap.Add(en);
+                            AddEnemyToEnemyList(en);
                             enemyNamesAndNumberInMap["Crow"]++;
                             enemiesSpawned++;
                         }
@@ -497,7 +498,7 @@ namespace ISurvived
             if (!enemiesInMap.Contains(troll) && game.ChapterTwo.ChapterTwoBooleans["goblinGateDestroyed"] && player.VitalRecX < 1200 && !game.ChapterTwo.ChapterTwoBooleans["trollAdded"])
             {
                 game.ChapterTwo.ChapterTwoBooleans["trollAdded"] = true;
-                enemiesInMap.Add(troll);
+                AddEnemyToEnemyList(troll);
             }
 
             //For loaded files, if the gate is destroyed, remove and add necessary platforms
@@ -524,9 +525,9 @@ namespace ISurvived
         {
             base.SetPortals();
 
-            toAnotherSpookyField = new Portal(100, -1660, "Worker'sField");
-            toIrrigationCanal = new Portal(3000, -1160, "Worker'sField");
-            toHut = new Portal(3465, platforms[0], "Worker'sField", "Gold Key");
+            toAnotherSpookyField = new Portal(100, -1660, "Worker's Field");
+            toIrrigationCanal = new Portal(3000, -1160, "Worker's Field");
+            toHut = new Portal(3465, platforms[0], "Worker's Field", "Gold Key");
         }
 
         public override void DrawMapOverlay(SpriteBatch s)

@@ -9,6 +9,7 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
+using SharpDX.XInput;
 
 namespace ISurvived
 {
@@ -18,7 +19,7 @@ namespace ISurvived
         public static GamePadState previousState;
         static int rumbleTime;
         static float currentRumbleAmount;
-
+        public static Controller gamePad;
         /// <summary>
         /// Only call this if a gamepad is connected
         /// </summary>
@@ -33,33 +34,38 @@ namespace ISurvived
 
                 if (rumbleTime <= 0)
                 {
-                    //GamePad.SetVibration(PlayerIndex.One, 0, 0);
+                    gamePad.SetVibration(new Vibration());
                     currentRumbleAmount = 0;
                 }
             }
         }
 
-        public static bool RightAnalogPressedIn()
+        public static void ResetStates()
         {
-            if (currentState.Buttons.RightStick == ButtonState.Released && previousState.Buttons.RightStick == ButtonState.Pressed)
-                return true;
-
-            return false;
+            currentState = new GamePadState();
+            previousState = new GamePadState();
         }
         
         public static void SetRumble(int time, float amount)
         {
-            if (amount < .3f)
-                amount = .3f;
-
-            if (time < 3)
-                time = 3;
-
-            if (amount > currentRumbleAmount)
+            if (gamePad != null)
             {
-                //GamePad.SetVibration(PlayerIndex.One, amount, amount);
-                rumbleTime = time;
-                currentRumbleAmount = amount;
+                if (amount < .3f)
+                    amount = .3f;
+
+                if (time < 3)
+                    time = 3;
+
+                if (amount > currentRumbleAmount)
+                {
+                    Vibration vib = new Vibration();
+                    if (amount > 1) amount = 1;
+                    vib.LeftMotorSpeed = (ushort)(amount * 65535);
+                    vib.RightMotorSpeed = (ushort)(amount * 65535);
+                    gamePad.SetVibration(vib);
+                    rumbleTime = time;
+                    currentRumbleAmount = (ushort)(amount * 65535);
+                }
             }
         }
 
@@ -113,6 +119,38 @@ namespace ISurvived
             return false;
         }
 
+        public static bool AHeld()
+        {
+            if (currentState.Buttons.A == ButtonState.Pressed)
+                return true;
+
+            return false;
+        }
+
+        public static bool BHeld()
+        {
+            if (currentState.Buttons.B == ButtonState.Pressed)
+                return true;
+
+            return false;
+        }
+
+        public static bool XHeld()
+        {
+            if (currentState.Buttons.X == ButtonState.Pressed)
+                return true;
+
+            return false;
+        }
+
+        public static bool YHeld()
+        {
+            if (currentState.Buttons.Y == ButtonState.Pressed)
+                return true;
+
+            return false;
+        }
+
         public static bool RightTriggerPressed()
         {
             if (currentState.Triggers.Right > 0 && previousState.Triggers.Right == 0)
@@ -129,17 +167,17 @@ namespace ISurvived
             return false;
         }
 
-        public static bool RightBumperPressed()
+        public static bool LeftBumperPressed()
         {
-            if (currentState.Buttons.RightShoulder == ButtonState.Released && previousState.Buttons.RightShoulder == ButtonState.Pressed)
+            if (currentState.Buttons.LeftShoulder == ButtonState.Released && previousState.Buttons.LeftShoulder == ButtonState.Pressed)
                 return true;
 
             return false;
         }
 
-        public static bool LeftBumperPressed()
+        public static bool RightBumperPressed()
         {
-            if (currentState.Buttons.LeftShoulder == ButtonState.Released && previousState.Buttons.LeftShoulder == ButtonState.Pressed)
+            if (currentState.Buttons.RightShoulder == ButtonState.Released && previousState.Buttons.RightShoulder == ButtonState.Pressed)
                 return true;
 
             return false;
@@ -177,7 +215,41 @@ namespace ISurvived
 
             return false;
         }
+
+
+
+        public static bool DownPadHeld()
+        {
+            if (currentState.DPad.Down == ButtonState.Pressed)
+                return true;
+
+            return false;
+        }
+        public static bool UpPadHeld()
+        {
+            if (currentState.DPad.Up == ButtonState.Pressed)
+                return true;
+
+            return false;
+        }
+        public static bool LeftPadHeld()
+        {
+            if (currentState.DPad.Left == ButtonState.Pressed)
+                return true;
+
+            return false;
+        }
+        public static bool RightPadHeld()
+        {
+            if (currentState.DPad.Right == ButtonState.Pressed)
+                return true;
+
+            return false;
+        }
+
         #endregion
+
+        #region Analogs
 
         public static bool RightAnalogHeld()
         {
@@ -197,7 +269,7 @@ namespace ISurvived
 
         public static bool DownAnalogHeld()
         {
-            if (currentState.ThumbSticks.Left.Y == -1)
+            if (currentState.ThumbSticks.Left.Y <= -.9f)
                 return true;
 
             return false;
@@ -205,10 +277,43 @@ namespace ISurvived
 
         public static bool DownAnalogPressed()
         {
-            if (currentState.ThumbSticks.Left.Y == 0 && previousState.ThumbSticks.Left.Y == -1)
+            if (currentState.ThumbSticks.Left.Y == 0 && previousState.ThumbSticks.Left.Y <= -.9f)
                 return true;
 
             return false;
         }
+
+        public static bool RightDownAnalogPressed()
+        {
+            if (currentState.ThumbSticks.Right.Y <= -.7f && (int)(Game1.gameTimeData.TotalGameTime.TotalMilliseconds) % 30 == 0)
+                return true;
+
+            return false;
+        }
+
+        public static bool RightUpAnalogPressed()
+        {
+            if (currentState.ThumbSticks.Right.Y >= .9f && (int)(Game1.gameTimeData.TotalGameTime.TotalMilliseconds) % 30 == 0)
+                return true;
+
+            return false;
+        }
+
+        public static bool RightAnalogPressedIn()
+        {
+            if (currentState.Buttons.RightStick == ButtonState.Released && previousState.Buttons.RightStick == ButtonState.Pressed)
+                return true;
+
+            return false;
+        }
+
+        public static bool LeftAnalogPressedIn()
+        {
+            if (currentState.Buttons.LeftStick == ButtonState.Released && previousState.Buttons.LeftStick == ButtonState.Pressed)
+                return true;
+
+            return false;
+        }
+        #endregion
     }
 }

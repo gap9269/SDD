@@ -16,7 +16,7 @@ namespace ISurvived
     {
         List<ItemForSale> itemsOnSale;
         List<Boolean> soldOut;
-
+        public Boolean canShop = true;
 
         public List<ItemForSale> ItemsOnSale { get { return itemsOnSale; } set { itemsOnSale = value; } }
         public List<Boolean> SoldOut { get { return soldOut; } set { soldOut = value; } }
@@ -50,6 +50,16 @@ namespace ISurvived
 
             currentDialogueFace = "Normal";
             staticNPC = false;
+        }
+
+        public void RestockItemsForSale()
+        {
+            soldOut.Clear();
+
+            for (int i = 0; i < itemsOnSale.Count; i++)
+            {
+                soldOut.Add(false);
+            }
         }
 
         public override Rectangle GetSourceRectangle(int frame)
@@ -103,16 +113,10 @@ namespace ISurvived
         public override void UpdateInteraction()
         {
 
-            last = current;
-            current = Keyboard.GetState();
-
             updatingInteraction = true;
 
-            if (((last.IsKeyDown(Keys.Enter) && current.IsKeyUp(Keys.Enter)) || MyGamePad.APressed()) && scrollDialogueNum >= dialogue[dialogueState].Length && updateFaster == false)
+            if (((game.last.IsKeyDown(Keys.Enter) && game.current.IsKeyUp(Keys.Enter)) || MyGamePad.APressed()) && scrollDialogueNum >= dialogue[dialogueState].Length && updateFaster == false)
             {
-                if(game.CurrentChapter.state != Chapter.GameState.Cutscene)
-                    game.Shop.LoadContent();
-
                 scrollDialogueNum = 0;
                 dialogueState++;
                 scrollDialogue = "";
@@ -120,11 +124,13 @@ namespace ISurvived
                 {
                     game.CurrentChapter.TalkingToNPC = false;
                     talking = false;
+                    MyGamePad.ResetStates();
                     dialogueState = 0;
                     updatingInteraction = false;
 
-                    if (game.CurrentChapter.state != Chapter.GameState.Cutscene)
+                    if (game.CurrentChapter.state != Chapter.GameState.Cutscene && canShop)
                     {
+                        game.Shop.LoadContent();
                         game.CurrentChapter.state = Chapter.GameState.shop;
                         game.Shop.TrenchcoatKid = this;
                     }
@@ -133,11 +139,11 @@ namespace ISurvived
             }
 
             //--Update the text faster
-            if (scrollDialogueNum < dialogue[dialogueState].Length && (current.IsKeyDown(Keys.Enter) || MyGamePad.currentState.Buttons.A == ButtonState.Pressed))
+            if (scrollDialogueNum < dialogue[dialogueState].Length && (game.current.IsKeyDown(Keys.Enter) || MyGamePad.currentState.Buttons.A == ButtonState.Pressed))
             {
                 updateFaster = true;
             }
-            else if (current.IsKeyUp(Keys.Enter) && MyGamePad.currentState.Buttons.A == ButtonState.Released)
+            else if (game.current.IsKeyUp(Keys.Enter) && MyGamePad.currentState.Buttons.A == ButtonState.Released)
             {
                 updateFaster = false;
             }
@@ -163,126 +169,132 @@ namespace ISurvived
                     s.Draw(spriteSheet, rec, GetSourceRectangle(moveFrame), Color.White, 0f, Vector2.Zero, SpriteEffects.FlipHorizontally, 0f);
                 }
 
-                #region Draw NPC names
-
-                //--Get the distance from daryl to the NPC
-                Point distanceFromNPC = new Point(Math.Abs(player.VitalRec.Center.X - rec.Center.X),
-                Math.Abs(player.VitalRec.Center.Y - rec.Center.Y));
-
-                //--If it is less than 250 pixels
-                if (distanceFromNPC.X < 250 && distanceFromNPC.Y < 250 && game.CurrentChapter.state == Chapter.GameState.Game && !game.CurrentChapter.TalkingToNPC && !drawFButton)
+                if (canTalk && !game.CurrentChapter.MakingDecision)
                 {
-                    s.DrawString(Game1.font, name, new Vector2(rec.X + ((rec.Width / 2) - (Game1.font.MeasureString(name).X / 2)) - 2, rec.Y + Game1.npcHeightFromRecTop["Trenchcoat Employee"] - 40 - 2), Color.Black);
+                    #region Draw NPC names
 
-                    s.DrawString(Game1.font, name, new Vector2(rec.X + ((rec.Width / 2) - (Game1.font.MeasureString(name).X / 2)), rec.Y + Game1.npcHeightFromRecTop["Trenchcoat Employee"] - 40), Color.White);//new Color(241, 107, 79));
-                }
-                #endregion
+                    //--Get the distance from daryl to the NPC
+                    Point distanceFromNPC = new Point(Math.Abs(player.VitalRec.Center.X - rec.Center.X),
+                    Math.Abs(player.VitalRec.Center.Y - rec.Center.Y));
 
-                int fButtonOffset = (int)(43 - 43 * .9f) / 2;
-
-                frec = new Rectangle((rec.X + rec.Width / 2) - (43 / 2) + fButtonOffset, rec.Y - 55 + Game1.npcHeightFromRecTop["Paul"] - 30, (int)(43), (int)(65));
-
-                if (drawFButton)
-                {
-                    if (!Chapter.effectsManager.fButtonRecs.Contains(frec))
-                        Chapter.effectsManager.AddFButton(frec);
-                }
-
-                else
-                {
-                    if (Chapter.effectsManager.fButtonRecs.Contains(frec))
-                        Chapter.effectsManager.fButtonRecs.Remove(frec);
-
-                    //Size of the texture
-                    float notiWidth = 123;
-                    float notiHeight = 111;
-
-                    #region Draw notifications
-
-                    if (quest != null && quest.StoryQuest)
-                        s.Draw(Game1.notificationTextures, new Rectangle((rec.X + rec.Width / 2) - ((int)notiWidth / 2) - 12, rec.Y + Game1.npcHeightFromRecTop[name] - (int)notiHeight - 30 + (int)notificationPos, (int)(notiWidth * 1.2f), (int)(notiHeight * 1.2f)), new Rectangle(738, 0, 123, 111), Color.White);
-
-                    else if (quest != null && !quest.StoryQuest)
-                        s.Draw(Game1.notificationTextures, new Rectangle((rec.X + rec.Width / 2) - ((int)notiWidth / 2) - 12, rec.Y + Game1.npcHeightFromRecTop[name] - (int)notiHeight - 30 + (int)notificationPos, (int)(notiWidth * 1.2f), (int)(notiHeight * 1.2f)), new Rectangle(615, 0, 123, 111), Color.White);
-
-                    if (quest != null && !game.CurrentQuests.Contains(quest))
+                    //--If it is less than 250 pixels
+                    if (distanceFromNPC.X < 250 && distanceFromNPC.Y < 250 && game.CurrentChapter.state == Chapter.GameState.Game && !game.CurrentChapter.TalkingToNPC && !drawFButton)
                     {
-                        if (notificationPos >= 0)
-                        {
-                            notificationState++;
-                            notificationPos = 0;
-
-
-                            if (notificationState == 5)
-                                notificationState = 1;
-                            else if (notificationState == 1)
-                                notificationVelocity = -8;
-                            else if (notificationState == 2)
-                                notificationVelocity = -4;
-                            else if (notificationState == 3)
-                                notificationVelocity = -2;
-                        }
-
-                        notificationPos += notificationVelocity;
-                        notificationVelocity += GameConstants.GRAVITY / 3f;
-
-                        s.Draw(Game1.notificationTextures, new Rectangle((rec.X + rec.Width / 2) - ((int)notiWidth / 2) - 12, rec.Y + Game1.npcHeightFromRecTop[name] - (int)notiHeight - 30 + (int)notificationPos, (int)(notiWidth * 1.2f), (int)(notiHeight * 1.2f)),  new Rectangle(0, 0, 123, 111), Color.White);
-                    }
-
-                    else if (quest != null && game.CurrentQuests.Contains(quest) && quest.CompletedQuest)
-                    {
-
-                        if (notificationPos >= 0)
-                        {
-                            notificationState++;
-                            notificationPos = 0;
-
-
-                            if (notificationState == 5)
-                                notificationState = 1;
-                            else if (notificationState == 1)
-                                notificationVelocity = -8;
-                            else if (notificationState == 2)
-                                notificationVelocity = -4;
-                            else if (notificationState == 3)
-                                notificationVelocity = -2;
-                        }
-
-                        notificationPos += notificationVelocity;
-                        notificationVelocity += GameConstants.GRAVITY / 3f;
-
-                        s.Draw(Game1.notificationTextures, new Rectangle((rec.X + rec.Width / 2) - ((int)notiWidth / 2) - 12, rec.Y + Game1.npcHeightFromRecTop[name] - (int)notiHeight - 30 + (int)notificationPos, (int)(notiWidth * 1.2f), (int)(notiHeight * 1.2f)), new Rectangle(123, 0, 123, 111), Color.White);
-                    }
-
-                    else if (quest != null && game.CurrentQuests.Contains(quest) && !quest.CompletedQuest)
-                    {
-                        if (notificationState > 3)
-                            notificationState = 1;
-
-                        if (notificationTimer <= 0)
-                        {
-                            notificationTimer = 30;
-                            notificationState++;
-
-                            if (notificationState > 3)
-                                notificationState = 1;
-                        }
-                        else
-                            notificationTimer--;
-
-                        notificationPos = 0;
-                        String notNum = "current" + notificationState;
-
-                        int sourceRecPosX = 246 * notificationState;
-
-                        s.Draw(Game1.notificationTextures, new Rectangle((rec.X + rec.Width / 2) - ((int)notiWidth / 2) - 12, rec.Y + Game1.npcHeightFromRecTop[name] - (int)notiHeight - 30, (int)(notiWidth * 1.2f), (int)(notiHeight * 1.2f)), new Rectangle(sourceRecPosX, 0, 123, 111), Color.White);
+                        Game1.OutlineFont(Game1.font, s, name, 1, (int)(rec.X + ((rec.Width / 2) - (Game1.font.MeasureString(name).X / 2)) - 2), (int)(rec.Y + Game1.npcHeightFromRecTop["Trenchcoat Employee"] - 40 - 2), Color.Black, Color.White);
                     }
                     #endregion
                 }
+                    int fButtonOffset = (int)(43 - 43 * .9f) / 2;
+
+                    frec = new Rectangle((rec.X + rec.Width / 2) - (43 / 2) + fButtonOffset, rec.Y - 55 + Game1.npcHeightFromRecTop["Paul"] - 30, (int)(43), (int)(65));
+
+                    if (drawFButton && canTalk && !game.CurrentChapter.MakingDecision)
+                    {
+                        if (!Chapter.effectsManager.fButtonRecs.Contains(frec))
+                            Chapter.effectsManager.AddFButton(frec);
+                    }
+
+                    else
+                    {
+                        if (Chapter.effectsManager.fButtonRecs.Contains(frec))
+                            Chapter.effectsManager.fButtonRecs.Remove(frec);
+
+                        //Size of the texture
+                        float notiWidth = 123;
+                        float notiHeight = 111;
+
+                        #region Draw notifications
+
+                        if (quest != null && quest.StoryQuest)
+                            s.Draw(Game1.notificationTextures, new Rectangle((rec.X + rec.Width / 2) - ((int)notiWidth / 2) - 12, rec.Y + Game1.npcHeightFromRecTop[name] - (int)notiHeight - 30 + (int)notificationPos, (int)(notiWidth * 1.2f), (int)(notiHeight * 1.2f)), new Rectangle(738, 0, 123, 111), Color.White);
+
+                        else if (quest != null && !quest.StoryQuest)
+                            s.Draw(Game1.notificationTextures, new Rectangle((rec.X + rec.Width / 2) - ((int)notiWidth / 2) - 12, rec.Y + Game1.npcHeightFromRecTop[name] - (int)notiHeight - 30 + (int)notificationPos, (int)(notiWidth * 1.2f), (int)(notiHeight * 1.2f)), new Rectangle(615, 0, 123, 111), Color.White);
+
+                        if (quest != null && !game.CurrentQuests.Contains(quest))
+                        {
+                            if (notificationPos >= 0)
+                            {
+                                notificationState++;
+                                notificationPos = 0;
+
+
+                                if (notificationState == 5)
+                                    notificationState = 1;
+                                else if (notificationState == 1)
+                                    notificationVelocity = -8;
+                                else if (notificationState == 2)
+                                    notificationVelocity = -4;
+                                else if (notificationState == 3)
+                                    notificationVelocity = -2;
+                            }
+
+                            notificationPos += notificationVelocity;
+                            notificationVelocity += GameConstants.GRAVITY / 3f;
+
+                            s.Draw(Game1.notificationTextures, new Rectangle((rec.X + rec.Width / 2) - ((int)notiWidth / 2) - 12, rec.Y + Game1.npcHeightFromRecTop[name] - (int)notiHeight - 30 + (int)notificationPos, (int)(notiWidth * 1.2f), (int)(notiHeight * 1.2f)), new Rectangle(0, 0, 123, 111), Color.White);
+                        }
+
+                        else if (quest != null && game.CurrentQuests.Contains(quest) && quest.CompletedQuest)
+                        {
+
+                            if (notificationPos >= 0)
+                            {
+                                notificationState++;
+                                notificationPos = 0;
+
+
+                                if (notificationState == 5)
+                                    notificationState = 1;
+                                else if (notificationState == 1)
+                                    notificationVelocity = -8;
+                                else if (notificationState == 2)
+                                    notificationVelocity = -4;
+                                else if (notificationState == 3)
+                                    notificationVelocity = -2;
+                            }
+
+                            notificationPos += notificationVelocity;
+                            notificationVelocity += GameConstants.GRAVITY / 3f;
+
+                            s.Draw(Game1.notificationTextures, new Rectangle((rec.X + rec.Width / 2) - ((int)notiWidth / 2) - 12, rec.Y + Game1.npcHeightFromRecTop[name] - (int)notiHeight - 30 + (int)notificationPos, (int)(notiWidth * 1.2f), (int)(notiHeight * 1.2f)), new Rectangle(123, 0, 123, 111), Color.White);
+                        }
+
+                        else if (quest != null && game.CurrentQuests.Contains(quest) && !quest.CompletedQuest)
+                        {
+                            if (notificationState > 3)
+                                notificationState = 1;
+
+                            if (notificationTimer <= 0)
+                            {
+                                notificationTimer = 30;
+                                notificationState++;
+
+                                if (notificationState > 3)
+                                    notificationState = 1;
+                            }
+                            else
+                                notificationTimer--;
+
+                            notificationPos = 0;
+                            String notNum = "current" + notificationState;
+
+                            int sourceRecPosX = 246 * notificationState;
+
+                            s.Draw(Game1.notificationTextures, new Rectangle((rec.X + rec.Width / 2) - ((int)notiWidth / 2) - 12, rec.Y + Game1.npcHeightFromRecTop[name] - (int)notiHeight - 30, (int)(notiWidth * 1.2f), (int)(notiHeight * 1.2f)), new Rectangle(sourceRecPosX, 0, 123, 111), Color.White);
+                        }
+                        #endregion
+                    }
+                
 
             }
             else if (game.CurrentChapter.state == Chapter.GameState.Cutscene && game.CurrentChapter.CurrentMap.MapName == mapName)
             {
+                if (spriteSheet == Game1.whiteFilter)
+                {
+                    spriteSheet = game.NPCSprites[name];
+                }
+
                 if (facingRight)
                 {
                     s.Draw(spriteSheet, rec, GetSourceRectangle(moveFrame), Color.White * alpha);
@@ -314,12 +326,6 @@ namespace ISurvived
                     scrollDialogue += currentLine.ElementAt(scrollDialogueNum);
                     scrollDialogueNum++;
 
-                    //--Scroll text noise. Faster then you're updating text quickly
-                    //if (scrollDialogueNum % 5 == 0 && updateFaster == false)
-                    //    Sound.PlaySoundInstance(Sound.SoundNames.TextScroll);
-                    //else if (scrollDialogueNum % 4 == 0 && updateFaster == true)
-                    //    Sound.PlaySoundInstance(Sound.SoundNames.TextScroll);
-
                     //--Add a second letter for updating faster
                     if (updateFaster && scrollDialogueNum < stringNum)
                     {
@@ -328,10 +334,21 @@ namespace ISurvived
 
                     }
 
+                    //--Scroll text noise. Faster then you're updating text quickly
+                    if (scrollDialogueNum % 5 == 0 && updateFaster == false)
+                        Sound.PlaySoundInstance(Sound.SoundNames.ui_general_text_scroll);
+                    else if (scrollDialogueNum % 4 == 0 && updateFaster == true)
+                        Sound.PlaySoundInstance(Sound.SoundNames.ui_general_text_scroll);
+
                 }
 
                 if (updatingInteraction && scrollDialogueNum == stringNum)
-                    s.Draw(Game1.notificationTextures, new Rectangle(974, 639, 50, 22), new Rectangle(1774, 0, 50, 22), Color.White);
+                {
+                    if (!Game1.gamePadConnected)
+                        s.Draw(Game1.notificationTextures, new Rectangle(974, 639, 50, 22), new Rectangle(1774, 0, 50, 22), Color.White);
+                    else
+                        s.Draw(Game1.AButton, new Vector2(0, 0), Color.White);
+                }
 
                 s.DrawString(Game1.dialogueFont, Game1.WrapText(Game1.dialogueFont, scrollDialogue, 660), new Vector2(360, (int)(Game1.aspectRatio * 1280 * .8f)), Color.Black);
             }

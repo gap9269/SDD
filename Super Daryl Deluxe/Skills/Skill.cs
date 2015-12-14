@@ -68,9 +68,12 @@ namespace ISurvived
         protected int costToBuy;
         protected Dictionary<String, SoundEffect> skillHitSounds;
         protected Dictionary<String, SoundEffect> skillUseSounds;
-
+        public static int maxLevel = 15;
         protected List<InteractiveObject> interactiveObjectsInMap;
         protected int frameDelay;
+
+        public int[] transformLevels;
+        public Skill nextRankOfSkill;
 
         protected List<int> playerLevelRequiredToLevel;
 
@@ -131,6 +134,8 @@ namespace ISurvived
             equipped = false;
             justPressed = false;
 
+            transformLevels = new int[3] { 3, 6, 9 };
+
             useNext = new List<bool>();
             useNext.Add(false);
             useNext.Add(false);
@@ -154,6 +159,21 @@ namespace ISurvived
             content.RootDirectory = "Content";
 
             randomNumberGenerator = new Random();
+
+            nextRankOfSkill = this.Clone();
+        }
+
+        public Skill Clone()
+        {
+            Skill tmp = (Skill)this.MemberwiseClone();
+
+            return tmp;
+        }
+
+        public virtual void StopSkill()
+        {
+            animationLength = -1;
+            moveFrame = 0;
         }
 
         public virtual void Use(Game1 game, Keys key)
@@ -215,6 +235,11 @@ namespace ISurvived
 
         public virtual void Update()
         {
+            if (nextRankOfSkill.skillRank != skillRank + 1)
+            {
+                nextRankOfSkill.skillRank = skillRank + 1;
+                nextRankOfSkill.ApplyLevelUp(true);
+            }
             //--Decrease the timer, cooldown, and animationLength every frame
             if (animationLength > -1)
                 animationLength--;
@@ -230,10 +255,12 @@ namespace ISurvived
                 chargeTime = 0;
             }
 
-            if (experience >= experienceUntilLevel)
+            if (experience >= experienceUntilLevel && skillRank < maxLevel)
             {
                 skillRank++;
                 ApplyLevelUp();
+
+                Sound.PlaySoundInstance(Sound.SoundNames.popup_skill_level_up, false, int.MaxValue, int.MaxValue, 0, 0, 0, false);
 
                 Game1.currentChapter.HUD.SkillsHidden = false;
             }
@@ -245,7 +272,11 @@ namespace ISurvived
             {
                 hitSoundsLeftThisAttack--;
 
-                skillHitSounds.ElementAt(randomNumberGenerator.Next(skillHitSounds.Count)).Value.CreateInstance().Play();
+                if (skillHitSounds != null && skillHitSounds.Count > 0)
+                {
+                    int num = randomNumberGenerator.Next(skillHitSounds.Count);
+                    Sound.PlaySoundInstance(skillHitSounds.ElementAt(num).Value, skillHitSounds.ElementAt(num).Key, false);
+                }
             }
         }
 
@@ -254,12 +285,14 @@ namespace ISurvived
             if (endingExclusiveIndex == 0)
                 endingExclusiveIndex = skillUseSounds.Count;
 
-            skillUseSounds.ElementAt(randomNumberGenerator.Next(startingIndex, endingExclusiveIndex)).Value.CreateInstance().Play();
+            int num = randomNumberGenerator.Next(startingIndex, endingExclusiveIndex);
+            Sound.PlaySoundInstance(skillUseSounds.ElementAt(num).Value, skillUseSounds.ElementAt(num).Key, false);
         }
 
-        public virtual void ApplyLevelUp()
+        public virtual void ApplyLevelUp(Boolean silent = false)
         {
-            Chapter.effectsManager.AddSkillLevelUp(skillBarColor, name);
+            if(!silent)
+                Chapter.effectsManager.AddSkillLevelUp(skillBarColor, name);
         }
 
         public virtual void StunEnemy(Rectangle attackRec, int time)
@@ -279,7 +312,7 @@ namespace ISurvived
             }
 
             //--If the skill's attack hits the enemy vitals
-            if (game.CurrentChapter.BossFight && attackRec.Intersects(currentBoss.VitalRec))
+            if (game.CurrentChapter.BossFight && currentBoss != null && attackRec.Intersects(currentBoss.VitalRec))
             {
                 currentBoss.Stun(time);
                 bossesStunnedThisAttack.Add(currentBoss);
@@ -289,10 +322,10 @@ namespace ISurvived
 
         public virtual void CheckFiniteCollisions(Rectangle attackRec, float damage, Vector2 kbvel, int shakeTime, int shakeMag)
         {
-            damage *= player.Strength;
+            damage *= player.realStrength;
 
             //--Bosses
-            if (game.CurrentChapter.BossFight && attackRec.Intersects(currentBoss.VitalRec) && !bossesHitThisAttack.Contains(currentBoss))
+            if (game.CurrentChapter.BossFight && currentBoss != null && attackRec.Intersects(currentBoss.VitalRec) && !bossesHitThisAttack.Contains(currentBoss) && currentBoss.CanBeHurt && currentBoss.CurrentMap == game.CurrentChapter.CurrentMap)
             {
                 float kbX = 0;
 
@@ -321,7 +354,7 @@ namespace ISurvived
             for (int i = 0; i < interactiveObjectsInMap.Count; i++)
             {
                 //--If the skill's attack hits the enemy vitals
-                if (attackRec.Intersects(interactiveObjectsInMap[i].VitalRec) && !interactiveObjectsThisAttack.Contains(interactiveObjectsInMap[i]) && interactiveObjectsInMap[i].Finished == false)
+                if (attackRec.Intersects(interactiveObjectsInMap[i].VitalRec) && !interactiveObjectsThisAttack.Contains(interactiveObjectsInMap[i]) && interactiveObjectsInMap[i].Finished == false && interactiveObjectsInMap[i].IsHidden == false && interactiveObjectsInMap[i].canBeHit)
                 {
                     if (shakeTime > 0)
                     {
@@ -375,7 +408,7 @@ namespace ISurvived
 
         public virtual void CheckCollisions(Rectangle attackRec, float damage, Vector2 kbvel, int shakeTime, int shakeMag)
         {
-            damage *= player.Strength;
+            damage *= player.realStrength;
 
             //--For every enemy
             for (int i = 0; i < enemies.Count; i++)
@@ -413,7 +446,7 @@ namespace ISurvived
             for (int i = 0; i < interactiveObjectsInMap.Count; i++)
             {
                 //--If the skill's attack hits the enemy vitals
-                if (attackRec.Intersects(interactiveObjectsInMap[i].VitalRec) && interactiveObjectsInMap[i].Finished == false)
+                if (attackRec.Intersects(interactiveObjectsInMap[i].VitalRec) && interactiveObjectsInMap[i].Finished == false && interactiveObjectsInMap[i].IsHidden == false && interactiveObjectsInMap[i].canBeHit)
                 {
                     if (shakeTime > 0)
                     {
@@ -428,7 +461,7 @@ namespace ISurvived
                 }
             }
 
-            if (game.CurrentChapter.BossFight && attackRec.Intersects(currentBoss.VitalRec))
+            if (game.CurrentChapter.BossFight && currentBoss != null && attackRec.Intersects(currentBoss.VitalRec) && currentBoss.CanBeHurt && currentBoss.CurrentMap == game.CurrentChapter.CurrentMap)
             {
                 float kbX = 0;
 

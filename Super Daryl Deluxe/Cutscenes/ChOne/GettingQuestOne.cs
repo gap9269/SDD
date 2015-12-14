@@ -35,20 +35,19 @@ namespace ISurvived
                     {
                         alan = game.CurrentChapter.NPCs["Alan"];
                         paul = game.CurrentChapter.NPCs["Paul"];
-                        alan.Dialogue.Clear();
-                        alan.QuestDialogue.Clear();
-                        paul.Dialogue.Clear();
-                        paul.QuestDialogue.Clear();
+                        alan.RemoveQuest(game.ChapterOne.ReturningKeys);
+                        alan.ClearDialogue();
+                        paul.ClearDialogue();
 
-                        paul.Dialogue.Add("Oh thank god! See Alan? I told you Tim didn't kill him.");
-                        paul.Talking = true;
+                        alan.Dialogue.Add("Finally. I'm glad you decided to show up to your second day of work, albeit late and wearing the same clothes as yesterday.");
+                        alan.Talking = true;
                         player.playerState = Player.PlayerState.relaxedStanding;
                     }
 
-                    paul.UpdateInteraction();
+                    alan.UpdateInteraction();
                     camera.Update(player, game, game.CurrentChapter.CurrentMap);
 
-                    if (paul.Talking == false)
+                    if (alan.Talking == false)
                     {
                         state++;
                         timer = 0;
@@ -59,9 +58,9 @@ namespace ISurvived
                     {
                         alan.ClearDialogue();
                         paul.ClearDialogue();
-                        alan.Dialogue.Add("That's a damn lie. You were convinced that Tim did him in for putting those flowers in his locker. ");
+                        paul.Dialogue.Add("Your crime of bad fashion and hygiene isn't the only one either. You left us in a real pickle yesterday when you left us alone to argue with Tim. I wouldn't do that to a friend. Would you, Alan?");
                         talkingState = 0;
-                        alan.Talking = true;
+                        paul.Talking = true;
                     }
                     camera.Update(player, game, game.CurrentChapter.CurrentMap);
 
@@ -81,23 +80,31 @@ namespace ISurvived
 
                         if (talkingState == 1)
                         {
-                            paul.Talking = true;
-                            paul.Dialogue.Add("Alan, I'd love to argue about what I may or may not have said prior to our friend here reappearing \nvery much alive, but there are important matters to discuss.");
-                            paul.Dialogue.Add("Derek did you hear that announcement just now? He knows we stole the key to the janitor's closet. \nNow I don't know about you, but seeing as you are the one currently in possession of that key and as you \nwere the one to use it to break into the janitor's closet, I do believe that you are the \none responsible for it.");
+                            alan.Talking = true;
+                            alan.Dialogue.Add("I wouldn't dream of it. You definitely owe it to us now to be the best employee that you can be.");
                         }
 
                         if (talkingState == 2)
                         {
-                            alan.Dialogue.Add("It's really only fair.");
-                            alan.Talking = true;
+                            paul.Dialogue.Add("Devon, being a part of this business isn't going to be easy. We're a fragile Start-Up in a crowded market that's fit to burst. Trenchcoat Kid isn't going to show us mercy, and we need to offer him the same kindness.");
+                            paul.Dialogue.Add("Our only hope is to offer a product that is cheaper, cleaner, and of a higher quality than the junk that he sells.");
+                            paul.Talking = true;
                         }
                         if (talkingState == 3)
                         {
-                            paul.Dialogue.Add("That it is, Alan. I know how much you want to be our new friend, but how could we be if you were to \nallow us to be severely punished by the administration just because you didn't feel like returning that key to the janitor's closet?");
-                            paul.Dialogue.Add("I can just see the demerits flowing now. My poor mother would be so upset");
+                            alan.Talking = true;
+                            alan.Dialogue.Add("Speaking of clean, I think some of your dirt rubbed off on the textbook that you brought us yesterday. Did you drop it in a mud puddle while you were coming back with it?");
+                        }
+
+                        if (talkingState == 4)
+                        {
+                            paul.Dialogue.Add("What Alan means to say is that the product you brought us yesterday is filthy. Whether you ruined it through some sort of osmosis or not is irrelevant...what's important is that we can't sell it like this. What would my mother think if she saw me selling dirty textbooks?");
+                            paul.Dialogue.Add("You're going to need to fix all of these mistakes you made or we simply can't be friends. Why don't you take that key you have to the Janitor's Closet and find us some Book Spray? That should fix this textbook up, good as new.");
+
                             paul.Talking = true;
                         }
-                        if (talkingState == 4)
+
+                        if (talkingState == 5)
                         {
                             state++;
                             timer = 0;
@@ -122,7 +129,7 @@ namespace ISurvived
                     if (alan.Talking == false)
                     {
                         paul.Dialogue.Clear();
-                        paul.Dialogue.Add("Please tell me you've returned the key.");
+                        paul.Dialogue.Add("If you want to be friends so badly, stop staring at me and find us some book spray.");
                         state = 0;
                         timer = 0;
                         player.playerState = Player.PlayerState.standing;
@@ -150,7 +157,7 @@ namespace ISurvived
                     s.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
 null, null, null, null, camera.StaticTransform);
                     if(timer > 1)
-                        paul.DrawDialogue(s);
+                        alan.DrawDialogue(s);
                     s.End();
                     break;
 

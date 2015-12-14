@@ -41,7 +41,7 @@ namespace ISurvived
             AddNPCs();
             SetPortals();
 
-            kidCage = new KidCage(Game1.interactiveObjects["KidCage"], 1300, 630 - 237, player);
+            kidCage = new KidCage(Game1.whiteFilter, 1300, 630 - 237, player);
             kidCage.showFButton = false;
             trapSwitch = new WallSwitch(Game1.switchTexture, new Rectangle(1000, 500, 42, 83), 470);
 
@@ -83,7 +83,7 @@ namespace ISurvived
         {
             base.SetPortals();
 
-            toHiddenPath = new Portal(100, platforms[0], "DeerShack");
+            toHiddenPath = new Portal(100, platforms[0], "Deer Shack");
         }
 
         public override void Draw(SpriteBatch s)

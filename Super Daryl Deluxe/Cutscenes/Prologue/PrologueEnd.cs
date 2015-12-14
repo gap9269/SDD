@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 
 namespace ISurvived
 {
@@ -17,13 +18,24 @@ namespace ISurvived
         int timFrame;
         int timTransformTimer;
         List<Rectangle> barrelRecs;
-
+        SoundEffect cutscene_gorilla_tim_end, popup_prologue_end;
+        SoundEffectInstance TimEnd;
+        Boolean playedTimEnd = false;
         //--Takes in a background and all necessary objects
         public PrologueEnd(Game1 g, Camera cam, Player player, Texture2D com)
             : base(g, cam, player)
         {
             complete = com;
             barrelRecs = new List<Rectangle>();
+        }
+
+        public override void LoadContent()
+        {
+            base.LoadContent();
+
+            cutscene_gorilla_tim_end = content.Load<SoundEffect>(@"Sound\Cutscenes\Tim\cutscene_gorilla_tim_end");
+            TimEnd = content.Load<SoundEffect>(@"Sound\Cutscenes\Tim\TimEnd").CreateInstance();
+            popup_prologue_end = content.Load<SoundEffect>(@"Sound\Pop Ups\popup_prologue_end");
         }
 
         public override void Play()
@@ -34,8 +46,11 @@ namespace ISurvived
                 case 0:
                     if (firstFrameOfTheState)
                     {
+                        LoadContent();
                         camFollow = new GameObject();
                         tim = game.CurrentChapter.NPCs["Tim"];
+
+                        Sound.PlaySoundInstance(cutscene_gorilla_tim_end, Game1.GetFileName(()=> cutscene_gorilla_tim_end));
 
                         game.Prologue.Synopsis += "\n\nUpon your return, Paul and Alan were unimpressed that you had only brought back one textbook. However, they were eager to make a deal and sold you a new skill anyway. This transaction concluded just in time to meet your new friend Tim, who joined in to remind everyone again that he was deathly allergic to dandelion pollen and that he would rather they didn't open his locker and take his money without permission. During this exchange, Paul and Alan kindly introduced you to Tim and selflessly wandered off in order to let you acquaint yourselves in peace. Tim then turned into a towering gorilla and proceeded to attempt disemboweling you. Your new skill came in much use, however, and you were soon able talk Tim back down to his calm, rational human form. Before parting ways, Tim reminded you again to please refrain from using his locker without permission. Finally alone, you stood there in the hall reveling in the events that transpired in your exciting first day, sure that you were in for a thrilling adventure.";
                     }
@@ -46,6 +61,14 @@ namespace ISurvived
                     {
                         state++;
                         timer = 0;
+
+                        if (TimEnd.State != SoundState.Playing && !playedTimEnd)
+                        {
+                            playedTimEnd = true;
+                            GorillaTim.timFightTheme.Stop();
+                            Sound.PlaySoundInstance(TimEnd, Game1.GetFileName(() => TimEnd));
+                        }
+
                     }
 
                     break;
@@ -73,10 +96,12 @@ namespace ISurvived
                         tim.moveState = NPC.MoveState.standing;
                         camFollow.PositionX = 3120;
                         player.playerState = Player.PlayerState.relaxedStanding;
-                        Game1.schoolMaps.maps["NorthHall"].InteractiveObjects.Clear();
+                        Game1.schoolMaps.maps["North Hall"].InteractiveObjects.Clear();
                         NorthHall.drawTimMap = true;
                         game.Camera.centerTarget = new Vector2(camFollow.PositionX + (camFollow.Rec.Width / 2), 0);
                         game.Camera.center = game.Camera.centerTarget;
+                        Chapter.effectsManager.ClearDustPoofs();
+
                     }
                     camera.Update(camFollow, game, game.CurrentChapter.CurrentMap);
 
@@ -133,13 +158,12 @@ namespace ISurvived
                 case 3:
                     if (firstFrameOfTheState)
                     {
-                        //TODO
-                        Game1.schoolMaps.maps["NorthHall"].Platforms.Remove(NorthHall.leftTimPlat);
-                        Game1.schoolMaps.maps["NorthHall"].Platforms.Remove(NorthHall.leftStep);
-                        Game1.schoolMaps.maps["NorthHall"].Platforms.Remove(NorthHall.leftPillar);
-                        Game1.schoolMaps.maps["NorthHall"].Platforms.Remove(NorthHall.rightPillar);
-                        Game1.schoolMaps.maps["NorthHall"].Platforms.Remove(NorthHall.rightStep);
-                        Game1.schoolMaps.maps["NorthHall"].Platforms.Remove(NorthHall.rightTimPlat);
+                        Game1.schoolMaps.maps["North Hall"].Platforms.Remove(NorthHall.leftTimPlat);
+                        Game1.schoolMaps.maps["North Hall"].Platforms.Remove(NorthHall.leftStep);
+                        Game1.schoolMaps.maps["North Hall"].Platforms.Remove(NorthHall.leftPillar);
+                        Game1.schoolMaps.maps["North Hall"].Platforms.Remove(NorthHall.rightPillar);
+                        Game1.schoolMaps.maps["North Hall"].Platforms.Remove(NorthHall.rightStep);
+                        Game1.schoolMaps.maps["North Hall"].Platforms.Remove(NorthHall.rightTimPlat);
 
                         tim.Dialogue.Clear();
                         tim.Dialogue.Add("...");
@@ -151,10 +175,9 @@ namespace ISurvived
                     //player.CutsceneStand();
 
                     tim.UpdateInteraction();
-
                     if (tim.Talking == false)
                     {
-                        tim.Move(new Vector2(-3, 0));
+                        tim.Move(new Vector2(-3, 0), Platform.PlatformType.rock, 1, 5);
                         tim.FacingRight = false;
                     }
 
@@ -172,6 +195,11 @@ namespace ISurvived
                         player.playerState = Player.PlayerState.relaxedStanding;
                     }
 
+                    if (timer == 300)
+                    {
+                        Sound.PlaySoundInstance(popup_prologue_end, Game1.GetFileName(() => popup_prologue_end));
+                    }
+
                     camera.Update(player, game, game.CurrentChapter.CurrentMap);
 
                     if (timer > 400)
@@ -185,23 +213,49 @@ namespace ISurvived
                     FadeOut(120);
                     break;
                 case 6:
-                    //game.chapterState = Game1.ChapterState.chapterOne;
-                    //game.CurrentChapter.state = Chapter.GameState.Game;
-                    //game.CurrentChapter = game.ChapterOne;
-                    //player.playerState = Player.PlayerState.standing;
-                    //timer = 0;
-                    //tim.PositionX = -1000;
-                    //tim.UpdateRecAndPosition();
-                    game.ResetGameAndGoToMain();
-                    //player.StopSkills();
-                    //game.Camera.centerTarget = new Vector2(player.PositionX + (player.Rec.Width / 2), 0);
+                    if (timer > 120)
+                    {
+                        UnloadContent();
+                        game.chapterState = Game1.ChapterState.chapterOne;
+                        game.CurrentChapter.state = Chapter.GameState.Cutscene;
+                        game.CurrentChapter.CutsceneState = 1;
+                        game.CurrentChapter = game.ChapterOne;
+                        player.playerState = Player.PlayerState.standing;
+                        game.CurrentChapter.StartingPortal = GymLobby.ToNorthHall;
+                        game.CurrentChapter.CurrentMap = Game1.schoolMaps.maps["Gym Lobby"];
+                        Game1.Player.YScroll = game.CurrentChapter.CurrentMap.yScroll;
+                        Chapter.lastMap = "North Hall";
+                        Sound.StopAmbience();
+                        Sound.StopBackgroundMusic();
+                        game.CurrentChapter.CurrentMap.LoadContent();
+                        timer = 0;
+                        tim.PositionX = -1000;
+                        tim.UpdateRecAndPosition();
+                        game.Camera.centerTarget = new Vector2(player.PositionX + (player.Rec.Width / 2), 0);
 
-                    //game.Camera.center = game.Camera.centerTarget;
+                        game.Camera.center = game.Camera.centerTarget;
 
-                    //Chapter.effectsManager.fButtonRecs.Clear();
-                    //Chapter.effectsManager.foregroundFButtonRecs.Clear();
-                    //Chapter.effectsManager.spaceButtonRecs.Clear();
-                    //Chapter.effectsManager.foregroundSpaceButtonRecs.Clear();
+                        player.Health = player.realMaxHealth;
+                        player.PositionX = 1420;
+                        player.PositionY = 290;
+                        player.UpdatePosition();
+                        player.VelocityX = 0;
+                        player.FacingRight = true;
+                        player.StopSkills();
+                        player.KnockedBack = false;
+
+
+                        Chapter.effectsManager.fButtonRecs.Clear();
+                        Chapter.effectsManager.foregroundFButtonRecs.Clear();
+                        Chapter.effectsManager.spaceButtonRecs.Clear();
+                        Chapter.effectsManager.foregroundSpaceButtonRecs.Clear();
+
+                        game.YourLocker.SkillsOnSale.Add(SkillManager.AllSkills["Shocking Statements CH.1"]);
+                        game.YourLocker.SkillsOnSale.Add(SkillManager.AllSkills["Combustible Confutation CH.1"]);
+                        game.YourLocker.SkillsOnSale.Add(SkillManager.AllSkills["Fowl Mouth"]);
+                        game.YourLocker.SkillsOnSale.Add(SkillManager.AllSkills["Crushing Realization"]);
+
+                    }
                     break;
             }
         }
@@ -236,7 +290,7 @@ null, null, null, null, camera.StaticTransform);
                         game.CurrentChapter.HUD.Draw(s);
 
                         //Screen tint based on Daryl's low health
-                        if (player.Health < (player.MaxHealth / 4))
+                        if (player.Health < (player.realMaxHealth / 4))
                         {
                             s.Draw(Game1.lowHealthTint, new Rectangle(0, 0, 1280, (int)(Game1.aspectRatio * 1280)), Color.White * game.CurrentChapter.tintAlpha);
                         }
@@ -308,7 +362,14 @@ null, null, null, null, camera.StaticTransform);
                     DrawFade(s, 0);
                     s.End();
                     break;
-               
+                case 6:
+
+                    s.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+null, null, null, null, camera.StaticTransform);
+
+                    s.Draw(Game1.whiteFilter, new Rectangle(0, 0, 1280, (int)(Game1.aspectRatio * 1280)), Color.Black);
+                    s.End();
+                    break;
             }
         }
     }

@@ -114,7 +114,7 @@ namespace ISurvived
             }
             else
             {
-                enemiesInMap.Add(en);
+                AddEnemyToEnemyList(en);
             }
 
         }
@@ -127,10 +127,10 @@ namespace ISurvived
             if (steveAustin.SpawningLawyers && enemiesInMap.Count < 2)
             {
                 Lawyer en = new Lawyer(new Vector2(300, platforms[0].Rec.Y - 228 - 1) , "Garden Beast", game, ref player, this);
-                enemiesInMap.Add(en);
+                AddEnemyToEnemyList(en);
 
                 Lawyer en1 = new Lawyer(new Vector2(1700, platforms[0].Rec.Y - 228 - 1), "Garden Beast", game, ref player, this);
-                enemiesInMap.Add(en1);
+                AddEnemyToEnemyList(en1);
 
                 int dialogueNum = randomDialogue.Next(5);
 
@@ -144,7 +144,7 @@ namespace ISurvived
                 if (!game.MapBooleans.tutorialMapBooleans["lawyerTip"])
                 {
                     game.MapBooleans.tutorialMapBooleans["lawyerTip"] = true;
-                    Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][46], 600, 100, game.ChapterTwo.associateOneTex);
+                    //Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][46], 600, 100, game.ChapterTwo.associateOneTex);
                 }
             }
 
@@ -161,7 +161,7 @@ namespace ISurvived
 
             if (game.CurrentChapter.BossFight == false && game.MapBooleans.tutorialMapBooleans["lawyerTip"])
             {
-                Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][47], 600, 100, game.ChapterTwo.associateOneTex);
+                //Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][47], 600, 100, game.ChapterTwo.associateOneTex);
                 toCredits.IsUseable = true;
             }
         }

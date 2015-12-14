@@ -19,6 +19,7 @@ namespace ISurvived
             name = "Riley's Bow";
             level = 1;
             description = "The cute pink bow from a sweet old lady's pet rat you stepped on.\n\n";
+            sellPrice = .50f;
             icon = Game1.equipmentTextures[name];
         }
 

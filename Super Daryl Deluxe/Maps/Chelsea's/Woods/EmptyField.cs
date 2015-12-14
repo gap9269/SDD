@@ -254,7 +254,7 @@ namespace ISurvived
 
             lava = new Rectangle(0, 720, mapWidth, 50);
 
-            kidCage = new KidCage(Game1.interactiveObjects["KidCage"], 2300, -5133 - 237, player);
+            kidCage = new KidCage(Game1.whiteFilter, 2300, -5133 - 237, player);
 
         }
 
@@ -299,7 +299,7 @@ namespace ISurvived
             }
             else
             {
-                enemiesInMap.Add(en);
+                AddEnemyToEnemyList(en);
             }
 
         }
@@ -467,7 +467,7 @@ tripLasers[i].rec.Y + "));");
 
                 if(lava.Intersects(player.VitalRec))
                 {
-                    player.TakeDamage(100000);
+                    //player.TakeDamage(100000);
                 }
             }
 
@@ -495,7 +495,7 @@ tripLasers[i].rec.Y + "));");
                 en.Hostile = true;
                 en.MaxHealth = 1;
                 en.Health = 1;
-                enemiesInMap.Add(en);
+                AddEnemyToEnemyList(en);
 
                 game.ChapterTwo.NPCs["CrossroadsKid"].RecX = 1815;
                 game.ChapterTwo.NPCs["CrossroadsKid"].PositionX = 1815;
@@ -889,7 +889,7 @@ tripLasers[i].rec.Y + "));");
         {
             base.SetPortals();
 
-            toCrossroads = new Portal(20, -5122, "EmptyField");
+            toCrossroads = new Portal(20, -5122, "Empty Field");
         }
 
         public override void SetDestinationPortals()

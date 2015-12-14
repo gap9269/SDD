@@ -30,14 +30,14 @@ namespace ISurvived
             : base(sheet, play, ico, false)
         {
             //--Base Stats
-            damage = .4f;
+            damage = .55f;
             experience = 0;
-            experienceUntilLevel = 400;
+            experienceUntilLevel = 100;// 400;
             skillRank = 1;
             levelToUse = 3;
             name = "Quick Retort";
             canUse = true;
-            description = "Daryl charges forward and strikes the first enemy he sees.";
+            description = "Daryl charges forward and strikes the first enemy he sees. \nDistance: " + maxAnimationLength * 10;
             fullCooldown = 120;
             //--Animation and skill attributes
             animationLength = 0;
@@ -49,9 +49,125 @@ namespace ISurvived
             skillType = AttackType.AttackTypes.Blunt;
             rangedOrMelee = AttackType.RangedOrMelee.Melee;
 
-            playerLevelRequiredToLevel.Add(14);
-            playerLevelRequiredToLevel.Add(14);
+            transformLevels = new int[0] { };
+
+            playerLevelRequiredToLevel.Add(3);
+            playerLevelRequiredToLevel.Add(4);
+            playerLevelRequiredToLevel.Add(5);
+            playerLevelRequiredToLevel.Add(6);
+
+            playerLevelRequiredToLevel.Add(7);
+            playerLevelRequiredToLevel.Add(8);
+            playerLevelRequiredToLevel.Add(9);
+            playerLevelRequiredToLevel.Add(10);
+            playerLevelRequiredToLevel.Add(10);
+
+            playerLevelRequiredToLevel.Add(12);
+            playerLevelRequiredToLevel.Add(13);
             playerLevelRequiredToLevel.Add(15);
+            playerLevelRequiredToLevel.Add(15);
+            playerLevelRequiredToLevel.Add(15);
+
+        }
+
+        public override void ApplyLevelUp(Boolean silent = false)
+        {
+            base.ApplyLevelUp(silent);
+
+            switch (skillRank)
+            {
+                case 2:
+                    damage = .56f;
+                    experience = 0;
+                    experienceUntilLevel = 250;
+                    maxAnimationLength = 7;
+                    break;
+                case 3:
+                    damage = .57f;
+                    experience = 0;
+                    experienceUntilLevel = 350;
+                    maxAnimationLength = 8;
+                    break;
+                case 4:
+                    damage = .59f;
+                    experience = 0;
+                    experienceUntilLevel = 600;
+                    maxAnimationLength = 8;
+                    break;
+                case 5:
+                    damage = .6f;
+                    experience = 0;
+                    experienceUntilLevel = 700;
+                    maxAnimationLength = 9;
+                    break;
+                case 6:
+                    damage = .61f;
+                    experience = 0;
+                    experienceUntilLevel = 2200;
+                    maxAnimationLength = 9;
+                    break;
+                case 7:
+                    damage = .62f;
+                    experience = 0;
+                    experienceUntilLevel = 2900;
+                    maxAnimationLength = 10;
+                    break;
+                case 8:
+                    damage = .63f;
+                    experience = 0;
+                    experienceUntilLevel = 3900;
+                    maxAnimationLength = 10;
+                    break;
+                case 9:
+                    damage = .64f;
+                    experience = 0;
+                    experienceUntilLevel = 4500;
+                    maxAnimationLength = 11;
+                    break;
+                case 10:
+                    damage = .65f;
+                    experienceUntilLevel = 6000;
+                    experience = 0;
+                    maxAnimationLength = 12;
+                    fullCooldown = 100;
+                    break;
+                case 11:
+                    damage = .67f;
+                    experienceUntilLevel = 8000;
+                    experience = 0;
+                    maxAnimationLength = 13;
+                    fullCooldown = 100;
+                    break;
+                case 12:
+                    damage = .69f;
+                    experienceUntilLevel = 11000;
+                    experience = 0;
+                    maxAnimationLength = 14;
+                    fullCooldown = 100;
+                    break;
+                case 13:
+                    damage = .71f;
+                    experienceUntilLevel = 14000;
+                    experience = 0;
+                    maxAnimationLength = 15;
+                    fullCooldown = 100;
+                    break;
+                case 14:
+                    damage = .73f;
+                    experienceUntilLevel = 18000;
+                    experience = 0;
+                    maxAnimationLength = 16;
+                    fullCooldown = 100;
+                    break;
+                case 15:
+                    damage = .75f;
+                    experience = 0;
+                    maxAnimationLength = 17;
+                    fullCooldown = 100;
+                    break;
+            }
+
+            description = "Daryl charges forward and strikes the first enemy he sees. \nDistance: " + maxAnimationLength * 10;
 
         }
 
@@ -90,6 +206,9 @@ namespace ISurvived
             switch (skillRank)
             {
                 case 1:
+                case 2:
+                case 3:
+                case 4:
                     if (animationLength == 5)
                         moveFrame = 0;
                     else if (animationLength == 4)
@@ -103,7 +222,11 @@ namespace ISurvived
                     else if (animationLength == 0)
                         moveFrame = 5;
                     break;
-                case 2:
+                case 5:
+                case 6:
+                case 7:
+                case 8:
+                case 9:
                     if (animationLength >= 5)
                         moveFrame = 0;
                     else if (animationLength == 4)
@@ -117,7 +240,11 @@ namespace ISurvived
                     else if (animationLength == 0)
                         moveFrame = 5;
                     break;
-                case 3:
+                case 10:
+                case 11:
+                case 12:
+                case 13:
+                case 14:
                     if (animationLength > 9)
                         moveFrame = 0;
                     else if (animationLength > 7)
@@ -131,7 +258,7 @@ namespace ISurvived
                     else
                         moveFrame = 5;
                     break;
-                case 4:
+                case 15:
                     if (animationLength > 13)
                         moveFrame = 0;
                     else if (animationLength > 10)
@@ -195,7 +322,7 @@ namespace ISurvived
                 //--Check to see if an enemy is getting hit, then stun them
                 if (animationLength == 4)
                 {
-                    CheckCollisions(hitBox, damage, new Vector2(15, -6), 3, 3);
+                    CheckCollisions(checkPlatRec, damage, new Vector2(15, -6), 3 + (skillRank / 3), 3 +(skillRank / 3));
                 }
 
             }
@@ -213,7 +340,7 @@ namespace ISurvived
                     200, player.VitalRecHeight);
 
                 checkPlatRec = new Rectangle(player.VitalRecX + player.VitalRecWidth, player.VitalRecY, 75,
-                    player.VitalRecHeight - 40);
+                    player.VitalRecHeight + 35);
             }
             else
             {
@@ -221,7 +348,7 @@ namespace ISurvived
                     200, player.VitalRecHeight);
 
                 checkPlatRec = new Rectangle(player.VitalRecX - 75, player.VitalRecY, 75,
-                    player.VitalRecHeight - 40);
+                    player.VitalRecHeight + 35);
             }
             #endregion
 
@@ -231,7 +358,7 @@ namespace ISurvived
             {
                 for (int i = 0; i < platforms.Count; i++)
                 {
-                    if (checkPlatRec.Intersects(platforms[i].Rec))
+                    if (checkPlatRec.Intersects(platforms[i].Rec) && platforms[i].Passable == false)
                     {
                         player.VelocityX = 0;
                         animationLength = 0;
@@ -254,7 +381,7 @@ namespace ISurvived
 
                 for (int i = 0; i < interactiveObjectsInMap.Count; i++)
                 {
-                    if (checkPlatRec.Intersects(interactiveObjectsInMap[i].Rec) && interactiveObjectsInMap[i].Finished == false)
+                    if (checkPlatRec.Intersects(interactiveObjectsInMap[i].VitalRec) && interactiveObjectsInMap[i].Finished == false && interactiveObjectsInMap[i].canBeHit && !interactiveObjectsInMap[i].IsHidden)
                     {
                         animationLength = 5;
                         player.VelocityX = 0;
@@ -265,7 +392,7 @@ namespace ISurvived
                     }
                 }
 
-                if (game.CurrentChapter.BossFight && checkPlatRec.Intersects(currentBoss.VitalRec))
+                if (game.CurrentChapter.BossFight && checkPlatRec.Intersects(currentBoss.VitalRec) && currentBoss.CanBeHurt)
                 {
                     animationLength = 5;
                     player.VelocityX = 0;
@@ -295,32 +422,6 @@ namespace ISurvived
             }
         }
 
-        public override void ApplyLevelUp()
-        {
-            base.ApplyLevelUp();
-
-            switch (skillRank)
-            {
-                case 2:
-                    damage = .45f;
-                    experience = 0;
-                    experienceUntilLevel = 750;
-                    maxAnimationLength = 9;
-                    break;
-                case 3:
-                    damage = .5f;
-                    experienceUntilLevel = 1000;
-                    experience = 0;
-                    maxAnimationLength = 12;
-                    fullCooldown = 100;
-                    break;
-                case 4:
-                    damage = .6f;
-                    experience = 0;
-                    maxAnimationLength = 16;
-                    break;
-            }
-        }
     }
 }
 

@@ -72,7 +72,6 @@ namespace ISurvived
         {
  	        base.Update(mapwidth);
 
-
             if (!knockedBack && !isStunned)
             {
                 UpdateRight();
@@ -220,14 +219,16 @@ namespace ISurvived
                 return sf;
         }
 
-        public Vector2 Seek(Vector2 targetPos)
+        public virtual Vector2 Seek(Vector2 targetPos)
         {
             Vector2 sf = new Vector2();
             Vector2 desiredVel = new Vector2();
 
             desiredVel = targetPos - position;
 
-            desiredVel.Normalize();
+            if (desiredVel != Vector2.Zero)
+                desiredVel.Normalize();
+
             desiredVel *= maxSpeed;
 
             sf = desiredVel - velocity;

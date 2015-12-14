@@ -71,11 +71,11 @@ namespace ISurvived
 
             if (drops.Count > 0)
             {
-                Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][40], 400, 100, game.ChapterTwo.associateOneTex);
+                //Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][40], 400, 100, game.ChapterTwo.associateOneTex);
             }
             else if (player.OwnedAccessories.Count > 0 && player.EquippedAccessory == null)
             {
-                Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][41], 400, 100, game.ChapterTwo.associateOneTex);
+                //Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][41], 400, 100, game.ChapterTwo.associateOneTex);
             }
 
             //Move the shop keeper onto screen
@@ -83,7 +83,7 @@ namespace ISurvived
             {
 
                 game.MapBooleans.tutorialMapBooleans["AddedShop"] = true;
-                Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][42], 400, 100, game.ChapterTwo.associateOneTex);
+                //Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][42], 400, 100, game.ChapterTwo.associateOneTex);
 
             }
 
@@ -101,7 +101,7 @@ namespace ISurvived
             if (game.Prologue.PrologueBooleans["firstTrench"] == false && game.MapBooleans.tutorialMapBooleans["EquipRemind"] == false)
             {
                 game.MapBooleans.tutorialMapBooleans["EquipRemind"] = true;
-                Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][43], 400, 100, game.ChapterTwo.associateOneTex);
+                //Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][43], 400, 100, game.ChapterTwo.associateOneTex);
             }
 
             if (game.CurrentChapter.TalkingToNPC)

@@ -42,7 +42,6 @@ namespace ISurvived
             beer.ShowFButton = false;
             storyItems.Add(beer);
 
-            backgroundMusicName = "Outside the Party";
             sparkles = new Sparkles(335, 485);
         }
 
@@ -78,7 +77,7 @@ namespace ISurvived
 
             Game1.npcFaces["Squirrel Boy"].faces["Normal"] = Game1.whiteFilter;
 
-            //if (Chapter.theNextMap != "TheGoats")
+            //if (Chapter.theNextMap != "The Goats")
             //{
             //    Sound.UnloadBackgroundMusic();
             //}
@@ -99,7 +98,7 @@ namespace ISurvived
         {
             base.SetPortals();
 
-            toTheGoats = new Portal(430, platforms[0], "TreeHouse");
+            toTheGoats = new Portal(430, platforms[0], "Tree House");
         }
 
         public override void Draw(SpriteBatch s)

@@ -25,6 +25,8 @@ namespace ISurvived
         Button passiveTab;
         int passivePage;
 
+        Button passiveBack;
+
         Button nextEquipmentPage;
         Button previousEquipmentPage;
         Button nextStoryPage;
@@ -126,7 +128,7 @@ namespace ISurvived
             tabState = TabState.weapon;
 
             passiveTab = new Button(new Rectangle(0, 639, 135, 81));
-
+            passiveBack = new Button(new Rectangle(918, 12, 95, 18));
             #region Icon buttons
             healthIcon = new Button(new Rectangle(377, 557, 34, 31));
             defenseIcon = new Button(new Rectangle(545, 558, 27, 31));
@@ -188,116 +190,141 @@ namespace ISurvived
             switch (text)
             { 
                 case "Health":
-                    s.Draw(textures["iconInfoBox"], new Rectangle(377 - boxWidth, 537, boxWidth , 34), Color.White);
-                    s.DrawString(Game1.twConRegularSmall, text, new Vector2(377 - boxWidth / 2 - Game1.twConRegularSmall.MeasureString(text).X / 2, 540), Color.Black);
+                    s.Draw(textures["iconInfoBox"], new Rectangle(377 - boxWidth, (int)(Game1.screenHeightAspect * .75 - 3), boxWidth , 34), Color.White);
+                    s.DrawString(Game1.twConRegularSmall, text, new Vector2(377 - boxWidth / 2 - Game1.twConRegularSmall.MeasureString(text).X / 2, (int)(Game1.screenHeightAspect * .75)), Color.Black);
                     break;
 
                 case "Experience":
-                    s.Draw(textures["iconInfoBox"], new Rectangle(377 - boxWidth, 581, boxWidth, 34), Color.White);
-                    s.DrawString(Game1.twConRegularSmall, text, new Vector2(377 - boxWidth / 2 - Game1.twConRegularSmall.MeasureString(text).X / 2, 584), Color.Black);
+                    s.Draw(textures["iconInfoBox"], new Rectangle(377 - boxWidth, (int)(Game1.screenHeightAspect * .8 + 5), boxWidth, 34), Color.White);
+                    s.DrawString(Game1.twConRegularSmall, text, new Vector2(377 - boxWidth / 2 - Game1.twConRegularSmall.MeasureString(text).X / 2, (int)(Game1.screenHeightAspect * .8 + 8)), Color.Black);
                     break;
 
                 case "Money":
-                    s.Draw(textures["iconInfoBox"], new Rectangle(377 - boxWidth, 625, boxWidth, 34), Color.White);
-                    s.DrawString(Game1.twConRegularSmall, text, new Vector2(377 - boxWidth / 2 - Game1.twConRegularSmall.MeasureString(text).X / 2, 628), Color.Black);
+                    s.Draw(textures["iconInfoBox"], new Rectangle(377 - boxWidth, (int)(Game1.screenHeightAspect * .85 + 13), boxWidth, 34), Color.White);
+                    s.DrawString(Game1.twConRegularSmall, text, new Vector2(377 - boxWidth / 2 - Game1.twConRegularSmall.MeasureString(text).X / 2, (int)(Game1.screenHeightAspect * .85 + 16)), Color.Black);
                     break;
 
                 case "Defense":
-                    s.Draw(textures["iconInfoBox"], new Rectangle(543 - boxWidth, 538, boxWidth, 34), Color.White);
-                    s.DrawString(Game1.twConRegularSmall, text, new Vector2(543 - boxWidth / 2 - Game1.twConRegularSmall.MeasureString(text).X / 2, 541), Color.Black);
+                    s.Draw(textures["iconInfoBox"], new Rectangle(543 - boxWidth, (int)(Game1.screenHeightAspect * .75 - 2), boxWidth, 34), Color.White);
+                    s.DrawString(Game1.twConRegularSmall, text, new Vector2(543 - boxWidth / 2 - Game1.twConRegularSmall.MeasureString(text).X / 2, (int)(Game1.screenHeightAspect * .75 + 1)), Color.Black);
                     break;
 
                 case "Strength":
-                    s.Draw(textures["iconInfoBox"], new Rectangle(543 - boxWidth, 580, boxWidth, 34), Color.White);
-                    s.DrawString(Game1.twConRegularSmall, text, new Vector2(543 - boxWidth / 2 - Game1.twConRegularSmall.MeasureString(text).X / 2, 583), Color.Black);
+                    s.Draw(textures["iconInfoBox"], new Rectangle(543 - boxWidth, (int)(Game1.screenHeightAspect * .8 + 4), boxWidth, 34), Color.White);
+                    s.DrawString(Game1.twConRegularSmall, text, new Vector2(543 - boxWidth / 2 - Game1.twConRegularSmall.MeasureString(text).X / 2, (int)(Game1.screenHeightAspect * .8 + 7)), Color.Black);
                     break;
 
                 case "Karma":
-                    s.Draw(textures["iconInfoBox"], new Rectangle(543 - boxWidth, 617, boxWidth, 34), Color.White);
-                    s.DrawString(Game1.twConRegularSmall, text, new Vector2(543 - boxWidth / 2 - Game1.twConRegularSmall.MeasureString(text).X / 2, 620), Color.Black);
+                    s.Draw(textures["iconInfoBox"], new Rectangle(543 - boxWidth, (int)(Game1.screenHeightAspect * .85 + 5), boxWidth, 34), Color.White);
+                    s.DrawString(Game1.twConRegularSmall, text, new Vector2(543 - boxWidth / 2 - Game1.twConRegularSmall.MeasureString(text).X / 2, (int)(Game1.screenHeightAspect * .85 + 8)), Color.Black);
                     break;
 
                 case "Bronze Keys":
-                    s.Draw(textures["iconInfoBox"], new Rectangle(794 - boxWidth, 479, boxWidth, 34), Color.White);
-                    s.DrawString(Game1.twConRegularSmall, text, new Vector2(794 - boxWidth / 2 - Game1.twConRegularSmall.MeasureString(text).X / 2, 482), Color.Black);
+                    s.Draw(textures["iconInfoBox"], new Rectangle(794 - boxWidth, (int)(Game1.screenHeightAspect * .65 + 11), boxWidth, 34), Color.White);
+                    s.DrawString(Game1.twConRegularSmall, text, new Vector2(794 - boxWidth / 2 - Game1.twConRegularSmall.MeasureString(text).X / 2, (int)(Game1.screenHeightAspect * .65 + 14)), Color.Black);
                     break;
 
                 case "Silver Keys":
-                    s.Draw(textures["iconInfoBox"], new Rectangle(900 - boxWidth, 479, boxWidth, 34), Color.White);
-                    s.DrawString(Game1.twConRegularSmall, text, new Vector2(900 - boxWidth / 2 - Game1.twConRegularSmall.MeasureString(text).X / 2, 482), Color.Black);
+                    s.Draw(textures["iconInfoBox"], new Rectangle(900 - boxWidth, (int)(Game1.screenHeightAspect * .65 + 11), boxWidth, 34), Color.White);
+                    s.DrawString(Game1.twConRegularSmall, text, new Vector2(900 - boxWidth / 2 - Game1.twConRegularSmall.MeasureString(text).X / 2, (int)(Game1.screenHeightAspect * .65 + 14)), Color.Black);
                     break;
 
                 case "Gold Keys":
-                    s.Draw(textures["iconInfoBox"], new Rectangle(1003 - boxWidth, 479, boxWidth, 34), Color.White);
-                    s.DrawString(Game1.twConRegularSmall, text, new Vector2(1003 - boxWidth / 2 - Game1.twConRegularSmall.MeasureString(text).X / 2, 482), Color.Black);
+                    s.Draw(textures["iconInfoBox"], new Rectangle(1003 - boxWidth, (int)(Game1.screenHeightAspect * .65 + 11), boxWidth, 34), Color.White);
+                    s.DrawString(Game1.twConRegularSmall, text, new Vector2(1003 - boxWidth / 2 - Game1.twConRegularSmall.MeasureString(text).X / 2, (int)(Game1.screenHeightAspect * .65 + 14)), Color.Black);
                     break;
 
                 case "Weapons":
-                    s.Draw(textures["iconInfoBox"], new Rectangle(732 - boxWidth, 26, boxWidth, 34), Color.White);
-                    s.DrawString(Game1.twConRegularSmall, text, new Vector2(732 - boxWidth / 2 - Game1.twConRegularSmall.MeasureString(text).X / 2, 29), Color.Black);
+                    s.Draw(textures["iconInfoBox"], new Rectangle(732 - boxWidth, (int)(Game1.screenHeightAspect * .05 - 10), boxWidth, 34), Color.White);
+                    s.DrawString(Game1.twConRegularSmall, text, new Vector2(732 - boxWidth / 2 - Game1.twConRegularSmall.MeasureString(text).X / 2, (int)(Game1.screenHeightAspect * .05 - 7)), Color.Black);
                     break;
 
                 case "Hats":
-                    s.Draw(textures["iconInfoBox"], new Rectangle(833 - boxWidth, 26, boxWidth, 34), Color.White);
-                    s.DrawString(Game1.twConRegularSmall, text, new Vector2(833 - boxWidth / 2 - Game1.twConRegularSmall.MeasureString(text).X / 2, 29), Color.Black);
+                    s.Draw(textures["iconInfoBox"], new Rectangle(833 - boxWidth, (int)(Game1.screenHeightAspect * .05 - 10), boxWidth, 34), Color.White);
+                    s.DrawString(Game1.twConRegularSmall, text, new Vector2(833 - boxWidth / 2 - Game1.twConRegularSmall.MeasureString(text).X / 2, (int)(Game1.screenHeightAspect * .05 - 7)), Color.Black);
                     break;
 
                 case "Outfits":
-                    s.Draw(textures["iconInfoBox"], new Rectangle(939 - boxWidth, 26, boxWidth, 34), Color.White);
-                    s.DrawString(Game1.twConRegularSmall, text, new Vector2(939 - boxWidth / 2 - Game1.twConRegularSmall.MeasureString(text).X / 2, 29), Color.Black);
+                    s.Draw(textures["iconInfoBox"], new Rectangle(939 - boxWidth, (int)(Game1.screenHeightAspect * .05 - 10), boxWidth, 34), Color.White);
+                    s.DrawString(Game1.twConRegularSmall, text, new Vector2(939 - boxWidth / 2 - Game1.twConRegularSmall.MeasureString(text).X / 2, (int)(Game1.screenHeightAspect * .05 - 7)), Color.Black);
                     break;
 
                 case "Accessories":
-                    s.Draw(textures["iconInfoBox"], new Rectangle(1050 - boxWidth, 26, boxWidth, 34), Color.White);
-                    s.DrawString(Game1.twConRegularSmall, text, new Vector2(1050 - boxWidth / 2 - Game1.twConRegularSmall.MeasureString(text).X / 2, 29), Color.Black);
+                    s.Draw(textures["iconInfoBox"], new Rectangle(1050 - boxWidth, (int)(Game1.screenHeightAspect * .05 - 10), boxWidth, 34), Color.White);
+                    s.DrawString(Game1.twConRegularSmall, text, new Vector2(1050 - boxWidth / 2 - Game1.twConRegularSmall.MeasureString(text).X / 2, (int)(Game1.screenHeightAspect * .05 - 7)), Color.Black);
                     break;
 
                 case "Loot":
-                    s.Draw(textures["iconInfoBox"], new Rectangle(1153 - boxWidth, 26, boxWidth, 34), Color.White);
-                    s.DrawString(Game1.twConRegularSmall, text, new Vector2(1153 - boxWidth / 2 - Game1.twConRegularSmall.MeasureString(text).X / 2, 29), Color.Black);
+                    s.Draw(textures["iconInfoBox"], new Rectangle(1153 - boxWidth, (int)(Game1.screenHeightAspect * .05 - 10), boxWidth, 34), Color.White);
+                    s.DrawString(Game1.twConRegularSmall, text, new Vector2(1153 - boxWidth / 2 - Game1.twConRegularSmall.MeasureString(text).X / 2, (int)(Game1.screenHeightAspect * .05 - 7)), Color.Black);
                     break;
 
                 case "Textbooks":
-                    s.Draw(textures["iconInfoBox"], new Rectangle(486 - boxWidth, 670, boxWidth, 34), Color.White);
-                    s.DrawString(Game1.twConRegularSmall, text, new Vector2(486 - boxWidth / 2 - Game1.twConRegularSmall.MeasureString(text).X / 2, 673), Color.Black);
+                    s.Draw(textures["iconInfoBox"], new Rectangle(486 - boxWidth, (int)(Game1.screenHeightAspect * .95 - 14), boxWidth, 34), Color.White);
+                    s.DrawString(Game1.twConRegularSmall, text, new Vector2(486 - boxWidth / 2 - Game1.twConRegularSmall.MeasureString(text).X / 2, (int)(Game1.screenHeightAspect * .95 - 11)), Color.Black);
                     break;
             }
         }
 
         public void UpdateResolution()
         {
-            //combosTab.ButtonRecY = (int)(Game1.aspectRatio * 1280) / 2 - 65;// 295
-            //journalTab.ButtonRecY = (int)(Game1.aspectRatio * 1280) / 2 + 15;  //375
+            nextEquipmentPage.ButtonRecY = (int)(Game1.screenHeightAspect * .55 - 4);//392;
+            previousEquipmentPage.ButtonRecY = (int)(Game1.screenHeightAspect * .55 - 8);//388;
 
-            //nextEquipmentPage.ButtonRecY =  (int)(Game1.aspectRatio * 1280) / 3 + 55;//295
-            //previousEquipmentPage.ButtonRecY = (int)(Game1.aspectRatio * 1280) / 3 + 55; //295
+            nextStoryPage.ButtonRecY = (int)(Game1.screenHeightAspect * .9 + 2); //650;
+            previousStoryPage.ButtonRecY = (int)(Game1.screenHeightAspect * .9 + 6);//654;
 
-            //nextStoryPage.ButtonRecY = (int)(Game1.aspectRatio * 1280 * .75) + 5;//545
-            //previousStoryPage.ButtonRecY =(int)(Game1.aspectRatio * 1280 * .75) + 5;//545
+            passivesLeft.ButtonRecY = (int)(Game1.screenHeightAspect * .95 -10); //674;
+            passivesRight.ButtonRecY = (int)(Game1.screenHeightAspect * .95 - 10); //674;
 
-            //weaponEquip1.ButtonRecY = (int)(Game1.aspectRatio * 1280) / 2 - 280;
-            //weaponEquip2.ButtonRecY = (int)(Game1.aspectRatio * 1280) / 2 - 225;//135
-            //motivationEquip.ButtonRecY = (int)(Game1.aspectRatio * 1280) / 2 - 170;//190
-            //toleranceEquip.ButtonRecY = (int)(Game1.aspectRatio * 1280) / 2 - 115;//245
-            //miscEquip1.ButtonRecY = (int)(Game1.aspectRatio * 1280) / 2 - 60;//300
-            //miscEquip2.ButtonRecY = (int)(Game1.aspectRatio * 1280) / 2 - 5;//355
+            passiveTab.ButtonRecY = (int)(Game1.screenHeightAspect * .9 - 9); //639;
 
+            weaponEquip1.ButtonRecY = (int)(Game1.screenHeightAspect * .1 - 9); //63;
+            weaponEquip2.ButtonRecY = (int)(Game1.screenHeightAspect * .2 - 1); //143;
+            motivationEquip.ButtonRecY = (int)(Game1.screenHeightAspect * .3 + 7); //223;
+            toleranceEquip.ButtonRecY = (int)(Game1.screenHeightAspect * .4 + 15); //303;
+            miscEquip1.ButtonRecY = (int)(Game1.screenHeightAspect * .55 - 13); //383;
+            miscEquip2.ButtonRecY = (int)(Game1.screenHeightAspect * .65 - 5); //463;
 
-            //for (int i = 0; i < 9; i++)
-            //{
-            //    if (i < 3)
-            //    {
-            //        inventoryBoxes[i].ButtonRecY = (int)(Game1.aspectRatio * 1280 * .3) + 4;
-            //    }
-            //    else if (i < 6)
-            //    {
-            //        inventoryBoxes[i].ButtonRecY = (int)(Game1.aspectRatio * 1280) / 2 - 65;
-            //    }
-            //    else
-            //    {
-            //        inventoryBoxes[i].ButtonRecY = (int)(Game1.aspectRatio * 1280) / 2 + 10;
-            //    }
-            //}
+            healthIcon.ButtonRecY = (int)(Game1.screenHeightAspect * .75 + 17); //557;
+            defenseIcon.ButtonRecY = (int)(Game1.screenHeightAspect * .75 + 18); //558;
+            experienceIcon.ButtonRecY = (int)(Game1.screenHeightAspect * .85 - 12); //600;
+            strengthIcon.ButtonRecY = (int)(Game1.screenHeightAspect * .85 - 18); //594;
+            karmaIcon.ButtonRecY = (int)(Game1.screenHeightAspect * .9 - 18); //630;
+            moneyIcon.ButtonRecY = (int)(Game1.screenHeightAspect * .9 - 13); //635;
+
+            bronzeKeyIcon.ButtonRecY = (int)(Game1.screenHeightAspect * .7 + 7); //511;
+            silverKeyIcon.ButtonRecY = (int)(Game1.screenHeightAspect * .7 + 9); //513;
+            goldKeyIcon.ButtonRecY = (int)(Game1.screenHeightAspect * .7 + 7); //511;
+
+            textbookIcon.ButtonRecY = (int)(Game1.screenHeightAspect * .9 + 1); //649;
+
+            weaponTab.ButtonRecY = (int)(Game1.screenHeightAspect * .1); //72;
+            hatTab.ButtonRecY = (int)(Game1.screenHeightAspect * .1 + 7); //79;
+            shirtTab.ButtonRecY = (int)(Game1.screenHeightAspect * .1 + 5); //77;
+            accessoryTab.ButtonRecY = (int)(Game1.screenHeightAspect * .1 + 17); //89;
+            lootTab.ButtonRecY = (int)(Game1.screenHeightAspect * .1 + 11); //83;
+
+            for (int i = 0; i < 15; i++)
+            {
+                if (i < 5)
+                {
+                    inventoryBoxes[i].ButtonRecY = (int)(Game1.screenHeightAspect * .2 + 7); //151;
+                }
+                else if (i < 10)
+                {
+                    inventoryBoxes[i].ButtonRecY = (int)(Game1.screenHeightAspect * .35 - 20); //232;
+                }
+                else
+                {
+                    inventoryBoxes[i].ButtonRecY = (int)(Game1.screenHeightAspect * .45 - 11); //313;
+                }
+            }
+
+            for (int i = 0; i < 4; i++)
+            {
+                storyItemBoxes[i].ButtonRecY = (int)(Game1.screenHeightAspect * .8 - 11); //565;
+            }
         }
 
         public void AddInventoryBoxes()
@@ -340,15 +367,16 @@ namespace ISurvived
             last = current;
             current = Keyboard.GetState();
 
-            if (((current.IsKeyUp(Keys.Escape) && last.IsKeyDown(Keys.Escape)) || (current.IsKeyUp(Keys.Back) && last.IsKeyDown(Keys.Back))) && showingPassives)
+            if (((current.IsKeyUp(Keys.Escape) && last.IsKeyDown(Keys.Escape)) || (current.IsKeyUp(Keys.Back) && last.IsKeyDown(Keys.Back)) || passiveBack.Clicked() || MyGamePad.BPressed()) && showingPassives)
             {
-                Sound.PlaySoundInstance(Sound.SoundNames.UIPaperTab2);
+                Sound.PlaySoundInstance(Sound.SoundNames.ui_inventory_tab_02);
                 showingPassives = false;
             }
             textTimer--;
 
             UpdateEquipment();
             UpdateInventory();
+            player.UpdateStats();
             ChangeTab();
 
             #region New Equipment Icons Update
@@ -372,13 +400,13 @@ namespace ISurvived
                     game.Notebook.state = DarylsNotebook.State.journal;
 
                     Chapter.effectsManager.RemoveToolTip();
-                    Sound.PlaySoundInstance(Sound.SoundNames.UITab);
+                    Sound.PlaySoundInstance(Sound.SoundNames.ui_general_tab);
                 }
 
                 if (DarylsNotebook.combosTab.Clicked())
                 {
                     game.Notebook.state = DarylsNotebook.State.combos;
-                    Sound.PlaySoundInstance(Sound.SoundNames.UITab);
+                    Sound.PlaySoundInstance(Sound.SoundNames.ui_general_tab);
                     Chapter.effectsManager.RemoveToolTip();
                 }
 
@@ -386,14 +414,21 @@ namespace ISurvived
                 {
                     game.Notebook.state = DarylsNotebook.State.bios;
                     Chapter.effectsManager.RemoveToolTip();
-                    Sound.PlaySoundInstance(Sound.SoundNames.UITab);
+                    Sound.PlaySoundInstance(Sound.SoundNames.ui_general_tab);
                 }
 
                 if (DarylsNotebook.questsTab.Clicked())
                 {
                     game.Notebook.state = DarylsNotebook.State.quests;
-                    Sound.PlaySoundInstance(Sound.SoundNames.UITab);
+                    Sound.PlaySoundInstance(Sound.SoundNames.ui_general_tab);
                     Chapter.effectsManager.RemoveToolTip();
+                }
+
+                if (DarylsNotebook.mapsTab.Clicked())
+                {
+                    game.Notebook.state = DarylsNotebook.State.maps;
+                    Chapter.effectsManager.RemoveToolTip();
+                    Sound.PlaySoundInstance(Sound.SoundNames.ui_general_tab);
                 }
             }
         }
@@ -413,27 +448,27 @@ namespace ISurvived
                         if (tab == weaponTab)
                         {
                             tabState = TabState.weapon;
-                            Sound.PlaySoundInstance(Sound.SoundNames.UIPaperTab1);
+                            Sound.PlaySoundInstance(Sound.SoundNames.ui_inventory_tab_01);
                         }
                         else if (tab == shirtTab)
                         {
                             tabState = TabState.shirts;
-                            Sound.PlaySoundInstance(Sound.SoundNames.UIPaperTab1);
+                            Sound.PlaySoundInstance(Sound.SoundNames.ui_inventory_tab_01);
                         }
                         else if (tab == hatTab)
                         {
                             tabState = TabState.hats;
-                            Sound.PlaySoundInstance(Sound.SoundNames.UIPaperTab1);
+                            Sound.PlaySoundInstance(Sound.SoundNames.ui_inventory_tab_01);
                         }
                         else if (tab == accessoryTab)
                         {
                             tabState = TabState.accessory;
-                            Sound.PlaySoundInstance(Sound.SoundNames.UIPaperTab1);
+                            Sound.PlaySoundInstance(Sound.SoundNames.ui_inventory_tab_01);
                         }
                         else if (tab == lootTab)
                         {
                             tabState = TabState.loot;
-                            Sound.PlaySoundInstance(Sound.SoundNames.UIPaperTab1);
+                            Sound.PlaySoundInstance(Sound.SoundNames.ui_inventory_tab_01);
                         }
                     }
                 }
@@ -469,7 +504,7 @@ namespace ISurvived
                                 AdjustEquipmentStats("Weapon", -1);
                                 weaponEquip1.ButtonTexture = equipBox;
                                 player.OwnedWeapons.Add(player.EquippedWeapon);
-                                Sound.PlaySoundInstance(Sound.SoundNames.EquipWeapon1);
+                                Sound.PlaySoundInstance(Sound.SoundNames.ui_inventory_equip_weapon_01);
 
                                 //Remove the passive ability to the player if the equipment has one
                                 if (player.EquippedWeapon.PassiveAbility != null && player.OwnedPassives.Contains(player.EquippedWeapon.PassiveAbility))
@@ -514,7 +549,7 @@ namespace ISurvived
                             AdjustEquipmentStats("SecondWeapon", -1);
                             weaponEquip2.ButtonTexture = equipBox;
                             player.OwnedWeapons.Add(player.SecondWeapon);
-                            Sound.PlaySoundInstance(Sound.SoundNames.EquipWeapon2);
+                            Sound.PlaySoundInstance(Sound.SoundNames.ui_inventory_equip_weapon_02);
 
                             darylDrawings["SecondClean"] = DarylsNotebook.Content.Load<Texture2D>(@"DarylDrawing\Second\SecondClean");
 
@@ -538,7 +573,7 @@ namespace ISurvived
 
                             AdjustEquipmentStats("Hat", -1);
                             player.OwnedHats.Add(player.EquippedHat);
-                            Sound.PlaySoundInstance(Sound.SoundNames.EquipOutfit1);
+                            Sound.PlaySoundInstance(Sound.SoundNames.ui_inventory_equip_clothes_01);
 
                             //Remove the passive ability to the player if the equipment has one
                             if (player.EquippedHat.PassiveAbility != null && player.OwnedPassives.Contains(player.EquippedHat.PassiveAbility))
@@ -564,7 +599,7 @@ namespace ISurvived
 
                             AdjustEquipmentStats("Hoodie", -1);
                             player.OwnedHoodies.Add(player.EquippedHoodie);
-                            Sound.PlaySoundInstance(Sound.SoundNames.EquipOutfit1);
+                            Sound.PlaySoundInstance(Sound.SoundNames.ui_inventory_equip_clothes_01);
 
                             //Remove the passive ability to the player if the equipment has one
                             if (player.EquippedHoodie.PassiveAbility != null && player.OwnedPassives.Contains(player.EquippedHoodie.PassiveAbility))
@@ -594,7 +629,7 @@ namespace ISurvived
                             AdjustEquipmentStats("Accessory", -1);
                             miscEquip1.ButtonTexture = equipBox;
                             player.OwnedAccessories.Add(player.EquippedAccessory);
-                            Sound.PlaySoundInstance(Sound.SoundNames.EquipOutfit1);
+                            Sound.PlaySoundInstance(Sound.SoundNames.ui_inventory_equip_clothes_01);
 
                             //Remove the passive ability to the player if the equipment has one
                             if (player.EquippedAccessory.PassiveAbility != null && player.OwnedPassives.Contains(player.EquippedAccessory.PassiveAbility))
@@ -615,7 +650,7 @@ namespace ISurvived
                             AdjustEquipmentStats("SecondAccessory", -1);
                             miscEquip2.ButtonTexture = equipBox;
                             player.OwnedAccessories.Add(player.SecondAccessory);
-                            Sound.PlaySoundInstance(Sound.SoundNames.EquipOutfit2);
+                            Sound.PlaySoundInstance(Sound.SoundNames.ui_inventory_equip_clothes_02);
 
                             //Remove the passive ability to the player if the equipment has one
                             if (player.SecondAccessory.PassiveAbility != null && player.OwnedPassives.Contains(player.SecondAccessory.PassiveAbility) && ((player.EquippedAccessory == null || player.EquippedAccessory.PassiveAbility == null) || (player.EquippedAccessory.PassiveAbility != player.SecondAccessory.PassiveAbility)))
@@ -678,13 +713,16 @@ namespace ISurvived
                                         player.EquippedWeapon = player.OwnedWeapons[boxNumber];
 
                                         darylDrawings[player.EquippedWeapon.Name] = DarylsNotebook.Content.Load<Texture2D>(@"DarylDrawing\Main\" + Game1.Player.EquippedWeapon.Name);
+                                        
+                                        if(player.EquippedWeapon.Name == "Chisel of Forgotten Love")
+                                            darylDrawings["Chisel of Forgotten Love Second"] = DarylsNotebook.Content.Load<Texture2D>(@"DarylDrawing\Second\" + "Chisel of Forgotten Love Second");
 
                                         player.OwnedWeapons.RemoveAt(boxNumber);
                                         ResetInventoryBoxes();
                                         weaponEquip1.ButtonTexture = player.EquippedWeapon.Icon;
                                         AdjustEquipmentStats("Weapon", 1);
                                         DrawEquippedText(player.EquippedWeapon.Name, 1);
-                                        Sound.PlaySoundInstance(Sound.SoundNames.EquipWeapon1);
+                                        Sound.PlaySoundInstance(Sound.SoundNames.ui_inventory_equip_weapon_01);
 
                                         //Add the passive ability to the player if the equipment has one
                                         if (player.EquippedWeapon.PassiveAbility != null && !player.OwnedPassives.Contains(player.EquippedWeapon.PassiveAbility))
@@ -697,14 +735,14 @@ namespace ISurvived
                                     else
                                     {
                                         DrawEquippedText("You are not a high enough level", 0);
-                                        Sound.PlaySoundInstance(Sound.SoundNames.TextScroll);
+                                        Sound.PlaySoundInstance(Sound.SoundNames.ui_general_text_advance);
                                     }
                                 }
                             }
 
                             else if (player.SecondWeapon == null)
                             {
-                                if ((inventoryBoxes[i].DoubleClicked() || inventoryBoxes[i].RightClicked()) && player.OwnedWeapons[boxNumber].CanHoldTwo == true && canEquip == true)
+                                if ((inventoryBoxes[i].DoubleClicked() || inventoryBoxes[i].RightClicked()) && player.EquippedWeapon.CanHoldTwo && player.OwnedWeapons[boxNumber].CanHoldTwo == true && canEquip == true)
                                 {
                                     if (player.Level >= player.OwnedWeapons[boxNumber].Level)
                                     {
@@ -717,7 +755,7 @@ namespace ISurvived
                                         weaponEquip2.ButtonTexture = player.SecondWeapon.Icon;
                                         AdjustEquipmentStats("SecondWeapon", 1);
                                         DrawEquippedText(player.SecondWeapon.Name, 1);
-                                        Sound.PlaySoundInstance(Sound.SoundNames.EquipWeapon2);
+                                        Sound.PlaySoundInstance(Sound.SoundNames.ui_inventory_equip_weapon_02);
 
                                         //Add the passive ability to the player if the equipment has one
                                         if (player.SecondWeapon.PassiveAbility != null && !player.OwnedPassives.Contains(player.SecondWeapon.PassiveAbility))
@@ -731,12 +769,62 @@ namespace ISurvived
                                     else
                                     {
                                         DrawEquippedText("You are not a high enough level", 0);
-                                        Sound.PlaySoundInstance(Sound.SoundNames.TextScroll);
+                                        Sound.PlaySoundInstance(Sound.SoundNames.ui_general_text_advance);
                                     }
                                 }
                             }
                             else if (inventoryBoxes[i].DoubleClicked() || inventoryBoxes[i].RightClicked())
-                                Sound.PlaySoundInstance(Sound.SoundNames.TextScroll);
+                            {
+                                if (player.OwnedWeapons[boxNumber].CanHoldTwo == true && player.EquippedWeapon.CanHoldTwo && canEquip == true)
+                                {
+                                    if (player.Level >= player.OwnedWeapons[boxNumber].Level)
+                                    {
+                                        //Remove the second weapon
+                                        AdjustEquipmentStats("SecondWeapon", -1);
+                                        weaponEquip2.ButtonTexture = equipBox;
+                                        player.OwnedWeapons.Add(player.SecondWeapon);
+
+                                        //Remove the passive ability to the player if the equipment has one
+                                        if (player.SecondWeapon.PassiveAbility != null && player.OwnedPassives.Contains(player.SecondWeapon.PassiveAbility))
+                                        {
+                                            //Make sure to unload the passive first
+                                            player.SecondWeapon.PassiveAbility.UnloadPassive();
+                                            player.OwnedPassives.Remove(player.SecondWeapon.PassiveAbility);
+
+                                        }
+                                        player.SecondWeapon = null;
+                                        darylDrawings["SecondClean"] = DarylsNotebook.Content.Load<Texture2D>(@"DarylDrawing\Second\SecondClean");
+
+                                        //Equip the new one
+                                        player.SecondWeapon = player.OwnedWeapons[boxNumber];
+
+                                        darylDrawings[Game1.Player.SecondWeapon.Name + " Second"] = DarylsNotebook.Content.Load<Texture2D>(@"DarylDrawing\Second\" + Game1.Player.SecondWeapon.Name + " Second");
+
+                                        player.OwnedWeapons.RemoveAt(boxNumber);
+                                        ResetInventoryBoxes();
+                                        weaponEquip2.ButtonTexture = player.SecondWeapon.Icon;
+                                        AdjustEquipmentStats("SecondWeapon", 1);
+                                        DrawEquippedText(player.SecondWeapon.Name, 1);
+                                        Sound.PlaySoundInstance(Sound.SoundNames.ui_inventory_equip_weapon_02);
+
+                                        //Add the passive ability to the player if the equipment has one
+                                        if (player.SecondWeapon.PassiveAbility != null && !player.OwnedPassives.Contains(player.SecondWeapon.PassiveAbility))
+                                        {
+                                            //Make sure to load the passive first
+                                            player.SecondWeapon.PassiveAbility.LoadPassive();
+                                            player.OwnedPassives.Add(player.SecondWeapon.PassiveAbility);
+
+                                        }
+                                    }
+                                    else
+                                    {
+                                        DrawEquippedText("You are not a high enough level", 0);
+                                        Sound.PlaySoundInstance(Sound.SoundNames.ui_general_text_advance);
+                                    }
+                                }
+                                else
+                                    Sound.PlaySoundInstance(Sound.SoundNames.ui_general_text_advance);
+                            }
                         }
                         break;
                     #endregion
@@ -761,7 +849,7 @@ namespace ISurvived
                                         motivationEquip.ButtonTexture = player.EquippedHat.Icon;
                                         AdjustEquipmentStats("Hat", 1);
                                         DrawEquippedText(player.EquippedHat.Name, 1);
-                                        Sound.PlaySoundInstance(Sound.SoundNames.EquipOutfit1);
+                                        Sound.PlaySoundInstance(Sound.SoundNames.ui_inventory_equip_clothes_01);
 
                                         //Add the passive ability to the player if the equipment has one
                                         if (player.EquippedHat.PassiveAbility != null && !player.OwnedPassives.Contains(player.EquippedHat.PassiveAbility))
@@ -775,12 +863,63 @@ namespace ISurvived
                                     else
                                     {
                                         DrawEquippedText("You are not a high enough level", 0);
-                                        Sound.PlaySoundInstance(Sound.SoundNames.TextScroll);
+                                        Sound.PlaySoundInstance(Sound.SoundNames.ui_general_text_advance);
                                     }
                                 }
                             }
                             else if (inventoryBoxes[i].RightClicked() || inventoryBoxes[i].DoubleClicked())
-                                Sound.PlaySoundInstance(Sound.SoundNames.TextScroll);
+                            {
+                                if (canEquip)
+                                {
+                                    if (player.Level >= player.OwnedHats[boxNumber].Level)
+                                    {
+                                        //Remove hat
+                                        AdjustEquipmentStats("Hat", -1);
+                                        player.OwnedHats.Add(player.EquippedHat);
+
+                                        //Remove the passive ability to the player if the equipment has one
+                                        if (player.EquippedHat.PassiveAbility != null && player.OwnedPassives.Contains(player.EquippedHat.PassiveAbility))
+                                        {
+                                            //Make sure to unload the passive first
+                                            player.EquippedHat.PassiveAbility.UnloadPassive();
+                                            player.OwnedPassives.Remove(player.EquippedHat.PassiveAbility);
+
+                                        }
+
+                                        player.EquippedHat = null;
+
+                                        darylDrawings["HatClean"] = DarylsNotebook.Content.Load<Texture2D>(@"DarylDrawing\Hats\HatClean");
+
+                                        motivationEquip.ButtonTexture = equipBox;
+
+                                        //Add new hat
+                                        player.EquippedHat = player.OwnedHats[boxNumber];
+                                        darylDrawings[player.EquippedHat.Name] = DarylsNotebook.Content.Load<Texture2D>(@"DarylDrawing\Hats\" + Game1.Player.EquippedHat.Name);
+                                        ResetInventoryBoxes();
+                                        player.OwnedHats.RemoveAt(boxNumber);
+                                        motivationEquip.ButtonTexture = player.EquippedHat.Icon;
+                                        AdjustEquipmentStats("Hat", 1);
+                                        DrawEquippedText(player.EquippedHat.Name, 1);
+                                        Sound.PlaySoundInstance(Sound.SoundNames.ui_inventory_equip_clothes_01);
+
+                                        //Add the passive ability to the player if the equipment has one
+                                        if (player.EquippedHat.PassiveAbility != null && !player.OwnedPassives.Contains(player.EquippedHat.PassiveAbility))
+                                        {
+                                            //Make sure to load the passive first
+                                            player.EquippedHat.PassiveAbility.LoadPassive();
+                                            player.OwnedPassives.Add(player.EquippedHat.PassiveAbility);
+
+                                        }
+                                    }
+                                    else
+                                    {
+                                        DrawEquippedText("You are not a high enough level", 0);
+                                        Sound.PlaySoundInstance(Sound.SoundNames.ui_general_text_advance);
+                                    }
+                                }
+                                else
+                                    Sound.PlaySoundInstance(Sound.SoundNames.ui_general_text_advance);
+                            }
                         } break;
                     #endregion
 
@@ -803,7 +942,7 @@ namespace ISurvived
                                         toleranceEquip.ButtonTexture = player.EquippedHoodie.Icon;
                                         AdjustEquipmentStats("Hoodie", 1);
                                         DrawEquippedText(player.EquippedHoodie.Name, 1);
-                                        Sound.PlaySoundInstance(Sound.SoundNames.EquipOutfit2);
+                                        Sound.PlaySoundInstance(Sound.SoundNames.ui_inventory_equip_clothes_02);
 
                                         //Add the passive ability to the player if the equipment has one
                                         if (player.EquippedHoodie.PassiveAbility != null && !player.OwnedPassives.Contains(player.EquippedHoodie.PassiveAbility))
@@ -817,12 +956,64 @@ namespace ISurvived
                                     else
                                     {
                                         DrawEquippedText("Your are not a high enough level", 0);
-                                        Sound.PlaySoundInstance(Sound.SoundNames.TextScroll);
+                                        Sound.PlaySoundInstance(Sound.SoundNames.ui_general_text_advance);
                                     }
                                 }
                             }
                             else if (inventoryBoxes[i].DoubleClicked() || inventoryBoxes[i].RightClicked())
-                                Sound.PlaySoundInstance(Sound.SoundNames.TextScroll);
+                            {
+                                if (canEquip)
+                                {
+                                    if (player.Level >= player.OwnedHoodies[boxNumber].Level)
+                                    {
+                                        //Remove old outfit
+                                        AdjustEquipmentStats("Hoodie", -1);
+                                        player.OwnedHoodies.Add(player.EquippedHoodie);
+                                        Sound.PlaySoundInstance(Sound.SoundNames.ui_inventory_equip_clothes_01);
+
+                                        //Remove the passive ability to the player if the equipment has one
+                                        if (player.EquippedHoodie.PassiveAbility != null && player.OwnedPassives.Contains(player.EquippedHoodie.PassiveAbility))
+                                        {
+                                            //Make sure to unload the passive first
+                                            player.EquippedHoodie.PassiveAbility.UnloadPassive();
+                                            player.OwnedPassives.Remove(player.EquippedHoodie.PassiveAbility);
+
+                                        }
+
+                                        player.EquippedHoodie = null;
+
+                                        darylDrawings["ShirtClean"] = DarylsNotebook.Content.Load<Texture2D>(@"DarylDrawing\Shirts\ShirtClean");
+
+                                        toleranceEquip.ButtonTexture = equipBox;
+
+                                        //Add new one
+                                        player.EquippedHoodie = player.OwnedHoodies[boxNumber];
+                                        darylDrawings[player.EquippedHoodie.Name] = DarylsNotebook.Content.Load<Texture2D>(@"DarylDrawing\Shirts\" + Game1.Player.EquippedHoodie.Name);
+                                        ResetInventoryBoxes();
+                                        player.OwnedHoodies.RemoveAt(boxNumber);
+                                        toleranceEquip.ButtonTexture = player.EquippedHoodie.Icon;
+                                        AdjustEquipmentStats("Hoodie", 1);
+                                        DrawEquippedText(player.EquippedHoodie.Name, 1);
+                                        Sound.PlaySoundInstance(Sound.SoundNames.ui_inventory_equip_clothes_02);
+
+                                        //Add the passive ability to the player if the equipment has one
+                                        if (player.EquippedHoodie.PassiveAbility != null && !player.OwnedPassives.Contains(player.EquippedHoodie.PassiveAbility))
+                                        {
+                                            //Make sure to load the passive first
+                                            player.EquippedHoodie.PassiveAbility.LoadPassive();
+                                            player.OwnedPassives.Add(player.EquippedHoodie.PassiveAbility);
+
+                                        }
+                                    }
+                                    else
+                                    {
+                                        DrawEquippedText("Your are not a high enough level", 0);
+                                        Sound.PlaySoundInstance(Sound.SoundNames.ui_general_text_advance);
+                                    }
+                                }
+                                else
+                                    Sound.PlaySoundInstance(Sound.SoundNames.ui_general_text_advance);
+                            }
                         }
                         break;
                     #endregion
@@ -845,7 +1036,7 @@ namespace ISurvived
                                         miscEquip1.ButtonTexture = player.EquippedAccessory.Icon;
                                         AdjustEquipmentStats("Accessory", 1);
                                         DrawEquippedText(player.EquippedAccessory.Name, 1);
-                                        Sound.PlaySoundInstance(Sound.SoundNames.EquipOutfit1);
+                                        Sound.PlaySoundInstance(Sound.SoundNames.ui_inventory_equip_clothes_01);
 
                                         //Add the passive ability to the player if the equipment has one
                                         if (player.EquippedAccessory.PassiveAbility != null && !player.OwnedPassives.Contains(player.EquippedAccessory.PassiveAbility))
@@ -859,7 +1050,7 @@ namespace ISurvived
                                     else
                                     {
                                         DrawEquippedText("You are not a high enough level", 0);
-                                        Sound.PlaySoundInstance(Sound.SoundNames.TextScroll);
+                                        Sound.PlaySoundInstance(Sound.SoundNames.ui_general_text_advance);
                                     }
                                 }
                             }
@@ -876,7 +1067,7 @@ namespace ISurvived
                                         miscEquip2.ButtonTexture = player.SecondAccessory.Icon;
                                         AdjustEquipmentStats("SecondAccessory", 1);
                                         DrawEquippedText(player.SecondAccessory.Name, 1);
-                                        Sound.PlaySoundInstance(Sound.SoundNames.EquipOutfit2);
+                                        Sound.PlaySoundInstance(Sound.SoundNames.ui_inventory_equip_clothes_02);
 
                                         //Add the passive ability to the player if the equipment has one
                                         if (player.SecondAccessory.PassiveAbility != null && !player.OwnedPassives.Contains(player.SecondAccessory.PassiveAbility))
@@ -890,12 +1081,60 @@ namespace ISurvived
                                     else
                                     {
                                         DrawEquippedText("You are not a high enough level", 0);
-                                        Sound.PlaySoundInstance(Sound.SoundNames.TextScroll);
+                                        Sound.PlaySoundInstance(Sound.SoundNames.ui_general_text_advance);
                                     }
                                 }
                             }
-                            else if((inventoryBoxes[i].DoubleClicked() || inventoryBoxes[i].RightClicked()))
-                                Sound.PlaySoundInstance(Sound.SoundNames.TextScroll);
+                            else if ((inventoryBoxes[i].DoubleClicked() || inventoryBoxes[i].RightClicked()))
+                            {
+                                if (canEquip)
+                                {
+                                    DrawEquippedText(player.SecondAccessory.Name, -1);
+                                    AdjustEquipmentStats("SecondAccessory", -1);
+                                    miscEquip2.ButtonTexture = equipBox;
+                                    player.OwnedAccessories.Add(player.SecondAccessory);
+                                    Sound.PlaySoundInstance(Sound.SoundNames.ui_inventory_equip_clothes_02);
+
+                                    //Remove the passive ability to the player if the equipment has one
+                                    if (player.SecondAccessory.PassiveAbility != null && player.OwnedPassives.Contains(player.SecondAccessory.PassiveAbility) && ((player.EquippedAccessory == null || player.EquippedAccessory.PassiveAbility == null) || (player.EquippedAccessory.PassiveAbility != player.SecondAccessory.PassiveAbility)))
+                                    {
+                                        //Make sure to unload the passive first
+                                        player.SecondAccessory.PassiveAbility.UnloadPassive();
+                                        player.OwnedPassives.Remove(player.SecondAccessory.PassiveAbility);
+
+                                    }
+
+                                    player.SecondAccessory = null;
+
+                                    //Add new one
+                                    if (player.Level >= player.OwnedAccessories[boxNumber].Level)
+                                    {
+                                        player.SecondAccessory = player.OwnedAccessories[boxNumber];
+                                        player.OwnedAccessories.RemoveAt(boxNumber);
+                                        ResetInventoryBoxes();
+                                        miscEquip2.ButtonTexture = player.SecondAccessory.Icon;
+                                        AdjustEquipmentStats("SecondAccessory", 1);
+                                        DrawEquippedText(player.SecondAccessory.Name, 1);
+                                        Sound.PlaySoundInstance(Sound.SoundNames.ui_inventory_equip_clothes_02);
+
+                                        //Add the passive ability to the player if the equipment has one
+                                        if (player.SecondAccessory.PassiveAbility != null && !player.OwnedPassives.Contains(player.SecondAccessory.PassiveAbility))
+                                        {
+                                            //Make sure to load the passive first
+                                            player.SecondAccessory.PassiveAbility.LoadPassive();
+                                            player.OwnedPassives.Add(player.SecondAccessory.PassiveAbility);
+
+                                        }
+                                    }
+                                    else
+                                    {
+                                        DrawEquippedText("You are not a high enough level", 0);
+                                        Sound.PlaySoundInstance(Sound.SoundNames.ui_general_text_advance);
+                                    }
+                                }
+                                else
+                                    Sound.PlaySoundInstance(Sound.SoundNames.ui_general_text_advance);
+                            }
                         }
                         break;
                     #endregion
@@ -918,34 +1157,34 @@ namespace ISurvived
                 #region Change Pages
 
                 //--If you are not on the last page, go up a page and reset textures
-                if (nextEquipmentPage.Clicked() && equipmentPage < 4)
+                if ((nextEquipmentPage.Clicked() || MyGamePad.RightPadPressed()) && equipmentPage < 4)
                 {
                     equipmentPage++;
 
-                    Sound.PlaySoundInstance(Sound.SoundNames.UIList2);
+                    Sound.PlaySoundInstance(Sound.SoundNames.ui_inventory_list_02);
 
                     ResetInventoryBoxes();
                 }
                 //--If you aren't on the first page, go back a page and reset textures
-                if (previousEquipmentPage.Clicked() && equipmentPage > 0)
+                if ((previousEquipmentPage.Clicked() || MyGamePad.LeftPadPressed())&& equipmentPage > 0)
                 {
                     equipmentPage--;
-                    Sound.PlaySoundInstance(Sound.SoundNames.UIList1);
+                    Sound.PlaySoundInstance(Sound.SoundNames.ui_inventory_list_01);
                     ResetInventoryBoxes();
                 }
 
                 //--Story pages
-                if (nextStoryPage.Clicked() && storyItemPage < 4)
+                if ((nextStoryPage.Clicked() || MyGamePad.DownPadPressed())&& storyItemPage < 4)
                 {
                     storyItemPage++;
-                    Sound.PlaySoundInstance(Sound.SoundNames.UIList2);
+                    Sound.PlaySoundInstance(Sound.SoundNames.ui_inventory_list_02);
                     ResetStoryBoxes();
                 }
                 //--If you aren't on the first page, go back a page and reset textures
-                if (previousStoryPage.Clicked() && storyItemPage > 0)
+                if ((previousStoryPage.Clicked() || MyGamePad.UpPadPressed()) && storyItemPage > 0)
                 {
                     storyItemPage--;
-                    Sound.PlaySoundInstance(Sound.SoundNames.UIList1);
+                    Sound.PlaySoundInstance(Sound.SoundNames.ui_inventory_list_01);
                     ResetStoryBoxes();
                 }
 
@@ -969,17 +1208,17 @@ namespace ISurvived
             if (passiveTab.Clicked() && !showingPassives)
             {
                 showingPassives = true;
-                Sound.PlaySoundInstance(Sound.SoundNames.UIPaperTab4);
+                Sound.PlaySoundInstance(Sound.SoundNames.ui_inventory_tab_04);
             }
 
-            if (passivesLeft.Clicked() && passivePage > 0)
+            if ((passivesLeft.Clicked() || (showingPassives && MyGamePad.LeftPadPressed())) && passivePage > 0)
             {
                 passivePage--;
-                Sound.PlaySoundInstance(Sound.SoundNames.UIPage1);
+                Sound.PlaySoundInstance(Sound.SoundNames.ui_inventory_page_01);
             }
-            else if (passivesRight.Clicked() && player.OwnedPassives.Count > ((passivesPage + 1) * 8))
+            else if ((passivesRight.Clicked() || (showingPassives && MyGamePad.RightPadPressed())) && player.OwnedPassives.Count > ((passivesPage + 1) * 8))
             {
-                Sound.PlaySoundInstance(Sound.SoundNames.UIPage2);
+                Sound.PlaySoundInstance(Sound.SoundNames.ui_inventory_page_02);
                 passivePage++;
             }
             #endregion
@@ -989,90 +1228,117 @@ namespace ISurvived
         //-- Pass in '1' for addition, '-1' for subtraction
         public void AdjustEquipmentStats(String type, int addOrRemove)
         {
+            if(game.Prologue.PrologueBooleans["firstInventory"] == true)
+                game.Prologue.PrologueBooleans["firstInventory"] = false;
+
             switch (type)
             {
                 case "Weapon":
-                    player.Strength += player.EquippedWeapon.Strength * addOrRemove;
-                    player.MaxHealth += player.EquippedWeapon.Health * addOrRemove;
-                    player.Health += player.EquippedWeapon.Health * addOrRemove;
-                    player.Defense += player.EquippedWeapon.Defense * addOrRemove;
+                    player.BaseStrength += player.EquippedWeapon.Strength * addOrRemove;
+                    player.BaseMaxHealth += player.EquippedWeapon.Health * addOrRemove;
+                    player.UpdateStats();
+
+                   // player.Health += player.EquippedWeapon.Health * addOrRemove;
+                    player.BaseDefense += player.EquippedWeapon.Defense * addOrRemove;
                     player.JumpHeight += player.EquippedWeapon.JumpHeight * addOrRemove;
                     player.MoveSpeed += player.EquippedWeapon.MoveSpeed * addOrRemove;
                     break;
 
                 case "SecondWeapon":
 
-                    player.Strength += player.SecondWeapon.Strength * addOrRemove;
-                    player.MaxHealth += player.SecondWeapon.Health * addOrRemove;
-                    player.Health += player.SecondWeapon.Health * addOrRemove;
-                    player.Defense += player.SecondWeapon.Defense * addOrRemove;
+                    player.BaseStrength += player.SecondWeapon.Strength * addOrRemove;
+                    player.BaseMaxHealth += player.SecondWeapon.Health * addOrRemove;
+                    player.UpdateStats();
+
+                    //player.Health += player.SecondWeapon.Health * addOrRemove;
+                    player.BaseDefense += player.SecondWeapon.Defense * addOrRemove;
                     player.JumpHeight += player.SecondWeapon.JumpHeight * addOrRemove;
                     player.MoveSpeed += player.SecondWeapon.MoveSpeed * addOrRemove;
                     break;
 
                 case "Hat":
 
-                    player.Strength += player.EquippedHat.Strength * addOrRemove;
-                    player.MaxHealth += player.EquippedHat.Health * addOrRemove;
-                    player.Health += player.EquippedHat.Health * addOrRemove;
-                    player.Defense += player.EquippedHat.Defense * addOrRemove;
+                    player.BaseStrength += player.EquippedHat.Strength * addOrRemove;
+                    player.BaseMaxHealth += player.EquippedHat.Health * addOrRemove;
+                    player.UpdateStats();
+                   // player.Health += player.EquippedHat.Health * addOrRemove;
+                    player.BaseDefense += player.EquippedHat.Defense * addOrRemove;
                     player.JumpHeight += player.EquippedHat.JumpHeight * addOrRemove;
                     player.MoveSpeed += player.EquippedHat.MoveSpeed * addOrRemove;
                     break;
 
                 case "Hoodie":
 
-                    player.Strength += player.EquippedHoodie.Strength * addOrRemove;
-                    player.MaxHealth += player.EquippedHoodie.Health * addOrRemove;
-                    player.Health += player.EquippedHoodie.Health * addOrRemove;
-                    player.Defense += player.EquippedHoodie.Defense * addOrRemove;
+                    player.BaseStrength += player.EquippedHoodie.Strength * addOrRemove;
+                    player.BaseMaxHealth += player.EquippedHoodie.Health * addOrRemove;
+                    player.UpdateStats();
+
+                   // player.Health += player.EquippedHoodie.Health * addOrRemove;
+                    player.BaseDefense += player.EquippedHoodie.Defense * addOrRemove;
                     player.JumpHeight += player.EquippedHoodie.JumpHeight * addOrRemove;
                     player.MoveSpeed += player.EquippedHoodie.MoveSpeed * addOrRemove;
                     break;
 
                 case "Accessory":
 
-                    player.Strength += player.EquippedAccessory.Strength * addOrRemove;
-                    player.MaxHealth += player.EquippedAccessory.Health * addOrRemove;
-                    player.Health += player.EquippedAccessory.Health * addOrRemove;
-                    player.Defense += player.EquippedAccessory.Defense * addOrRemove;
+                    player.BaseStrength += player.EquippedAccessory.Strength * addOrRemove;
+                    player.BaseMaxHealth += player.EquippedAccessory.Health * addOrRemove;
+                    player.UpdateStats();
+
+                  //  player.Health += player.EquippedAccessory.Health * addOrRemove;
+                    player.BaseDefense += player.EquippedAccessory.Defense * addOrRemove;
                     player.JumpHeight += player.EquippedAccessory.JumpHeight * addOrRemove;
                     player.MoveSpeed += player.EquippedAccessory.MoveSpeed * addOrRemove;
                     break;
 
                 case "SecondAccessory":
 
-                    player.Strength += player.SecondAccessory.Strength * addOrRemove;
-                    player.MaxHealth += player.SecondAccessory.Health * addOrRemove;
-                    player.Health += player.SecondAccessory.Health * addOrRemove;
-                    player.Defense += player.SecondAccessory.Defense * addOrRemove;
+                    player.BaseStrength += player.SecondAccessory.Strength * addOrRemove;
+                    player.BaseMaxHealth += player.SecondAccessory.Health * addOrRemove;
+                    player.UpdateStats();
+
+                   // player.Health += player.SecondAccessory.Health * addOrRemove;
+                    player.BaseDefense += player.SecondAccessory.Defense * addOrRemove;
                     player.JumpHeight += player.SecondAccessory.JumpHeight * addOrRemove;
                     player.MoveSpeed += player.SecondAccessory.MoveSpeed * addOrRemove;
                     break;
             }
+
+            if (player.Health < 1)
+                player.Health = 1;
+
+            if (player.Health > player.realMaxHealth)
+                player.Health = player.realMaxHealth;
         }
 
         public void DrawDaryl(SpriteBatch s)
         {
             if (player.EquippedHat == null)
-                s.Draw(darylDrawings["HatClean"], new Rectangle(200, 30, 473, 270), Color.White);
+                s.Draw(darylDrawings["HatClean"], new Rectangle(200, (int)(Game1.screenHeightAspect * .05 - 6), 473, 270), Color.White);
             else
-                s.Draw(darylDrawings[player.EquippedHat.Name], new Rectangle(200, 30, 473, 270), Color.White);
+                s.Draw(darylDrawings[player.EquippedHat.Name], new Rectangle(200, (int)(Game1.screenHeightAspect * .05 - 6), 473, 270), Color.White);
 
             if (player.EquippedHoodie == null)
-                s.Draw(darylDrawings["ShirtClean"], new Rectangle(200, 190, 392, 286), Color.White);
+                s.Draw(darylDrawings["ShirtClean"], new Rectangle(200, (int)(Game1.screenHeightAspect * .25 + 10), 392, 286), Color.White);
             else
-                s.Draw(darylDrawings[player.EquippedHoodie.Name], new Rectangle(200, 190, 392, 286), Color.White);
+                s.Draw(darylDrawings[player.EquippedHoodie.Name], new Rectangle(200, (int)(Game1.screenHeightAspect * .25 + 10), 392, 286), Color.White);
 
             if (player.EquippedWeapon == null)
-                s.Draw(darylDrawings["MainClean"], new Rectangle(402, 24, 316, 474), Color.White);
+                s.Draw(darylDrawings["MainClean"], new Rectangle(402, (int)(Game1.screenHeightAspect * .05 - 12), 316, 474), Color.White);
             else
-                s.Draw(darylDrawings[player.EquippedWeapon.Name], new Rectangle(402, 25, 316, 474), Color.White);
+                s.Draw(darylDrawings[player.EquippedWeapon.Name], new Rectangle(402, (int)(Game1.screenHeightAspect * .05 - 11), 316, 474), Color.White);
 
             if (player.SecondWeapon == null)
-                s.Draw(darylDrawings["SecondClean"], new Rectangle(290, 25, 258, 485), Color.White);
+            {
+                s.Draw(darylDrawings["SecondClean"], new Rectangle(290, (int)(Game1.screenHeightAspect * .05 - 11), 258, 485), Color.White);
+
+                if (player.EquippedWeapon != null && player.EquippedWeapon.Name == "Chisel of Forgotten Love")
+                    s.Draw(darylDrawings[player.EquippedWeapon.Name + " Second"], new Rectangle(290, (int)(Game1.screenHeightAspect * .05 - 11), 258, 485), Color.White);
+
+            }
             else
-                s.Draw(darylDrawings[player.SecondWeapon.Name + " Second"], new Rectangle(290, 25, 258, 485), Color.White);
+                s.Draw(darylDrawings[player.SecondWeapon.Name + " Second"], new Rectangle(290, (int)(Game1.screenHeightAspect * .05 - 11), 258, 485), Color.White);
+
         }
 
         //--Reset all of the inventory box textures back to empty
@@ -1111,12 +1377,12 @@ namespace ISurvived
 
             if (passiveTab.IsOver() && !showingPassives)
             {
-                s.Draw(textures["PassiveTabActive"], new Rectangle(0, 720 - textures["PassiveTabActive"].Height, textures["PassiveTabActive"].Width, textures["PassiveTabActive"].Height), Color.White);
+                s.Draw(textures["PassiveTabActive"], new Rectangle(0, (int)(Game1.aspectRatio * 1280) - textures["PassiveTabActive"].Height, textures["PassiveTabActive"].Width, textures["PassiveTabActive"].Height), Color.White);
 
                 if (firstFrameOverPassive)
                 {
                     firstFrameOverPassive = false;
-                    Sound.PlaySoundInstance(Sound.SoundNames.UIPaperTab3);
+                    Sound.PlaySoundInstance(Sound.SoundNames.ui_inventory_tab_03);
                 }
             }
             else
@@ -1129,19 +1395,19 @@ namespace ISurvived
             switch (tabState)
             {
                 case TabState.weapon:
-                    s.Draw(textures["WeaponsPage"], new Rectangle(675, 57, textures["WeaponsPage"].Width, textures["WeaponsPage"].Height), Color.White);
+                    s.Draw(textures["WeaponsPage"], new Rectangle(675, (int)(Game1.screenHeightAspect * .1 - 15), textures["WeaponsPage"].Width, textures["WeaponsPage"].Height), Color.White);
                     break;
                 case TabState.shirts:
-                    s.Draw(textures["ShirtsPage"], new Rectangle(675, 57, textures["WeaponsPage"].Width, textures["WeaponsPage"].Height), Color.White);
+                    s.Draw(textures["ShirtsPage"], new Rectangle(675, (int)(Game1.screenHeightAspect * .1 - 15), textures["WeaponsPage"].Width, textures["WeaponsPage"].Height), Color.White);
                     break;
                 case TabState.loot:
-                    s.Draw(textures["LootPage"], new Rectangle(675, 57, textures["WeaponsPage"].Width, textures["WeaponsPage"].Height), Color.White);
+                    s.Draw(textures["LootPage"], new Rectangle(675, (int)(Game1.screenHeightAspect * .1 - 15), textures["WeaponsPage"].Width, textures["WeaponsPage"].Height), Color.White);
                     break;
                 case TabState.hats:
-                    s.Draw(textures["HatsPage"], new Rectangle(675, 57, textures["WeaponsPage"].Width, textures["WeaponsPage"].Height), Color.White);
+                    s.Draw(textures["HatsPage"], new Rectangle(675, (int)(Game1.screenHeightAspect * .1 - 15), textures["WeaponsPage"].Width, textures["WeaponsPage"].Height), Color.White);
                     break;
                 case TabState.accessory:
-                    s.Draw(textures["AccessoriesPage"], new Rectangle(675, 57, textures["WeaponsPage"].Width, textures["WeaponsPage"].Height), Color.White);
+                    s.Draw(textures["AccessoriesPage"], new Rectangle(675, (int)(Game1.screenHeightAspect * .1 - 15), textures["WeaponsPage"].Width, textures["WeaponsPage"].Height), Color.White);
                     break;
             }
             #endregion
@@ -1150,72 +1416,72 @@ namespace ISurvived
             if (weaponTab.IsOver() && !showingPassives)
             {
                 timeOverWeaponIcon++;
-                s.Draw(textures["WeaponTabActive"], new Rectangle(694, 51, 503, 99), Color.White);
+                s.Draw(textures["WeaponTabActive"], new Rectangle(694, (int)(Game1.screenHeightAspect * .1 - 21), 503, 99), Color.White);
 
                 if (firstFrameOverWeapon)
                 {
                     firstFrameOverWeapon = false;
-                    Sound.PlaySoundInstance(Sound.SoundNames.UIPaperTab3);
+                    Sound.PlaySoundInstance(Sound.SoundNames.ui_inventory_tab_03);
                 }
             }
             else
             {
                 firstFrameOverWeapon = true;
-                s.Draw(textures["WeaponTabStatic"], new Rectangle(694, 51, 503, 99), Color.White);
+                s.Draw(textures["WeaponTabStatic"], new Rectangle(694, (int)(Game1.screenHeightAspect * .1 - 21), 503, 99), Color.White);
                 timeOverWeaponIcon = 0;
             }
 
             if (hatTab.IsOver() && !showingPassives)
             {
-                s.Draw(textures["HatsTabActive"], new Rectangle(694, 51, 503, 99), Color.White);
+                s.Draw(textures["HatsTabActive"], new Rectangle(694, (int)(Game1.screenHeightAspect * .1 - 21), 503, 99), Color.White);
                 timeOverHatIcon++;
 
                 if (firstFrameOverHat)
                 {
                     firstFrameOverHat = false;
-                    Sound.PlaySoundInstance(Sound.SoundNames.UIPaperTab3);
+                    Sound.PlaySoundInstance(Sound.SoundNames.ui_inventory_tab_03);
                 }
             }
             else
             {
                 firstFrameOverHat = true;
-                s.Draw(textures["HatsTabStatic"], new Rectangle(694, 51, 503, 99), Color.White);
+                s.Draw(textures["HatsTabStatic"], new Rectangle(694, (int)(Game1.screenHeightAspect * .1 - 21), 503, 99), Color.White);
                 timeOverHatIcon = 0;
             }
 
             if (shirtTab.IsOver() && !showingPassives)
             {
-                s.Draw(textures["ShirtsTabActive"], new Rectangle(694, 51, 503, 99), Color.White);
+                s.Draw(textures["ShirtsTabActive"], new Rectangle(694, (int)(Game1.screenHeightAspect * .1 - 21), 503, 99), Color.White);
                 timeOverShirtIcon++;
 
                 if (firstFrameOverOutfit)
                 {
                     firstFrameOverOutfit = false;
-                    Sound.PlaySoundInstance(Sound.SoundNames.UIPaperTab3);
+                    Sound.PlaySoundInstance(Sound.SoundNames.ui_inventory_tab_03);
                 }
             }
             else
             {
                 firstFrameOverOutfit = true;
-                s.Draw(textures["ShirtsTabStatic"], new Rectangle(694, 51, 503, 99), Color.White);
+                s.Draw(textures["ShirtsTabStatic"], new Rectangle(694, (int)(Game1.screenHeightAspect * .1 - 21), 503, 99), Color.White);
                 timeOverShirtIcon = 0;
             }
 
             if (accessoryTab.IsOver() && !showingPassives)
             {
-                s.Draw(textures["AccessoryTabActive"], new Rectangle(694, 51, 503, 99), Color.White);
+                s.Draw(textures["AccessoryTabActive"], new Rectangle(694, (int)(Game1.screenHeightAspect * .1 - 21), 503, 99), Color.White);
                 timeOverAccessoryIcon++;
 
                 if (firstFrameOverAccessory)
                 {
                     firstFrameOverAccessory = false;
-                    Sound.PlaySoundInstance(Sound.SoundNames.UIPaperTab3);
+                    Sound.PlaySoundInstance(Sound.SoundNames.ui_inventory_tab_03);
                 }
             }
             else
             {
                 firstFrameOverAccessory = true;
-                s.Draw(textures["AccessoryTabStatic"], new Rectangle(694, 51, 503, 99), Color.White);
+                s.Draw(textures["AccessoryTabStatic"], new Rectangle(694, (int)(Game1.screenHeightAspect * .1 - 21), 503, 99), Color.White);
                 timeOverAccessoryIcon = 0;
             }
 
@@ -1225,86 +1491,131 @@ namespace ISurvived
                 if (firstFrameOverLoot)
                 {
                     firstFrameOverLoot = false;
-                    Sound.PlaySoundInstance(Sound.SoundNames.UIPaperTab3);
+                    Sound.PlaySoundInstance(Sound.SoundNames.ui_inventory_tab_03);
                 }
 
-                s.Draw(textures["LootTabActive"], new Rectangle(694, 51, 503, 99), Color.White);
+                s.Draw(textures["LootTabActive"], new Rectangle(694, (int)(Game1.screenHeightAspect * .1 - 21), 503, 99), Color.White);
                 timeOverLootIcon++;
             }
             else
             {
                 firstFrameOverLoot = true;
-                s.Draw(textures["LootTabStatic"], new Rectangle(694, 51, 503, 99), Color.White);
+                s.Draw(textures["LootTabStatic"], new Rectangle(694, (int)(Game1.screenHeightAspect * .1 - 21), 503, 99), Color.White);
                 timeOverLootIcon = 0;
             }
             if(newWeapon)
-                s.Draw(textures["newEquipmentIcon"], new Rectangle(748, 40, 45, 45), Color.White);
+                s.Draw(textures["newEquipmentIcon"], new Rectangle(748, (int)(Game1.screenHeightAspect * .05 + 4), 45, 45), Color.White);
             if (newHat)
-                s.Draw(textures["newEquipmentIcon"], new Rectangle(849, 42, 45, 45), Color.White);
+                s.Draw(textures["newEquipmentIcon"], new Rectangle(849, (int)(Game1.screenHeightAspect * .05 + 6), 45, 45), Color.White);
             if (newShirt)
-                s.Draw(textures["newEquipmentIcon"], new Rectangle(960, 42, 45, 45), Color.White);
+                s.Draw(textures["newEquipmentIcon"], new Rectangle(960, (int)(Game1.screenHeightAspect * .05 + 6), 45, 45), Color.White);
             if (newAccessory)
-                s.Draw(textures["newEquipmentIcon"], new Rectangle(1071, 44, 45, 45), Color.White);
+                s.Draw(textures["newEquipmentIcon"], new Rectangle(1071, (int)(Game1.screenHeightAspect * .05 + 8), 45, 45), Color.White);
             if (newLoot)
-                s.Draw(textures["newEquipmentIcon"], new Rectangle(1170, 54, 45, 45), Color.White);
+                s.Draw(textures["newEquipmentIcon"], new Rectangle(1170, (int)(Game1.screenHeightAspect * .05 + 18), 45, 45), Color.White);
 
             #endregion
 
             #region Depending on the page, draw the page arrows
             //ITEMS
-            s.DrawString(Game1.font,"pg " + (equipmentPage + 1).ToString() + "/5", new Vector2(913, 388), Color.Black);
+            s.DrawString(Game1.font,"pg " + (equipmentPage + 1).ToString() + "/5", new Vector2(913, (int)(392)), Color.Black);
 
-            if (nextEquipmentPage.IsOver() && equipmentPage < 4)
-                s.Draw(textures["ItemRightActive"], new Rectangle(850, 384, textures["ItemRightActive"].Width, textures["ItemRightActive"].Height), Color.White);
-            else
-                s.Draw(textures["ItemRight"], new Rectangle(850, 384, textures["ItemRightActive"].Width, textures["ItemRightActive"].Height), Color.White);
-            
-            if (previousEquipmentPage.IsOver() && equipmentPage > 0)
-                s.Draw(textures["ItemLeftActive"], new Rectangle(850, 384, textures["ItemRightActive"].Width, textures["ItemRightActive"].Height), Color.White);
-            else
-                s.Draw(textures["ItemLeft"], new Rectangle(850, 384, textures["ItemRightActive"].Width, textures["ItemRightActive"].Height), Color.White);
-            
+            if (equipmentPage < 4)
+            {
+                if (Game1.gamePadConnected)
+                    s.Draw(DarylsNotebook.dRight, new Vector2(985, (int)(Game1.screenHeightAspect * .55 - 8)), Color.White);
+                else
+                {
+                    if (nextEquipmentPage.IsOver())
+                        s.Draw(textures["ItemRightActive"], new Rectangle(850, (int)(Game1.screenHeightAspect * .55 - 8), textures["ItemRightActive"].Width, textures["ItemRightActive"].Height), Color.White);
+                    else
+                        s.Draw(textures["ItemRight"], new Rectangle(850, (int)(Game1.screenHeightAspect * .55 - 8), textures["ItemRightActive"].Width, textures["ItemRightActive"].Height), Color.White);
+                }
+            }
+            if (equipmentPage > 0)
+            {
+                if (Game1.gamePadConnected)
+                    s.Draw(DarylsNotebook.dLeft, new Vector2(865, (int)(Game1.screenHeightAspect * .55 - 8)), Color.White);
+                else
+                {
+                    if (previousEquipmentPage.IsOver() && equipmentPage > 0)
+                        s.Draw(textures["ItemLeftActive"], new Rectangle(850, (int)(Game1.screenHeightAspect * .55 - 8), textures["ItemRightActive"].Width, textures["ItemRightActive"].Height), Color.White);
+                    else
+                        s.Draw(textures["ItemLeft"], new Rectangle(850, (int)(Game1.screenHeightAspect * .55 - 8), textures["ItemRightActive"].Width, textures["ItemRightActive"].Height), Color.White);
+                }
+            }
             //STORY ITEMS
-            s.DrawString(Game1.font, "pg " + (storyItemPage + 1).ToString() + "/5", new Vector2(903, 650), Color.Black);
+            s.DrawString(Game1.font, "pg " + (storyItemPage + 1).ToString() + "/5", new Vector2(903, (int)(Game1.screenHeightAspect * .9 + 2)), Color.Black);
 
-            if (nextStoryPage.IsOver() && storyItemPage < 4)
-                s.Draw(textures["StoryRightActive"], new Rectangle(842, 646, textures["StoryRightActive"].Width, textures["StoryRightActive"].Height), Color.White);
-            else
-                s.Draw(textures["StoryRight"], new Rectangle(842, 646, textures["StoryRightActive"].Width, textures["StoryRightActive"].Height), Color.White);
-
-            if (previousStoryPage.IsOver() && storyItemPage > 0)
-                s.Draw(textures["StoryLeftActive"], new Rectangle(842, 646, textures["StoryRightActive"].Width, textures["StoryRightActive"].Height), Color.White);
-            else
-                s.Draw(textures["StoryLeft"], new Rectangle(842, 646, textures["StoryRightActive"].Width, textures["StoryRightActive"].Height), Color.White);
-            
-            
+            if (storyItemPage < 4)
+            {
+                if (Game1.gamePadConnected)
+                    s.Draw(DarylsNotebook.dDown, new Vector2(970, (int)(Game1.screenHeightAspect * .9 - 2)), Color.White);
+                else
+                {
+                    if (nextStoryPage.IsOver())
+                        s.Draw(textures["StoryRightActive"], new Rectangle(842, (int)(Game1.screenHeightAspect * .9 - 2), textures["StoryRightActive"].Width, textures["StoryRightActive"].Height), Color.White);
+                    else
+                        s.Draw(textures["StoryRight"], new Rectangle(842, (int)(Game1.screenHeightAspect * .9 - 2), textures["StoryRightActive"].Width, textures["StoryRightActive"].Height), Color.White);
+                }
+            }
+            if (storyItemPage > 0)
+            {
+                if (Game1.gamePadConnected)
+                    s.Draw(DarylsNotebook.dUp, new Vector2(856, (int)(Game1.screenHeightAspect * .9 - 2)), Color.White);
+                else
+                {
+                    if (previousStoryPage.IsOver())
+                        s.Draw(textures["StoryLeftActive"], new Rectangle(842, (int)(Game1.screenHeightAspect * .9 - 2), textures["StoryRightActive"].Width, textures["StoryRightActive"].Height), Color.White);
+                    else
+                        s.Draw(textures["StoryLeft"], new Rectangle(842, (int)(Game1.screenHeightAspect * .9 - 2), textures["StoryRightActive"].Width, textures["StoryRightActive"].Height), Color.White);
+                }
+            }
 
             #endregion
 
             #region Draw Stats
-            s.DrawString(Game1.twConQuestHudName, "Level " + player.Level + ": " + player.SocialRank, new Vector2(506 - Game1.twConQuestHudName.MeasureString("Level " + player.Level + ": " + player.SocialRank).X * 1.1f / 2, 523), Color.White, 0, Vector2.Zero, 1.1f, SpriteEffects.None, 0);
+            s.DrawString(Game1.twConQuestHudName, "Level " + player.Level + ": " + player.SocialRank, new Vector2(506 - Game1.twConQuestHudName.MeasureString("Level " + player.Level + ": " + player.SocialRank).X * 1.1f / 2, (int)(Game1.screenHeightAspect * .75 - 17)), Color.White, 0, Vector2.Zero, 1.1f, SpriteEffects.None, 0);
 
-            s.DrawString(Game1.twConQuestHudInfo, Math.Round(player.Money, 2).ToString("N2"), new Vector2(420, 638), Color.Black);
-            s.DrawString(Game1.twConQuestHudInfo, player.Experience.ToString() + "/" + player.ExperienceUntilLevel.ToString(), new Vector2(420, 602), Color.Black);
-            s.DrawString(Game1.twConQuestHudInfo, player.MaxHealth.ToString(), new Vector2(420, 565), Color.Black);
+            s.DrawString(Game1.twConQuestHudInfo, Math.Round(player.Money, 2).ToString("N2"), new Vector2(420, (int)(Game1.screenHeightAspect * .9 - 10)), Color.Black);
+            s.DrawString(Game1.twConQuestHudInfo, player.Experience.ToString() + "/" + player.ExperienceUntilLevel.ToString(), new Vector2(420, (int)(Game1.screenHeightAspect * .85 - 10)), Color.Black);
+            s.DrawString(Game1.twConQuestHudInfo, player.realMaxHealth.ToString(), new Vector2(420, (int)(Game1.screenHeightAspect * .8 - 11)), Color.Black);
+            s.DrawString(Game1.twConQuestHudInfo, player.realStrength.ToString(), new Vector2(586, (int)(Game1.screenHeightAspect * .85 - 11)), Color.Black);
+            s.DrawString(Game1.twConQuestHudInfo, player.realDefense.ToString(), new Vector2(580, (int)(Game1.screenHeightAspect * .8 - 11)), Color.Black);
+            s.DrawString(Game1.twConQuestHudInfo, player.Karma.ToString(), new Vector2(583, (int)(Game1.screenHeightAspect * .9 - 10)), Color.Black);
+            if(SocialRankManager.allSocialRanks.Count > player.SocialRankIndex)
+                Game1.OutlineFont(Game1.twConQuestHudInfo, s, "(Next at " + SocialRankManager.allSocialRanks[player.SocialRankIndex].karmaNeeded + ")", 1, 583 + (int)Game1.twConQuestHudInfo.MeasureString(player.Karma.ToString()).X + 5, (int)(Game1.screenHeightAspect * .9 - 10), Color.White, Color.DarkRed);
+            #region Stat Modifiers
+            if (player.defenseModifier > 0)
+                s.DrawString(Game1.twConQuestHudInfo, "(+" + player.defenseModifier.ToString() + "%)", new Vector2(582 + Game1.twConQuestHudInfo.MeasureString(player.realDefense.ToString()).X, (int)(Game1.screenHeightAspect * .8 - 11)), Color.Green);
+            else if (player.defenseModifier < 0)
+                s.DrawString(Game1.twConQuestHudInfo, "(" + player.defenseModifier.ToString() + "%)", new Vector2(582 + Game1.twConQuestHudInfo.MeasureString(player.realDefense.ToString()).X, (int)(Game1.screenHeightAspect * .8 - 11)), Color.Red);
 
-            s.DrawString(Game1.twConQuestHudInfo, player.Strength.ToString(), new Vector2(586, 601), Color.Black);
-            s.DrawString(Game1.twConQuestHudInfo, player.Defense.ToString(), new Vector2(580, 565), Color.Black);
-            s.DrawString(Game1.twConQuestHudInfo, player.Karma.ToString(), new Vector2(583, 638), Color.Black);
+            if (player.strengthModifier > 0)
+                s.DrawString(Game1.twConQuestHudInfo, "(+" + player.strengthModifier.ToString() + "%)", new Vector2(588 + Game1.twConQuestHudInfo.MeasureString(player.realStrength.ToString()).X, (int)(Game1.screenHeightAspect * .85 - 11)), Color.Green);
+            else if (player.strengthModifier < 0)
+                s.DrawString(Game1.twConQuestHudInfo, "(" + player.strengthModifier.ToString() + "%)", new Vector2(588 + Game1.twConQuestHudInfo.MeasureString(player.realStrength.ToString()).X, (int)(Game1.screenHeightAspect * .85 - 11)), Color.Red);
+
+            if (player.healthModifier > 0)
+                s.DrawString(Game1.twConQuestHudInfo, "(+" + player.healthModifier.ToString() + "%)", new Vector2(422 + Game1.twConQuestHudInfo.MeasureString(player.realMaxHealth.ToString()).X, (int)(Game1.screenHeightAspect * .8 - 11)), Color.Green);
+            else if (player.healthModifier < 0)
+                s.DrawString(Game1.twConQuestHudInfo, "(" + player.healthModifier.ToString() + "%)", new Vector2(422 + Game1.twConQuestHudInfo.MeasureString(player.realMaxHealth.ToString()).X, (int)(Game1.screenHeightAspect * .8 - 11)), Color.Red);
+
+            #endregion
 
             if (player.Textbooks == 0)
             {
-                s.DrawString(Game1.font, "0", new Vector2(504, 656), Color.White); //630
+                s.DrawString(Game1.font, "0", new Vector2(504, (int)(Game1.screenHeightAspect * .91 + 1)), Color.White); //630
             }
             else if (player.Textbooks < 10)
             {
-                s.DrawString(Game1.font, "0", new Vector2(499, 656), Color.White);
+                s.DrawString(Game1.font, "0", new Vector2(499, (int)(Game1.screenHeightAspect * .91 + 1)), Color.White);
 
-                s.DrawString(Game1.font, player.Textbooks.ToString(), new Vector2(509, 656), Color.White);
+                s.DrawString(Game1.font, player.Textbooks.ToString(), new Vector2(509, (int)(Game1.screenHeightAspect * .91 + 1)), Color.White);
             }
             else
             {
-                s.DrawString(Game1.font, player.Textbooks.ToString(), new Vector2(499, 656), Color.White);
+                s.DrawString(Game1.font, player.Textbooks.ToString(), new Vector2(499, (int)(Game1.screenHeightAspect * .91 + 1)), Color.White);
             }
             #endregion
             
@@ -1341,12 +1652,14 @@ namespace ISurvived
             }
             #endregion
 
-            ////TOOLTIPS FOR THE FIRST TIME USING THE INVENTORY
-            //if (game.Prologue.PrologueBooleans["firstInventory"] == true)
-            //{
-            //    game.Prologue.PrologueBooleans["firstInventory"] = false;
-            //    Chapter.effectsManager.AddToolTip("This is your inventory. You can equip items here by \ndouble clicking them. Your inventory also holds your\nStory Items and Loot. Click the tabs to change pockets.", 50, 0);
-            //}
+            //TOOLTIPS FOR THE FIRST TIME USING THE INVENTORY
+            if (game.Prologue.PrologueBooleans["firstInventory"] && game.Prologue.PrologueBooleans["markerGiven"])
+            {
+                if(Game1.gamePadConnected)
+                    s.Draw(textures["inventoryTipController"], new Vector2(450, 50), Color.White);
+                else
+                    s.Draw(textures["inventoryTip"], new Vector2(450, 50), Color.White);
+            }
             ////FIRST TIME EQUIPPING AN ITEM
             //else if (game.Prologue.PrologueBooleans["firstEquipped"] == true && (player.EquippedAccessory != null || player.EquippedHat != null || player.EquippedHoodie != null || player.EquippedWeapon != null))
             //{
@@ -1369,17 +1682,16 @@ namespace ISurvived
                     int boxNumber = i + (storyItemPage * storyItemBoxes.Count);
                     s.Draw(Game1.storyItemIcons[player.StoryItems.ElementAt(boxNumber).Key], storyItemBoxes[i].ButtonRec, Color.White);
 
-                    //s.DrawString(Game1.descriptionFont, player.StoryItems.ElementAt(i).Value.ToString(),
-                    //    new Vector2(storyItemBoxes[i].ButtonRec.X + 7, storyItemBoxes[i].ButtonRec.Y + 5), Color.DarkRed);
+                    Game1.OutlineFont(Game1.font, s, player.StoryItems.ElementAt(i).Value.ToString(), 2, storyItemBoxes[i].ButtonRec.X + 65 - (int)Game1.font.MeasureString(player.StoryItems.ElementAt(i).Value.ToString()).X, storyItemBoxes[i].ButtonRec.Y + 48, Color.White, Color.Black);
                 }
             }
 
-            s.DrawString(Game1.font, "x", new Vector2(827, 521), Color.Black);
-            s.DrawString(Game1.font, player.BronzeKeys.ToString(), new Vector2(842, 524), Color.Black);
-            s.DrawString(Game1.font, "x", new Vector2(925, 521), Color.Black);
-            s.DrawString(Game1.font, player.SilverKeys.ToString(), new Vector2(940, 524), Color.Black);
-            s.DrawString(Game1.font, "x", new Vector2(1028, 521), Color.Black);
-            s.DrawString(Game1.font, player.GoldKeys.ToString(), new Vector2(1043, 524), Color.Black);
+            s.DrawString(Game1.font, "x", new Vector2(827, (int)(Game1.screenHeightAspect * .75 - 19)), Color.Black);
+            s.DrawString(Game1.font, player.BronzeKeys.ToString(), new Vector2(842, (int)(Game1.screenHeightAspect * .75 - 16)), Color.Black);
+            s.DrawString(Game1.font, "x", new Vector2(925, (int)(Game1.screenHeightAspect * .75 - 19)), Color.Black);
+            s.DrawString(Game1.font, player.SilverKeys.ToString(), new Vector2(940, (int)(Game1.screenHeightAspect * .75 - 16)), Color.Black);
+            s.DrawString(Game1.font, "x", new Vector2(1028, (int)(Game1.screenHeightAspect * .75 - 19)), Color.Black);
+            s.DrawString(Game1.font, player.GoldKeys.ToString(), new Vector2(1043, (int)(Game1.screenHeightAspect * .75 - 16)), Color.Black);
             #endregion
 
 
@@ -1415,8 +1727,7 @@ namespace ISurvived
 
                     if (tabState == TabState.loot)
                     {
-                        s.DrawString(Game1.descriptionFont, player.EnemyDrops.ElementAt(i).Value.ToString(),
-                            new Vector2(inventoryBoxes[i].ButtonRec.X + 7, inventoryBoxes[i].ButtonRec.Y + 5), Color.DarkRed);
+                        Game1.OutlineFont(Game1.font, s, player.EnemyDrops.ElementAt(i).Value.ToString(), 2, inventoryBoxes[i].ButtonRec.X + 65 - (int)Game1.font.MeasureString(player.EnemyDrops.ElementAt(i).Value.ToString()).X, inventoryBoxes[i].ButtonRec.Y + 48, Color.White, Color.Black);
                     }
                 }
             }
@@ -1427,7 +1738,7 @@ namespace ISurvived
             {
                 //--Draw description Boxes
                 int boxNumber = i + (equipmentPage * inventoryBoxes.Count);
-                if (inventoryBoxes[i].IsOver())
+                if (inventoryBoxes[i].IsOver() && !showingPassives)
                 {
 
                     #region WEAPONS
@@ -1485,7 +1796,7 @@ namespace ISurvived
             for (int i = 0; i < 4; i++)
             {
                 int boxNumber = i + (storyItemPage * 3);
-                if (storyItemBoxes[i].IsOver())
+                if (storyItemBoxes[i].IsOver() && !showingPassives)
                 {
                     if (player.StoryItems.Count > boxNumber)
                     {
@@ -1528,12 +1839,12 @@ namespace ISurvived
                 DrawIconInfoBox(s, "Loot");
             #endregion
 
-
-            DrawEquippedDescriptions();
+            if(!showingPassives)
+                DrawEquippedDescriptions();
 
             if (showingPassives)
             {
-                s.Draw(textures["PassivePage"], new Rectangle(143, 0, textures["PassivePage"].Width, textures["PassivePage"].Height), Color.White);
+                s.Draw(textures["PassivePage"], new Rectangle(0, 0, textures["PassivePage"].Width, textures["PassivePage"].Height), Color.White);
 
                 for (int i = 0; i < 8; i++)
                 {
@@ -1544,17 +1855,29 @@ namespace ISurvived
                         s.Draw(passiveBoxes[player.OwnedPassives[currentPassiveIndex].Name.ToLower()], passivePositions[i], Color.White);
                     }
                 }
-                if(passivesLeft.IsOver())
-                    s.Draw(textures["PassiveLeftActive"], new Rectangle(598, 655, textures["PassiveLeft"].Width, textures["PassiveLeft"].Height), Color.White);
-                else
-                    s.Draw(textures["PassiveLeft"], new Rectangle(598, 655, textures["PassiveLeft"].Width, textures["PassiveLeft"].Height), Color.White);
 
-                s.DrawString(Game1.font, "pg " + (passivesPage + 1).ToString() + "/" + ((player.OwnedPassives.Count / 8) + 1).ToString(), new Vector2(663, 677), Color.White);
-
-                if (passivesRight.IsOver())
-                    s.Draw(textures["PassiveRightActive"], new Rectangle(598, 655, textures["PassiveLeft"].Width, textures["PassiveLeft"].Height), Color.White);
+                if (!Game1.gamePadConnected)
+                {
+                    if (passivesLeft.IsOver())
+                        s.Draw(textures["PassiveLeftActive"], new Rectangle(598, (int)(Game1.screenHeightAspect * .9 + 7), textures["PassiveLeft"].Width, textures["PassiveLeft"].Height), Color.White);
+                    else
+                        s.Draw(textures["PassiveLeft"], new Rectangle(598, (int)(Game1.screenHeightAspect * .9 + 7), textures["PassiveLeft"].Width, textures["PassiveLeft"].Height), Color.White);
+                }
                 else
-                    s.Draw(textures["PassiveRight"], new Rectangle(598, 655, textures["PassiveLeft"].Width, textures["PassiveLeft"].Height), Color.White);
+                    s.Draw(DarylsNotebook.dLeft, new Vector2(615, 668), Color.White);
+
+                s.DrawString(Game1.font, "pg " + (passivesPage + 1).ToString() + "/" + ((player.OwnedPassives.Count / 8) + 1).ToString(), new Vector2(663, (int)(Game1.screenHeightAspect * .95 - 7)), Color.White);
+
+                if (!Game1.gamePadConnected)
+                {
+                    if (passivesRight.IsOver())
+                        s.Draw(textures["PassiveRightActive"], new Rectangle(598, (int)(Game1.screenHeightAspect * .9 + 7), textures["PassiveLeft"].Width, textures["PassiveLeft"].Height), Color.White);
+                    else
+                        s.Draw(textures["PassiveRight"], new Rectangle(598, (int)(Game1.screenHeightAspect * .9 + 7), textures["PassiveLeft"].Width, textures["PassiveLeft"].Height), Color.White);
+                }
+                else
+                    s.Draw(DarylsNotebook.dRight, new Vector2(733, 668), Color.White);
+
             }
         }
 

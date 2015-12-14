@@ -111,7 +111,7 @@ namespace ISurvived
                 {
                     en.UpdateRectangles();
 
-                    enemiesInMap.Add(en);
+                    AddEnemyToEnemyList(en);
                 }
             }
         }
@@ -143,7 +143,7 @@ namespace ISurvived
                 }
                 else
                 {
-                    enemiesInMap.Add(en);
+                    AddEnemyToEnemyList(en);
                 }
             }
 
@@ -155,12 +155,12 @@ namespace ISurvived
 
             if (!completedMapQuest && player.Level == 1 && !game.ChapterTwo.ChapterTwoBooleans["spawnTutorialEnemies"])
             {
-                Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][37], 400, 100, game.ChapterTwo.associateOneTex);
+                //Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][37], 400, 100, game.ChapterTwo.associateOneTex);
             }
             else if (!completedMapQuest && player.Level == 2 && levelTimer < 200 && !player.LevelingUp)
             {
                 if(levelTimer == 1)
-                    Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][38], 400, 100, game.ChapterTwo.associateOneTex);
+                    //Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][38], 400, 100, game.ChapterTwo.associateOneTex);
 
                 if (levelTimer == 199)
                     Chapter.effectsManager.RemoveToolTip();
@@ -192,7 +192,7 @@ namespace ISurvived
                 completedMapQuest = true;
                 game.MapBooleans.tutorialMapBooleans["ClearedGarden"] = true;
                 game.CurrentChapter.NPCs["YourFriend"].MapName = "Tutorial Map Eleven";
-                Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][39], 400, 100, game.ChapterTwo.associateOneTex);
+                //Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][39], 400, 100, game.ChapterTwo.associateOneTex);
             }
 
             if (player.PositionY < -190)

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 
 namespace ISurvived
 {
@@ -26,6 +27,7 @@ namespace ISurvived
 
         LockerCombo lockerCombo;
 
+        Texture2D foreground;
 
         public UpperVentsV(List<Texture2D> bg, Game1 g, ref Player play)
             : base(bg, g, ref play)
@@ -41,14 +43,14 @@ namespace ISurvived
             AddBounds();
             SetPortals();
 
-            enemyAmount = 10;
+            enemyAmount = 6;
 
-            steamForItem = new MapSteam(new Rectangle(880, 180, 300, 100), game, 1, new Vector2(0, 0), false, true, false);
+            steamForItem = new MapSteam(100, 100, 1020, 210, game, 1, true, true, false, false);
 
-            steam1 = new MapSteam(new Rectangle(1780, 180, 400, 100), game, 1, new Vector2(-30, -10), false, true, false);
-            steam2 = new MapSteam(new Rectangle(1780, -220, 400, 100), game, 1, new Vector2(-30, -10), false, true, false);
-            steam3 = new MapSteam(new Rectangle(1780, -500, 400, 100), game, 1, new Vector2(-30, -10), false, true, false);
-            steam4 = new MapSteam(new Rectangle(1780, -760, 400, 100), game, 1, new Vector2(-30, -10), false, true, false);
+            steam1 = new MapSteam(100, 100, 1820 + 190, 140, game, 1, true, true, false);
+            steam2 = new MapSteam(100, 100, 1820 + 190, -220, game, 1, true, true, false);
+            steam3 = new MapSteam(100, 100, 1820 + 190, -480, game, 1, true, true, false);
+            steam4 = new MapSteam(100, 100, 1820 + 190, -750, game, 1, true, true, false);
 
             mapHazards.Add(steamForItem);
             mapHazards.Add(steam1);
@@ -56,22 +58,56 @@ namespace ISurvived
             mapHazards.Add(steam3);
             mapHazards.Add(steam4);
 
-            stopTunnelSteam = new WallSwitch(Game1.switchTexture, new Rectangle(600, 400, 42, 83), 330);
-            stopAllSteam = new WallSwitch(Game1.switchTexture, new Rectangle(2360, -1220, 42, 83));
+            stopTunnelSteam = new WallSwitch(Game1.switchTexture, new Rectangle(550, 350, (int)(333 * .8f), (int)(335 * .8f)), 351);
+            stopAllSteam = new WallSwitch(Game1.switchTexture, new Rectangle(2210, -1310, (int)(333 * .8f), (int)(335 * .8f)));
             switches.Add(stopTunnelSteam);
             switches.Add(stopAllSteam);
 
-            enemyNamesAndNumberInMap.Add("Erl The Flask", 0);
-            enemyNamesAndNumberInMap.Add("Bat", 0);
+            enemyNamesAndNumberInMap.Add("Fluffles the Rat", 0);
+            enemyNamesAndNumberInMap.Add("Vent Bat", 0);
+        }
+        public override void PlayAmbience()
+        {
+            Sound.PlayAmbience("ambience_vents");
+        }
+        public override void LoadContent()
+        {
+            Sound.LoadVentZoneSounds();
+            foreach (MapSteam s in mapHazards)
+            {
+                s.object_steam_vent_loop = Sound.mapZoneSoundEffects["object_steam_vent_loop"].CreateInstance();
+            }
+            background.Add(content.Load<Texture2D>(@"Maps\Vents\Upper Vents 5\background"));
+            foreground = content.Load<Texture2D>(@"Maps\Vents\Upper Vents 5\foreground");
+
+            game.NPCSprites["Trenchcoat Employee"] = content.Load<Texture2D>(@"NPC\Main\trenchcoat");
+            Game1.npcFaces["Trenchcoat Employee"].faces["Normal"] = content.Load<Texture2D>(@"NPCFaces\Main Characters\Trenchcoat");
+        }
+
+        public override void UnloadNPCContent()
+        {
+            base.UnloadNPCContent();
+
+            game.NPCSprites["Trenchcoat Employee"] = Game1.whiteFilter;
+            Game1.npcFaces["Trenchcoat Employee"].faces["Normal"] = Game1.whiteFilter;
+        }
+
+
+        public override void LoadEnemyData()
+        {
+            base.LoadEnemyData();
+
+            EnemyContentLoader.BatEnemy(content);
+            EnemyContentLoader.FlufflesRat(content); EnemyContentLoader.SharedRatSounds(content);
         }
 
         public override void RespawnGroundEnemies()
         {
             base.RespawnGroundEnemies();
 
-            if (enemyNamesAndNumberInMap["Erl The Flask"] < 5)
+            if (enemyNamesAndNumberInMap["Fluffles the Rat"] < 3)
             {
-                ErlTheFlask en = new ErlTheFlask(pos, "Erl The Flask", game, ref player, this);
+                FlufflesTheRat en = new FlufflesTheRat(pos, "Fluffles the Rat", game, ref player, this);
                 monsterY = platforms[platformNum].Rec.Y - en.Rec.Height - 10;
                 en.Position = new Vector2(monsterX, monsterY);
 
@@ -82,8 +118,8 @@ namespace ISurvived
                 else
                 {
                     en.UpdateRectangles();
-                    enemyNamesAndNumberInMap["Erl The Flask"]++;
-                    enemiesInMap.Add(en);
+                    enemyNamesAndNumberInMap["Fluffles the Rat"]++;
+                    AddEnemyToEnemyList(en);
                 }
             }
 
@@ -93,9 +129,9 @@ namespace ISurvived
         public override void RespawnFlyingEnemies(Rectangle mapRec)
         {
             base.RespawnFlyingEnemies(mapRec);
-            if (enemyNamesAndNumberInMap["Bat"] < 5)
+            if (enemyNamesAndNumberInMap["Vent Bat"] < 3)
             {
-                Bat en = new Bat(pos, "Bat", game, ref player, this, mapRec);
+                Bat en = new Bat(pos, "Vent Bat", game, ref player, this, mapRec, true);
 
                 Rectangle testRec = new Rectangle(en.RecX, monsterY, en.Rec.Width, en.Rec.Height);
                 if (testRec.Intersects(player.Rec))
@@ -103,8 +139,8 @@ namespace ISurvived
                 }
                 else
                 {
-                    enemyNamesAndNumberInMap["Bat"]++;
-                    enemiesInMap.Add(en);
+                    enemyNamesAndNumberInMap["Vent Bat"]++;
+                    AddEnemyToEnemyList(en);
                 }
             }
         }
@@ -113,53 +149,78 @@ namespace ISurvived
         {
             base.Update();
 
+            PlayAmbience();
 
             if (enemiesInMap.Count < enemyAmount && spawnEnemies == true)
             {
                 RespawnGroundEnemies();
-                RespawnFlyingEnemies(new Rectangle(1580, -800, 500, 1000));
+                RespawnFlyingEnemies(new Rectangle(1580, -500, 500, 700));
             }
 
             if (enemiesInMap.Count == enemyAmount)
                 spawnEnemies = false;
 
-            CheckSwitch(stopTunnelSteam);
-            if(CheckSwitch(stopAllSteam))
-            {
-                if(stopAllSteam.Active)
-                    stopTunnelSteam.Active = true;
-            }
+            if(!stopTunnelSteam.Active)
+                CheckSwitch(stopTunnelSteam);
 
+            if (stopAllSteam.Active == false)
+            {
+                if (CheckSwitch(stopAllSteam))
+                {
+                    if (stopAllSteam.Active)
+                        stopTunnelSteam.Active = true;
+
+                    if (steamForItem.Active)
+                        steamForItem.TurnOff();
+                }
+            }
             if (stopAllSteam.Active)
             {
-                steamForItem.Active = false;
+                if (steamForItem.Active && !steamForItem.CurrentlyEnding)
+                    steamForItem.TurnOff();
+
+                if (steam1.Active && !steam1.CurrentlyEnding)
+                {
+                    steam1.TurnOff();
+                }
+
+                if (steam2.Active && !steam2.CurrentlyEnding)
+                {
+                    steam2.TurnOff();
+                }
+
+                if (steam3.Active && !steam3.CurrentlyEnding)
+                {
+                    steam3.TurnOff();
+                }
+
+                if (steam4.Active && !steam4.CurrentlyEnding)
+                {
+                    steam4.TurnOff();
+                }
             }
 
             if (stopTunnelSteam.Active)
             {
                 if (stopTunnelSteam.TimeActive == 0)
                 {
-                    steam1.Active = false;
-                    steam2.Active = false;
-                    steam3.Active = false;
-                    steam4.Active = false;
+                    steam1.TurnOff();
+                    steam2.TurnOff();
+                    steam3.TurnOff();
+                    steam4.TurnOff();
                 }
-                if (stopTunnelSteam.TimeActive >= 195)
-                    steam1.Active = true;
-                if (stopTunnelSteam.TimeActive >= 240)
-                    steam2.Active = true;
-                if (stopTunnelSteam.TimeActive >= 285)
-                    steam3.Active = true;
-                if (stopTunnelSteam.TimeActive >= 330)
-                    steam4.Active = true;
 
-            }
-            else
-            {
-                steam1.Active = true;
-                steam2.Active = true;
-                steam3.Active = true;
-                steam4.Active = true;
+                if (!stopAllSteam.Active)
+                {
+                    if (stopTunnelSteam.TimeActive >= 195 && !steam1.Active)
+                        steam1.TurnOn();
+                    if (stopTunnelSteam.TimeActive >= 240 && !steam2.Active)
+                        steam2.TurnOn();
+                    if (stopTunnelSteam.TimeActive >= 285 && !steam3.Active)
+                        steam3.TurnOn();
+                    if (stopTunnelSteam.TimeActive >= 350 && !steam4.Active)
+                        steam4.TurnOn();
+                }
             }
         }
 
@@ -167,13 +228,14 @@ namespace ISurvived
         {
             base.SetPortals();
 
-            toUpperVents2 = new Portal(50, 630, "UpperVentsV");
-            toUpperVents6 = new Portal(2900, -1000, "UpperVentsV");
+            toUpperVents2 = new Portal(50, 630, "Upper Vents V");
+            toUpperVents6 = new Portal(2900, -1000, "Upper Vents V");
         }
 
         public override void SetDestinationPortals()
         {
             base.SetDestinationPortals();
+
 
             portals.Add(toUpperVents2, UpperVentsII.ToUpperVents5);
             portals.Add(toUpperVents6, UpperVentsVI.ToUpperVents5);
@@ -181,7 +243,29 @@ namespace ISurvived
 
         public override void Draw(SpriteBatch s)
         {
+
             base.Draw(s);
+        }
+
+        public override void DrawBackgroundAndParallax(SpriteBatch s)
+        {
+            base.DrawBackgroundAndParallax(s);
+
+            s.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+null, null, null, null, Game1.camera.Transform);
+
+            s.End();
+
+        }
+
+        public override void DrawParallaxAndForeground(SpriteBatch s)
+        {
+            base.DrawParallaxAndForeground(s);
+
+            s.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+null, null, null, null, Game1.camera.Transform);
+            s.Draw(foreground, new Vector2(0, mapRec.Y), Color.White);
+            s.End();
         }
     }
 }

@@ -193,7 +193,7 @@ namespace ISurvived
                         //--Press the New Game option
                         if ((KeyPressed(Keys.Enter) || MyGamePad.APressed()) && selectionState == 0)
                         {
-                            Sound.PlaySoundInstance(Sound.SoundNames.UIEnter);
+                            Sound.PlaySoundInstance(Sound.SoundNames.ui_general_enter);
                             state = State.startNewGame;
                             game.SaveLoadManager.InitiateCheck();
                             selectionState = 0;
@@ -202,7 +202,7 @@ namespace ISurvived
                         //Press Load Game
                         if ((KeyPressed(Keys.Enter) || MyGamePad.APressed()) && selectionState == 1)
                         {
-                            Sound.PlaySoundInstance(Sound.SoundNames.UIEnter);
+                            Sound.PlaySoundInstance(Sound.SoundNames.ui_general_enter);
                             state = State.loadGame;
                             game.SaveLoadManager.InitiateCheck();
                             selectionState = 0;
@@ -211,7 +211,7 @@ namespace ISurvived
                         //Press Options
                         if ((KeyPressed(Keys.Enter) || MyGamePad.APressed()) && selectionState == 2)
                         {
-                            Sound.PlaySoundInstance(Sound.SoundNames.UIEnter);
+                            Sound.PlaySoundInstance(Sound.SoundNames.ui_general_enter);
                             state = State.options;
                             game.SaveLoadManager.InitiateCheck();
                             selectionState = 0;
@@ -223,12 +223,12 @@ namespace ISurvived
                         {
                             if (selectionState == 0)
                             {
-                                Sound.PlaySoundInstance(Sound.SoundNames.UITab);
+                                Sound.PlaySoundInstance(Sound.SoundNames.ui_general_tab);
                                 selectionState = 1;
                             }
                             else if (selectionState == 1)
                             {
-                                Sound.PlaySoundInstance(Sound.SoundNames.UITab);
+                                Sound.PlaySoundInstance(Sound.SoundNames.ui_general_tab);
                                 selectionState = 2;
                             }
                         }
@@ -236,13 +236,13 @@ namespace ISurvived
                         {
                             if (selectionState == 1)
                             {
-                                Sound.PlaySoundInstance(Sound.SoundNames.UITab);
+                                Sound.PlaySoundInstance(Sound.SoundNames.ui_general_tab);
                                 selectionState = 0;
                             }
                             else if (selectionState == 2)
                             {
                                 selectionState = 1;
-                                Sound.PlaySoundInstance(Sound.SoundNames.UITab);
+                                Sound.PlaySoundInstance(Sound.SoundNames.ui_general_tab);
                             }
                         }
                         #endregion
@@ -271,7 +271,7 @@ namespace ISurvived
                     break;
                 #endregion
 
-                #region PLAY WITHOUT TUTORIAL
+                #region CH2 Demo
                 case State.options:
 
                     rayRotation += .25f;
@@ -282,7 +282,7 @@ namespace ISurvived
 
                     if ((KeyPressed(Keys.Enter) || MyGamePad.APressed()) && fadeOut.State == 0)
                     {
-                        Sound.PlaySoundInstance(Sound.SoundNames.UIEnter);
+                        Sound.PlaySoundInstance(Sound.SoundNames.ui_general_enter);
                         if (selectionState == 0)
                         {
                             if (game.SaveLoadManager.saveOne)
@@ -349,53 +349,79 @@ namespace ISurvived
                     {
                         UnloadContent();
                         //FOR THE TUTORIAl/DEMO SHIT
-                        game.CurrentChapter = game.ChapterTwo;
-                        game.CurrentChapter.StartingPortal = OutsideStoneFort.ToBathroom;
-                        game.chapterState = Game1.ChapterState.chapterTwo;
+                        game.CurrentChapter = game.ChapterTwoDemo;
 
-                        game.CurrentChapter.CurrentMap = Game1.schoolMaps.maps["StoneFort-East"];
+                        Player player = Game1.Player;
+
+                        Game1.schoolMaps.maps["Stone Fort Gate"] = new OutsideStoneFortDemo(new List<Texture2D>(), game, ref player);
+                        Game1.schoolMaps.maps["Stone Fort - Central"] = new StoneFortCentralDemo(new List<Texture2D>(), game, ref player);
+                        Game1.schoolMaps.maps["Stone Fort - West"] = new StoneFortWestDemo(new List<Texture2D>(), game, ref player);
+                        Game1.schoolMaps.maps["Stone Fort - East"] = new StoneFortEastDemo(new List<Texture2D>(), game, ref player);
+                        Game1.schoolMaps.maps["Stone Fort Wasteland"] = new StoneFortWastelandDemo(new List<Texture2D>(), game, ref player);
+                        Game1.schoolMaps.maps["Axis of Historical Reality"] = new AxisOfHistoricalRealityDemo(new List<Texture2D>(), game, ref player);
+
+                        Game1.schoolMaps.maps["Stone Fort Gate"].SetDestinationPortals();
+                        Game1.schoolMaps.maps["Stone Fort - Central"].SetDestinationPortals();
+                        Game1.schoolMaps.maps["Stone Fort - West"].SetDestinationPortals();
+                        Game1.schoolMaps.maps["Stone Fort - East"].SetDestinationPortals();
+                        Game1.schoolMaps.maps["Stone Fort Wasteland"].SetDestinationPortals();
+                        Game1.schoolMaps.maps["Axis of Historical Reality"].SetDestinationPortals();
+
+                        game.CurrentChapter.StartingPortal = OutsideStoneFort.ToBathroom;
+                        game.chapterState = Game1.ChapterState.demo;
+
+                        game.CurrentChapter.CurrentMap = Game1.schoolMaps.maps["Stone Fort Gate"];
+                        Game1.Player.YScroll = game.CurrentChapter.CurrentMap.yScroll;
+
                         game.CurrentChapter.CurrentMap.LoadContent();
                         Game1.Player.HasCellPhone = true;
                         game.CurrentChapter.CurrentMap.LoadEnemyData();
 
                         //Starting without the tutorial set-up
-                        game.CurrentChapter.CutsceneState = 4;
+                        game.CurrentChapter.CutsceneState = 0;
                         game.CurrentChapter.state = Chapter.GameState.Game;
 
-                        //Game1.Player.Experience = Game1.Player.ExperienceUntilLevel;
-                        //Game1.Player.LevelUp();
-                        //Game1.Player.LevelingUp = false;
-                        Game1.Player.Level = 14;
-                        Game1.Player.MaxHealth = 1050;
-                        Game1.Player.Health = 1050;
-                        Game1.Player.Defense = 97;
-                        Game1.Player.Strength = 1100;
-
-                        game.CurrentChapter.HUD.SkillsHidden = false;
-
-                        Game1.Player.LearnedSkills.Add(SkillManager.AllSkills["Discuss Differences"]);
-                        Game1.Player.EquippedSkills.Add(Game1.Player.LearnedSkills[0]);
-                        Game1.Player.LearnedSkills[0].Equipped = true;
-                        Game1.Player.LearnedSkills[0].SkillRank = 3;
-                        Game1.Player.LearnedSkills[0].ApplyLevelUp();
-                        Game1.Player.ExperienceUntilLevel = 3700;
-                        Game1.Player.LearnedSkills[0].LoadContent();
-                        Game1.Player.CanJump = true;
+                        game.ChapterTwoDemo.SetPlayerStatsForDemo();
 
                         Chapter.effectsManager.skillMessageColor = Color.White;
                         Chapter.effectsManager.skillMessageTime = 0;
 
-                        game.CurrentChapter.NPCs["Alan"].Dialogue.Clear();
-                        game.CurrentChapter.NPCs["Alan"].Dialogue.Add("Keep your eye out for any of Trenchcoat Kid's employees. They always follow us here and try to steal our Textbook market.");
+                        game.YourLocker.SkillsOnSale.Clear();
 
-                        game.CurrentChapter.NPCs["Paul"].Dialogue.Clear();
-                        game.CurrentChapter.NPCs["Paul"].Dialogue.Add("While I do respect a healthy dose of asset seizure, I don't understand why you still have Balto's cell phone. He's been bitching about it all night, and I can't imagine the texts he gets are very interesting.");
+                        //game.YourLocker.SkillsOnSale.Add(SkillManager.AllSkills["Blinding Logic"]);
+                        //game.YourLocker.SkillsOnSale.Add(SkillManager.AllSkills["Shocking Statements CH.1"]);
+                        //game.YourLocker.SkillsOnSale.Add(SkillManager.AllSkills["Shocking Statements CH.3"]);
+                        //game.YourLocker.SkillsOnSale.Add(SkillManager.AllSkills["Shocking Statements CH.2"]);
+                        //game.YourLocker.SkillsOnSale.Add(SkillManager.AllSkills["Mopping Up"]);
+                        //game.YourLocker.SkillsOnSale.Add(SkillManager.AllSkills["Cutting Corners"]);
+                        //game.YourLocker.SkillsOnSale.Add(SkillManager.AllSkills["Crushing Realization"]);
+                        //game.YourLocker.SkillsOnSale.Add(SkillManager.AllSkills["Combustible Confutation CH.3"]);
+                        //game.YourLocker.SkillsOnSale.Add(SkillManager.AllSkills["Combustible Confutation CH.2"]);
+                        //game.YourLocker.SkillsOnSale.Add(SkillManager.AllSkills["Combustible Confutation CH.1"]);
+                        //game.YourLocker.SkillsOnSale.Add(SkillManager.AllSkills["Fowl Mouth"]);
+                        //game.YourLocker.SkillsOnSale.Add(SkillManager.AllSkills["Sharp Comments"]);
 
-                        game.YourLocker.SkillsOnSale.Add(SkillManager.AllSkills["Sharp Comments"]);
-                        game.YourLocker.SkillsOnSale.Add(SkillManager.AllSkills["Quick Retort"]);
-                        game.YourLocker.SkillsOnSale.Add(SkillManager.AllSkills["Shocking Statement"]);
-                        game.YourLocker.SkillsOnSale.Add(SkillManager.AllSkills["Mopping Up"]);
-                        game.YourLocker.SkillsOnSale.Add(SkillManager.AllSkills["Fowl Mouth"]);
+                        player.LearnedSkills.Add(SkillManager.AllSkills["Cutting Corners"]);
+                        player.LearnedSkills.Add(SkillManager.AllSkills["Combustible Confutation CH.3"]);
+                        player.LearnedSkills.Add(SkillManager.AllSkills["Combustible Confutation CH.2"]);
+                        player.LearnedSkills.Add(SkillManager.AllSkills["Combustible Confutation CH.1"]);
+                        player.LearnedSkills.Add(SkillManager.AllSkills["Blinding Logic"]);
+                        player.LearnedSkills.Add(SkillManager.AllSkills["Shocking Statements CH.1"]);
+                        player.LearnedSkills.Add(SkillManager.AllSkills["Shocking Statements CH.3"]);
+                        player.LearnedSkills.Add(SkillManager.AllSkills["Shocking Statements CH.2"]);
+                        player.LearnedSkills.Add(SkillManager.AllSkills["Mopping Up"]);
+                        player.LearnedSkills.Add(SkillManager.AllSkills["Crushing Realization"]);
+                        player.LearnedSkills.Add(SkillManager.AllSkills["Fowl Mouth"]);
+                        player.LearnedSkills.Add(SkillManager.AllSkills["Sharp Comments"]);
+
+                        foreach (Skill s in Game1.Player.LearnedSkills)
+                        {
+                            s.SkillRank = 13;
+                            s.ApplyLevelUp(true);
+                        }
+
+
+
                         game.Prologue.PrologueBooleans["firstSkillLocker"] = false;
                         game.Prologue.PrologueBooleans["firstSkillLockerWithSkill"] = false;
                         game.Prologue.PrologueBooleans["firstShop"] = false;
@@ -416,12 +442,12 @@ namespace ISurvived
                     {
                         if (selectionState == 0)
                         {
-                            Sound.PlaySoundInstance(Sound.SoundNames.UITab);
+                            Sound.PlaySoundInstance(Sound.SoundNames.ui_general_tab);
                             selectionState = 1;
                         }
                         else if (selectionState == 1)
                         {
-                            Sound.PlaySoundInstance(Sound.SoundNames.UITab); 
+                            Sound.PlaySoundInstance(Sound.SoundNames.ui_general_tab); 
                             selectionState = 2;
                         }
                     }
@@ -430,13 +456,13 @@ namespace ISurvived
                         if (selectionState == 1)
                         {
                             selectionState = 0;
-                            Sound.PlaySoundInstance(Sound.SoundNames.UITab);
+                            Sound.PlaySoundInstance(Sound.SoundNames.ui_general_tab);
                         }
 
                         else if (selectionState == 2)
                         {
                             selectionState = 1;
-                            Sound.PlaySoundInstance(Sound.SoundNames.UITab);
+                            Sound.PlaySoundInstance(Sound.SoundNames.ui_general_tab);
                         }
                     }
                     #endregion
@@ -456,12 +482,12 @@ namespace ISurvived
                     {
                         if (selectionState == 0)
                         {
-                            Sound.PlaySoundInstance(Sound.SoundNames.UITab);
+                            Sound.PlaySoundInstance(Sound.SoundNames.ui_general_tab);
                             selectionState = 1;
                         }
                         else if (selectionState == 1)
                         {
-                            Sound.PlaySoundInstance(Sound.SoundNames.UITab);
+                            Sound.PlaySoundInstance(Sound.SoundNames.ui_general_tab);
                             selectionState = 2;
                         }
                     }
@@ -469,12 +495,12 @@ namespace ISurvived
                     {
                         if (selectionState == 1)
                         {
-                            Sound.PlaySoundInstance(Sound.SoundNames.UITab);
+                            Sound.PlaySoundInstance(Sound.SoundNames.ui_general_tab);
                             selectionState = 0;
                         }
                         else if (selectionState == 2)
                         {
-                            Sound.PlaySoundInstance(Sound.SoundNames.UITab);
+                            Sound.PlaySoundInstance(Sound.SoundNames.ui_general_tab);
                             selectionState = 1;
                         }
                     }
@@ -482,7 +508,7 @@ namespace ISurvived
 
                     if ((KeyPressed(Keys.Enter) || MyGamePad.APressed()) && fadeOut.State == 0)
                     {
-                        Sound.PlaySoundInstance(Sound.SoundNames.UIEnter);
+                        Sound.PlaySoundInstance(Sound.SoundNames.ui_general_enter);
                         if (selectionState == 0 && game.SaveLoadManager.saveOne)
                         {
                             game.SaveLoadManager.filename = "save1.sav";
@@ -520,6 +546,8 @@ namespace ISurvived
                         game.CurrentChapter.CurrentMap = Game1.schoolMaps.maps["Bathroom"];
                         game.CurrentChapter.CurrentMap.LoadContent();
 
+                        Sound.PlaySoundInstance(Sound.SoundNames.popup_load_game);
+
                     }
 
                     break;
@@ -539,14 +567,14 @@ namespace ISurvived
                         if (selectionState == 0)
                         {
                             selectionState = 1;
-                            Sound.PlaySoundInstance(Sound.SoundNames.UITab);
+                            Sound.PlaySoundInstance(Sound.SoundNames.ui_general_tab);
                         }
                     }
                     else if (KeyPressed(Keys.Up) || MyGamePad.UpPadPressed())
                     {
                         if (selectionState == 1)
                         {
-                            Sound.PlaySoundInstance(Sound.SoundNames.UITab);
+                            Sound.PlaySoundInstance(Sound.SoundNames.ui_general_tab);
                             selectionState = 0;
                         }
                     }
@@ -554,7 +582,7 @@ namespace ISurvived
 
                     if ((KeyPressed(Keys.Enter) || MyGamePad.APressed()) && fadeOut.State == 0)
                     {
-                        Sound.PlaySoundInstance(Sound.SoundNames.UIEnter);
+                        Sound.PlaySoundInstance(Sound.SoundNames.ui_general_enter);
                         if (selectionState == 0)
                         {
                             switch (confirmSlot)
@@ -621,52 +649,61 @@ namespace ISurvived
                         //If this is to play w/o tutorial, set the shit up correctly
                         if (overwriteWithoutTutorial == true)
                         {
-                            game.CurrentChapter = game.ChapterTwo;
-                            game.CurrentChapter.StartingPortal = TheParty.ToBehindTheParty;
-                            game.chapterState = Game1.ChapterState.chapterTwo;
+                            UnloadContent();
+                            //FOR THE TUTORIAl/DEMO SHIT
+                            game.CurrentChapter = game.ChapterTwoDemo;
 
-                            game.CurrentChapter.CurrentMap = Game1.schoolMaps.maps["TheParty"];
+                            Player player = Game1.Player;
+
+                            Game1.schoolMaps.maps["Stone Fort Gate"] = new OutsideStoneFortDemo(new List<Texture2D>(), game, ref player);
+                            Game1.schoolMaps.maps["Stone Fort - Central"] = new StoneFortCentralDemo(new List<Texture2D>(), game, ref player);
+                            Game1.schoolMaps.maps["Stone Fort - West"] = new StoneFortWestDemo(new List<Texture2D>(), game, ref player);
+                            Game1.schoolMaps.maps["Stone Fort - East"] = new StoneFortEastDemo(new List<Texture2D>(), game, ref player);
+                            Game1.schoolMaps.maps["Stone Fort Wasteland"] = new StoneFortWastelandDemo(new List<Texture2D>(), game, ref player);
+                            Game1.schoolMaps.maps["Axis of Historical Reality"] = new AxisOfHistoricalRealityDemo(new List<Texture2D>(), game, ref player);
+
+                            Game1.schoolMaps.maps["Stone Fort Gate"].SetDestinationPortals();
+                            Game1.schoolMaps.maps["Stone Fort - Central"].SetDestinationPortals();
+                            Game1.schoolMaps.maps["Stone Fort - West"].SetDestinationPortals();
+                            Game1.schoolMaps.maps["Stone Fort - East"].SetDestinationPortals();
+                            Game1.schoolMaps.maps["Stone Fort Wasteland"].SetDestinationPortals();
+                            Game1.schoolMaps.maps["Axis of Historical Reality"].SetDestinationPortals();
+
+                            game.CurrentChapter.StartingPortal = OutsideStoneFort.ToBathroom;
+                            game.chapterState = Game1.ChapterState.demo;
+
+                            game.CurrentChapter.CurrentMap = Game1.schoolMaps.maps["Stone Fort Gate"];
+                            Game1.Player.YScroll = game.CurrentChapter.CurrentMap.yScroll;
+
                             game.CurrentChapter.CurrentMap.LoadContent();
                             Game1.Player.HasCellPhone = true;
+                            game.CurrentChapter.CurrentMap.LoadEnemyData();
 
                             //Starting without the tutorial set-up
-                            game.CurrentChapter.CutsceneState = 4;
+                            game.CurrentChapter.CutsceneState = 0;
                             game.CurrentChapter.state = Chapter.GameState.Game;
 
-                            //Game1.Player.Experience = Game1.Player.ExperienceUntilLevel;
-                            //Game1.Player.LevelUp();
-                            //Game1.Player.LevelingUp = false;
-                            Game1.Player.Level = 14;
-                            Game1.Player.MaxHealth = 1050;
-                            Game1.Player.Health = 1050;
-                            Game1.Player.Defense = 97;
-                            Game1.Player.Strength = 1100;
-                            Game1.Player.ExperienceUntilLevel = 3700;
-
-                            game.CurrentChapter.HUD.SkillsHidden = false;
-
-                            Game1.Player.LearnedSkills.Add(SkillManager.AllSkills["Discuss Differences"]);
-                            Game1.Player.EquippedSkills.Add(Game1.Player.LearnedSkills[0]);
-                            Game1.Player.LearnedSkills[0].Equipped = true;
-                            Game1.Player.LearnedSkills[0].SkillRank = 3;
-                            Game1.Player.LearnedSkills[0].ApplyLevelUp();
-                            Game1.Player.LearnedSkills[0].LoadContent();
-                            Game1.Player.CanJump = true;
+                            game.ChapterTwoDemo.SetPlayerStatsForDemo();
 
                             Chapter.effectsManager.skillMessageColor = Color.White;
                             Chapter.effectsManager.skillMessageTime = 0;
 
-                            game.CurrentChapter.NPCs["Alan"].Dialogue.Clear();
-                            game.CurrentChapter.NPCs["Alan"].Dialogue.Add("Keep your eye out for any of Trenchcoat Kid's employees. They always follow us here and try to steal our Textbook market.");
+                            game.YourLocker.SkillsOnSale.Clear();
 
-                            game.CurrentChapter.NPCs["Paul"].Dialogue.Clear();
-                            game.CurrentChapter.NPCs["Paul"].Dialogue.Add("While I do respect a healthy dose of asset seizure, I don't understand why you still have Balto's cell phone. He's been bitching about it all night, and I can't imagine the texts he gets are very interesting.");
-
-                            game.YourLocker.SkillsOnSale.Add(SkillManager.AllSkills["Sharp Comments"]);
                             game.YourLocker.SkillsOnSale.Add(SkillManager.AllSkills["Quick Retort"]);
-                            game.YourLocker.SkillsOnSale.Add(SkillManager.AllSkills["Shocking Statement"]);
+                            game.YourLocker.SkillsOnSale.Add(SkillManager.AllSkills["Blinding Logic"]);
+                            game.YourLocker.SkillsOnSale.Add(SkillManager.AllSkills["Shocking Statements CH.1"]);
+                            game.YourLocker.SkillsOnSale.Add(SkillManager.AllSkills["Shocking Statements CH.3"]);
+                            game.YourLocker.SkillsOnSale.Add(SkillManager.AllSkills["Shocking Statements CH.2"]);
                             game.YourLocker.SkillsOnSale.Add(SkillManager.AllSkills["Mopping Up"]);
+                            game.YourLocker.SkillsOnSale.Add(SkillManager.AllSkills["Cutting Corners"]);
+                            game.YourLocker.SkillsOnSale.Add(SkillManager.AllSkills["Crushing Realization"]);
+                            game.YourLocker.SkillsOnSale.Add(SkillManager.AllSkills["Combustible Confutation CH.3"]);
+                            game.YourLocker.SkillsOnSale.Add(SkillManager.AllSkills["Combustible Confutation CH.2"]);
+                            game.YourLocker.SkillsOnSale.Add(SkillManager.AllSkills["Combustible Confutation CH.1"]);
                             game.YourLocker.SkillsOnSale.Add(SkillManager.AllSkills["Fowl Mouth"]);
+                            game.YourLocker.SkillsOnSale.Add(SkillManager.AllSkills["Sharp Comments"]);
+
                             game.Prologue.PrologueBooleans["firstSkillLocker"] = false;
                             game.Prologue.PrologueBooleans["firstSkillLockerWithSkill"] = false;
                             game.Prologue.PrologueBooleans["firstShop"] = false;
@@ -683,15 +720,8 @@ namespace ISurvived
                         else
                         {
                             UnloadContent();
-                            game.CurrentChapter = game.Prologue;
-                            game.CurrentChapter.StartingPortal = MainLobby.ToArtHall;
-                            game.chapterState = Game1.ChapterState.prologue;
-
-                            game.CurrentChapter.CurrentMap = Game1.schoolMaps.maps["MainLobby"];
-                            game.CurrentChapter.CurrentMap.LoadContent();
-                            Game1.Player.HasCellPhone = false;
+                            SetVariablesPrologue();
                             Game1.schoolMaps.LoadEnemyData();
-                            game.CurrentChapter.CurrentMap.LoadEnemyData();
                         }
                         game.CurrentChapter.CurrentMap.LoadEnemyData();
                     }
@@ -708,7 +738,7 @@ namespace ISurvived
 
                     if ((KeyPressed(Keys.Enter) || MyGamePad.APressed()) && fadeOut.State == 0)
                     {
-                        Sound.PlaySoundInstance(Sound.SoundNames.UIEnter);
+                        Sound.PlaySoundInstance(Sound.SoundNames.ui_general_enter);
 
                         if (selectionState == 0)
                         {
@@ -771,16 +801,101 @@ namespace ISurvived
 
                     if (fadeOut.State == 2)
                     {
-                        UnloadContent();
-                        game.CurrentChapter = game.Prologue;
-                        game.CurrentChapter.StartingPortal = MainLobby.ToArtHall;
-                        game.chapterState = Game1.ChapterState.prologue;
 
-                        game.CurrentChapter.CurrentMap = Game1.schoolMaps.maps["MainLobby"];
+                        UnloadContent();
+                        game.chapterState = Game1.ChapterState.chapterTwo;
+                        game.CurrentChapter = game.ChapterTwo;
+                        game.CurrentChapter.state = Chapter.GameState.Cutscene;
+                        game.CurrentChapter.CutsceneState = 1;
+                        game.CurrentChapter.StartingPortal = NorthHall.ToBathroom;
+                        game.CurrentChapter.CurrentMap = Game1.schoolMaps.maps["North Hall"];
+                        game.CurrentChapter.AddNPCs();
+
+                        //Temp shit
+                        game.ChapterOne.ChapterOneBooleans["quickRetortObtained"] = true;
+                        game.ChapterOne.ChapterOneBooleans["meetingNapleonSceneStarted"] = true;
+                        game.ChapterOne.ChapterOneBooleans["battlefieldCleared"] = true;
+                        NorthHall.ToScienceIntroRoom.ItemNameToUnlock = "";
+                        game.ChapterOne.ChapterOneBooleans["completedMapsQuest"] = true;
+                        Game1.schoolMaps.maps["Upper Vents I"].Switches[0].Active = true;
+                        //end temp shit
+
+                        Game1.Player.YScroll = game.CurrentChapter.CurrentMap.yScroll;
                         game.CurrentChapter.CurrentMap.LoadContent();
+
+
+                        game.YourLocker.SkillsOnSale.Add(SkillManager.AllSkills["Cutting Corners"]);
+                        game.YourLocker.SkillsOnSale.Add(SkillManager.AllSkills["Shocking Statements CH.2"]);
+                        game.YourLocker.SkillsOnSale.Add(SkillManager.AllSkills["Shocking Statements CH.3"]);
+                        game.YourLocker.SkillsOnSale.Add(SkillManager.AllSkills["Combustible Confutation CH.2"]);
+                        game.YourLocker.SkillsOnSale.Add(SkillManager.AllSkills["Combustible Confutation CH.3"]);
+                        game.YourLocker.SkillsOnSale.Add(SkillManager.AllSkills["Mopping Up"]);
+
+                        Game1.Player.LearnedSkills.Add(SkillManager.AllSkills["Discuss Differences"]);
+                        Game1.Player.LearnedSkills.Add(SkillManager.AllSkills["Blinding Logic"]);
+                        Game1.Player.LearnedSkills.Add(SkillManager.AllSkills["Shocking Statements CH.1"]);
+                        Game1.Player.LearnedSkills.Add(SkillManager.AllSkills["Combustible Confutation CH.1"]);
+                        Game1.Player.LearnedSkills.Add(SkillManager.AllSkills["Fowl Mouth"]);
+                        Game1.Player.LearnedSkills.Add(SkillManager.AllSkills["Sharp Comments"]);
+                        Game1.Player.LearnedSkills.Add(SkillManager.AllSkills["Crushing Realization"]);
+                        Game1.Player.EquippedSkills.Add(Game1.Player.LearnedSkills[0]);
+                        Game1.Player.EquippedSkills.Add(Game1.Player.LearnedSkills[3]);
+                        Game1.Player.EquippedSkills.Add(Game1.Player.LearnedSkills[4]);
+                        Game1.Player.EquippedSkills.Add(Game1.Player.LearnedSkills[2]);
+
+                        Game1.Player.EquippedSkills[0].LoadContent();
+                        Game1.Player.EquippedSkills[0].Equipped = true;
+                        Game1.Player.EquippedSkills[1].LoadContent();
+                        Game1.Player.EquippedSkills[1].Equipped = true;
+                        Game1.Player.EquippedSkills[2].LoadContent();
+                        Game1.Player.EquippedSkills[2].Equipped = true;
+                        Game1.Player.EquippedSkills[3].LoadContent();
+                        Game1.Player.EquippedSkills[3].Equipped = true;
+
+                        Game1.Player.OwnedWeapons.Add(new ComposersWand());
+                        Game1.Player.OwnedWeapons.Add(new AverageWeenieProtractor());
+                        Game1.Player.OwnedWeapons.Add(new Paintbrush());
+                        Game1.Player.OwnedHats.Add(new BandHat());
+                        Game1.Player.OwnedHats.Add(new AverageWeenieHat());
+                        Game1.Player.OwnedHats.Add(new Beret());
+                        Game1.Player.OwnedAccessories.Add(new EighthOfButter());
+                        Game1.Player.OwnedAccessories.Add(new AverageWeenieCalculator());
+                        Game1.Player.OwnedAccessories.Add(new VenusOfWillendorf());
+                        Game1.Player.OwnedAccessories.Add(new YinYangNecklace());
+                        Game1.Player.OwnedHoodies.Add(new BandUniform());
+                        Game1.Player.OwnedHoodies.Add(new ArtSmock());
+                        Game1.Player.OwnedHoodies.Add(new AverageWeenieShirt());
+
+                        Game1.Player.OwnedWeapons.Add(new Marker());
+                        Game1.Player.OwnedHats.Add(new Fez());
+                        Game1.Player.OwnedAccessories.Add(new RileysBow());
+                        Game1.Player.OwnedAccessories.Add(new LabGoggles());
+                        Game1.Player.OwnedHoodies.Add(new LabCoat());
+
+                        Game1.Player.EquippedSkills[0].SkillRank = 3;
+                        Game1.Player.EquippedSkills[0].ApplyLevelUp(true);
+                        foreach (Skill s in Game1.Player.LearnedSkills)
+                        {
+                            s.SkillRank = 7;
+                            s.ApplyLevelUp(true);
+                        }
+
+                        Game1.Player.quickRetort.SkillRank = 7;
+                        Game1.Player.quickRetort.ApplyLevelUp(true);
+
+                        Game1.Player.CanJump = true;
                         Game1.Player.HasCellPhone = false;
+                        Game1.Player.Karma = 33;
+                        Game1.Player.LevelUpToLevel(9);
+
+                        Game1.Player.PositionX = 420;
+                        Game1.Player.PositionY = 0;
                         Game1.schoolMaps.LoadEnemyData();
                         game.CurrentChapter.CurrentMap.LoadEnemyData();
+
+                        //UnloadContent();
+                        //SetVariablesPrologue();
+                        //Game1.schoolMaps.LoadEnemyData();
                     }
 
                     #region Change current selection
@@ -788,13 +903,13 @@ namespace ISurvived
                     {
                         if (selectionState == 0)
                         {
-                            Sound.PlaySoundInstance(Sound.SoundNames.UITab);
+                            Sound.PlaySoundInstance(Sound.SoundNames.ui_general_tab);
                             selectionState = 1;
                         }
 
                         else if (selectionState == 1)
                         {
-                            Sound.PlaySoundInstance(Sound.SoundNames.UITab);
+                            Sound.PlaySoundInstance(Sound.SoundNames.ui_general_tab);
                             selectionState = 2;
                         }
                     }
@@ -802,12 +917,12 @@ namespace ISurvived
                     {
                         if (selectionState == 1)
                         {
-                            Sound.PlaySoundInstance(Sound.SoundNames.UITab);
+                            Sound.PlaySoundInstance(Sound.SoundNames.ui_general_tab);
                             selectionState = 0;
                         }
                         else if (selectionState == 2)
                         {
-                            Sound.PlaySoundInstance(Sound.SoundNames.UITab);
+                            Sound.PlaySoundInstance(Sound.SoundNames.ui_general_tab);
                             selectionState = 1;
                         }
                     }
@@ -1111,7 +1226,7 @@ namespace ISurvived
                         game.CurrentChapter.StartingPortal = OutsideTheParty.ToTheParty;
                         game.chapterState = Game1.ChapterState.chapterTwo;
 
-                        game.CurrentChapter.CurrentMap = Game1.chelseasPartyMaps.maps["TheParty"];
+                        game.CurrentChapter.CurrentMap = Game1.chelseasPartyMaps.maps["The Party"];
                         game.CurrentChapter.CurrentMap.LoadContent();
                         game.CurrentChapter.loadedZoneOne = Game1.chelseasPartyMaps;
                         game.CurrentChapter.currentMapZoneState = Chapter.CurrentMapZone.chelseas;
@@ -1195,7 +1310,7 @@ namespace ISurvived
                         game.CurrentChapter = game.Prologue;
                         game.CurrentChapter.StartingPortal = NorthHall.ToArtHall;
                         game.chapterState = Game1.ChapterState.prologue;
-                        game.CurrentChapter.CurrentMap = Game1.scienceMaps.maps["Science105"];
+                        game.CurrentChapter.CurrentMap = Game1.scienceMaps.maps["Science 105"];
                         game.CurrentChapter.CurrentMap.LoadContent();
                         game.CurrentChapter.loadedZoneOne = Game1.scienceMaps;
                         game.CurrentChapter.currentMapZoneState = Chapter.CurrentMapZone.science;
@@ -1208,7 +1323,7 @@ namespace ISurvived
                         game.CurrentChapter.StartingPortal = OutsideTheParty.ToTheParty;
                         game.chapterState = Game1.ChapterState.chapterTwo;
 
-                        game.CurrentChapter.CurrentMap = Game1.chelseasPartyMaps.maps["OutsidetheParty"];
+                        game.CurrentChapter.CurrentMap = Game1.chelseasPartyMaps.maps["Outside the Party"];
                         game.CurrentChapter.CurrentMap.LoadContent();
                         game.CurrentChapter.loadedZoneOne = Game1.chelseasPartyMaps;
                         game.CurrentChapter.currentMapZoneState = Chapter.CurrentMapZone.chelseas;
@@ -1270,8 +1385,6 @@ namespace ISurvived
 
         public override void Draw(SpriteBatch s)
         {
-
-
             switch (state)
             {
                 case State.intro:
@@ -1296,7 +1409,7 @@ namespace ISurvived
                     s.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearWrap, null, null, null, Game1.camera.Transform);
                     Game1.camera.Update(Game1.Player, game);
                     darylPosX -= 3;
-                    s.Draw(darylLoop, new Rectangle(0, 540, darylLoop.Width, darylLoop.Height), new Rectangle(darylPosX, 0, darylLoop.Width, darylLoop.Height), Color.White);
+                    //s.Draw(darylLoop, new Rectangle(0, 540, darylLoop.Width, darylLoop.Height), new Rectangle(darylPosX, 0, darylLoop.Width, darylLoop.Height), Color.White);
                     s.End();
 
                     s.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
@@ -1317,7 +1430,7 @@ null, null, null, null, Game1.camera.StaticTransform);
                     s.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearWrap, null, null, null, Game1.camera.Transform);
                     Game1.camera.Update(Game1.Player, game);
                     darylPosX -= 3;
-                    s.Draw(darylLoop, new Rectangle(0, 540, darylLoop.Width, darylLoop.Height), new Rectangle(darylPosX, 0, darylLoop.Width, darylLoop.Height), Color.White);
+                    //s.Draw(darylLoop, new Rectangle(0, 540, darylLoop.Width, darylLoop.Height), new Rectangle(darylPosX, 0, darylLoop.Width, darylLoop.Height), Color.White);
                     s.End();
 
                     s.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
@@ -1345,7 +1458,7 @@ null, null, null, null, Game1.camera.StaticTransform);
                     s.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearWrap, null, null, null, Game1.camera.Transform);
                     Game1.camera.Update(Game1.Player, game);
                     darylPosX -= 3;
-                    s.Draw(darylLoop, new Rectangle(0, 540, darylLoop.Width, darylLoop.Height), new Rectangle(darylPosX, 0, darylLoop.Width, darylLoop.Height), Color.White);
+                    //s.Draw(darylLoop, new Rectangle(0, 540, darylLoop.Width, darylLoop.Height), new Rectangle(darylPosX, 0, darylLoop.Width, darylLoop.Height), Color.White);
                     s.End();
 
                     s.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
@@ -1392,7 +1505,7 @@ null, null, null, null, Game1.camera.StaticTransform);
                     s.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearWrap, null, null, null, Game1.camera.Transform);
                     Game1.camera.Update(Game1.Player, game);
                     darylPosX -= 3;
-                    s.Draw(darylLoop, new Rectangle(0, 540, darylLoop.Width, darylLoop.Height), new Rectangle(darylPosX, 0, darylLoop.Width, darylLoop.Height), Color.White);
+                   // s.Draw(darylLoop, new Rectangle(0, 540, darylLoop.Width, darylLoop.Height), new Rectangle(darylPosX, 0, darylLoop.Width, darylLoop.Height), Color.White);
                     s.End();
 
                     s.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
@@ -1438,7 +1551,7 @@ null, null, null, null, Game1.camera.StaticTransform);
                     s.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearWrap, null, null, null, Game1.camera.Transform);
                     Game1.camera.Update(Game1.Player, game);
                     darylPosX -= 3;
-                    s.Draw(darylLoop, new Rectangle(0, 540, darylLoop.Width, darylLoop.Height), new Rectangle(darylPosX, 0, darylLoop.Width, darylLoop.Height), Color.White);
+                    //s.Draw(darylLoop, new Rectangle(0, 540, darylLoop.Width, darylLoop.Height), new Rectangle(darylPosX, 0, darylLoop.Width, darylLoop.Height), Color.White);
                     s.End();
 
                     s.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
@@ -1476,89 +1589,6 @@ null, null, null, null, Game1.camera.StaticTransform);
                     break;
             }
         }
-
-        /*
-        public override void Draw(SpriteBatch s)
-        {
-
-
-            switch (state)
-            {
-                case State.intro:
-                    s.Draw(Game1.whiteFilter, new Rectangle(0, 0, 1280, (int)(Game1.aspectRatio * 1280)), Color.Black);
-                    if(introState == 0)
-                        s.Draw(logo, new Rectangle(0, 0, 1280, (int)(Game1.aspectRatio * 1280)), Color.White * introAlpha);
-                    else if(introState == 1)
-                        s.Draw(disclaimer, new Rectangle(0, 0, 1280, (int)(Game1.aspectRatio * 1280)), Color.White * introAlpha);
-                    break;
-
-                case State.selecting:
-                    backgroundRec = new Rectangle(0, 0, 1280, (int)(1280 * Game1.aspectRatio));
-
-                    //s.Draw(Game1.whiteFilter, new Rectangle(0, 0, 1280, (int)(Game1.aspectRatio * 1280)), new Color(225, 222, 222) * mainAlpha);
-
-                    s.Draw(background, backgroundRec, Color.White * mainAlpha);
-                    selectionBox.Draw(s, mainAlpha);
-                    s.Draw(rays, new Rectangle(478, 371, rays.Width, rays.Height), null, Color.White * mainAlpha, (float)(rayRotation * (Math.PI / 180)), new Vector2(rays.Width / 2, rays.Height / 2), SpriteEffects.None, 0f);
-                    s.Draw(mainLogo, backgroundRec, Color.White * mainAlpha);
-                    s.Draw(choices, backgroundRec, Color.White * mainAlpha);
-
-
-                    break;
-
-                case State.overwriteConfirm:
-                    s.Draw(background, backgroundRec, Color.White * mainAlpha);
-                    if (fadeOut.State < 2)
-                        overwriteBox.Draw(s);
-                    s.Draw(rays, new Rectangle(478, 371, rays.Width, rays.Height), null, Color.White * mainAlpha, (float)(rayRotation * (Math.PI / 180)), new Vector2(rays.Width / 2, rays.Height / 2), SpriteEffects.None, 0f);
-                    s.Draw(mainLogo, backgroundRec, Color.White * mainAlpha);
-                    s.Draw(overwriteTexture, new Rectangle(796, 401, overwriteTexture.Width, overwriteTexture.Height), Color.White * mainAlpha);
-                    fadeOut.DrawFade(s, 0f);
-                    break;
-
-                case State.options:
-                    s.Draw(Game1.whiteFilter, new Rectangle(0, 0, 1280, (int)(Game1.aspectRatio * 1280)), Color.White * .7f);
-                    s.Draw(background, backgroundRec, Color.White * mainAlpha);
-                    if (fadeOut.State < 2)
-                        saveBox.Draw(s);
-                    s.Draw(rays, new Rectangle(478, 371, rays.Width, rays.Height), null, Color.White * mainAlpha, (float)(rayRotation * (Math.PI / 180)), new Vector2(rays.Width / 2, rays.Height / 2), SpriteEffects.None, 0f);
-                    s.Draw(mainLogo, backgroundRec, Color.White * mainAlpha);
-                    s.Draw(savesTexture, new Rectangle(940, 31, savesTexture.Width, savesTexture.Height), Color.White * mainAlpha);
-                    DrawSaves(s);
-                    fadeOut.DrawFade(s, 0f);
-                    break;
-
-                case State.startNewGame:
-                    s.Draw(Game1.whiteFilter, new Rectangle(0, 0, 1280, (int)(Game1.aspectRatio * 1280)), Color.White * .7f);
-
-                    s.Draw(background, backgroundRec, Color.White * mainAlpha);
-                    if (fadeOut.State < 2)
-                        saveBox.Draw(s);
-                    s.Draw(rays, new Rectangle(478, 371, rays.Width, rays.Height), null, Color.White * mainAlpha, (float)(rayRotation * (Math.PI / 180)), new Vector2(rays.Width / 2, rays.Height / 2), SpriteEffects.None, 0f);
-                    s.Draw(mainLogo, backgroundRec, Color.White * mainAlpha);
-                    s.Draw(savesTexture, new Rectangle(940, 31, savesTexture.Width, savesTexture.Height), Color.White * mainAlpha);
-                    DrawSaves(s);
-
-                    fadeOut.DrawFade(s, 0f);
-                    break;
-
-                case State.loadGame:
-                    s.Draw(Game1.whiteFilter, new Rectangle(0, 0, 1280, (int)(Game1.aspectRatio * 1280)), Color.White * .7f);
-
-                    s.Draw(background, backgroundRec, Color.White * mainAlpha);
-                    if (fadeOut.State < 2)
-                        saveBox.Draw(s);
-                    s.Draw(rays, new Rectangle(478, 371, rays.Width, rays.Height), null, Color.White * mainAlpha, (float)(rayRotation * (Math.PI / 180)), new Vector2(rays.Width / 2, rays.Height / 2), SpriteEffects.None, 0f);
-                    s.Draw(mainLogo, backgroundRec, Color.White * mainAlpha);
-                    s.Draw(savesTexture, new Rectangle(940, 31, savesTexture.Width, savesTexture.Height), Color.White * mainAlpha);
-
-                    DrawSaves(s);
-                    fadeOut.DrawFade(s, 0f);
-                    break;
-            }
-        }
-
-        */
 
         public void DrawSaves(SpriteBatch s)
         {
@@ -1606,5 +1636,132 @@ null, null, null, null, Game1.camera.StaticTransform);
                 s.DrawString(Game1.twConQuestHudName, "Empty Slot", new Vector2(902, 521), Color.White, 0, Vector2.Zero, 1.25f, SpriteEffects.None, 0);
             }
         }
+
+        public void SetVariablesChapterTwo()
+        {
+            game.chapterState = Game1.ChapterState.chapterTwo;
+            game.CurrentChapter = game.ChapterTwo;
+            game.CurrentChapter.state = Chapter.GameState.Game;
+            game.CurrentChapter.CutsceneState = 2;
+            game.CurrentChapter.StartingPortal = WindyDesert.ToDryDesert;
+            game.CurrentChapter.CurrentMap = Game1.schoolMaps.maps["Main Lobby"];
+            game.CurrentChapter.AddNPCs();
+            Game1.Player.YScroll = game.CurrentChapter.CurrentMap.yScroll;
+
+            Game1.Player.YScroll = game.CurrentChapter.CurrentMap.yScroll;
+            game.CurrentChapter.CurrentMap.LoadContent();
+
+            game.YourLocker.SkillsOnSale.Add(SkillManager.AllSkills["Sharp Comments"]);
+            game.YourLocker.SkillsOnSale.Add(SkillManager.AllSkills["Shocking Statements CH.2"]);
+
+            Game1.Player.LearnedSkills.Add(SkillManager.AllSkills["Discuss Differences"]);
+            Game1.Player.EquippedSkills.Add(Game1.Player.LearnedSkills[0]);
+
+            Game1.Player.LearnedSkills.Add(SkillManager.AllSkills["Blinding Logic"]);
+            Game1.Player.EquippedSkills.Add(Game1.Player.LearnedSkills[1]);
+
+            Game1.Player.LearnedSkills.Add(SkillManager.AllSkills["Mopping Up"]);
+            Game1.Player.LearnedSkills.Add(SkillManager.AllSkills["Shocking Statements CH.1"]);
+            Game1.Player.LearnedSkills.Add(SkillManager.AllSkills["Combustible Confutation CH.1"]);
+            Game1.Player.LearnedSkills.Add(SkillManager.AllSkills["Combustible Confutation CH.2"]);
+            Game1.Player.LearnedSkills.Add(SkillManager.AllSkills["Fowl Mouth"]);
+            Game1.Player.LearnedSkills.Add(SkillManager.AllSkills["Sharp Comments"]);
+            Game1.Player.LearnedSkills.Add(SkillManager.AllSkills["Crushing Realization"]);
+            Game1.Player.EquippedSkills.Add(Game1.Player.LearnedSkills[4]);
+            Game1.Player.EquippedSkills.Add(Game1.Player.LearnedSkills[5]);
+
+            Game1.Player.EquippedSkills[0].LoadContent();
+            Game1.Player.LearnedSkills[0].Equipped = true;
+            Game1.Player.EquippedSkills[1].LoadContent();
+            Game1.Player.LearnedSkills[1].Equipped = true;
+            Game1.Player.EquippedSkills[2].LoadContent();
+            Game1.Player.LearnedSkills[2].Equipped = true;
+            Game1.Player.EquippedSkills[3].LoadContent();
+            Game1.Player.LearnedSkills[3].Equipped = true;
+
+            Game1.Player.OwnedWeapons.Add(new ComposersWand());
+            Game1.Player.OwnedWeapons.Add(new Paintbrush());
+            Game1.Player.OwnedHats.Add(new BandHat());
+            Game1.Player.OwnedHats.Add(new Beret());
+            Game1.Player.OwnedAccessories.Add(new ArtistsPalette());
+            Game1.Player.OwnedAccessories.Add(new VenusOfWillendorf());
+            Game1.Player.OwnedAccessories.Add(new YinYangNecklace());
+            Game1.Player.OwnedHoodies.Add(new BandUniform());
+            Game1.Player.OwnedHoodies.Add(new ArtSmock());
+
+            foreach (Skill s in Game1.Player.LearnedSkills)
+            {
+                s.SkillRank = 5;
+                s.ApplyLevelUp(true);
+            }
+
+            Game1.Player.CanJump = true;
+            Game1.Player.HasCellPhone = false;
+            Game1.Player.Karma = 33;
+            Game1.Player.LevelUpToLevel(10);
+
+            Game1.Player.PositionX = 1420;
+            Game1.Player.PositionY = 0;
+        }
+
+        public void SetVariablesChapterOne()
+        {
+            game.chapterState = Game1.ChapterState.chapterOne;
+            game.CurrentChapter = game.ChapterOne;
+            game.CurrentChapter.state = Chapter.GameState.Game;
+            game.CurrentChapter.CutsceneState = 1;
+            game.CurrentChapter.StartingPortal = GymLobby.ToNorthHall;
+            game.CurrentChapter.CurrentMap = Game1.schoolMaps.maps["Gym Lobby"];
+            game.CurrentChapter.AddNPCs();
+            Game1.Player.YScroll = game.CurrentChapter.CurrentMap.yScroll;
+
+            Game1.Player.YScroll = game.CurrentChapter.CurrentMap.yScroll;
+            game.CurrentChapter.CurrentMap.LoadContent();
+
+            Game1.Player.LearnedSkills.Add(SkillManager.AllSkills["Discuss Differences"]);
+            Game1.Player.EquippedSkills.Add(Game1.Player.LearnedSkills[0]);
+
+            Game1.Player.LearnedSkills.Add(SkillManager.AllSkills["Blinding Logic"]);
+            Game1.Player.EquippedSkills.Add(Game1.Player.LearnedSkills[1]);
+
+            game.YourLocker.SkillsOnSale.Add(SkillManager.AllSkills["Quick Retort"]);
+            game.YourLocker.SkillsOnSale.Add(SkillManager.AllSkills["Shocking Statements CH.1"]);
+            game.YourLocker.SkillsOnSale.Add(SkillManager.AllSkills["Combustible Confutation CH.1"]);
+            game.YourLocker.SkillsOnSale.Add(SkillManager.AllSkills["Fowl Mouth"]);
+            game.YourLocker.SkillsOnSale.Add(SkillManager.AllSkills["Crushing Realization"]);
+
+            Game1.Player.OwnedWeapons.Add(new Marker());
+            Game1.Player.OwnedHats.Add(new Fez());
+            Game1.Player.OwnedAccessories.Add(new RileysBow());
+            Game1.Player.OwnedAccessories.Add(new LabGoggles());
+            Game1.Player.OwnedHoodies.Add(new LabCoat());
+
+            Game1.Player.EquippedSkills[0].SkillRank = 3;
+            Game1.Player.EquippedSkills[0].ApplyLevelUp(true);
+            Game1.Player.EquippedSkills[0].LoadContent();
+            Game1.Player.EquippedSkills[1].LoadContent();
+
+            Game1.Player.CanJump = true;
+            Game1.Player.HasCellPhone = false;
+            Game1.Player.Karma = 10;
+            Game1.Player.LevelUpToLevel(4);
+
+            Game1.Player.PositionX = 1420;
+            Game1.Player.PositionY = 0;
+        }
+
+        public void SetVariablesPrologue()
+        {
+            game.CurrentChapter = game.Prologue;
+            game.CurrentChapter.StartingPortal = MainLobby.ToArtHall;
+            game.chapterState = Game1.ChapterState.prologue;
+            game.CurrentChapter.state = Chapter.GameState.Cutscene;
+            game.CurrentChapter.CutsceneState = 1;
+            game.CurrentChapter.CurrentMap = Game1.schoolMaps.maps["Main Lobby"];
+            game.CurrentChapter.CurrentMap.LoadContent();
+            Game1.Player.HasCellPhone = false;
+        }
+
+
     }
 }

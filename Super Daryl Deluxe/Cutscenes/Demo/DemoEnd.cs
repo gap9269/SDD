@@ -14,6 +14,9 @@ namespace ISurvived
 {
     class DemoEnd : Cutscene
     {
+
+        float alpha = 0;
+
         //--Takes in a background and all necessary objects
         public DemoEnd(Game1 g, Camera cam, Player player)
             : base(g, cam, player)
@@ -31,7 +34,9 @@ namespace ISurvived
                     FadeOut(120);
                     break;
                 case 1:
-                    if (timer > 450)
+                    if (alpha < 1 && timer > 120)
+                        alpha += .017f;
+                    if(alpha >= 1 && (MyGamePad.APressed() || (Game1.g.current.IsKeyUp(Keys.Enter) && Game1.g.last.IsKeyDown(Keys.Enter))))
                     {
                         state++;
                     }
@@ -41,9 +46,7 @@ namespace ISurvived
                     break;
 
                 case 3:
-
-                    if(timer > 60)
-                        game.ResetGameAndGoToMain();
+                    game.ResetGameAndGoToMain();
                     break;
             }
         }
@@ -78,15 +81,15 @@ null, null, null, null, camera.StaticTransform);
                     s.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
 null, null, null, null, camera.StaticTransform);
                     s.Draw(Game1.whiteFilter, new Rectangle(0, 0, 1280,720), Color.White);
-                    if(timer > 200)
-                        s.Draw(WorkersField.demoEndTexture, new Rectangle(0, 0, 1280, 720), Color.White);
+                    if(timer > 120)
+                        s.Draw(StoneFortWastelandDemo.demoEndTexture, new Rectangle(0, 0, 1280, 720), Color.White * alpha);
                     s.End();
                 break;
 
                 case 2:
                 s.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
 null, null, null, null, camera.StaticTransform);
-                s.Draw(WorkersField.demoEndTexture, new Rectangle(0, 0, 1280, 720), Color.White);
+                s.Draw(StoneFortWastelandDemo.demoEndTexture, new Rectangle(0, 0, 1280, 720), Color.White);
                 DrawFade(s, 0f);
                 s.End();
                 break;

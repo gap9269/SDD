@@ -139,6 +139,7 @@ namespace ISurvived
 
             Game1.npcFaces["Death"].faces["Normal"] = content.Load<Texture2D>(@"NPCFaces\Main Characters\DeathNormal");
             Game1.npcFaces["Dandelion"].faces["Normal"] = content.Load<Texture2D>(@"NPCFaces\Dandelion");
+            
         }
 
         public override void UnloadNPCContent()
@@ -151,6 +152,30 @@ namespace ISurvived
             Game1.npcFaces["Dandelion"].faces["Normal"] = Game1.whiteFilter;
         }
 
+        public override void PlayAmbience()
+        {
+
+            //1300 is the point where the music is originating from
+            float windVolume;
+
+            windVolume = 300 / Math.Abs(player.PositionY - -2599);
+
+            //Clamp it between 0 and 1
+            if (windVolume < .13f)
+                windVolume = 0;
+            if (windVolume > 1)
+                windVolume = 1;
+
+            //Pan depending on the player's position to the sound
+            //float windPan = -((player.PositionX - -2378) / 300);
+
+            if (windVolume > 0)
+                Sound.PlayAmbience("ambience_far_side", windVolume, 0);
+            else
+                Sound.ambience["ambience_far_side"].Stop();
+            Sound.PlayAmbience("ambience_quad", 1f - (windVolume), 0);
+        }
+
         public override void RespawnGroundEnemies()
         {
             base.RespawnGroundEnemies();
@@ -161,7 +186,7 @@ namespace ISurvived
                     BennyBeaker en = new BennyBeaker(pos, "Test", game, ref player, this);
                     monsterY = platforms[platformNum].Rec.Y - en.Rec.Height - 1;
                     en.Position = new Vector2(monsterX, monsterY);
-                    enemiesInMap.Add(en);
+                    AddEnemyToEnemyList(en);
                     break;
             }
         }
@@ -179,6 +204,8 @@ namespace ISurvived
 
             timeUntilNextBoyd--;
 
+            PlayAmbience();
+
             if (Vector2.Distance(new Vector2(player.VitalRec.Center.X, player.VitalRec.Center.Y), new Vector2(storyItems[2].Rec.Center.X, storyItems[2].Rec.Center.Y)) < 300 && storyItems[2].PickedUp == false && player.VitalRecY < -2300)
             {
                 Chapter.effectsManager.AddInGameDialogue("Is...is that dirt under your fingernails?", "Dandelion", "Normal", 1);
@@ -186,12 +213,19 @@ namespace ISurvived
 
             if (Vector2.Distance(new Vector2(player.VitalRec.Center.X, player.VitalRec.Center.Y), new Vector2(storyItems[1].Rec.Center.X, storyItems[1].Rec.Center.Y)) < 700 && player.VitalRec.X > storyItems[1].RecX + 250 && storyItems[1].PickedUp == false && player.VitalRecY < -1400)
             {
-                Chapter.effectsManager.AddInGameDialogue("I heard Johnny screaming down there! I think someone is picking us. Please, jump over here and protect me! \n\nHold 'Shift' to sprint. You can jump farther that way.", "Dandelion", "Normal", 1);
+                if(Game1.gamePadConnected)
+                    Chapter.effectsManager.AddInGameDialogue("I heard Johnny screaming down there! I think someone is picking us. Please, jump over here and protect me! \n\nHold the 'Left Trigger' to sprint. You can jump farther that way.", "Dandelion", "Normal", 1);
+                else
+                    Chapter.effectsManager.AddInGameDialogue("I heard Johnny screaming down there! I think someone is picking us. Please, jump over here and protect me! \n\nHold 'Shift' to sprint. You can jump farther that way.", "Dandelion", "Normal", 1);
             }
 
             if (Vector2.Distance(new Vector2(player.VitalRec.Center.X, player.VitalRec.Center.Y), new Vector2(storyItems[0].Rec.Center.X, storyItems[0].Rec.Center.Y)) < 670 && player.VitalRec.X < storyItems[0].RecX - 250 && storyItems[0].PickedUp == false)
             {
-                Chapter.effectsManager.AddInGameDialogue("Hi there, friend! If you promise not to tear me out of the ground by my roots, I'll teach you how to jump! \n\nJust press the 'Up Arrow'!", "Dandelion", "Normal", 1);
+                if(Game1.gamePadConnected)
+                    Chapter.effectsManager.AddInGameDialogue("Hi there, friend! If you promise not to tear me out of the ground by my roots, I'll teach you how to jump! \n\nJust press 'Up' on the D-Pad!", "Dandelion", "Normal", 1);
+                else
+                    Chapter.effectsManager.AddInGameDialogue("Hi there, friend! If you promise not to tear me out of the ground by my roots, I'll teach you how to jump! \n\nJust press the 'Up Arrow'!", "Dandelion", "Normal", 1);
+
             }
             else if (Vector2.Distance(new Vector2(player.VitalRec.Center.X, player.VitalRec.Center.Y), new Vector2(storyItems[0].Rec.Center.X, storyItems[0].Rec.Center.Y)) < 250 && storyItems[0].PickedUp == false)
                 Chapter.effectsManager.AddInGameDialogue("Ahh! Getting a little close, there! You promised!", "Dandelion", "Normal", 1);
@@ -238,7 +272,7 @@ namespace ISurvived
         {
             base.SetPortals();
 
-            toTheQuad = new Portal(200, platforms[0], "TheFarSide");
+            toTheQuad = new Portal(200, platforms[0], "The Far Side", Portal.DoorType.none);
         }
 
         public override void SetDestinationPortals()

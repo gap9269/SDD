@@ -20,11 +20,22 @@ namespace ISurvived
         int talkingState;
         int specialTimer;
 
+
+        Texture2D notebookTip, notebookTipController;
         public GettingQuestTwoScene(Game1 g, Camera cam, Player p)
             : base(g, cam, p)
         {
             camFollow = new GameObject();
             camFollow.Rec = new Rectangle(0, 0, 1, 1);
+        }
+
+        public override void LoadContent()
+        {
+            base.LoadContent();
+
+            notebookTip = content.Load<Texture2D>(@"Notifications\notebookTip");
+            notebookTipController = content.Load<Texture2D>(@"Notifications\notebookTipController");
+
         }
 
         public override void Play()
@@ -61,6 +72,8 @@ namespace ISurvived
                         alan.Dialogue.Add("Don't blame me. I don't know what you did with it.");
                         paul.Dialogue.Add("You had them last!");
                         camFollow.PositionX = player.PositionX + 45;
+                        
+                        LoadContent();
                     }
                     camFollow.PositionX -= player.MoveSpeed;
                     player.UpdatePosition();
@@ -216,7 +229,15 @@ namespace ISurvived
 
                     last = current;
                     current = Keyboard.GetState();
-                    if (current.IsKeyUp(Keys.I) && last.IsKeyDown(Keys.I))
+
+                    if (Sound.currentBackgroundVolume > 0)
+                    {
+                        game.CurrentChapter.CurrentMap.PlayBackgroundMusic();
+                        if (Sound.currentBackgroundVolume > 0)
+                            Sound.IncrementBackgroundVolume(-(float)((1f * Sound.setBackgroundVolume) / 60f));
+                    }
+
+                    if (current.IsKeyUp(Keys.I) && last.IsKeyDown(Keys.I) || MyGamePad.SelectPressed())
                     {
                         alan.Dialogue.Clear();
                         alan.Dialogue.Add("Tim loves flowers. He'll thank us.");
@@ -226,9 +247,13 @@ namespace ISurvived
                         game.CurrentChapter.state = Chapter.GameState.noteBook;
                         game.Notebook.Inventory.ResetInventoryBoxes();
                         game.Notebook.Inventory.ResetStoryBoxes();
-                        Chapter.effectsManager.RemoveToolTip();
                         player.playerState = Player.PlayerState.standing;
                         game.CurrentChapter.CutsceneState++;
+                        Game1.schoolMaps.maps["North Hall"].currentBackgroundMusic = Sound.MusicNames.NoirHalls;
+                        Sound.StopBackgroundMusic();
+                        Sound.currentBackgroundVolume = Sound.setBackgroundVolume;
+                        game.CurrentChapter.CurrentMap.PlayBackgroundMusic();
+                        UnloadContent();
                     }
                     break;
             }
@@ -293,6 +318,8 @@ null, null, null, null, camera.StaticTransform);
                             Chapter.effectsManager.DrawNotification(s);
                             break;
                         case 4:
+                            if (specialTimer == 1)
+                                Sound.PlaySoundInstance(Sound.SoundNames.object_pickup_misc);
                             Chapter.effectsManager.DrawCutsceneItem(s,  "Daryl's Notebook");
                             break;
                     }
@@ -355,8 +382,11 @@ null, null, null, null, camera.StaticTransform);
                     s.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
 null, null, null, null, camera.StaticTransform);
 
-                    s.Draw(Game1.toolTipTexture, new Vector2(450, 300), Color.White);
-                    s.DrawString(Game1.twConQuestHudName, "Press 'i' to open Daryl's Notebook", new Vector2(550, 345), Color.Black);
+                    if(Game1.gamePadConnected)
+                        s.Draw(notebookTipController, new Vector2(640 - notebookTipController.Width / 2, 280), Color.White);
+                    else
+                        s.Draw(notebookTip, new Vector2(640 - notebookTip.Width / 2, 280), Color.White);
+
                     s.End();
                     break;
             }

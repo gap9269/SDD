@@ -68,7 +68,9 @@ namespace ISurvived
         Button passButton, spawnButton, platformButton, saveButton;
         Platform selectedPlat;
         Vector2 currentMousePos, lastMousePos;
-
+        int platformTypeEnumIndex;
+        String platformType;
+        List<Platform.PlatformType> platformTypes;
         #endregion
 
         //--Map fade attributes
@@ -157,6 +159,8 @@ namespace ISurvived
             //Map edit shit
             lastMousePos = new Vector2();
             currentMousePos = new Vector2();
+
+            platformTypes = Enum.GetValues(typeof(Platform.PlatformType)).Cast<Platform.PlatformType>().ToList();
         }
 
 
@@ -203,6 +207,15 @@ namespace ISurvived
                         currentMap.Portals.ElementAt(i).Key.lockTexture = Portal.bronze;
 
                     }
+                    else if (currentMap.Portals.ElementAt(i).Key.ItemNameToUnlock == "Ghost Key")
+                    {
+                        if (Portal.ghost == null)
+                        {
+                            Portal.LoadLockContent("Ghost");
+                        }
+                        currentMap.Portals.ElementAt(i).Key.lockTexture = Portal.ghost;
+
+                    }
                     else
                     {
                         if (Portal.gold == null)
@@ -220,7 +233,7 @@ namespace ISurvived
         {
             currentMap.enteringMap = true;
             player.Position = player.nextMapPos;
-
+            player.Sprinting = false;
             //This updates the camera to the player's new coordinates
             //This is done here because updating the camera's position before the game resumed was causing issues with parallax and foreground items
             //Basically I would update the camera every frame to allow them to be drawn correctly, but it would make the camera move to the new player
@@ -234,32 +247,34 @@ namespace ISurvived
 
             LoadCurrentMapLocks();
 
+            effectsManager.ClearSmokePoofs();
+            effectsManager.ClearDustPoofs();
+
             if (fallingOffMap)
                 fallingOffMap = false;
 
-            //while (Sound.backgroundVolume < .5f)
-            //{
-            //    Sound.IncrementBackgroundVolume((float)(1f / 10000f));
-            //    currentMap.PlayBackgroundMusic();
-            //}
-            //while (Sound.ambienceVolume < .5f)
-            //{
-            //    Sound.IncrementAmbienceVolume((float)(1f / 10000f));
-            //    currentMap.PlayAmbience();
-            //}
+            while (Sound.currentBackgroundVolume < Sound.setBackgroundVolume)
+            {
+                Sound.IncrementBackgroundVolume((float)(1f / 70000f));
+                currentMap.PlayBackgroundMusic();
+            }
+            while (Sound.currentAmbienceVolume < Sound.setAmbienceVolume)
+            {
+                Sound.IncrementAmbienceVolume((float)(1f / 700f));
+                currentMap.PlayAmbience();
+            }
             state = GameState.Game;
         }
 
         public virtual void Update()
         {
-            
             last = current;
             current = Keyboard.GetState();
 
             //This needs to be ran every frame so differing resolutions always have the static screens transform matrix
             camera.UpdateStaticTransform(game);
 
-            //Console.WriteLine(player.CurrentPlat.Rec.ToString());
+            ////Console.Writeline(player.CurrentPlat.Rec.ToString());
 
             switch (state)
             {
@@ -273,14 +288,23 @@ namespace ISurvived
                 #region BREAKING INTO LOCKER
                 case GameState.BreakingLocker:
                     camera.Update(player, game, currentMap);
-                    currentLocker.Update();
-                    game.Notebook.Update();
+                    if (currentLocker != null)
+                    {
+                        currentLocker.Update();
+                        game.Notebook.ComboPage.Update();
+                    }
                     break;
                 #endregion
 
                 #region CUTSCENE
                 case GameState.Cutscene:
-                    chapterScenes[cutsceneState].Play();
+                    if (game.SideQuestManager.sideQuestScenes == SideQuestManager.SideQuestScenes.none)
+                    {
+                        if (!chapterScenes[cutsceneState].skippingCutscene)
+                            chapterScenes[cutsceneState].Play();
+                    }
+                    else
+                        game.SideQuestManager.PlaySideQuestScene();
                     break;
                 #endregion
 
@@ -296,10 +320,13 @@ namespace ISurvived
 
                     game.Options.Update();
 
-                    if (current.IsKeyUp(Keys.Back) && last.IsKeyDown(Keys.Back) && justPaused == false)
-                        state = GameState.Game;
+                    //if (current.IsKeyUp(Keys.Back) && last.IsKeyDown(Keys.Back) && justPaused == false)
+                    //{
+                    //    Sound.ResumeAllSoundEffects();
+                    //    state = GameState.Game;
+                    //}
 
-                    justPaused = false;
+                    //justPaused = false;
                 break;
                 #endregion
 
@@ -335,139 +362,151 @@ namespace ISurvived
                         }
                     }
 
-                    //--Pause the game
+                    ////--Pause the game
                     if (((current.IsKeyUp(Keys.Escape) && last.IsKeyDown(Keys.Escape)) || MyGamePad.StartPressed()) && !talkingToNPC && !makingDecision)
                     {
+                        Sound.PauseBackgroundMusic();
+                        Sound.StopAmbience();
+                        Sound.PauseAllSoundEffects();
+                        game.CurrentChapter.currentMap.StopSounds();
                         state = GameState.Pause;
                         justPaused = true;
                     }
 
                     //--Open your journal once you can
-                    if (!(game.CurrentChapter is Prologue) || (game.CurrentChapter as Prologue).QuestOne.CompletedQuest)
-                     {
-                    if (!talkingToNPC && !makingDecision && !player.LevelingUp)
+                    if (!(game.CurrentChapter is Prologue) || (game.CurrentChapter as Prologue).PrologueBooleans["thirdSceneNotPlayed"] == false)
                     {
-                        //Decrement time until you get another text
-                        if(Game1.Player.HasCellPhone)
-                            effectsManager.timeUntilNextMessage--;
-
-                        if (MyGamePad.SelectPressed())
+                        if (!talkingToNPC && !makingDecision && !player.LevelingUp)
                         {
-                            game.Notebook.LoadContent();
-                            state = GameState.noteBook;
-                            game.Notebook.Inventory.ResetInventoryBoxes();
-                            game.Notebook.Inventory.ResetStoryBoxes();
-                            Chapter.effectsManager.RemoveToolTip();
-                        }
+                            //Decrement time until you get another text
+                            if (Game1.Player.HasCellPhone)
+                                effectsManager.timeUntilNextMessage--;
 
-                        if (current.IsKeyUp(Keys.I) && last.IsKeyDown(Keys.I))
-                        {
-                            game.Notebook.LoadContent();
-                            state = GameState.noteBook;
-                            game.Notebook.Inventory.ResetInventoryBoxes();
-                            game.Notebook.Inventory.ResetStoryBoxes();
-                            Chapter.effectsManager.RemoveToolTip();
-                        }
-
-                        if (current.IsKeyUp(Keys.J) && last.IsKeyDown(Keys.J))
-                        {
-                            state = GameState.noteBook;
-                            game.Notebook.LoadContent();
-                            game.Notebook.state = DarylsNotebook.State.journal;
-
-                            //If there is a notification up about the journal just being updated, make it go to the page that was just updated
-                            if (effectsManager.secondNotificationQueue.Count > 0 && effectsManager.secondNotificationQueue.ElementAt(0) is JournalUpdateNotification)
+                            if (MyGamePad.SelectPressed())
                             {
-                                //Set the journal to the current chapter, as that's the only chapter that could be updated
-                                switch (game.chapterState)
+                                game.Notebook.LoadContent();
+                                state = GameState.noteBook;
+                                game.Notebook.Inventory.ResetInventoryBoxes();
+                                game.Notebook.Inventory.ResetStoryBoxes();
+                                Chapter.effectsManager.RemoveToolTip();
+                            }
+
+                            if (current.IsKeyUp(Keys.I) && last.IsKeyDown(Keys.I))
+                            {
+                                game.Notebook.LoadContent();
+                                state = GameState.noteBook;
+                                game.Notebook.Inventory.ResetInventoryBoxes();
+                                game.Notebook.Inventory.ResetStoryBoxes();
+                                Chapter.effectsManager.RemoveToolTip();
+                            }
+
+                            if (current.IsKeyUp(Keys.J) && last.IsKeyDown(Keys.J))
+                            {
+                                state = GameState.noteBook;
+                                game.Notebook.LoadContent();
+                                game.Notebook.state = DarylsNotebook.State.journal;
+
+                                //If there is a notification up about the journal just being updated, make it go to the page that was just updated
+                                if (effectsManager.secondNotificationQueue.Count > 0 && effectsManager.secondNotificationQueue.ElementAt(0) is JournalUpdateNotification)
                                 {
-                                    case Game1.ChapterState.prologue:
-                                        game.Notebook.Journal.chapterState = Journal.ChapterState.Prologue;
-                                        break;
-
-                                    case Game1.ChapterState.chapterOne:
-                                        game.Notebook.Journal.chapterState = Journal.ChapterState.ChapterOne;
-                                        break;
-
-                                    case Game1.ChapterState.chapterTwo:
-                                        game.Notebook.Journal.chapterState = Journal.ChapterState.ChapterTwo;
-                                        break;
-                                }
-
-                                //Set it to the state it needs to be at, depending on the type of notification
-
-                                // 1 is synopsis
-                                if ((effectsManager.secondNotificationQueue.ElementAt(0) as JournalUpdateNotification).typeOfEntryAdded == 1)
-                                {
-                                    game.Notebook.Journal.ViewingSpecificQuest = false;
-
+                                    //Set the journal to the current chapter, as that's the only chapter that could be updated
                                     switch (game.chapterState)
                                     {
                                         case Game1.ChapterState.prologue:
-                                            game.Notebook.Journal.prologueSynopsisRead = true;
+                                            game.Notebook.Journal.chapterState = Journal.ChapterState.Prologue;
                                             break;
 
                                         case Game1.ChapterState.chapterOne:
-                                            game.Notebook.Journal.chOneSynopsisRead = true;
+                                            game.Notebook.Journal.chapterState = Journal.ChapterState.ChapterOne;
                                             break;
 
                                         case Game1.ChapterState.chapterTwo:
-                                            game.Notebook.Journal.chTwoSynopsisRead = true;
+                                            game.Notebook.Journal.chapterState = Journal.ChapterState.ChapterTwo;
                                             break;
                                     }
 
+                                    //Set it to the state it needs to be at, depending on the type of notification
+
+                                    // 1 is synopsis
+                                    if ((effectsManager.secondNotificationQueue.ElementAt(0) as JournalUpdateNotification).typeOfEntryAdded == 1)
+                                    {
+                                        game.Notebook.Journal.ViewingSpecificQuest = false;
+
+                                        switch (game.chapterState)
+                                        {
+                                            case Game1.ChapterState.prologue:
+                                                game.Notebook.Journal.prologueSynopsisRead = true;
+                                                break;
+
+                                            case Game1.ChapterState.chapterOne:
+                                                game.Notebook.Journal.chOneSynopsisRead = true;
+                                                break;
+
+                                            case Game1.ChapterState.chapterTwo:
+                                                game.Notebook.Journal.chTwoSynopsisRead = true;
+                                                break;
+                                        }
+
+                                    }
+
+                                    //2 is story quests
+                                    else if ((effectsManager.secondNotificationQueue.ElementAt(0) as JournalUpdateNotification).typeOfEntryAdded == 2)
+                                    {
+                                        game.Notebook.Journal.insideChapterState = Journal.InsideChapterState.story;
+                                        game.Notebook.Journal.selectedQuest = (effectsManager.secondNotificationQueue.ElementAt(0) as JournalUpdateNotification).quest;
+                                        game.Notebook.Journal.ViewingSpecificQuest = true;
+                                        game.Notebook.Journal.openedToSpecificQuest = true;
+                                    }
+
+                                    //3 is side quests
+                                    else if ((effectsManager.secondNotificationQueue.ElementAt(0) as JournalUpdateNotification).typeOfEntryAdded == 3)
+                                    {
+                                        game.Notebook.Journal.insideChapterState = Journal.InsideChapterState.side;
+                                        game.Notebook.Journal.selectedQuest = (effectsManager.secondNotificationQueue.ElementAt(0) as JournalUpdateNotification).quest;
+                                        game.Notebook.Journal.ViewingSpecificQuest = true;
+                                        game.Notebook.Journal.openedToSpecificQuest = true;
+                                    }
                                 }
 
-                                //2 is story quests
-                                else if ((effectsManager.secondNotificationQueue.ElementAt(0) as JournalUpdateNotification).typeOfEntryAdded == 2)
-                                {
-                                    game.Notebook.Journal.insideChapterState = Journal.InsideChapterState.story;
-                                    game.Notebook.Journal.selectedQuest = (effectsManager.secondNotificationQueue.ElementAt(0) as JournalUpdateNotification).quest;
-                                    game.Notebook.Journal.ViewingSpecificQuest = true;
-                                    game.Notebook.Journal.openedToSpecificQuest = true;
-                                }
-
-                                //3 is side quests
-                                else if ((effectsManager.secondNotificationQueue.ElementAt(0) as JournalUpdateNotification).typeOfEntryAdded == 3)
-                                {
-                                    game.Notebook.Journal.insideChapterState = Journal.InsideChapterState.side;
-                                    game.Notebook.Journal.selectedQuest = (effectsManager.secondNotificationQueue.ElementAt(0) as JournalUpdateNotification).quest;
-                                    game.Notebook.Journal.ViewingSpecificQuest = true;
-                                    game.Notebook.Journal.openedToSpecificQuest = true;
-                                }
+                                // game.Notebook.Inventory.ResetInventoryBoxes();
+                                Chapter.effectsManager.RemoveToolTip();
                             }
 
-                           // game.Notebook.Inventory.ResetInventoryBoxes();
-                            Chapter.effectsManager.RemoveToolTip();
-                        }
+                            if (current.IsKeyUp(Keys.L) && last.IsKeyDown(Keys.L))
+                            {
+                                state = GameState.noteBook;
+                                game.Notebook.LoadContent();
+                                game.Notebook.state = DarylsNotebook.State.combos;
+                                //game.Notebook.Inventory.ResetInventoryBoxes();
+                                Chapter.effectsManager.RemoveToolTip();
+                            }
 
-                        if (current.IsKeyUp(Keys.L) && last.IsKeyDown(Keys.L))
-                        {
-                            state = GameState.noteBook;
-                            game.Notebook.LoadContent();
-                            game.Notebook.state = DarylsNotebook.State.combos;
-                            //game.Notebook.Inventory.ResetInventoryBoxes();
-                            Chapter.effectsManager.RemoveToolTip();
-                        }
+                            if (current.IsKeyUp(Keys.K) && last.IsKeyDown(Keys.K))
+                            {
+                                state = GameState.noteBook;
+                                game.Notebook.LoadContent();
+                                game.Notebook.state = DarylsNotebook.State.quests;
+                                //game.Notebook.Inventory.ResetInventoryBoxes();
+                                Chapter.effectsManager.RemoveToolTip();
+                            }
 
-                        if (current.IsKeyUp(Keys.K) && last.IsKeyDown(Keys.K))
-                        {
-                            state = GameState.noteBook;
-                            game.Notebook.LoadContent();
-                            game.Notebook.state = DarylsNotebook.State.quests;
-                            //game.Notebook.Inventory.ResetInventoryBoxes();
-                            Chapter.effectsManager.RemoveToolTip();
+                            if (current.IsKeyUp(Keys.B) && last.IsKeyDown(Keys.B))
+                            {
+                                state = GameState.noteBook;
+                                game.Notebook.LoadContent();
+                                game.Notebook.state = DarylsNotebook.State.bios;
+                                //game.Notebook.Inventory.ResetInventoryBoxes();
+                                Chapter.effectsManager.RemoveToolTip();
+                            } 
+                            
+                            if (current.IsKeyUp(Keys.M) && last.IsKeyDown(Keys.M))
+                            {
+                                state = GameState.noteBook;
+                                game.Notebook.LoadContent();
+                                game.Notebook.state = DarylsNotebook.State.maps;
+                                Chapter.effectsManager.RemoveToolTip();
+                            }
                         }
-
-                        if (current.IsKeyUp(Keys.B) && last.IsKeyDown(Keys.B))
-                        {
-                            state = GameState.noteBook;
-                            game.Notebook.LoadContent();
-                            game.Notebook.state = DarylsNotebook.State.bios;
-                            //game.Notebook.Inventory.ResetInventoryBoxes();
-                            Chapter.effectsManager.RemoveToolTip();
-                        }
-                    }
                     }
 
                     if (talkingToNPC)
@@ -515,28 +554,41 @@ namespace ISurvived
                         currentMap.leavingMapTimer++;
 
                         //Get the track name for the next map
-                        String nextMapMusicName = Game1.schoolMaps.maps[nextMap].backgroundMusicName;
+                        Sound.MusicNames nextMapMusicName = Game1.schoolMaps.maps[nextMap].currentBackgroundMusic;
+                        float targetVolume;
 
-                        //--Once it has been 60 frames, reset the timer and change the map
-                        //--But before going back to the game, change the next map's enteringMap attribute to true
-                        if (Sound.backgroundVolume > 0) // && currentMap.backgroundMusicName != nextMapMusicName This makes it so music doesn't fade if the maps have the same music. I like it with the subtle fade a lot more
+                        if (currentMap.currentBackgroundMusic == nextMapMusicName)
+                            targetVolume = Sound.setBackgroundVolume;
+                        else
+                            targetVolume = 0;
+
+                        #region Fade sound and ambience out
+                        if (Sound.currentBackgroundVolume > 0)
                         {
                             currentMap.PlayBackgroundMusic();
-                            if(Sound.backgroundVolume > .2f)
+                            if (Sound.currentBackgroundVolume > targetVolume)
                                 Sound.IncrementBackgroundVolume(-(float)(1f / 70f));
-                        }
 
-                        if (Sound.ambienceVolume > 0)
+                            if (targetVolume == 0 && Sound.currentBackgroundVolume <= Sound.setBackgroundVolume / 3)
+                            {
+                                if (Sound.music.ContainsKey(nextMapMusicName.ToString()))
+                                {
+                                    Game1.schoolMaps.maps[nextMap].PlayBackgroundMusic();
+                                }
+                            }
+                        }
+                        if (Sound.currentAmbienceVolume > 0)
                         {
                             currentMap.PlayAmbience();
-                            if (Sound.ambienceVolume > .2f)
-                            Sound.IncrementAmbienceVolume(-(float)(1f / 70f));
+                            if (Sound.currentAmbienceVolume > targetVolume)
+                                Sound.IncrementAmbienceVolume(-(float)(1f / 70f));
                         }
+                        #endregion
 
                         if (currentMap.leavingMapTimer >= 60)
                         {
-                            if (!currentMap.Discovered)
-                                currentMap.Discovered = true;
+                            if (targetVolume == 0)
+                                Sound.PauseTrack(currentMap.currentBackgroundMusic.ToString());
 
                             currentMap.leavingMapTimer = 0;
 
@@ -569,6 +621,7 @@ namespace ISurvived
 
                                 lastMap = currentMap.MapName;
 
+                                currentMap.LeaveMap();
 
                                 //Unload the last map
                                 currentMap.UnloadContent();
@@ -595,13 +648,12 @@ namespace ISurvived
                 case GameState.shop:
                     game.Shop.Update();
                     break;
-                case GameState.crafting:
-                    //game.CraftingMenu.Update();
-                    break;
                 case GameState.dead:
                     cursor.Update();
                     Game1.deathScreen.Update();
                     break;
+
+                #region MAP EDIT
                 case GameState.mapEdit:
                     if (current.IsKeyUp(Keys.F2) && last.IsKeyDown(Keys.F2))
                         state = GameState.Game;
@@ -638,9 +690,6 @@ namespace ISurvived
 
                     if (selectedPlat != null)
                     {
-
-                        Console.WriteLine(selectedPlat.Rec.ToString());
-
                         int x = (int)(currentMousePos.X - lastMousePos.X);
                         int y = (int)(currentMousePos.Y - lastMousePos.Y);
 
@@ -660,14 +709,35 @@ namespace ISurvived
                             spawn = false;
                         }
 
+                        if (current.IsKeyUp(Keys.D1) && last.IsKeyDown(Keys.D1))
+                        {
+                            platformTypeEnumIndex++;
+
+                            if (platformTypeEnumIndex > platformTypes.Count - 1)
+                                platformTypeEnumIndex = 0;
+
+                            selectedPlat.SetType(platformTypes[platformTypeEnumIndex].ToString());
+                        }
+
+                        if (current.IsKeyUp(Keys.N) && last.IsKeyDown(Keys.N))
+                        {
+                            selectedPlat.RecWidth = 10;
+                        }
+
                         if (current.IsKeyUp(Keys.U) && last.IsKeyDown(Keys.U))
                         {
                             selectedPlat.RecWidth -= 50;
+
+                            if (selectedPlat.RecWidth < 10)
+                                selectedPlat.RecWidth = 10;
                         }
 
                         if (current.IsKeyUp(Keys.I) && last.IsKeyDown(Keys.I))
                         {
-                            selectedPlat.RecWidth += 50;
+                            if(selectedPlat.RecWidth != 10)
+                                selectedPlat.RecWidth += 50;
+                            else
+                                selectedPlat.RecWidth = 50;
                         }
 
                         if (current.IsKeyUp(Keys.O) && last.IsKeyDown(Keys.O))
@@ -694,7 +764,9 @@ namespace ISurvived
                         {
                             if (currentMap.Platforms[i].Clicked())
                             {
+
                                 selectedPlat = currentMap.Platforms[i];
+                                platformTypeEnumIndex = platformTypes.IndexOf(selectedPlat.type);
                                 pass = selectedPlat.Passable;
                                 spawn = selectedPlat.SpawnOnTop;
                             }
@@ -715,7 +787,7 @@ namespace ISurvived
                         
                         for (int i = 0; i < currentMap.Platforms.Count; i++)
                         {
-                            sw.WriteLine("RockFloor2" + "," + currentMap.Platforms[i].Rec.Width + "," +
+                            sw.WriteLine(currentMap.Platforms[i].type.ToString() + "," + currentMap.Platforms[i].Rec.Width + "," +
                                 currentMap.Platforms[i].Rec.Height + "," + (currentMap.Platforms[i].Rec.X) + "," + (currentMap.Platforms[i].Rec.Y) + "," + currentMap.Platforms[i].Passable + "," + currentMap.Platforms[i].SpawnOnTop + "," + "False");
                         }
 
@@ -729,7 +801,7 @@ namespace ISurvived
 
                         for (int i = 0; i < currentMap.Platforms.Count; i++)
                         {
-                            write.Write("RockFloor2");
+                            write.Write(currentMap.Platforms[i].type.ToString());
                             write.Write(currentMap.Platforms[i].Rec.Width);
                             write.Write(currentMap.Platforms[i].Rec.Height);
                             write.Write(currentMap.Platforms[i].Rec.X);
@@ -743,8 +815,8 @@ namespace ISurvived
                     }
 
                     break;
+                #endregion
             }
-
         }
 
         public void UpdateNPCs()
@@ -768,14 +840,15 @@ namespace ISurvived
                 #region GAME
                 case GameState.Game:
                     currentMap.DrawBackgroundAndParallax(s);
-                    
+
                     s.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend,
                     null, null, null, null, camera.Transform);
 
                     currentMap.Draw(s);
                     DrawNPC(s);
+                    currentMap.DrawInFrontOfNPC(s);
                     currentMap.DrawLivingLocker(s);
-                    currentMap.DrawEnemies(s);
+                    currentMap.DrawEnemiesAndHazards(s);
 
                     //--If you are fighting a boss and are in the same map as him, draw him
                     if (BossFight && currentBoss.CurrentMap == currentMap)
@@ -810,12 +883,30 @@ null, null, null, null, camera.Transform);
                         effectsManager.DrawSkillEffects(s);
                         currentMap.DrawEnemyDamage(s);
                         player.DrawDamage(s);
+                        effectsManager.DrawExpNums(s);
                         currentMap.DrawMapOverlay(s);
+                        s.End();
+
+                    s.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+null, null, null, null, camera.StaticTransform);
+                        if (player.OwnedPassives.Contains(PassiveManager.allPassives["Impaired Vision"]))
+                        {
+                            //if (!player.FacingRight)
+                                s.Draw(Game1.whiteFilter, new Rectangle(0, 0, 1280 / 2, 720), Color.Black);
+                  //          else
+                    //            s.Draw(Game1.whiteFilter, new Rectangle(1280 / 2, 0, 1280 / 2, 720), Color.Black);
+                        }
+                        s.End();
+
+                    //DRAW FLYING ENEMIES AND OVERLAY IN FOREGROUND PT2
+                    s.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend,
+null, null, null, null, camera.Transform);
                         currentMap.DrawPortalInfo(s);
-                    s.End();
+                        s.End();
 
                     s.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend,
 null, null, null, null, camera.Transform);
+
                     if (!talkingToNPC)
                         effectsManager.DrawForegroundFButtons(s);
                     s.End();
@@ -823,8 +914,6 @@ null, null, null, null, camera.Transform);
                     //--Static stuff
                     s.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
 null, null, null, null, camera.StaticTransform);
-
-
                     currentMap.DrawMapName(s);
 
                     if (talkingToNPC == true)
@@ -837,14 +926,15 @@ null, null, null, null, camera.StaticTransform);
                         if (bossFight && currentMap == currentBoss.CurrentMap)
                             currentBoss.DrawHud(s);
 
-                        //HUD
-                        hud.Draw(s);
 
                         //DECISIONS
                         if (makingDecision)
                             effectsManager.DrawDecision(s);
                         else
                         {
+                            //HUD
+                            hud.Draw(s);
+
                             //NOTIFICATIONS AND OTHER POP UPS
                             effectsManager.DrawDialogue(s);
 
@@ -899,7 +989,7 @@ null, null, null, null, camera.StaticTransform);
                     }
 
                     //Screen tint based on Daryl's low health
-                    if (player.Health < (player.MaxHealth / 4))
+                    if (player.Health < (player.realMaxHealth / 4))
                     {
                         #region Update screen tint
                         if (tintAlphaRising)
@@ -925,8 +1015,16 @@ null, null, null, null, camera.StaticTransform);
                         #endregion
 
                          s.Draw(Game1.lowHealthTint, new Rectangle(0, 0, 1280, (int)(Game1.aspectRatio * 1280)), Color.White * tintAlpha);
-                    }
 
+
+                    }
+                    else if (Player.damageAlpha > 0)
+                    {
+                        Player.damageAlpha -= .04f;
+
+                        s.Draw(Game1.lowHealthTint, new Rectangle(0, 0, 1280, (int)(Game1.aspectRatio * 1280)), Color.White * Player.damageAlpha);
+
+                    }
                     s.End();
                     break;
                 #endregion
@@ -974,29 +1072,10 @@ null, null, null, null, camera.StaticTransform);
                 #endregion
 
                 case GameState.loading:
-                    //Static stuff
                     s.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
-null, null, null, null, camera.StaticTransform);
-                    //--Then keep the screen black for 20 frames
-                    s.Draw(Game1.whiteFilter, new Rectangle(0, 0, 1280, (int)(Game1.aspectRatio * 1280)), Color.Black);
-
-                    s.DrawString(Game1.font, "Loading...", new Vector2(1100, 690), Color.White);
-
-                    loadingFrameDelay--;
-
-                    if (loadingFrameDelay == 0)
-                    {
-                        loadingFrame++;
-                        loadingFrameDelay = 8;
-
-                        if (loadingFrame == 5)
-                            loadingFrame = 0;
-                    }
-
-                    s.Draw(Game1.Player.PlayerSheet, new Rectangle(395, (int)220, 530, 398), new Rectangle(1060 + (530 * loadingFrame), 3184, 530, 398), Color.White);
-
-                    s.DrawString(Game1.pickUpFont, game.loadingTips[MapClass.currentLoadingTipNum], new Vector2(640 - Game1.pickUpFont.MeasureString(game.loadingTips[MapClass.currentLoadingTipNum]).X / 2, 200), Color.White);
-
+null, null, null, null, game.Camera.StaticTransform);
+                    s.Draw(Game1.whiteFilter, new Rectangle(0, 0, 1280, (int)(Game1.aspectRatio * 1280)), new Color(25, 25, 25));
+                    Game1.loadingScreen.Draw(s);
                     s.End();
                     break;
 
@@ -1011,7 +1090,8 @@ null, null, null, null, camera.StaticTransform);
                     currentMap.Draw(s);
                     DrawNPC(s);
                     currentMap.DrawLivingLocker(s);
-                    currentMap.DrawEnemies(s);
+                    currentMap.DrawEnemiesAndHazards(s);
+
                     player.Draw(s);
                     s.End();
 
@@ -1025,7 +1105,20 @@ null, null, null, null, camera.Transform);
                     currentMap.DrawFlyingEnemies(s);
                     currentMap.DrawEnemyDamage(s);
                     player.DrawDamage(s);
+                    effectsManager.DrawExpNums(s);
+
                     currentMap.DrawMapOverlay(s);
+                    s.End();
+
+                    s.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+null, null, null, null, camera.StaticTransform);
+                    if (player.OwnedPassives.Contains(PassiveManager.allPassives["Impaired Vision"]))
+                    {
+                        //if (!player.FacingRight)
+                        s.Draw(Game1.whiteFilter, new Rectangle(0, 0, 1280 / 2, 720), Color.Black);
+                        //          else
+                        //            s.Draw(Game1.whiteFilter, new Rectangle(1280 / 2, 0, 1280 / 2, 720), Color.Black);
+                    }
                     s.End();
 
                     //Static stuff
@@ -1039,25 +1132,9 @@ null, null, null, null, camera.StaticTransform);
 
                     //--Then keep the screen black for 20 frames
                     if (currentMap.leavingMapTimer > 40 && currentMap.leavingMapTimer <= 60)
-                        s.Draw(Game1.whiteFilter, new Rectangle(0, 0, 1280, (int)(Game1.aspectRatio * 1280)), Color.Black);
+                        s.Draw(Game1.whiteFilter, new Rectangle(0, 0, 1280, (int)(Game1.aspectRatio * 1280)), new Color(25, 25, 25));
 
-                    loadingFrameDelay--;
-
-                    if (loadingFrameDelay == 0)
-                    {
-                        loadingFrame++;
-                        loadingFrameDelay = 8;
-
-                        if (loadingFrame == 5)
-                            loadingFrame = 0;
-                    }
-
-                    float loadingAnimationAlpha = fadeAlpha;
-
-                    if (currentMap.leavingMapTimer > 40)
-                        loadingAnimationAlpha = 1f;
-
-                    s.Draw(Game1.Player.PlayerSheet, new Rectangle(395, (int)220, 530, 398), new Rectangle(1060 + (530 * loadingFrame), 3184, 530, 398), Color.White * loadingAnimationAlpha);
+                        Game1.loadingScreen.Draw(s);
 
                     cursor.Draw(s);
                     if (talkingToNPC == true)
@@ -1066,14 +1143,12 @@ null, null, null, null, camera.StaticTransform);
                     }
 
                     //Screen tint based on Daryl's low health
-                    if (player.Health < (player.MaxHealth / 4))
+                    if (player.Health < (player.realMaxHealth / 4))
                     {
                         s.Draw(Game1.lowHealthTint, new Rectangle(0, 0, 1280, (int)(Game1.aspectRatio * 1280)), Color.White * tintAlpha);
                     }
 
-                    s.DrawString(Game1.font, "Loading...", new Vector2(1100, 690), Color.White);
-
-                    s.DrawString(Game1.pickUpFont, game.loadingTips[MapClass.currentLoadingTipNum], new Vector2(640 - Game1.pickUpFont.MeasureString(game.loadingTips[MapClass.currentLoadingTipNum]).X / 2, 200), Color.White);
+                    //s.DrawString(Game1.twConMedium, Game1.WrapText(Game1.twConMedium, game.loadingTips[MapClass.currentLoadingTipNum], 990), new Vector2(640 - Game1.twConMedium.MeasureString(game.loadingTips[MapClass.currentLoadingTipNum]).X / 2 + 159, 300), Color.White);
 
                     s.End();
                     break;
@@ -1099,7 +1174,7 @@ null, null, null, null, camera.StaticTransform);
                     game.CurrentChapter.CurrentMap.Draw(s);
                     game.CurrentChapter.DrawNPC(s);
                     game.CurrentChapter.CurrentMap.DrawLivingLocker(s);
-                    game.CurrentChapter.CurrentMap.DrawEnemies(s);
+                    game.CurrentChapter.CurrentMap.DrawEnemiesAndHazards(s);
 
                     //--If you are fighting a boss and are in the same map as him, draw him
                     if (game.CurrentChapter.BossFight && game.CurrentChapter.CurrentBoss.CurrentMap == game.CurrentChapter.CurrentMap)
@@ -1139,7 +1214,7 @@ null, null, null, null, camera.StaticTransform);
 
                 #region BREAKING INTO LOCKER
                 case GameState.BreakingLocker:
-                                        game.CurrentChapter.CurrentMap.DrawBackgroundAndParallax(s);
+                    game.CurrentChapter.CurrentMap.DrawBackgroundAndParallax(s);
 
                     s.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend,
                     null, null, null, null, game.Camera.Transform);
@@ -1147,7 +1222,7 @@ null, null, null, null, camera.StaticTransform);
                     game.CurrentChapter.CurrentMap.Draw(s);
                     game.CurrentChapter.DrawNPC(s);
                     game.CurrentChapter.CurrentMap.DrawLivingLocker(s);
-                    game.CurrentChapter.CurrentMap.DrawEnemies(s);
+                    game.CurrentChapter.CurrentMap.DrawEnemiesAndHazards(s);
 
                     //--If you are fighting a boss and are in the same map as him, draw him
                     if (game.CurrentChapter.BossFight && game.CurrentChapter.CurrentBoss.CurrentMap == game.CurrentChapter.CurrentMap)
@@ -1171,17 +1246,21 @@ null, null, null, null, camera.StaticTransform);
                     Chapter.effectsManager.DrawSkillEffects(s);
                     game.CurrentChapter.CurrentMap.DrawEnemyDamage(s);
                     player.DrawDamage(s);
+                    effectsManager.DrawExpNums(s);
                     game.CurrentChapter.CurrentMap.DrawMapOverlay(s);
                     game.CurrentChapter.CurrentMap.DrawPortalInfo(s);
                     s.End();
 
                     s.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
 null, null, null, null, camera.StaticTransform);
-
-                    currentLocker.Draw(s);
-                    currentLocker.DrawDescriptions();
+                    if (currentLocker != null)
+                    {
+                        currentLocker.Draw(s);
+                        currentLocker.DrawDescriptions();
+                    }
                     //TOOLTIPS
                     effectsManager.DrawToolTip(s);
+
                     cursor.Draw(s);
                     s.End();
                     break;
@@ -1199,7 +1278,7 @@ null, null, null, null, camera.StaticTransform);
                     if(selectedPlat != null)
                          selectedPlat.Draw(s);
                     DrawNPC(s);
-                    currentMap.DrawEnemies(s);
+                    currentMap.DrawEnemiesAndHazards(s);
 
                     //--If you are fighting a boss and are in the same map as him, draw him
                     if (BossFight && currentBoss.CurrentMap == currentMap)
@@ -1268,8 +1347,8 @@ null, null, null, null, camera.StaticTransform);
                         }
                     }
 
-                    s.DrawString(Game1.HUDFont, "Map Edit Mode", new Vector2(500, 10), Color.Black);
-
+                    s.DrawString(Game1.twConQuestHudName, "Map Edit Mode", new Vector2(500, 10), Color.Red);
+                    s.DrawString(Game1.twConQuestHudName, platformTypes[platformTypeEnumIndex].ToString(), new Vector2(0, 10), Color.Black);
 
                     if(spawn)
                         s.Draw(Game1.whiteFilter, spawnButton.ButtonRec, Color.White);
@@ -1325,6 +1404,10 @@ null, null, null, null, camera.Transform);
                     currentMap.DrawFlyingEnemies(s);
                     currentMap.DrawEnemyDamage(s);
                     player.DrawDamage(s);
+                    effectsManager.DrawExpNums(s);
+
+                    effectsManager.DrawExpNums(s);
+
                     currentMap.DrawMapOverlay(s);
                     s.End();
 

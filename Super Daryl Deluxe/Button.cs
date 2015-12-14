@@ -16,12 +16,6 @@ namespace ISurvived
     {
         // ATTRIBUTES \\
 
-        ButtonState previous;
-        ButtonState current;
-
-        ButtonState rightPrevious;
-        ButtonState rightCurrent;
-
         Rectangle buttonRec;
         Texture2D buttonTexture;
 
@@ -60,7 +54,7 @@ namespace ISurvived
             if (Game1.g.IsActive)
             {
                 MouseState mouse = Mouse.GetState();
-
+                
                 //--If the mouse is within the x and y boundaries of the button, return true
                 if (Cursor.last.CursorRec.X > buttonRec.X && Cursor.last.CursorRec.X < buttonRec.X + buttonRec.Width)
                 {
@@ -82,7 +76,7 @@ namespace ISurvived
 
                 if (IsOver())
                 {
-                    if (mouse.LeftButton == ButtonState.Pressed || MyGamePad.currentState.Buttons.RightStick == ButtonState.Pressed)
+                    if (mouse.LeftButton == ButtonState.Pressed || MyGamePad.currentState.Buttons.A == ButtonState.Pressed)
                     {
                         return true;
                     }
@@ -96,24 +90,12 @@ namespace ISurvived
         {
             if (Game1.g.IsActive)
             {
-                MouseState mouse = Mouse.GetState();
 
                 if (IsOver())
                 {
-                    //--Update the mouse states, so last state is set to "previous"
-                    rightPrevious = rightCurrent;
-
-                    //--If the mouse is right clicking, make "current" equal to pressed.
-                    //--If not, make it released
-                    if (mouse.RightButton == ButtonState.Pressed)
-                        rightCurrent = ButtonState.Pressed;
-                    else
-                        rightCurrent = ButtonState.Released;
-
-
                     //--If the previous state was pressed, and it is now released, the user must have right clicked
                     //--Return true
-                    if ((rightCurrent == ButtonState.Released && rightPrevious == ButtonState.Pressed))
+                    if ((MouseManager.rightCurrent == ButtonState.Released && MouseManager.rightPrevious == ButtonState.Pressed) || MyGamePad.XPressed())
                     {
                         Cursor.clickTimer = 5;
                         return true;
@@ -129,24 +111,11 @@ namespace ISurvived
         {
             if (Game1.g.IsActive)
             {
-                MouseState mouse = Mouse.GetState();
-                //--Update the mouse states, so last state is set to "previous"
-                previous = current;
                 if (IsOver())
                 {
-
-
-                    //--If the mouse is clicking, make "current" equal to pressed.
-                    //--If not, make it released
-                    if (mouse.LeftButton == ButtonState.Pressed)
-                        current = ButtonState.Pressed;
-                    else
-                        current = ButtonState.Released;
-
-
                     //--If the previous state was pressed, and it is now released, the user must have clicked
                     //--Return true
-                    if ((current == ButtonState.Released && previous == ButtonState.Pressed) || MyGamePad.RightAnalogPressedIn())
+                    if ((MouseManager.current == ButtonState.Released && MouseManager.previous == ButtonState.Pressed) || MyGamePad.APressed())
                     {
                         Cursor.clickTimer = 5;
                         return true;
@@ -160,8 +129,6 @@ namespace ISurvived
         {
             if (Game1.g.IsActive)
             {
-                MouseState mouse = Mouse.GetState();
-
                 if (singleClick)
                 {
                     timeSinceClicked++;
@@ -175,20 +142,9 @@ namespace ISurvived
 
                 if (IsOver())
                 {
-                    //--Update the mouse states, so last state is set to "previous"
-                    previous = current;
-
-                    //--If the mouse is clicking, make "current" equal to pressed.
-                    //--If not, make it released
-                    if (mouse.LeftButton == ButtonState.Pressed)
-                        current = ButtonState.Pressed;
-                    else
-                        current = ButtonState.Released;
-
-
                     //--If the previous state was pressed, and it is now released, the user must have clicked
                     //--Return true
-                    if ((current == ButtonState.Released && previous == ButtonState.Pressed) || MyGamePad.RightAnalogPressedIn())
+                    if ((MouseManager.current == ButtonState.Released && MouseManager.previous == ButtonState.Pressed) || MyGamePad.APressed())
                     {
                         if (!singleClick)
                         {

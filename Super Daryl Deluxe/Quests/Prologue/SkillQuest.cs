@@ -41,9 +41,9 @@ namespace ISurvived
         {
             base.UpdateQuest();
 
-            if (Game1.schoolMaps.maps["NorthHall"].EnemiesInMap.Count == 0 && !Game1.g.Prologue.PrologueBooleans["addBox"])
+            if (Game1.schoolMaps.maps["North Hall"].EnemiesInMap.Count == 0 && !Game1.g.Prologue.PrologueBooleans["addBox"])
             {
-                Game1.schoolMaps.maps["NorthHall"].EnemiesInMap.Add(new FezGoblin(new Microsoft.Xna.Framework.Vector2(3695, 500), "Fez", Game1.g, ref Game1.g.Prologue.player, Game1.schoolMaps.maps["NorthHall"]));
+                Game1.schoolMaps.maps["North Hall"].AddEnemyToEnemyList(new FezGoblin(new Microsoft.Xna.Framework.Vector2(3695, 500), "Fez", Game1.g, ref Game1.g.Prologue.player, Game1.schoolMaps.maps["North Hall"]));
                 Game1.g.Prologue.PrologueBooleans["addBox"] = true;
             }
 

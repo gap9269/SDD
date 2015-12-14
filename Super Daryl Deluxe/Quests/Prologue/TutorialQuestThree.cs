@@ -26,6 +26,7 @@ namespace ISurvived
             questDialogue.Add("Where's our textbooks?");
 
             taskForQuestsPage = "Equip your first skill, then find a Textbook.";
+            specialConditions.Add("Open your locker", false);
             specialConditions.Add("Equip 'Discuss Differences'", false);
             specialConditions.Add("Then, find a Textbook.", false);
 
@@ -33,7 +34,7 @@ namespace ISurvived
 
             npcName = "Paul";
 
-            conditionsToComplete = "-Equip Discuss Differences\n-Find a textbook for Paul and Alan!";
+            conditionsToComplete = "-Open up your locker\n-Equip Discuss Differences\n-Find a textbook for Paul and Alan!";
             descriptionForJournal = "Paul and Alan have become textbook entrepreneurs and needed your help to get their first stock of product. They wanted you to steal a Textbook from the Science room, but it was locked.";
         }
 
@@ -42,7 +43,10 @@ namespace ISurvived
             base.UpdateQuest();
 
             if (Game1.Player.EquippedSkills.Count > 0)
+            {
+                specialConditions["Open your locker"] = true;
                 specialConditions["Equip 'Discuss Differences'"] = true;
+            }
             else
                 specialConditions["Equip 'Discuss Differences'"] = false;
             /*

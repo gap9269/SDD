@@ -70,7 +70,7 @@ namespace ISurvived
             //TOOLTIPS
             if (player.PositionX == 200 && game.MapBooleans.tutorialMapBooleans["TutorialTipOneUsed"] == false)
             {
-                Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][0], 400, 200, game.ChapterTwo.associateOneTex);
+                //Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][0], 400, 200, game.ChapterTwo.associateOneTex);
 
             }
 
@@ -82,7 +82,7 @@ namespace ISurvived
 
             if (player.PositionX > 1200 && game.MapBooleans.tutorialMapBooleans["TutorialTipTwoUsed"] == false)
             {
-                Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][1], 700, 180, game.ChapterTwo.associateOneTex);
+                //Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][1], 700, 180, game.ChapterTwo.associateOneTex);
             }
 
             if (player.PositionX > 1700 && game.MapBooleans.tutorialMapBooleans["TutorialTipTwoUsed"] == false)
@@ -93,7 +93,7 @@ namespace ISurvived
 
             if (player.PositionX > 2000 && game.MapBooleans.tutorialMapBooleans["TutorialTipThreeUsed"] == false)
             {
-                Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][2], 720, 30, game.ChapterTwo.associateOneTex);
+                //Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][2], 720, 30, game.ChapterTwo.associateOneTex);
             }
 
             if (player.PositionX < 2000 && game.MapBooleans.tutorialMapBooleans["TutorialTipThreeUsed"] == false && game.MapBooleans.tutorialMapBooleans["TutorialTipTwoUsed"] == true)

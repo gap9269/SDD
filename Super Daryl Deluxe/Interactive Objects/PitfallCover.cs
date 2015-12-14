@@ -21,7 +21,7 @@ namespace ISurvived
         public PitfallType type;
 
         public PitfallCover(Game1 g, int x, int y, Boolean pass, Boolean fore, PitfallType typ)
-            : base(g, x, y, Game1.interactiveObjects["Pitfall"], pass, 1, 0, 0, fore)
+            : base(g, x, y, Game1.whiteFilter, pass, 1, 0, 0, fore)
         {
             switch (type)
             {

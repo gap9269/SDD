@@ -65,8 +65,6 @@ namespace ISurvived
             lightRandom = new Random();
             maxFlick = lightRandom.Next(2, 8);
 
-            backgroundMusicName = "The Party";
-
         }
 
         public override void LoadContent()
@@ -88,7 +86,6 @@ namespace ISurvived
             Game1.npcFaces["Paul"].faces["Arrogant"] = content.Load<Texture2D>(@"NPCFaces\Paul\PaulHappy");
             Game1.npcFaces["Paul"].faces["Fonz"] = content.Load<Texture2D>(@"NPCFaces\Paul\PaulFonz");
 
-            Game1.npcFaces["Chelsea"].faces["Normal"] = content.Load<Texture2D>(@"NPCFaces\Main Characters\Chelsea");
             Game1.npcFaces["Julius Caesar"].faces["Normal"] = content.Load<Texture2D>(@"NPCFaces\Party\Julius");
             Game1.npcFaces["Julius Caesar"].faces["Naked"] = content.Load<Texture2D>(@"NPCFaces\Party\JuliusNaked");
 
@@ -106,6 +103,11 @@ namespace ISurvived
             //    backgroundMusic.IsLooped = true;
             //    Sound.music.Add("The Party", backgroundMusic);
             //}
+
+            SoundEffect am = Sound.ambienceContent.Load<SoundEffect>(@"Sound\Ambience\ambience_party_gross");
+            SoundEffectInstance amb = am.CreateInstance();
+            amb.IsLooped = true;
+            Sound.ambience.Add("ambience_party_gross", amb);
         }
 
         public override void UnloadNPCContent()
@@ -124,11 +126,16 @@ namespace ISurvived
             Game1.npcFaces["Paul"].faces["Arrogant"] = Game1.whiteFilter;
             Game1.npcFaces["Paul"].faces["Fonz"] = Game1.whiteFilter;
 
+            Game1.npcFaces["Julius Caesar"].faces["Normal"] = Game1.whiteFilter;
+            Game1.npcFaces["Julius Caesar"].faces["Naked"] = Game1.whiteFilter;
+
             ////DOn't clear the music if the next map is behind the party
-            //if (Chapter.theNextMap != "BehindtheParty" && Chapter.theNextMap != "OutsidetheParty")
+            //if (Chapter.theNextMap != "Behind the Party" && Chapter.theNextMap != "Outside the Party")
             //{
             //    Sound.UnloadBackgroundMusic();
             //}
+
+            Sound.UnloadAmbience();
         }
 
         public override void PlayBackgroundMusic()
@@ -136,11 +143,19 @@ namespace ISurvived
             //Sound.PlayBackGroundMusic("The Party");
         }
 
+        public override void PlayAmbience()
+        {
+            Sound.PlayAmbience("ambience_party_gross");
+        }
+
         public override void Update()
         {
             base.Update();
 
-            game.CurrentChapter.NPCs["Julius"].RecX = 1800;
+            PlayAmbience();
+
+            if(game.CurrentChapter.NPCs.ContainsKey("Julius"))
+                game.CurrentChapter.NPCs["Julius"].RecX = 1800;
 
             if (hazeOneIncrease)
             {
@@ -223,8 +238,9 @@ namespace ISurvived
                 }
             }
 
-            if (player.VitalRec.Intersects(toYourLockerButton.ButtonRec) && current.IsKeyUp(Keys.F) && last.IsKeyDown(Keys.F))
+            if (player.VitalRec.Intersects(toYourLockerButton.ButtonRec) && ((current.IsKeyUp(Keys.F) && last.IsKeyDown(Keys.F)) || MyGamePad.LeftBumperPressed()) && Game1.Player.playerState != Player.PlayerState.attackJumping && Game1.Player.playerState != Player.PlayerState.attacking)
             {
+                Game1.Player.StopSkills();
                 game.YourLocker.LoadContent();
                 game.CurrentChapter.state = Chapter.GameState.YourLocker;
             }
@@ -235,9 +251,9 @@ namespace ISurvived
         {
             base.SetPortals();
 
-            toBehindTheParty = new Portal(1765, 300, "TheParty");
+            toBehindTheParty = new Portal(1765, 300, "The Party");
             toBehindTheParty.PortalRecY = 300; //This is a hard coded value. the constructor modifies it so keep this line here
-            toOutsideTheParty = new Portal(280, platforms[0], "TheParty");
+            toOutsideTheParty = new Portal(280, platforms[0], "The Party");
 
             toYourLockerButton = new Button(Game1.portalLocker, new Rectangle(860, platforms[0].Rec.Y - Game1.portalLocker.Width,
     Game1.portalLocker.Width - 150, Game1.portalLocker.Height));

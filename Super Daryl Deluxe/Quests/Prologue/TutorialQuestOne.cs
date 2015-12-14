@@ -62,7 +62,10 @@ namespace ISurvived
             for (int i = 0; i < completedParts.Count; i++)
             {
                 if (completedParts[i] == false)
+                {
+                    completedQuest = false;
                     break;
+                }
 
                 if (i == completedParts.Count - 1)
                     completedQuest = true;

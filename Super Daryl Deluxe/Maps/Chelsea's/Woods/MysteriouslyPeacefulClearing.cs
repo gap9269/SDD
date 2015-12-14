@@ -152,7 +152,7 @@ namespace ISurvived
             }
             else
             {
-                enemiesInMap.Add(en);
+                AddEnemyToEnemyList(en);
                 pitfallEnemies.Add(en);
             }
 
@@ -271,8 +271,8 @@ namespace ISurvived
         {
             base.SetPortals();
 
-            toCrossroads = new Portal(0, -1320, "MysteriouslyPeacefulClearing");
-            toDeepWoods = new Portal(4800, -1320, "MysteriouslyPeacefulClearing");
+            toCrossroads = new Portal(0, -1320, "Mysteriously Peaceful Clearing");
+            toDeepWoods = new Portal(4800, -1320, "Mysteriously Peaceful Clearing");
         }
 
         public override void DrawParallaxAndForeground(SpriteBatch s)

@@ -67,14 +67,14 @@ namespace ISurvived
 
             if (game.MapBooleans.tutorialMapBooleans["TutorialTipTwelveUsed"] == false)
             {
-                if(game.MapBooleans.tutorialMapBooleans["LeftWithoutChest"] == false)
-                    Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][26], 100, 150, game.ChapterTwo.associateOneTex);
-                else
-                    Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][27], 100, 150, game.ChapterTwo.associateOneTex);
+               // if(game.MapBooleans.tutorialMapBooleans["LeftWithoutChest"] == false)
+                    //Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][26], 100, 150, game.ChapterTwo.associateOneTex);
+               // else
+                    //Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][27], 100, 150, game.ChapterTwo.associateOneTex);
 
                 if (player.Textbooks > 0 && player.PositionX < 900)
                 {
-                    Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][28], 400, 100, game.ChapterTwo.associateOneTex);
+                    //Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][28], 400, 100, game.ChapterTwo.associateOneTex);
                     game.MapBooleans.tutorialMapBooleans["FoundTextbook"] = true;
                 }
 

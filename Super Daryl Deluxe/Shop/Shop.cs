@@ -27,7 +27,7 @@ namespace ISurvived
 
         Dictionary<String, Texture2D> inventoryTextures;
 
-        Texture2D filter, kid, kidBlurred, clipboard, piggy, itemBoxes, sellStatic, sellActive, buyStatic, buyActive, shopStatic, shopActive, sell1Static, sell1Active, sell5Static, sell5Active, sellAllStatic, sellAllActive, cantSell5, cantBuy, piggyRay, keys, equipBoxTexture, otherBoxTexture;
+        Texture2D filter, kid, kidBlurred, clipboard, piggy, itemBoxes, sellStatic, sellActive, buyStatic, buyActive, shopStatic, shopActive, sell1Static, sell1Active, sell5Static, sell5Active, sellAllStatic, sellAllActive, cantSell5, cantBuy, piggyRay, keys, equipBoxTexture, otherBoxTexture, backspace, b;
 
         ItemForSale selectedItem;
         object selectedSaleItem;
@@ -38,6 +38,7 @@ namespace ISurvived
         String currentDescription;
         float currentCost;
         Boolean showBuyButton = false;
+        Button backspaceButton;
 
         PlayerInventoryInShop playerInventory;
 
@@ -104,16 +105,21 @@ namespace ISurvived
             sellAll = new Button(new Rectangle(979, 610, 107, 50));
 
             //UpdateResolution();
+
+            backspaceButton = new Button(new Rectangle(1166, 7, 110, 18));
+
         }
 
         public void UnloadContent()
         {
             inventoryTextures.Clear();
             Content.Unload();
+            Sound.UnloadMenuSounds();
         }
 
         public void LoadContent()
         {
+            Sound.LoadTrenchcoatSounds();
             itemBoxes = Content.Load<Texture2D>(@"Menus\Shop\Boxes");
             buyActive = Content.Load<Texture2D>(@"Menus\Shop\BuyActive");
             cantBuy = Content.Load<Texture2D>(@"Menus\Shop\CantBuy");
@@ -134,7 +140,8 @@ namespace ISurvived
             keys = Content.Load<Texture2D>(@"Menus\Shop\Keys");
             equipBoxTexture = Content.Load<Texture2D>(@"Menus\Shop\EquipBox");
             otherBoxTexture = Content.Load<Texture2D>(@"Menus\Shop\OtherBox");
-
+            backspace = Content.Load<Texture2D>(@"Menus\BackspaceNotebook");
+            b = Content.Load<Texture2D>(@"Menus\B");
             piggyRay = Content.Load<Texture2D>(@"Menus\Shop\PiggyRay");
 
             filter = Content.Load<Texture2D>(@"Menus\Shop\Shader");
@@ -175,6 +182,8 @@ namespace ISurvived
             playerInventory = new PlayerInventoryInShop(player, inventoryTextures, game.DescriptionBoxManager, game);
 
             kidPosY = clipboardPosY = (int)(Game1.aspectRatio * 1280);
+
+            Sound.PlaySoundInstance(Sound.SoundNames.ui_trenchcoat_open);
         }
 
         public void UpdateResolution()
@@ -204,6 +213,7 @@ namespace ISurvived
         {
             base.Update();
 
+            
             //Rotate the ray
             rayRotation+= .5f;
             if (rayRotation == 360)
@@ -213,7 +223,7 @@ namespace ISurvived
             {
 
                 #region Change States
-                if (KeyPressed(Keys.Back) || MyGamePad.BPressed())
+                if (KeyPressed(Keys.Back) || MyGamePad.BPressed() || backspaceButton.Clicked())
                 {
                     game.CurrentChapter.state = Chapter.GameState.Game;
                     selectedItem = null;
@@ -226,6 +236,8 @@ namespace ISurvived
                     openingTimer = 0;
                     openingState = 0;
                     blurAlpha = 0f;
+                    MyGamePad.ResetStates();
+
                 }
                 if (toBuy.Clicked())
                 {
@@ -235,6 +247,8 @@ namespace ISurvived
                     showBuyButton = false;
                     state = State.buying;
                     Chapter.effectsManager.RemoveToolTip();
+                    Sound.PlaySoundInstance(Sound.SoundNames.ui_inventory_page_01);
+
                 }
                 if (toSell.Clicked())
                 {
@@ -243,6 +257,8 @@ namespace ISurvived
                     state = State.selling;
                     playerInventory.ResetInventoryBoxes();
                     Chapter.effectsManager.RemoveToolTip();
+                    Sound.PlaySoundInstance(Sound.SoundNames.ui_inventory_page_01);
+
                 }
                 #endregion
 
@@ -266,13 +282,13 @@ namespace ISurvived
                     //Loop through all of the items on salle
                     for (int i = 0; i < trenchcoatKid.ItemsOnSale.Count; i++)
                     {
-
                         //If you click on an item, select it
                         if (saleButtons[i].Clicked() && trenchcoatKid.SoldOut[i] == false)
                         {
                             selectedItem = trenchcoatKid.ItemsOnSale[i];
                             showBuyButton = true;
                             selectedItemIndex = i;
+                            Sound.PlaySoundInstance(Sound.SoundNames.ui_trenchcoat_select);
 
                             if (game.Prologue.PrologueBooleans["firstTrenchSelectedItem"] == true)
                             {
@@ -306,9 +322,9 @@ namespace ISurvived
                             player.AddWeaponToInventory((selectedItem as WeaponForSale).weapon);
                         }
 
-                        if (selectedItem is HoodieForSale)
+                        if (selectedItem is OutfitForSale)
                         {
-                            player.AddShirtToInventory((selectedItem as HoodieForSale).hoodie);
+                            player.AddShirtToInventory((selectedItem as OutfitForSale).hoodie);
                         }
 
                         if (selectedItem is AccessoryForSale)
@@ -337,6 +353,8 @@ namespace ISurvived
                         selectedItem = null;
                         showBuyButton = false;
                         ResetSaleBoxes();
+                        Sound.PlaySoundInstance(Sound.SoundNames.ui_trenchcoat_buy);
+
                     }
 
 
@@ -351,7 +369,6 @@ namespace ISurvived
                     //    game.Prologue.PrologueBooleans["firstTrenchSell"] = false;
                     //    Chapter.effectsManager.AddToolTip("Here you can sell any equipment or loot you have. Just \nclick it in your inventory to see the details on the right, \nand then click one of the sale options. Click \"Shop\" to \nreturn to the shop.", 600, 20);
                     //}
-
 
                     playerInventory.Update();
                     selectedSaleItem = playerInventory.selectedItem;
@@ -380,9 +397,9 @@ namespace ISurvived
                                 selectedSaleItem = null;
                                 playerInventory.ResetInventoryBoxes();
                             }
-                            else if (selectedSaleItem is Hoodie)
+                            else if (selectedSaleItem is Outfit)
                             {
-                                player.Money += (selectedSaleItem as Hoodie).SellPrice;
+                                player.Money += (selectedSaleItem as Outfit).SellPrice;
                                 player.OwnedHoodies.RemoveAt(selectedItemIndex);
                                 playerInventory.selectedItemIndex = 0;
                                 playerInventory.selectedItem = null;
@@ -403,6 +420,11 @@ namespace ISurvived
                                 player.Money += (selectedSaleItem as DropType).buyCost;
                                 player.EnemyDrops[(selectedSaleItem as DropType).name]--;
 
+                                if ((selectedSaleItem as DropType).name == "Guano" && !Game1.g.ChapterOne.ChapterOneBooleans["soldGuanoToTrenchcoat"])
+                                {
+                                    Game1.g.ChapterOne.ChapterOneBooleans["soldGuanoToTrenchcoat"] = true;
+                                }
+
                                 if (player.EnemyDrops[(selectedSaleItem as DropType).name] == 0)
                                 {
                                     player.EnemyDrops.Remove((selectedSaleItem as DropType).name);
@@ -413,11 +435,19 @@ namespace ISurvived
                                 }
 
                             }
+
+                            Sound.PlaySoundInstance(Sound.SoundNames.ui_trenchcoat_sell);
+
                         }
                         else if (sellFive.Clicked() && selectedSaleItem is DropType && player.EnemyDrops[(selectedSaleItem as DropType).name] >= 5)
                         {
                             player.Money += (selectedSaleItem as DropType).buyCost * 5;
                             player.EnemyDrops[(selectedSaleItem as DropType).name] -= 5;
+
+                            if ((selectedSaleItem as DropType).name == "Guano" && !Game1.g.ChapterOne.ChapterOneBooleans["soldGuanoToTrenchcoat"])
+                            {
+                                Game1.g.ChapterOne.ChapterOneBooleans["soldGuanoToTrenchcoat"] = true;
+                            }
 
                             if (player.EnemyDrops[(selectedSaleItem as DropType).name] == 0)
                             {
@@ -427,6 +457,9 @@ namespace ISurvived
                                 selectedSaleItem = null;
                                 playerInventory.ResetInventoryBoxes();
                             }
+
+                            Sound.PlaySoundInstance(Sound.SoundNames.ui_trenchcoat_sell);
+
                         }
                         else if (sellAll.Clicked())
                         {
@@ -448,9 +481,9 @@ namespace ISurvived
                                 selectedSaleItem = null;
                                 playerInventory.ResetInventoryBoxes();
                             }
-                            else if (selectedSaleItem is Hoodie)
+                            else if (selectedSaleItem is Outfit)
                             {
-                                player.Money += (selectedSaleItem as Hoodie).SellPrice;
+                                player.Money += (selectedSaleItem as Outfit).SellPrice;
                                 player.OwnedHoodies.RemoveAt(selectedItemIndex);
                                 playerInventory.selectedItemIndex = 0;
                                 playerInventory.selectedItem = null;
@@ -468,6 +501,12 @@ namespace ISurvived
                             }
                             else if (selectedSaleItem is DropType)
                             {
+
+                                if ((selectedSaleItem as DropType).name == "Guano" && !Game1.g.ChapterOne.ChapterOneBooleans["soldGuanoToTrenchcoat"])
+                                {
+                                    Game1.g.ChapterOne.ChapterOneBooleans["soldGuanoToTrenchcoat"] = true;
+                                }
+
                                 player.Money += (selectedSaleItem as DropType).buyCost * (player.EnemyDrops[(selectedSaleItem as DropType).name]);
 
                                 player.EnemyDrops.Remove((selectedSaleItem as DropType).name);
@@ -476,6 +515,8 @@ namespace ISurvived
                                 selectedSaleItem = null;
                                 playerInventory.ResetInventoryBoxes();
                             }
+
+                            Sound.PlaySoundInstance(Sound.SoundNames.ui_trenchcoat_sell);
 
                         }
                     }
@@ -632,7 +673,7 @@ namespace ISurvived
                         #region Draw the correct shit
                         if (trenchcoatKid.ItemsOnSale[i] is TextbookForSale)
                         {
-                            s.Draw(Game1.textbookTextures, saleButtons[i].ButtonRec, new Rectangle(0, 0, 94, 90), Color.White);
+                            s.Draw(Game1.textbookTextures, saleButtons[i].ButtonRec, new Rectangle(0 + (94 * (trenchcoatKid.ItemsOnSale[i] as TextbookForSale).textureNum), 0, 94, 90), Color.White);
                         }
 
                         if (trenchcoatKid.ItemsOnSale[i] is KeyForSale)
@@ -645,7 +686,7 @@ namespace ISurvived
                             s.Draw(Game1.equipmentTextures[(trenchcoatKid.ItemsOnSale[i].name)], saleButtons[i].ButtonRec, Color.White);
                         }
 
-                        if (trenchcoatKid.ItemsOnSale[i] is HoodieForSale)
+                        if (trenchcoatKid.ItemsOnSale[i] is OutfitForSale)
                         {
                             s.Draw(Game1.equipmentTextures[(trenchcoatKid.ItemsOnSale[i].name)], saleButtons[i].ButtonRec, Color.White);
                         }
@@ -667,9 +708,9 @@ namespace ISurvived
                         #endregion
 
                         if (player.Money >= trenchcoatKid.ItemsOnSale[i].cost)
-                            s.DrawString(Game1.TwCondensedSmallFont, "$" + trenchcoatKid.ItemsOnSale[i].cost, new Vector2(saleButtons[i].ButtonRec.Center.X - Game1.TwCondensedSmallFont.MeasureString("$" + trenchcoatKid.ItemsOnSale[i].cost).X / 2, saleButtons[i].ButtonRecY + 80), Color.White);
+                            s.DrawString(Game1.TwCondensedSmallFont, "$" + trenchcoatKid.ItemsOnSale[i].cost.ToString("N2"), new Vector2(saleButtons[i].ButtonRec.Center.X - Game1.TwCondensedSmallFont.MeasureString("$" + trenchcoatKid.ItemsOnSale[i].cost.ToString("N2")).X / 2, saleButtons[i].ButtonRecY + 80), Color.White);
                         else
-                            s.DrawString(Game1.TwCondensedSmallFont, "$" + trenchcoatKid.ItemsOnSale[i].cost, new Vector2(saleButtons[i].ButtonRec.Center.X - Game1.TwCondensedSmallFont.MeasureString("$" + trenchcoatKid.ItemsOnSale[i].cost).X / 2, saleButtons[i].ButtonRecY + 80), Color.White);
+                            s.DrawString(Game1.TwCondensedSmallFont, "$" + trenchcoatKid.ItemsOnSale[i].cost.ToString("N2"), new Vector2(saleButtons[i].ButtonRec.Center.X - Game1.TwCondensedSmallFont.MeasureString("$" + trenchcoatKid.ItemsOnSale[i].cost.ToString("N2")).X / 2, saleButtons[i].ButtonRecY + 80), Color.White);
                     }
                 }
 
@@ -686,16 +727,22 @@ namespace ISurvived
                         s.Draw(otherBoxTexture, new Vector2(690, 415), Color.White);
                         s.Draw(Game1.textbookTextures, new Rectangle(935 - equipBox.Width / 2, (int)(Game1.aspectRatio * 1280 * .5f) + 10, 70, 70), (selectedItem as TextbookForSale).GetSourceRec(), Color.White);
 
+
                         //PRICE
-                        s.DrawString(Game1.twConQuestHudName, selectedItem.cost.ToString("N2"), new Vector2(1040, 466), Color.Black); 
+                        int posX = 1105 - (int)Game1.twConQuestHudName.MeasureString(selectedItem.cost.ToString("N2")).X;
+                        s.Draw(Game1.smallTypeIcons["smallMoneyIcon"], new Vector2(posX - 25, 466), Color.White);
+                        s.DrawString(Game1.twConQuestHudName, selectedItem.cost.ToString("N2"), new Vector2(posX, 465), Color.Black);
                         
                     }
                     else if (selectedItem is KeyForSale)
                     {
                         s.Draw(otherBoxTexture, new Vector2(690, 415), Color.White);
                         s.Draw(selectedItem.icon, new Rectangle(935 - selectedItem.icon.Width / 2, (int)(Game1.aspectRatio * 1280 * .5f) + 10, selectedItem.icon.Width, selectedItem.icon.Height), Color.White);
+
                         //PRICE
-                        s.DrawString(Game1.twConQuestHudName, selectedItem.cost.ToString("N2"), new Vector2(1040, 466), Color.Black);
+                        int posX = 1105 - (int)Game1.twConQuestHudName.MeasureString(selectedItem.cost.ToString("N2")).X;
+                        s.Draw(Game1.smallTypeIcons["smallMoneyIcon"], new Vector2(posX - 25, 466), Color.White);
+                        s.DrawString(Game1.twConQuestHudName, selectedItem.cost.ToString("N2"), new Vector2(posX, 465), Color.Black);
                     }
                     else
                     {
@@ -706,17 +753,22 @@ namespace ISurvived
 
                             s.DrawString(Game1.expMoneyFloatingNumFont, "Weapon", new Vector2(935 - Game1.expMoneyFloatingNumFont.MeasureString("Weapon").X / 2, (int)(Game1.aspectRatio * 1280 * .49) - 10), Color.Gray);
                             //PRICE
-                            s.DrawString(Game1.twConQuestHudName, selectedItem.cost.ToString("N2"), new Vector2(1035, 435), Color.Black);
+                            int posX = 1105 - (int)Game1.twConQuestHudName.MeasureString(selectedItem.cost.ToString("N2")).X;
+                            s.Draw(Game1.smallTypeIcons["smallMoneyIcon"], new Vector2(posX - 25, 436), Color.White);
+                            s.DrawString(Game1.twConQuestHudName, selectedItem.cost.ToString("N2"), new Vector2(posX, 435), Color.Black);
                         }
 
-                        if (selectedItem is HoodieForSale)
+                        if (selectedItem is OutfitForSale)
                         {
                             s.Draw(equipBoxTexture, new Vector2(690, 387), Color.White);
                             s.Draw(Game1.equipmentTextures[(selectedItem.name)], new Rectangle(935 - equipBox.Width / 2, (int)(Game1.aspectRatio * 1280 * .5f), Game1.equipmentTextures[(selectedItem.name)].Width, Game1.equipmentTextures[(selectedItem.name)].Height), Color.White);
 
                             s.DrawString(Game1.expMoneyFloatingNumFont, "Outfit", new Vector2(935 - Game1.expMoneyFloatingNumFont.MeasureString("Outfit").X / 2, (int)(Game1.aspectRatio * 1280 * .49) - 10), Color.Gray);
+
                             //PRICE
-                            s.DrawString(Game1.twConQuestHudName, selectedItem.cost.ToString("N2"), new Vector2(1035, 435), Color.Black);
+                            int posX = 1105 - (int)Game1.twConQuestHudName.MeasureString(selectedItem.cost.ToString("N2")).X;
+                            s.Draw(Game1.smallTypeIcons["smallMoneyIcon"], new Vector2(posX - 25, 436), Color.White);
+                            s.DrawString(Game1.twConQuestHudName, selectedItem.cost.ToString("N2"), new Vector2(posX, 435), Color.Black);
                         }
 
                         if (selectedItem is AccessoryForSale)
@@ -726,7 +778,9 @@ namespace ISurvived
 
                             s.DrawString(Game1.expMoneyFloatingNumFont, "Accessory", new Vector2(935 - Game1.expMoneyFloatingNumFont.MeasureString("Accessory").X / 2, (int)(Game1.aspectRatio * 1280 * .49) - 10), Color.Gray);
                             //PRICE
-                            s.DrawString(Game1.twConQuestHudName, selectedItem.cost.ToString("N2"), new Vector2(1035, 435), Color.Black);
+                            int posX = 1105 - (int)Game1.twConQuestHudName.MeasureString(selectedItem.cost.ToString("N2")).X;
+                            s.Draw(Game1.smallTypeIcons["smallMoneyIcon"], new Vector2(posX - 25, 436), Color.White);
+                            s.DrawString(Game1.twConQuestHudName, selectedItem.cost.ToString("N2"), new Vector2(posX, 435), Color.Black);
                         }
 
                         if (selectedItem is HatForSale)
@@ -737,7 +791,9 @@ namespace ISurvived
                             s.DrawString(Game1.expMoneyFloatingNumFont, "Hat", new Vector2(935 - Game1.expMoneyFloatingNumFont.MeasureString("Hat").X / 2, (int)(Game1.aspectRatio * 1280 * .49) - 10), Color.Gray);
 
                             //PRICE
-                            s.DrawString(Game1.twConQuestHudName, selectedItem.cost.ToString("N2"), new Vector2(1035, 435), Color.Black);
+                            int posX = 1105 - (int)Game1.twConQuestHudName.MeasureString(selectedItem.cost.ToString("N2")).X;
+                            s.Draw(Game1.smallTypeIcons["smallMoneyIcon"], new Vector2(posX - 25, 436), Color.White);
+                            s.DrawString(Game1.twConQuestHudName, selectedItem.cost.ToString("N2"), new Vector2(posX, 435), Color.Black);
                         }
 
                         if (selectedItem is StoryItemForSale)
@@ -747,9 +803,14 @@ namespace ISurvived
                             s.Draw(Game1.storyItemIcons[selectedItem.name], new Rectangle(935 - equipBox.Width / 2, (int)(Game1.aspectRatio * 1280 * .5f) + 10, Game1.storyItemIcons[selectedItem.name].Width, Game1.storyItemIcons[selectedItem.name].Height), Color.White);
 
                             s.DrawString(Game1.expMoneyFloatingNumFont, "Quest Item", new Vector2(935 - Game1.expMoneyFloatingNumFont.MeasureString("Quest Item").X / 2, (int)(Game1.aspectRatio * 1280 * .49)), Color.Gray);
+
                             //PRICE
-                            s.DrawString(Game1.twConQuestHudName, selectedItem.cost.ToString("N2"), new Vector2(1040, 466), Color.Black);
+                            int posX = 1105 - (int)Game1.twConQuestHudName.MeasureString(selectedItem.cost.ToString("N2")).X;
+                            s.Draw(Game1.smallTypeIcons["smallMoneyIcon"], new Vector2(posX - 25, 466), Color.White);
+                            s.DrawString(Game1.twConQuestHudName, selectedItem.cost.ToString("N2"), new Vector2(posX, 465), Color.Black);
+
                         }
+
                     #endregion
                     }
                     //DRAW THE DESCRIPTION
@@ -795,8 +856,6 @@ namespace ISurvived
                 s.DrawString(Game1.font, "x", new Vector2(462, 38), Color.White);
                 s.DrawString(Game1.font, player.GoldKeys.ToString(), new Vector2(477, 38), Color.White);
 
-                playerInventory.Draw(s);
-
                 if (selectedSaleItem != null)
                 {
                     if (selectedSaleItem is Equipment)
@@ -810,14 +869,16 @@ namespace ISurvived
                         s.Draw(Game1.equipmentTextures[(selectedSaleItem as Equipment).Name], new Rectangle(935 - equipBox.Width / 2, (int)(Game1.aspectRatio * 1280 * .5f - 4), Game1.equipmentTextures[(selectedSaleItem as Equipment).Name].Width, Game1.equipmentTextures[(selectedSaleItem as Equipment).Name].Height), Color.White);
 
                         //DESCRIPTION
-                        SellingItemWrapper selectedSaleItemDescription= new SellingItemWrapper(selectedSaleItem);
+                        SellingItemWrapper selectedSaleItemDescription = new SellingItemWrapper(selectedSaleItem);
                         selectedSaleItemDescription.DrawEquipDescription(s, Game1.descriptionFont, new Vector2(935 - Game1.expMoneyFloatingNumFont.MeasureString((selectedSaleItem as Equipment).Description).X / 2, (int)(Game1.aspectRatio * 1280 * .6f)));
 
                         //PRICE
-                        s.DrawString(Game1.twConQuestHudName, (selectedSaleItem as Equipment).SellPrice.ToString("N2"), new Vector2(1035, 435), Color.Black);
+                        int posX = 1105 - (int)Game1.twConQuestHudName.MeasureString((selectedSaleItem as Equipment).SellPrice.ToString("N2")).X;
+                        s.Draw(Game1.smallTypeIcons["smallMoneyIcon"], new Vector2(posX - 25, 438), Color.White);
+                        s.DrawString(Game1.twConQuestHudName, (selectedSaleItem as Equipment).SellPrice.ToString("N2"), new Vector2(posX, 437), Color.Black);
                         #endregion
                     }
-                    else if(selectedSaleItem is DropType)
+                    else if (selectedSaleItem is DropType)
                     {
                         s.Draw(otherBoxTexture, new Vector2(690, 415), Color.White);
 
@@ -826,12 +887,17 @@ namespace ISurvived
                         s.DrawString(Game1.pickUpFont, (selectedSaleItem as DropType).name, new Vector2(935 - Game1.pickUpFont.MeasureString((selectedSaleItem as DropType).name).X / 2, (int)(Game1.aspectRatio * 1280 * .45) - 4), Color.Black);
 
                         //ICON
-                        s.Draw((selectedSaleItem as DropType).texture, new Rectangle(935 - equipBox.Width / 2, (int)(Game1.aspectRatio * 1280 * .5f) - 4, equipBox.Width, equipBox.Height), Color.White);
+                        s.Draw((selectedSaleItem as DropType).texture, new Rectangle(935 - 70 / 2, (int)(Game1.aspectRatio * 1280 * .5f) - 4, 70, 70), Color.White);
 
                         //DESCRIPTION
                         s.DrawString(Game1.descriptionFont, Game1.WrapText(Game1.descriptionFont, (selectedSaleItem as DropType).description, 315), new Vector2(794, 495), Color.Black);
 
-                        s.DrawString(Game1.twConQuestHudName, (selectedSaleItem as DropType).buyCost.ToString("N2"), new Vector2(1040, 466), Color.Black);
+                        // s.DrawString(Game1.twConQuestHudName, (selectedSaleItem as DropType).buyCost.ToString("N2"), new Vector2(1040, 466), Color.Black);
+
+                        //PRICE
+                        int posX = 1105 - (int)Game1.twConQuestHudName.MeasureString((selectedSaleItem as DropType).buyCost.ToString("N2")).X;
+                        s.Draw(Game1.smallTypeIcons["smallMoneyIcon"], new Vector2(posX - 25, 466), Color.White);
+                        s.DrawString(Game1.twConQuestHudName, (selectedSaleItem as DropType).buyCost.ToString("N2"), new Vector2(posX, 465), Color.Black);
                         #endregion
                     }
 
@@ -841,7 +907,7 @@ namespace ISurvived
                     else
                         s.Draw(sell1Static, new Rectangle(sellOne.ButtonRecX - 30, 585, sell1Active.Width, sell1Active.Height), Color.White);
 
-                    if(sellAll.IsOver())
+                    if (sellAll.IsOver())
                         s.Draw(sellAllActive, new Rectangle(sellAll.ButtonRecX - 30, 585, sellAllActive.Width, sellAllActive.Height), Color.White);
                     else
                         s.Draw(sellAllStatic, new Rectangle(sellAll.ButtonRecX - 30, 585, sellAllActive.Width, sellAllActive.Height), Color.White);
@@ -857,7 +923,15 @@ namespace ISurvived
                     }
                     #endregion
                 }
+
+                playerInventory.Draw(s);
             }
+
+            if (!Game1.gamePadConnected)
+                s.Draw(backspace, new Vector2(1280 - backspace.Width - 5, 5), Color.White);
+            else
+                s.Draw(b, new Vector2(1280 - backspace.Width + 20, 5), Color.White);
+
         }
     }
 
@@ -1113,7 +1187,7 @@ namespace ISurvived
                 #endregion
 
                 #region Draw the stat differences for Outfits
-                if (item is Hoodie)
+                if (item is Outfit)
                 {
                     if (Game1.Player.EquippedHoodie != null)
                     {

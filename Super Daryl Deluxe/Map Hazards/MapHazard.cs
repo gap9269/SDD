@@ -28,6 +28,8 @@ namespace ISurvived
         public int Timer { get { return timer; } set { timer = value; } }
         public Boolean Active { get { return active; } set { active = value; } }
         public Rectangle Rec { get { return rec; } set { rec = value; } }
+        public int RecX { get { return rec.X; } set { rec.X = value; } }
+        public int RecY { get { return rec.Y; } set { rec.Y = value; } }
 
         public MapHazard(int x, int y, Game1 g)
         {
@@ -46,6 +48,11 @@ namespace ISurvived
         public virtual void Draw(SpriteBatch s)
         {
             
+        }
+
+        public virtual void StopSounds()
+        {
+
         }
     }
 }

@@ -14,7 +14,7 @@ namespace ISurvived
 {
     public class InteractiveObject
     {
-        protected int frameState;
+        public int frameState;
         protected Boolean finished = false;
         protected Texture2D sprite;
         protected Rectangle rec;
@@ -27,14 +27,17 @@ namespace ISurvived
         protected StoryItem storyItem;
         protected Random ranX;
         protected Random ranY;
-        protected int frameTimer = 5;
+        public int frameTimer = 5;
         protected Rectangle vitalRec;
         protected Boolean foreground = false;
         protected KeyboardState last;
         protected KeyboardState current;
-        protected Boolean facingRight = true;
+        public Boolean facingRight = true;
+        protected Boolean isHidden = false;
+        public Boolean canBeHit = true;
 
         public Boolean Foreground { get { return foreground; } set { foreground = value; } }
+        public Boolean IsHidden { get { return isHidden; } set { isHidden = value; } }
         public Rectangle Rec { get { return rec; } set { rec = value; } }
         public int RecX { get { return rec.X; } set { rec.X = value; } }
         public int RecY { get { return rec.Y; } set { rec.Y = value; } }
@@ -61,10 +64,15 @@ namespace ISurvived
             rec.Y = y;
         }
 
-        public virtual void TakeHit()
+        public virtual void TakeHit(int damage = 1)
         {
             if(health > 0)
-                 health--;
+                 health -= damage;
+        }
+
+        public virtual void StopSound()
+        {
+
         }
 
         public virtual void Update()

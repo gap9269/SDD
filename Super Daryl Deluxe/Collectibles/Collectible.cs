@@ -16,6 +16,9 @@ namespace ISurvived
         protected Boolean ableToPickUp = true; //This is so you can only make them appear after a certain objective is completed
         public String collecName;
 
+        public int RecX { get { return rec.X; } set { rec.X = value; } }
+        public int RecY { get { return rec.Y; } set { rec.Y = value; } }
+
         protected String description;
 
         public String Description

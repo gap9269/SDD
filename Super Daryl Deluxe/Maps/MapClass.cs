@@ -23,10 +23,21 @@ namespace ISurvived
         String itemNameToUnlock;
         Boolean isUseable = true;
         public Texture2D lockTexture;
-        public static Texture2D gold, silver, bronze;
+        public static Texture2D gold, silver, bronze, ghost;
         int moveFrame, frameTimer;
         float floatCycle, lockPosY;
         static Random ranNum, ranTime;
+
+        public enum DoorType
+        {
+            none,
+            movement_door_open,
+            movement_portal_enter,
+            movement_stairs,
+        }
+        public DoorType doorType;
+
+        public static SoundEffect movement_door_locked, object_lock_open;
 
         public int FButtonYOffset; //Use this to move the F Button around for the door. It gets added to the normal location
         public int PortalNameYOffset; //Use this to move the F Button around for the door. It gets added to the normal location
@@ -50,7 +61,7 @@ namespace ISurvived
         public Boolean IsUseable { get { return isUseable; } set { isUseable = value; } }
 
         // CONSTRUCTOR \\
-        public Portal(int x, Platform plat, String name)
+        public Portal(int x, Platform plat, String name, DoorType doorTyp = DoorType.movement_portal_enter)
         {
             mapName = name;
             platform = plat;
@@ -62,9 +73,11 @@ namespace ISurvived
 
             ranNum = new Random();
             ranTime = new Random();
+
+            doorType = doorTyp;
         }
 
-        public Portal(int x, int platY, String name)
+        public Portal(int x, int platY, String name, DoorType doorTyp = DoorType.movement_portal_enter)
         {
             mapName = name;
             portalTexture = Game1.portalTexture;
@@ -73,21 +86,10 @@ namespace ISurvived
             content.RootDirectory = "Content";
             ranNum = new Random();
             ranTime = new Random();
+            doorType = doorTyp;
         }
 
-        public Portal(int x, Platform plat, Texture2D tex, String name)
-        {
-            mapName = name;
-            platform = plat;
-            portalTexture = tex;
-            portalRec = new Rectangle(x, platform.Rec.Y - portalTexture.Height, tex.Width, tex.Height);
-            content = new ContentManager(Game1.g.Services);
-            content.RootDirectory = "Content";
-            ranNum = new Random();
-            ranTime = new Random();
-        }
-
-        public Portal(int x, Platform plat, String name, String itemToUnlock)
+        public Portal(int x, Platform plat, String name, String itemToUnlock, DoorType doorTyp = DoorType.movement_portal_enter)
         {
             mapName = name;
             platform = plat;
@@ -100,9 +102,10 @@ namespace ISurvived
             ranTime = new Random();
 
             lockRec = new Rectangle(portalRec.X + 40, portalRec.Y, 95, 172);
+            doorType = doorTyp;
         }
 
-        public Portal(int x, int platY, String name, String itemToUnlock)
+        public Portal(int x, int platY, String name, String itemToUnlock, DoorType doorTyp = DoorType.movement_portal_enter)
         {
             mapName = name;
             portalTexture = Game1.lockedPortalTexture;
@@ -114,6 +117,7 @@ namespace ISurvived
             ranTime = new Random();
 
             lockRec = new Rectangle(portalRec.X + 40, portalRec.Y, 95, 172);
+            doorType = doorTyp;
         }
 
         public Rectangle GetSourceRectangle()
@@ -226,9 +230,12 @@ namespace ISurvived
                 
                 #endregion
 
-                s.Draw(lockTexture, new Rectangle(lockRec.X, lockRec.Y + (int)lockPosY, lockRec.Width, lockRec.Height), new Rectangle(0, 172, 219, 219), Color.White * glowAlpha);
+                    if (lockTexture != null)
+                    {
+                        s.Draw(lockTexture, new Rectangle(lockRec.X, lockRec.Y + (int)lockPosY, lockRec.Width, lockRec.Height), new Rectangle(0, 172, 219, 219), Color.White * glowAlpha);
 
-                s.Draw(lockTexture, new Rectangle(lockRec.X, lockRec.Y + (int)lockPosY, lockRec.Width, lockRec.Height), GetSourceRectangle(), Color.White);
+                        s.Draw(lockTexture, new Rectangle(lockRec.X, lockRec.Y + (int)lockPosY, lockRec.Width, lockRec.Height), GetSourceRectangle(), Color.White);
+                    }
             }
 
         }
@@ -239,6 +246,10 @@ namespace ISurvived
         /// <param name="type"></param>
         public static void LoadLockContent(String type)
         {
+
+            movement_door_locked = content.Load<SoundEffect>("Sound\\Objects\\movement_door_locked");
+            object_lock_open = content.Load<SoundEffect>("Sound\\Objects\\object_lock_open");
+
             switch (type)
             {
                 case "Gold":
@@ -250,14 +261,20 @@ namespace ISurvived
                 case "Bronze":
                     bronze = content.Load<Texture2D>(@"SpriteSheets\BronzeLockSheet");
                     break;
+                case "Ghost":
+                    ghost = content.Load<Texture2D>(@"SpriteSheets\GhostLockSheet");
+                    break;
             }
         }
 
         public static void UnloadContent()
         {
+            movement_door_locked = null;
+            object_lock_open = null;
             gold = null;
             silver = null;
             bronze = null;
+            ghost = null;
             content.Unload();
            // lockPosY = 0;
         }
@@ -281,7 +298,7 @@ namespace ISurvived
         protected KeyboardState current;
         protected KeyboardState last;
         protected List<Platform> platforms;
-        protected Platform mapEdgePlat;
+        public Platform mapEdgePlatLeft, mapEdgePlatRight;
         protected List<EnemyDrop> drops;
         protected List<StoryItem> storyItems;
         protected List<Collectible> collectibles;
@@ -302,7 +319,7 @@ namespace ISurvived
 
         public static int currentLoadingTipNum;
 
-        public String backgroundMusicName = "";
+        public Sound.MusicNames currentBackgroundMusic;
 
         protected float zoomLevel = 1f;
         protected int overlayType = 0; //0 is normal, 1 is dropshadow
@@ -327,15 +344,6 @@ namespace ISurvived
         public int leavingMapTimer ;
         public bool enteringMap = false;
         protected String nextMapName = "null";
-
-        /*
-        public enum chapterState
-        {
-            prologue,
-            chapterOne,
-            chapterTwo
-        }
-        public chapterState state;*/
 
         //--Respawning enemies
         protected int platformNum;
@@ -406,6 +414,8 @@ namespace ISurvived
 
             enemyNamesAndNumberInMap = new Dictionary<string, int>();
 
+            currentBackgroundMusic = Sound.MusicNames.none;
+
             //--Map quest
             enemiesKilledForQuest = new List<int>();
             enemiesToKill = new List<int>();
@@ -415,8 +425,7 @@ namespace ISurvived
             content.RootDirectory = "Content";
         }
 
-        // METHODS \\
-
+        // METHODS \]
 
         public virtual void LoadContent()
         {
@@ -457,7 +466,9 @@ namespace ISurvived
             current = Keyboard.GetState();
 
             mapNameTimer++;
-            
+
+            if (!Discovered)
+                Discovered = true;
 
             #region Enemies update, death, and quest kill incrementing
             //--For every enemy on screen, call update
@@ -474,10 +485,12 @@ namespace ISurvived
                 //--If the enemy is dead, remove it
                 if (enemiesInMap[i].IsDead())
                 {
-       
-                    player.HitPauseTimer = 6;
-                    game.Camera.ShakeCamera(5, 7);
 
+                    if (!(enemiesInMap[i] is VileMummy))
+                    {
+                        player.HitPauseTimer = 6;
+                        game.Camera.ShakeCamera(5, 7);
+                    }
                     //--Remove it from the enemies in map dictionary if it is a map with a set number of enemy types
                     if (enemyNamesAndNumberInMap.ContainsKey(enemiesInMap[i].EnemyType))
                     {
@@ -519,6 +532,16 @@ namespace ISurvived
                             }
                         }
 
+                    }
+
+                    enemiesInMap.Remove(enemiesInMap[i]);
+                }
+                else if (enemiesInMap[i].fellOffMap)
+                {
+                    //--Remove it from the enemies in map dictionary if it is a map with a set number of enemy types
+                    if (enemyNamesAndNumberInMap.ContainsKey(enemiesInMap[i].EnemyType))
+                    {
+                        enemyNamesAndNumberInMap[enemiesInMap[i].EnemyType]--;
                     }
 
                     enemiesInMap.Remove(enemiesInMap[i]);
@@ -566,7 +589,7 @@ namespace ISurvived
 
                 if (player.VitalRec.Intersects(mapQuestSigns[i].Rec) && !mapQuestSigns[i].Active)
                 {
-                    if ((current.IsKeyUp(Keys.F) && last.IsKeyDown(Keys.F)) || MyGamePad.RightBumperPressed())
+                    if ((current.IsKeyUp(Keys.F) && last.IsKeyDown(Keys.F)) || MyGamePad.LeftBumperPressed())
                         mapQuestSigns[i].ActivateSign();
 
                     if (!Chapter.effectsManager.fButtonRecs.Contains(frec))
@@ -576,6 +599,12 @@ namespace ISurvived
                 {
                     if (Chapter.effectsManager.fButtonRecs.Contains(frec))
                         Chapter.effectsManager.fButtonRecs.Remove(frec);
+                }
+
+                if (mapQuestSigns[i].Active && mapQuestSigns[i].CompletedQuest && mapQuestSigns[i].GivenRewards == false && player.VitalRec.Intersects(mapQuestSigns[i].Rec))
+                {
+                    mapQuestSigns[i].ActivateSign();
+
                 }
             }
 
@@ -591,11 +620,11 @@ namespace ISurvived
 
             for (int i = 0; i < lockers.Count; i++)
             {
-                //if (((game.CurrentChapter is Prologue) && (game.CurrentChapter as Prologue).CanBreakIntoLockers) || !(game.CurrentChapter is Prologue))
-              //  {
+                if (((game.CurrentChapter is Prologue) && (game.CurrentChapter as Prologue).CanBreakIntoLockers) || !(game.CurrentChapter is Prologue))
+                {
                     if (game.CurrentChapter.BossFight == false)
                         lockers[i].CheckIfOpening();
-             //   }
+                }
             }
 
             for (int i = 0; i < treasureChests.Count; i++)
@@ -699,7 +728,7 @@ namespace ISurvived
         public Boolean CheckSwitch(Switch sw)
         {
             //--If the player is touching it and hits F, turn it on or off
-            if (player.VitalRec.Intersects(sw.Rec) && ((current.IsKeyUp(Keys.F) && last.IsKeyDown(Keys.F)) || MyGamePad.RightBumperPressed()) && player.playerState != ISurvived.Player.PlayerState.jumping && player.playerState != ISurvived.Player.PlayerState.attackJumping)
+            if (player.VitalRec.Intersects(new Rectangle(sw.Rec.Center.X - 20, sw.Rec.Center.Y - 20, 40, 40)) && ((current.IsKeyUp(Keys.F) && last.IsKeyDown(Keys.F)) || MyGamePad.LeftBumperPressed()) && player.playerState != ISurvived.Player.PlayerState.jumping && player.playerState != ISurvived.Player.PlayerState.attackJumping)
             {
                 sw.UseSwitch();
                 return true;
@@ -716,7 +745,7 @@ namespace ISurvived
         public void CheckSwitch(Switch sw, int randomIntSoICanOverloadThisFunction)
         {
             //--If the player is touching it and hits F, turn it on or off
-            if (player.VitalRec.Intersects(sw.Rec) && ((current.IsKeyUp(Keys.F) && last.IsKeyDown(Keys.F)) || MyGamePad.RightBumperPressed()))
+            if (player.VitalRec.Intersects(new Rectangle(sw.Rec.Center.X - 20, sw.Rec.Center.Y - 20, 40, 40)) && ((current.IsKeyUp(Keys.F) && last.IsKeyDown(Keys.F)) || MyGamePad.LeftBumperPressed()))
             {
                 sw.UseSwitch();
             }
@@ -740,15 +769,19 @@ namespace ISurvived
                 platformNum = rand.Next(0, platforms.Count);
             }
 
-            monsterX = rand.Next(platforms[platformNum].Rec.X, platforms[platformNum].Rec.X + platforms[platformNum].Rec.Width);
+            monsterX = rand.Next(platforms[platformNum].Rec.X, platforms[platformNum].Rec.X + platforms[platformNum].Rec.Width - 300);
             monsterY = 0;
             pos = new Vector2(monsterX, monsterY);
         }
 
-        //Call this inside of RespawnGroundEnemies before c
-        public void GetRandomRespawnPoint(int monsterRecWidth)
+        public virtual void ResetEnemyNamesAndNumberInMap()
         {
-
+            for (int i = enemyNamesAndNumberInMap.Count - 1; i >= 0; i--)
+            {
+                String temp = enemyNamesAndNumberInMap.ElementAt(i).Key;
+                enemyNamesAndNumberInMap.Remove(enemyNamesAndNumberInMap.ElementAt(i).Key);
+                enemyNamesAndNumberInMap.Add(temp, 0);
+            }
         }
 
         //Spawns enemies in the air within a boundary
@@ -760,16 +793,27 @@ namespace ISurvived
             pos = new Vector2(monsterX, monsterY);
         }
 
+        public virtual void DrawInFrontOfNPC(SpriteBatch s)
+        {
+
+        }
+
         //--Draw each enemy on the screen, and the map itself. Including portals
         public virtual void Draw(SpriteBatch s)
         {
+            int backgroundX = 0;
+
             for (int i = 0; i < background.Count; i++)
             {
                 if (background.Count != 1)
                 {
+                    if(i > 0)
+                        backgroundX += background[i - 1].Width;
+
                     if (i != 0)
                     {
-                        s.Draw(background[i], new Rectangle(mapRec.X + background[i - 1].Width, mapRec.Y,
+
+                        s.Draw(background[i], new Rectangle(mapRec.X + backgroundX, mapRec.Y,
                             background[i].Width, background[i].Height), Color.White);
                     }
                     else
@@ -786,7 +830,7 @@ namespace ISurvived
 
             for (int i = 0; i < platforms.Count; i++)
             {
-                if(platforms[i].DrawPlatform || game.CurrentChapter.state == Chapter.GameState.mapEdit)
+              if(platforms[i].DrawPlatform || game.CurrentChapter.state == Chapter.GameState.mapEdit)
                     platforms[i].Draw(s);
             }
 
@@ -802,7 +846,7 @@ namespace ISurvived
                 Rectangle frec = new Rectangle(switches[i].Rec.X + switches[i].Rec.Width / 2 - 43 / 2,
                         switches[i].Rec.Y + 30, 43, 65);
 
-                if (player.VitalRec.Intersects(switches[i].Rec))
+                if (player.VitalRec.Intersects(new Rectangle(switches[i].Rec.Center.X - 20, switches[i].Rec.Center.Y - 20, 40, 40)))
                 {
 
                     if (!Chapter.effectsManager.fButtonRecs.Contains(frec))
@@ -826,9 +870,9 @@ namespace ISurvived
 
             for (int i = 0; i < portals.Count; i++)
             {
-
                 if (portals.ElementAt(i).Key.ItemNameToUnlock != "" && portals.ElementAt(i).Key.ItemNameToUnlock != null)
                 {
+
                     portals.ElementAt(i).Key.DrawLock(s);
                 }
 
@@ -864,11 +908,8 @@ namespace ISurvived
                 //--If it is less than 250 pixels
                 if (distanceFromPortal.X < 250 && distanceFromPortal.Y < 250 && game.CurrentChapter.state == Chapter.GameState.Game && player.LearnedSkills.Count > 0 && game.CurrentChapter.BossFight == false)
                 {
-                    s.DrawString(game.Font, "Daryl's Locker & Skill Shop",
-   new Vector2(NorthHall.ToYourLockerButton.ButtonRec.X - 30 - 2, NorthHall.ToYourLockerButton.ButtonRec.Y - 40 - 2), Color.Black);
 
-                    s.DrawString(game.Font, "Daryl's Locker & Skill Shop",
-                       new Vector2(NorthHall.ToYourLockerButton.ButtonRec.X - 30, NorthHall.ToYourLockerButton.ButtonRec.Y - 40), Color.White);
+                    Game1.OutlineFont(game.Font, s, "Daryl's Locker & Skill Shop", 1, (int)(NorthHall.ToYourLockerButton.ButtonRec.X - 30 - 2), (int)(NorthHall.ToYourLockerButton.ButtonRec.Y - 40 - 2), Color.White, new Color(241, 107, 79));
                 }
 
 
@@ -909,11 +950,7 @@ namespace ISurvived
                 //--If it is less than 250 pixels
                 if (distanceFromPortal.X < 250 && distanceFromPortal.Y < 250 && game.CurrentChapter.state == Chapter.GameState.Game && (player.LearnedSkills.Count > 0 || this is TutorialMapSeven))
                 {
-                    s.DrawString(game.Font, "Daryl's Locker / Skill Shop",
-   new Vector2(lockerButton.ButtonRec.X + lockerButton.ButtonRecWidth / 2 - (game.Font.MeasureString("Daryl's Locker / Skill Shop").X / 2) - 2, lockerButton.ButtonRec.Y - 40 - 2), Color.Black);
-
-                    s.DrawString(game.Font, "Daryl's Locker / Skill Shop",
-                       new Vector2(lockerButton.ButtonRec.X + lockerButton.ButtonRecWidth / 2 - (game.Font.MeasureString("Daryl's Locker / Skill Shop").X / 2), lockerButton.ButtonRec.Y - 40), Color.White);
+                    Game1.OutlineFont(game.Font, s, "Daryl's Locker & Skill Shop", 1, (int)(lockerButton.ButtonRec.X + lockerButton.ButtonRecWidth / 2 - (game.Font.MeasureString("Daryl's Locker / Skill Shop").X / 2) - 2), (int)(lockerButton.ButtonRec.Y - 40 - 2), Color.White, new Color(241, 107, 79));
                 }
 
 
@@ -951,6 +988,8 @@ Math.Abs(player.VitalRec.Center.Y - lockers[i].Rec.Center.Y));
                 {
                     float x = lockers[i].Rec.X + lockers[i].Rec.Width / 2 - (game.Font.MeasureString(lockers[i].LockerName).X / 2);
                     s.DrawString(game.Font, lockers[i].LockerName, new Vector2(x, lockers[i].Rec.Y - 40), Color.Black);
+
+                    Game1.OutlineFont(game.Font, s, lockers[i].LockerName, 1, (int)x, lockers[i].Rec.Y - 40, Color.DarkGreen, new Color(112, 255, 255));
                 }
 
                 Rectangle frec = new Rectangle(lockers[i].Rec.X + lockers[i].Rec.Width / 2 - 43 / 2, lockers[i].Rec.Y - 100, 43, 65);
@@ -968,12 +1007,6 @@ Math.Abs(player.VitalRec.Center.Y - lockers[i].Rec.Center.Y));
                 }
             }
 
-            //--LADDERS
-            for (int i = 0; i < ladders.Count; i++)
-            {
-                ladders[i].Draw(s);
-            }
-
             for (int i = 0; i < treasureChests.Count; i++)
             {
                 treasureChests[i].Draw(s);
@@ -984,20 +1017,16 @@ Math.Abs(player.VitalRec.Center.Y - lockers[i].Rec.Center.Y));
                 storyItems[i].Draw(s);
             }
 
-            for (int i = 0; i < mapHazards.Count; i++)
-            {
-                mapHazards[i].Draw(s);
-            }
-
-            for (int i = 0; i < moveBlocks.Count; i++)
-            {
-                moveBlocks[i].Draw(s);
-            }
-
             for (int i = 0; i < interactiveObjects.Count; i++)
             {
                 if (interactiveObjects[i].Foreground == false && !(interactiveObjects[i] is LivingLocker))
                     interactiveObjects[i].Draw(s);
+            }
+
+            for (int i = 0; i < projectiles.Count; i++)
+            {
+                if (!projectiles[i].Foreground)
+                    projectiles[i].Draw(s);
             }
         }
 
@@ -1031,20 +1060,15 @@ Math.Abs(player.VitalRec.Center.Y - lockers[i].Rec.Center.Y));
                         {
                             float meas = game.Font.MeasureString(Game1.schoolMaps.maps[portals.ElementAt(i).Value.MapName].MapName).X;
 
-                            s.DrawString(game.Font, Game1.schoolMaps.maps[portals.ElementAt(i).Value.MapName].MapName,
-new Vector2(portals.ElementAt(i).Key.PortalRec.X + portals.ElementAt(i).Key.PortalRec.Width / 2 - meas / 2 - 2, portals.ElementAt(i).Key.PortalRec.Y - 40 - 2 + portals.ElementAt(i).Key.PortalNameYOffset), Color.Black);
+                            Game1.OutlineFont(game.Font, s, Game1.schoolMaps.maps[portals.ElementAt(i).Value.MapName].MapName, 1, (int)(portals.ElementAt(i).Key.PortalRec.X + portals.ElementAt(i).Key.PortalRec.Width / 2 - meas / 2), (int)(portals.ElementAt(i).Key.PortalRec.Y - 40 + portals.ElementAt(i).Key.PortalNameYOffset), Color.Black, Color.White);
 
-                            s.DrawString(game.Font, Game1.schoolMaps.maps[portals.ElementAt(i).Value.MapName].MapName,
-                                new Vector2(portals.ElementAt(i).Key.PortalRec.X + portals.ElementAt(i).Key.PortalRec.Width / 2 - meas / 2, portals.ElementAt(i).Key.PortalRec.Y - 40 + portals.ElementAt(i).Key.PortalNameYOffset), Color.White);//new Color(241, 107, 79));
                         }
                         //--Otherwise draw a question mark
                         else
                         {
                             float meas = game.Font.MeasureString("???").X;
-                            s.DrawString(game.Font, "???",
-new Vector2(portals.ElementAt(i).Key.PortalRec.X + portals.ElementAt(i).Key.PortalRec.Width / 2 - meas / 2 - 1, portals.ElementAt(i).Key.PortalRec.Y - 40 - 1 + portals.ElementAt(i).Key.PortalNameYOffset), Color.Black);
-                            s.DrawString(game.Font, "???",
-                                new Vector2(portals.ElementAt(i).Key.PortalRec.X + portals.ElementAt(i).Key.PortalRec.Width / 2 - meas / 2, portals.ElementAt(i).Key.PortalRec.Y - 40 + portals.ElementAt(i).Key.PortalNameYOffset), Color.White);//new Color(241, 107, 79));
+
+                            Game1.OutlineFont(game.Font, s, "???", 1, (int)(portals.ElementAt(i).Key.PortalRec.X + portals.ElementAt(i).Key.PortalRec.Width / 2 - meas / 2), (int)(portals.ElementAt(i).Key.PortalRec.Y - 40 + portals.ElementAt(i).Key.PortalNameYOffset), Color.Black, Color.White);
 
                         }
                     }
@@ -1071,22 +1095,22 @@ new Vector2(portals.ElementAt(i).Key.PortalRec.X + portals.ElementAt(i).Key.Port
             }
         }
 
-        public void DrawEnemies(SpriteBatch s)
+        public void DrawEnemiesAndHazards(SpriteBatch s)
         {
             for (int i = 0; i < enemiesInMap.Count; i++)
             {
                 if(!(enemiesInMap[i] is SteeringEnemy))
                     enemiesInMap[i].Draw(s);
             }
+
+            for (int i = 0; i < mapHazards.Count; i++)
+            {
+                mapHazards[i].Draw(s);
+            }
         }
 
         public void DrawEnemyForegroundEffects(SpriteBatch s)
         {
-
-            for (int i = 0; i < projectiles.Count; i++)
-            {
-                projectiles[i].Draw(s);
-            }
 
             for (int i = 0; i < enemiesInMap.Count; i++)
             {
@@ -1126,9 +1150,12 @@ new Vector2(portals.ElementAt(i).Key.PortalRec.X + portals.ElementAt(i).Key.Port
                 if (portals.ElementAt(i).Key.IsUseable)
                 {
                     //If the player uses a portal
-                    if (player.VitalRec.Intersects(portals.ElementAt(i).Key.PortalRec) && ((current.IsKeyUp(Keys.F) && last.IsKeyDown(Keys.F)) || MyGamePad.RightBumperPressed())  && CheckPortalLock(portals.ElementAt(i).Key) && player.playerState != ISurvived.Player.PlayerState.jumping && player.playerState != ISurvived.Player.PlayerState.attackJumping && player.Ducking == false)
+                    if (player.VitalRec.Intersects(portals.ElementAt(i).Key.PortalRec) && ((current.IsKeyUp(Keys.F) && last.IsKeyDown(Keys.F)) || MyGamePad.LeftBumperPressed())  && CheckPortalLock(portals.ElementAt(i).Key) && player.playerState != ISurvived.Player.PlayerState.jumping && player.playerState != ISurvived.Player.PlayerState.attackJumping && player.Ducking == false)
                     {
-                        //Sound.PlaySoundInstance(Sound.SoundNames.DoorOpen);
+                        if (portals.ElementAt(i).Key.doorType != Portal.DoorType.none)
+                        {
+                            Sound.PlaySoundInstance(Sound.permanentSoundEffects[portals.ElementAt(i).Key.doorType.ToString()], portals.ElementAt(i).Key.doorType.ToString());
+                        }
                         MapNameTimer = 0;
                         player.nextMapPos = new Vector2(portals.ElementAt(i).Value.PortalRec.X - 200, portals.ElementAt(i).Value.PortalRec.Y + portals.ElementAt(i).Value.PortalRec.Height - 170 - 135 - 37);
                         drops.Clear();
@@ -1165,6 +1192,44 @@ new Vector2(portals.ElementAt(i).Key.PortalRec.X + portals.ElementAt(i).Key.Port
             return "null";
         }
 
+        public void ForceToNewMap(Portal currentPortal, Portal destinationPortal)
+        {
+            if (currentPortal.doorType != Portal.DoorType.none)
+            {
+                Sound.PlaySoundInstance(Sound.permanentSoundEffects[currentPortal.doorType.ToString()], currentPortal.doorType.ToString());
+            }
+            MapNameTimer = 0;
+            player.nextMapPos = new Vector2(destinationPortal.PortalRec.X - 200, destinationPortal.PortalRec.Y + destinationPortal.PortalRec.Height - 170 - 135 - 37);
+            drops.Clear();
+            nextMapName = destinationPortal.MapName;
+            player.Landing = false;
+
+            currentLoadingTipNum = rand.Next(game.loadingTips.Count);
+
+            //This sets the startingPortal for the player equal to the portal you will be entering from
+            //Every portal has a sister portal that is hooked up in the nextMap. The startingPortal is set to this
+            game.CurrentChapter.StartingPortal = destinationPortal;
+
+            if (nextMapName == "Bathroom")
+            {
+                Bathroom.LastMapPortal = currentPortal;
+            }
+
+            Chapter.effectsManager.ClearDialogue();
+
+            Game1.schoolMaps.maps[nextMapName].firstFrameInMap = true;
+
+            Game1.schoolMaps.maps[nextMapName].ResetMapAssetsOnEnter();
+
+            if (Game1.schoolMaps.maps[nextMapName].yScroll)
+                player.YScroll = true;
+            else
+                player.YScroll = false;
+
+            game.CurrentChapter.NextMap = nextMapName;
+            game.CurrentChapter.state = Chapter.GameState.ChangingMaps;
+        }
+
         //--Unlocking doors
         public bool CheckPortalLock(Portal portal)
         {
@@ -1186,15 +1251,22 @@ new Vector2(portals.ElementAt(i).Key.PortalRec.X + portals.ElementAt(i).Key.Port
 
                     if (portal.openingLock == false)
                     {
+                        Sound.PlaySoundInstance(Portal.object_lock_open, "object_lock_open");
+
                         portal.startedToOpen = true;
                     }
                     return false;
                 }
-                //--If it requires a special item, don't take it but open the door
+                //--If it requires a special item
                 else if (player.StoryItems.ContainsKey(portal.ItemNameToUnlock))
                 {
+                    if (portal.ItemNameToUnlock == "Pyramid Key")
+                        player.RemoveStoryItem("Pyramid Key", 1);
+
                     if (portal.openingLock == false)
                     {
+                        Sound.PlaySoundInstance(Portal.object_lock_open, "object_lock_open");
+
                         portal.startedToOpen = true;
                     }
                     return false;
@@ -1202,6 +1274,8 @@ new Vector2(portals.ElementAt(i).Key.PortalRec.X + portals.ElementAt(i).Key.Port
                 else
                 {
                     Chapter.effectsManager.AddLockedDoorMessage();
+
+                    Sound.PlaySoundInstance(Portal.movement_door_locked, "movement_door_locked");
                     return false;
                 }
 
@@ -1235,7 +1309,8 @@ new Vector2(portals.ElementAt(i).Key.PortalRec.X + portals.ElementAt(i).Key.Port
                     bool pass = Boolean.Parse(lines[5]);
                     bool spawn = Boolean.Parse(lines[6]);
                     bool invis = Boolean.Parse(lines[7]);
-                    Platform plat = new Platform(Game1.platformTextures[lines[0]], rec, pass, spawn, invis);
+                    Platform plat = new Platform(Game1.platformTextures["RockFloor2"], rec, pass, spawn, invis);
+                    plat.SetType(lines[0]);
                     platforms.Add(plat);
                 }
                 sr.Close();
@@ -1245,7 +1320,7 @@ new Vector2(portals.ElementAt(i).Key.PortalRec.X + portals.ElementAt(i).Key.Port
 
                 for (int i = 0; i < Platforms.Count; i++)
                 {
-                    write.Write("RockFloor2");
+                    write.Write(Platforms[i].type.ToString());
                     write.Write(Platforms[i].Rec.Width);
                     write.Write(Platforms[i].Rec.Height);
                     write.Write(Platforms[i].Rec.X);
@@ -1271,8 +1346,19 @@ new Vector2(portals.ElementAt(i).Key.PortalRec.X + portals.ElementAt(i).Key.Port
             String file2 = "Maps\\" + mapName + "ReadBinary.txt";
             File.Delete(file2);
             StreamWriter sw2 = File.AppendText(file2);
-
-            BinaryReader reader = new BinaryReader(File.Open("Maps\\" + mapName + "Binary.txt", FileMode.Open));
+            BinaryReader reader;
+            try
+            {
+                reader = new BinaryReader(File.Open("Maps\\" + mapName + "Binary.txt", FileMode.Open));
+            }
+            catch (FileNotFoundException)
+            {
+                StreamWriter sw3 = File.CreateText("Maps\\" + mapName + ".txt");
+                sw3.WriteLine("rock," + mapWidth + ",50,-3,635,False,True,False");
+                sw3.Close();
+                CreateBinaryMapFiles();
+                reader = new BinaryReader(File.Open("Maps\\" + mapName + "Binary.txt", FileMode.Open));
+            }
 
             //While the reader's stream position is not the end of the file, add a new line to the text file (Basically a new platform)
             while (reader.BaseStream.Position != reader.BaseStream.Length)
@@ -1303,7 +1389,8 @@ new Vector2(portals.ElementAt(i).Key.PortalRec.X + portals.ElementAt(i).Key.Port
                 bool pass = Boolean.Parse(lines[5]);
                 bool spawn = Boolean.Parse(lines[6]);
                 bool invis = Boolean.Parse(lines[7]);
-                Platform plat = new Platform(Game1.platformTextures[lines[0]], rec, pass, spawn, invis);
+                Platform plat = new Platform(Game1.platformTextures["RockFloor2"], rec, pass, spawn, invis);
+                plat.SetType(lines[0]);
                 platforms.Add(plat);
             }
             sr.Close();
@@ -1324,6 +1411,14 @@ new Vector2(portals.ElementAt(i).Key.PortalRec.X + portals.ElementAt(i).Key.Port
         /// <param name="s"></param>
         public virtual void DrawParallaxAndForeground(SpriteBatch s)
         {
+            s.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+null, null, null, null, Game1.camera.Transform);
+            for (int i = 0; i < projectiles.Count; i++)
+            {
+                if(projectiles[i].Foreground)
+                    projectiles[i].Draw(s);
+            }
+            s.End();
         }
 
         public virtual void DrawBackgroundAndParallax(SpriteBatch s)
@@ -1339,17 +1434,55 @@ new Vector2(portals.ElementAt(i).Key.PortalRec.X + portals.ElementAt(i).Key.Port
         /// </summary>
         public virtual void ResetMapAssetsOnEnter()
         {
+            projectiles.Clear();
 
+        }
+
+        public virtual void StopSounds()
+        {
+            for (int i = 0; i < interactiveObjects.Count; i++)
+            {
+                interactiveObjects[i].StopSound();
+            }
+
+            for (int i = 0; i < mapHazards.Count; i++)
+            {
+                mapHazards[i].StopSounds();
+            }
+
+            for (int i = 0; i < platforms.Count; i++)
+            {
+                platforms[i].StopSound();
+            }
+
+        }
+
+        public virtual void LeaveMap()
+        {
+            Chapter.effectsManager.ClearSmokePoofs();
+            StopSounds();
         }
 
         //-Adds invisible walls to the left and right sides of the map
         public virtual void AddBounds()
         {
-            mapEdgePlat = new Platform(Game1.emptyBox, new Rectangle(-50, mapRec.Y - 500, 50, MapHeight + 500), false, false, true);
-            platforms.Add(mapEdgePlat);
+            mapEdgePlatLeft = new Platform(Game1.emptyBox, new Rectangle(-50, mapRec.Y - 500, 50, MapHeight + 500), false, false, true);
+            platforms.Add(mapEdgePlatLeft);
 
-            mapEdgePlat = new Platform(Game1.emptyBox, new Rectangle(mapWidth, mapRec.Y - 500, 50, MapHeight + 500), false, false, true);
-            platforms.Add(mapEdgePlat);
+            mapEdgePlatRight = new Platform(Game1.emptyBox, new Rectangle(mapWidth, mapRec.Y - 500, 50, MapHeight + 500), false, false, true);
+            platforms.Add(mapEdgePlatRight);
+        }
+
+        public void AddEnemyToEnemyList(Enemy en)
+        {
+            enemiesInMap.Add(en);
+            SortEnemyListByPosition();
+        }
+
+        public void SortEnemyListByPosition()
+        {
+            enemiesInMap = enemiesInMap.OrderBy(x => -(x.distanceFromFeetToBottomOfRectangle + x.distanceFromFeetToBottomOfRectangleRandomOffset)).ToList();
+            enemiesInMap.Reverse();
         }
 
         /// <summary>
@@ -1366,14 +1499,19 @@ new Vector2(portals.ElementAt(i).Key.PortalRec.X + portals.ElementAt(i).Key.Port
 
             if (mapNameTimer <= 100)
             {
-                s.DrawString(Game1.youFoundFont, mapName, new Vector2(vecX - 2, 50 - 2), Color.Black);
-                s.DrawString(Game1.youFoundFont, mapName, new Vector2(vecX, 50), Color.White);
+                //s.DrawString(Game1.youFoundFont, mapName, new Vector2(vecX - 2, 50 - 2), Color.Black);
+                //s.DrawString(Game1.youFoundFont, mapName, new Vector2(vecX, 50), Color.White);
+
+                Game1.OutlineFont(Game1.youFoundFont, s, mapName, 2, (int)vecX, 50, Color.Black, Color.White);
             }
             if (mapNameTimer > 100 && mapNameTimer < 300f)
             {
                 mapNameAlpha -= .010f;
-                s.DrawString(Game1.youFoundFont, mapName, new Vector2(vecX - 2, 50 - 2), Color.Black * mapNameAlpha);
-                s.DrawString(Game1.youFoundFont, mapName, new Vector2(vecX, 50), Color.White * mapNameAlpha);
+                //s.DrawString(Game1.youFoundFont, mapName, new Vector2(vecX - 2, 50 - 2), Color.Black * mapNameAlpha);
+                //s.DrawString(Game1.youFoundFont, mapName, new Vector2(vecX, 50), Color.White * mapNameAlpha);
+
+                Game1.OutlineFont(Game1.youFoundFont, s, mapName, 2, (int)vecX, 50, Color.Black * mapNameAlpha, Color.White * mapNameAlpha);
+
             }
             else
                 mapNameAlpha = 1f;

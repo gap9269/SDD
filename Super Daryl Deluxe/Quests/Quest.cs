@@ -103,8 +103,8 @@ namespace ISurvived
 
                     if (rewardObjects[i] is Weapon)
                         Game1.Player.AddWeaponToInventory(rewardObjects[i] as Weapon);
-                    if (rewardObjects[i] is Hoodie)
-                        Game1.Player.AddShirtToInventory(rewardObjects[i] as Hoodie);
+                    if (rewardObjects[i] is Outfit)
+                        Game1.Player.AddShirtToInventory(rewardObjects[i] as Outfit);
                     if (rewardObjects[i] is Hat)
                         Game1.Player.AddHatToInventory(rewardObjects[i] as Hat);
                     if (rewardObjects[i] is Accessory)
@@ -120,6 +120,8 @@ namespace ISurvived
                         Game1.Player.GoldKeys++;
                     if (rewardObjects[i] is Textbook)
                         Game1.Player.Textbooks++;
+                    if (rewardObjects[i] is LockerCombo)
+                        (rewardObjects[i] as LockerCombo).PickUpCollectible();
                 }
                 else if (rewardObjects[i] is StoryItem)
                 {

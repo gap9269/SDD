@@ -10,7 +10,7 @@ namespace ISurvived
     class LockerCombo : Collectible
     {
         Game1 game;
-        String name, combo;
+        public String name, combo;
         float rayRotation;
         float floatCycle;
 
@@ -78,6 +78,8 @@ namespace ISurvived
             combo = combo.Insert(3, "-");
 
             game.Notebook.ComboPage.AddCombo(name, combo);
+            Sound.PlaySoundInstance(Sound.SoundNames.object_pickup_combo);
+
         }
 
         public override void Draw(SpriteBatch s)

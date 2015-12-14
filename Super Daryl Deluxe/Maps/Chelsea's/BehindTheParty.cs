@@ -36,13 +36,16 @@ namespace ISurvived
             AddBounds();
             AddNPCs();
             SetPortals();
-
-            backgroundMusicName = "The Party";
         }
 
         public override void PlayBackgroundMusic()
         {
             //Sound.PlayBackGroundMusic("The Party");
+        }
+
+        public override void PlayAmbience()
+        {
+            Sound.PlayAmbience("ambience_outdoors_night");
         }
 
         public override void Update()
@@ -71,6 +74,11 @@ namespace ISurvived
             //}
 
             //Sound.backgroundVolume = .01f;
+
+            SoundEffect am = Sound.ambienceContent.Load<SoundEffect>(@"Sound\Ambience\ambience_outdoors_night");
+            SoundEffectInstance amb = am.CreateInstance();
+            amb.IsLooped = true;
+            Sound.ambience.Add("ambience_outdoors_night", amb);
         }
 
         public override void UnloadNPCContent()
@@ -85,17 +93,19 @@ namespace ISurvived
             Game1.npcFaces["Bob the Construction Guy"].faces["Normal"] = Game1.whiteFilter;
 
             ////DOn't clear the music if the next map is behind the party
-            //if (Chapter.theNextMap != "TheParty")
+            //if (Chapter.theNextMap != "The Party")
             //{
             //    Sound.UnloadBackgroundMusic();
             //}
+
+            Sound.UnloadAmbience();
         }
 
         public override void SetPortals()
         {
             base.SetPortals();
 
-            toTheParty = new Portal(350, platforms[0], "BehindtheParty");
+            toTheParty = new Portal(350, platforms[0], "Behind the Party");
         }
 
         public override void SetDestinationPortals()

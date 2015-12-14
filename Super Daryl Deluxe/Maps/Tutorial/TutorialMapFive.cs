@@ -69,12 +69,12 @@ namespace ISurvived
 
             if (player.PositionX > 100 && game.MapBooleans.tutorialMapBooleans["TutorialTipElevenUsed"] == false)
             {
-                Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][22], 100, 150, game.ChapterTwo.associateOneTex);
+                //Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][22], 100, 150, game.ChapterTwo.associateOneTex);
             }
 
             if (player.StoryItems.ContainsKey("Bronze Key"))
             {
-                Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][23], 550, 170, game.ChapterTwo.associateOneTex);
+                //Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][23], 550, 170, game.ChapterTwo.associateOneTex);
             }
         }
 

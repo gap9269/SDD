@@ -32,6 +32,7 @@ namespace ISurvived
         List<String> learnedSkillsTemp;
         List<Boolean> equippedSkillsTemp;
         List<SkillWrapper> skillwrapperTemp;
+        SkillWrapper quickRetortTemp;
         List<String> storyItemsNameTemp;
         List<int> storyItemsNumTemp;
         List<String> enemyDropsNameTemp;
@@ -69,11 +70,9 @@ namespace ISurvived
         #endregion
 
         //Quests
-        List<Boolean> allQuestCompletedBooleansTemp;
+        List<QuestWrapper> allQuestsTemp;
         List<String> currentQuestsTemp;
         List<String> currentSideQuestsTemp;
-        List<List<int>> enemiesKilledForQuestTemp;
-        List<Boolean> completedQuestTemp;
 
         List<String> prologueCompletedSideTemp;
         List<String> prologueCompletedStoryTemp;
@@ -83,8 +82,6 @@ namespace ISurvived
 
         List<String> chTwoCompletedSideTemp;
         List<String> chTwoCompletedStoryTemp;
-
-        List<String> questHelperQuestNamesTemp;
 
         //Skills
         List<String> skillsInShopTemp;
@@ -152,6 +149,7 @@ namespace ISurvived
             public List<Boolean> equippedSkills;
             public List<String> learnedSkills;
             public List<SkillWrapper> skillWrappers;
+            public SkillWrapper quickRetort;
             public List<String> skillsInShop;
             //Player
             public String playerRank;
@@ -215,18 +213,15 @@ namespace ISurvived
             public EquipmentWrapper acc2Wrap;
             public Boolean newWeapon, newHat, newShirt, newAccessory, newLoot;
             //Quests
+            public List<QuestWrapper> allQuests;
             public List<String> currentQuests;
             public List<String> currentSideQuests;
-            public List<Boolean> allQuestsCompletedBoolean;
-            public List<List<int>> enemiesKilledForQuest;
-            public List<Boolean> completedQuest;
             public List<String> prologueCompletedSideQuests;
             public List<String> prologueCompletedStoryQuests;
             public List<String> chOneCompletedSideQuests;
             public List<String> chOneCompletedStoryQuests;
             public List<String> chTwoCompletedSideQuests;
             public List<String> chTwoCompletedStoryQuests;
-            public List<String> questHelperQuestNames;
             //Maps
             public List<List<Boolean>> mapStoryItemsPicked;
             public List<List<Boolean>> mapChestOpened;
@@ -284,8 +279,8 @@ namespace ISurvived
             learnedSkillsTemp = new List<string>();
             equippedSkillsTemp = new List<Boolean>();
             skillwrapperTemp = new List<SkillWrapper>();
+            quickRetortTemp = new SkillWrapper();
 
-            allQuestCompletedBooleansTemp = new List<bool>();
             sideQuestNPCWrapperTemp = new List<NPCWrapper>();
 
             prologueBooleanTemp = new List<bool>();
@@ -307,10 +302,7 @@ namespace ISurvived
 
             currentQuestsTemp = new List<string>();
             currentSideQuestsTemp = new List<string>();
-
-            enemiesKilledForQuestTemp = new List<List<int>>();
-
-            completedQuestTemp = new List<bool>();
+            allQuestsTemp = new List<QuestWrapper>();
             prologueCompletedSideTemp = new List<string>();
             prologueCompletedStoryTemp = new List<string>();
             chOneCompletedSideTemp = new List<string>();
@@ -361,8 +353,6 @@ namespace ISurvived
             passiveNamesTemp = new List<string>();
 
             skillsInShopTemp = new List<string>();
-
-            questHelperQuestNamesTemp = new List<string>();
 
             generatedComboNamesTemp = new List<string>();
             generatedCombosTemp = new List<string>();
@@ -388,8 +378,8 @@ namespace ISurvived
             learnedSkillsTemp = new List<string>();
             equippedSkillsTemp = new List<Boolean>();
             skillwrapperTemp = new List<SkillWrapper>();
+            quickRetortTemp = new SkillWrapper();
 
-            allQuestCompletedBooleansTemp = new List<bool>();
             sideQuestNPCWrapperTemp = new List<NPCWrapper>();
 
             prologueBooleanTemp = new List<bool>();
@@ -408,10 +398,7 @@ namespace ISurvived
 
             currentQuestsTemp = new List<string>();
             currentSideQuestsTemp = new List<string>();
-
-            enemiesKilledForQuestTemp = new List<List<int>>();
-
-            completedQuestTemp = new List<bool>();
+            allQuestsTemp = new List<QuestWrapper>();
             prologueCompletedSideTemp = new List<string>();
             prologueCompletedStoryTemp = new List<string>();
             chOneCompletedSideTemp = new List<string>();
@@ -464,8 +451,6 @@ namespace ISurvived
             passiveNamesTemp = new List<string>();
 
             skillsInShopTemp = new List<string>();
-
-            questHelperQuestNamesTemp = new List<string>();
 
             generatedComboNamesTemp = new List<string>();
             generatedCombosTemp = new List<string>();
@@ -544,16 +529,16 @@ namespace ISurvived
                 {
                     if (game.SideQuestManager.nPCs.ElementAt(i).Value.Quest != null)
                     {
-                        sideQuestNPCWrapperTemp.Add(new NPCWrapper(game.SideQuestManager.nPCs.ElementAt(i).Value.Dialogue, game.SideQuestManager.nPCs.ElementAt(i).Value.QuestDialogue, game.SideQuestManager.nPCs.ElementAt(i).Value.DialogueState, game.SideQuestManager.nPCs.ElementAt(i).Value.FacingRight, game.SideQuestManager.nPCs.ElementAt(i).Value.Quest.QuestName, game.SideQuestManager.nPCs.ElementAt(i).Value.AcceptedQuest, game.SideQuestManager.nPCs.ElementAt(i).Value.MapName));
+                        sideQuestNPCWrapperTemp.Add(new NPCWrapper(game.SideQuestManager.nPCs.ElementAt(i).Value.Dialogue, game.SideQuestManager.nPCs.ElementAt(i).Value.QuestDialogue, game.SideQuestManager.nPCs.ElementAt(i).Value.DialogueState, game.SideQuestManager.nPCs.ElementAt(i).Value.FacingRight, game.SideQuestManager.nPCs.ElementAt(i).Value.Quest.QuestName, game.SideQuestManager.nPCs.ElementAt(i).Value.AcceptedQuest, game.SideQuestManager.nPCs.ElementAt(i).Value.MapName, game.SideQuestManager.nPCs.ElementAt(i).Key, game.SideQuestManager.nPCs.ElementAt(i).Value.canTalk, game.SideQuestManager.nPCs.ElementAt(i).Value.RecX, game.SideQuestManager.nPCs.ElementAt(i).Value.RecY));
                     }
                     else if (!(game.SideQuestManager.nPCs.ElementAt(i).Value is TrenchcoatKid))
                     {
-                        sideQuestNPCWrapperTemp.Add(new NPCWrapper(game.SideQuestManager.nPCs.ElementAt(i).Value.Dialogue, game.SideQuestManager.nPCs.ElementAt(i).Value.DialogueState, game.SideQuestManager.nPCs.ElementAt(i).Value.FacingRight, game.SideQuestManager.nPCs.ElementAt(i).Value.AcceptedQuest, game.SideQuestManager.nPCs.ElementAt(i).Value.MapName));
+                        sideQuestNPCWrapperTemp.Add(new NPCWrapper(game.SideQuestManager.nPCs.ElementAt(i).Value.Dialogue, game.SideQuestManager.nPCs.ElementAt(i).Value.DialogueState, game.SideQuestManager.nPCs.ElementAt(i).Value.FacingRight, game.SideQuestManager.nPCs.ElementAt(i).Value.AcceptedQuest, game.SideQuestManager.nPCs.ElementAt(i).Value.MapName, game.SideQuestManager.nPCs.ElementAt(i).Key, game.SideQuestManager.nPCs.ElementAt(i).Value.canTalk, game.SideQuestManager.nPCs.ElementAt(i).Value.RecX, game.SideQuestManager.nPCs.ElementAt(i).Value.RecY));
                     }
                     //Trenchcoat NPCs
                     else
                     {
-                        sideQuestNPCWrapperTemp.Add(new NPCWrapper(game.SideQuestManager.nPCs.ElementAt(i).Value.Dialogue, game.SideQuestManager.nPCs.ElementAt(i).Value.DialogueState, game.SideQuestManager.nPCs.ElementAt(i).Value.FacingRight, game.SideQuestManager.nPCs.ElementAt(i).Value.AcceptedQuest, (game.SideQuestManager.nPCs.ElementAt(i).Value as TrenchcoatKid).SoldOut, game.SideQuestManager.nPCs.ElementAt(i).Value.MapName));
+                        sideQuestNPCWrapperTemp.Add(new NPCWrapper(game.SideQuestManager.nPCs.ElementAt(i).Value.Dialogue, game.SideQuestManager.nPCs.ElementAt(i).Value.DialogueState, game.SideQuestManager.nPCs.ElementAt(i).Value.FacingRight, game.SideQuestManager.nPCs.ElementAt(i).Value.AcceptedQuest, (game.SideQuestManager.nPCs.ElementAt(i).Value as TrenchcoatKid).SoldOut, game.SideQuestManager.nPCs.ElementAt(i).Value.MapName, game.SideQuestManager.nPCs.ElementAt(i).Key, game.SideQuestManager.nPCs.ElementAt(i).Value.canTalk, game.SideQuestManager.nPCs.ElementAt(i).Value.RecX, game.SideQuestManager.nPCs.ElementAt(i).Value.RecY));
                     }
                 }
 
@@ -563,17 +548,17 @@ namespace ISurvived
                     //Quest NPCs
                     if (game.Prologue.NPCs.ElementAt(i).Value.Quest != null)
                     {
-                        prologueNPCWrapperTemp.Add(new NPCWrapper(game.Prologue.NPCs.ElementAt(i).Value.Dialogue, game.Prologue.NPCs.ElementAt(i).Value.QuestDialogue, game.Prologue.NPCs.ElementAt(i).Value.DialogueState, game.Prologue.NPCs.ElementAt(i).Value.FacingRight, game.Prologue.NPCs.ElementAt(i).Value.Quest.QuestName, game.Prologue.NPCs.ElementAt(i).Value.AcceptedQuest, game.Prologue.NPCs.ElementAt(i).Value.MapName));
+                        prologueNPCWrapperTemp.Add(new NPCWrapper(game.Prologue.NPCs.ElementAt(i).Value.Dialogue, game.Prologue.NPCs.ElementAt(i).Value.QuestDialogue, game.Prologue.NPCs.ElementAt(i).Value.DialogueState, game.Prologue.NPCs.ElementAt(i).Value.FacingRight, game.Prologue.NPCs.ElementAt(i).Value.Quest.QuestName, game.Prologue.NPCs.ElementAt(i).Value.AcceptedQuest, game.Prologue.NPCs.ElementAt(i).Value.MapName, game.Prologue.NPCs.ElementAt(i).Key, game.Prologue.NPCs.ElementAt(i).Value.canTalk, game.Prologue.NPCs.ElementAt(i).Value.RecX, game.Prologue.NPCs.ElementAt(i).Value.RecY));
                     }
                     //Non-Quest, Non-Trenchcoat NPCs
                     else if (!(game.Prologue.NPCs.ElementAt(i).Value is TrenchcoatKid))
                     {
-                        prologueNPCWrapperTemp.Add(new NPCWrapper(game.Prologue.NPCs.ElementAt(i).Value.Dialogue, game.Prologue.NPCs.ElementAt(i).Value.DialogueState, game.Prologue.NPCs.ElementAt(i).Value.FacingRight, game.Prologue.NPCs.ElementAt(i).Value.AcceptedQuest, game.Prologue.NPCs.ElementAt(i).Value.MapName));
+                        prologueNPCWrapperTemp.Add(new NPCWrapper(game.Prologue.NPCs.ElementAt(i).Value.Dialogue, game.Prologue.NPCs.ElementAt(i).Value.DialogueState, game.Prologue.NPCs.ElementAt(i).Value.FacingRight, game.Prologue.NPCs.ElementAt(i).Value.AcceptedQuest, game.Prologue.NPCs.ElementAt(i).Value.MapName, game.Prologue.NPCs.ElementAt(i).Key, game.Prologue.NPCs.ElementAt(i).Value.canTalk, game.Prologue.NPCs.ElementAt(i).Value.RecX, game.Prologue.NPCs.ElementAt(i).Value.RecY));
                     }
                     //Trenchcoat NPCs
                     else
                     {
-                        prologueNPCWrapperTemp.Add(new NPCWrapper(game.Prologue.NPCs.ElementAt(i).Value.Dialogue, game.Prologue.NPCs.ElementAt(i).Value.DialogueState, game.Prologue.NPCs.ElementAt(i).Value.FacingRight, game.Prologue.NPCs.ElementAt(i).Value.AcceptedQuest, (game.Prologue.NPCs.ElementAt(i).Value as TrenchcoatKid).SoldOut, game.Prologue.NPCs.ElementAt(i).Value.MapName));
+                        prologueNPCWrapperTemp.Add(new NPCWrapper(game.Prologue.NPCs.ElementAt(i).Value.Dialogue, game.Prologue.NPCs.ElementAt(i).Value.DialogueState, game.Prologue.NPCs.ElementAt(i).Value.FacingRight, game.Prologue.NPCs.ElementAt(i).Value.AcceptedQuest, (game.Prologue.NPCs.ElementAt(i).Value as TrenchcoatKid).SoldOut, game.Prologue.NPCs.ElementAt(i).Value.MapName, game.Prologue.NPCs.ElementAt(i).Key, game.Prologue.NPCs.ElementAt(i).Value.canTalk, game.Prologue.NPCs.ElementAt(i).Value.RecX, game.Prologue.NPCs.ElementAt(i).Value.RecY));
                     }
                 }
                 //Ch 1
@@ -581,15 +566,15 @@ namespace ISurvived
                 {
                     if (game.ChapterOne.NPCs.ElementAt(i).Value.Quest != null)
                     {
-                        chapterOneNPCWrapperTemp.Add(new NPCWrapper(game.ChapterOne.NPCs.ElementAt(i).Value.Dialogue, game.ChapterOne.NPCs.ElementAt(i).Value.QuestDialogue, game.ChapterOne.NPCs.ElementAt(i).Value.DialogueState, game.ChapterOne.NPCs.ElementAt(i).Value.FacingRight, game.ChapterOne.NPCs.ElementAt(i).Value.Quest.QuestName, game.ChapterOne.NPCs.ElementAt(i).Value.AcceptedQuest, game.ChapterOne.NPCs.ElementAt(i).Value.MapName));
+                        chapterOneNPCWrapperTemp.Add(new NPCWrapper(game.ChapterOne.NPCs.ElementAt(i).Value.Dialogue, game.ChapterOne.NPCs.ElementAt(i).Value.QuestDialogue, game.ChapterOne.NPCs.ElementAt(i).Value.DialogueState, game.ChapterOne.NPCs.ElementAt(i).Value.FacingRight, game.ChapterOne.NPCs.ElementAt(i).Value.Quest.QuestName, game.ChapterOne.NPCs.ElementAt(i).Value.AcceptedQuest, game.ChapterOne.NPCs.ElementAt(i).Value.MapName, game.ChapterOne.NPCs.ElementAt(i).Key, game.ChapterOne.NPCs.ElementAt(i).Value.canTalk, game.ChapterOne.NPCs.ElementAt(i).Value.RecX, game.ChapterOne.NPCs.ElementAt(i).Value.RecY));
                     }
                     else if (!(game.ChapterOne.NPCs.ElementAt(i).Value is TrenchcoatKid))
                     {
-                        chapterOneNPCWrapperTemp.Add(new NPCWrapper(game.ChapterOne.NPCs.ElementAt(i).Value.Dialogue, game.ChapterOne.NPCs.ElementAt(i).Value.DialogueState, game.ChapterOne.NPCs.ElementAt(i).Value.FacingRight, game.ChapterOne.NPCs.ElementAt(i).Value.AcceptedQuest, game.ChapterOne.NPCs.ElementAt(i).Value.MapName));
+                        chapterOneNPCWrapperTemp.Add(new NPCWrapper(game.ChapterOne.NPCs.ElementAt(i).Value.Dialogue, game.ChapterOne.NPCs.ElementAt(i).Value.DialogueState, game.ChapterOne.NPCs.ElementAt(i).Value.FacingRight, game.ChapterOne.NPCs.ElementAt(i).Value.AcceptedQuest, game.ChapterOne.NPCs.ElementAt(i).Value.MapName, game.ChapterOne.NPCs.ElementAt(i).Key, game.ChapterOne.NPCs.ElementAt(i).Value.canTalk, game.ChapterOne.NPCs.ElementAt(i).Value.RecX, game.ChapterOne.NPCs.ElementAt(i).Value.RecY));
                     }
                     else
                     {
-                        chapterOneNPCWrapperTemp.Add(new NPCWrapper(game.ChapterOne.NPCs.ElementAt(i).Value.Dialogue, game.ChapterOne.NPCs.ElementAt(i).Value.DialogueState, game.ChapterOne.NPCs.ElementAt(i).Value.FacingRight, game.ChapterOne.NPCs.ElementAt(i).Value.AcceptedQuest, (game.ChapterOne.NPCs.ElementAt(i).Value as TrenchcoatKid).SoldOut, game.ChapterOne.NPCs.ElementAt(i).Value.MapName));
+                        chapterOneNPCWrapperTemp.Add(new NPCWrapper(game.ChapterOne.NPCs.ElementAt(i).Value.Dialogue, game.ChapterOne.NPCs.ElementAt(i).Value.DialogueState, game.ChapterOne.NPCs.ElementAt(i).Value.FacingRight, game.ChapterOne.NPCs.ElementAt(i).Value.AcceptedQuest, (game.ChapterOne.NPCs.ElementAt(i).Value as TrenchcoatKid).SoldOut, game.ChapterOne.NPCs.ElementAt(i).Value.MapName, game.ChapterOne.NPCs.ElementAt(i).Key, game.ChapterOne.NPCs.ElementAt(i).Value.canTalk, game.ChapterOne.NPCs.ElementAt(i).Value.RecX, game.ChapterOne.NPCs.ElementAt(i).Value.RecY));
                     }
                 }
 
@@ -598,15 +583,15 @@ namespace ISurvived
                 {
                     if (game.ChapterTwo.NPCs.ElementAt(i).Value.Quest != null)
                     {
-                        chapterTwoNPCWrapperTemp.Add(new NPCWrapper(game.ChapterTwo.NPCs.ElementAt(i).Value.Dialogue, game.ChapterTwo.NPCs.ElementAt(i).Value.QuestDialogue, game.ChapterTwo.NPCs.ElementAt(i).Value.DialogueState, game.ChapterTwo.NPCs.ElementAt(i).Value.FacingRight, game.ChapterTwo.NPCs.ElementAt(i).Value.Quest.QuestName, game.ChapterTwo.NPCs.ElementAt(i).Value.AcceptedQuest, game.ChapterTwo.NPCs.ElementAt(i).Value.MapName));
+                        chapterTwoNPCWrapperTemp.Add(new NPCWrapper(game.ChapterTwo.NPCs.ElementAt(i).Value.Dialogue, game.ChapterTwo.NPCs.ElementAt(i).Value.QuestDialogue, game.ChapterTwo.NPCs.ElementAt(i).Value.DialogueState, game.ChapterTwo.NPCs.ElementAt(i).Value.FacingRight, game.ChapterTwo.NPCs.ElementAt(i).Value.Quest.QuestName, game.ChapterTwo.NPCs.ElementAt(i).Value.AcceptedQuest, game.ChapterTwo.NPCs.ElementAt(i).Value.MapName, game.ChapterTwo.NPCs.ElementAt(i).Key, game.ChapterTwo.NPCs.ElementAt(i).Value.canTalk, game.ChapterTwo.NPCs.ElementAt(i).Value.RecX, game.ChapterTwo.NPCs.ElementAt(i).Value.RecY));
                     }
                     else if (!(game.ChapterTwo.NPCs.ElementAt(i).Value is TrenchcoatKid))
                     {
-                        chapterTwoNPCWrapperTemp.Add(new NPCWrapper(game.ChapterTwo.NPCs.ElementAt(i).Value.Dialogue, game.ChapterTwo.NPCs.ElementAt(i).Value.DialogueState, game.ChapterTwo.NPCs.ElementAt(i).Value.FacingRight, game.ChapterTwo.NPCs.ElementAt(i).Value.AcceptedQuest, game.ChapterTwo.NPCs.ElementAt(i).Value.MapName));
+                        chapterTwoNPCWrapperTemp.Add(new NPCWrapper(game.ChapterTwo.NPCs.ElementAt(i).Value.Dialogue, game.ChapterTwo.NPCs.ElementAt(i).Value.DialogueState, game.ChapterTwo.NPCs.ElementAt(i).Value.FacingRight, game.ChapterTwo.NPCs.ElementAt(i).Value.AcceptedQuest, game.ChapterTwo.NPCs.ElementAt(i).Value.MapName, game.ChapterTwo.NPCs.ElementAt(i).Key, game.ChapterTwo.NPCs.ElementAt(i).Value.canTalk, game.ChapterTwo.NPCs.ElementAt(i).Value.RecX, game.ChapterTwo.NPCs.ElementAt(i).Value.RecY));
                     }
                     else
                     {
-                        chapterTwoNPCWrapperTemp.Add(new NPCWrapper(game.ChapterTwo.NPCs.ElementAt(i).Value.Dialogue, game.ChapterTwo.NPCs.ElementAt(i).Value.DialogueState, game.ChapterTwo.NPCs.ElementAt(i).Value.FacingRight, game.ChapterTwo.NPCs.ElementAt(i).Value.AcceptedQuest, (game.ChapterTwo.NPCs.ElementAt(i).Value as TrenchcoatKid).SoldOut, game.ChapterTwo.NPCs.ElementAt(i).Value.MapName));
+                        chapterTwoNPCWrapperTemp.Add(new NPCWrapper(game.ChapterTwo.NPCs.ElementAt(i).Value.Dialogue, game.ChapterTwo.NPCs.ElementAt(i).Value.DialogueState, game.ChapterTwo.NPCs.ElementAt(i).Value.FacingRight, game.ChapterTwo.NPCs.ElementAt(i).Value.AcceptedQuest, (game.ChapterTwo.NPCs.ElementAt(i).Value as TrenchcoatKid).SoldOut, game.ChapterTwo.NPCs.ElementAt(i).Value.MapName, game.ChapterTwo.NPCs.ElementAt(i).Key, game.ChapterTwo.NPCs.ElementAt(i).Value.canTalk, game.ChapterTwo.NPCs.ElementAt(i).Value.RecX, game.ChapterTwo.NPCs.ElementAt(i).Value.RecY));
                     }
                 }
 
@@ -616,7 +601,6 @@ namespace ISurvived
                     generatedCombosTemp.Add(GenerateLockerCombinations.combinations.ElementAt(i).Value);
                     generatedComboNamesTemp.Add(GenerateLockerCombinations.combinations.ElementAt(i).Key);
                 }
-
 
                 //--Locker combos in journal
                 for (int i = 0; i < game.Notebook.ComboPage.LockerCombos.Count; i++)
@@ -636,6 +620,9 @@ namespace ISurvived
                     else
                         equippedSkillsTemp.Add(false);
                 }
+
+                if (game.ChapterOne.ChapterOneBooleans["quickRetortObtained"])
+                    quickRetortTemp = new SkillWrapper(player.quickRetort.SkillRank, player.quickRetort.Experience, player.quickRetort.ExperienceUntilLevel, player.quickRetort.Damage, player.quickRetort.FullCooldown);
 
                 //Equipped skills in order
                 for (int i = 0; i < player.EquippedSkills.Count; i++)
@@ -774,7 +761,8 @@ namespace ISurvived
 
                 for (int i = 0; i < game.AllQuests.Count; i++)
                 {
-                    allQuestCompletedBooleansTemp.Add(game.AllQuests.ElementAt(i).Value.CompletedQuest);
+                    allQuestsTemp.Add(new QuestWrapper(game.AllQuests.ElementAt(i).Value.QuestName, game.AllQuests.ElementAt(i).Value.CompletedQuest, game.AllQuests.ElementAt(i).Value.EnemiesKilledForQuest, game.AllQuests.ElementAt(i).Value.inQuestHelper, game.AllQuests.ElementAt(i).Value.npcName));
+
                 }
 
                 //--Current Quests
@@ -784,9 +772,6 @@ namespace ISurvived
 
                     if (game.CurrentQuests[i].StoryQuest == false)
                         currentSideQuestsTemp.Add(game.CurrentQuests[i].QuestName);
-
-                    enemiesKilledForQuestTemp.Add(game.CurrentQuests[i].EnemiesKilledForQuest);
-                    completedQuestTemp.Add(game.CurrentQuests[i].CompletedQuest);
                 }
 
                 //--Completed story quests
@@ -810,17 +795,11 @@ namespace ISurvived
                 }
                 for (int i = 0; i < game.ChapterOne.CompletedSideQuests.Count; i++)
                 {
-                    chOneCompletedSideTemp.Add(game.Prologue.CompletedSideQuests.ElementAt(i).Key);
+                    chOneCompletedSideTemp.Add(game.ChapterOne.CompletedSideQuests.ElementAt(i).Key);
                 }
                 for (int i = 0; i < game.ChapterTwo.CompletedSideQuests.Count; i++)
                 {
                     chTwoCompletedSideTemp.Add(game.ChapterTwo.CompletedSideQuests.ElementAt(i).Key);
-                }
-
-                //Quests in the quest helper
-                for (int i = 0; i < Game1.questHUD.questHelperQuests.Count; i++)
-                {
-                    questHelperQuestNamesTemp.Add(Game1.questHUD.questHelperQuests[i].QuestName);
                 }
 
                 switch (game.chapterState)
@@ -869,6 +848,7 @@ namespace ISurvived
                     learnedSkills = learnedSkillsTemp,
                     equippedSkills = equippedSkillsTemp,
                     skillWrappers = skillwrapperTemp,
+                    quickRetort = quickRetortTemp,
                     skillsInShop = skillsInShopTemp,
                     equippedSkillNames = equippedSkillNamesTemp,
 
@@ -902,9 +882,9 @@ namespace ISurvived
                     hasPhone = player.HasCellPhone,
                     playerMoney = player.Money,
                     playerRank = player.SocialRank,
-                    maxMotivation = player.MaxHealth,
-                    strength = player.Strength,
-                    tolerance = player.Defense,
+                    maxMotivation = player.BaseMaxHealth,
+                    strength = player.BaseStrength,
+                    tolerance = player.BaseDefense,
                     experience = player.Experience,
                     experienceUntilLevel = player.ExperienceUntilLevel,
                     storyItemsName = storyItemsNameTemp,
@@ -964,17 +944,14 @@ namespace ISurvived
                     //Quests
                     currentQuests = currentQuestsTemp,
                     currentSideQuests = currentSideQuestsTemp,
-                    enemiesKilledForQuest = enemiesKilledForQuestTemp,
-                    completedQuest = completedQuestTemp,
                     prologueCompletedStoryQuests = prologueCompletedStoryTemp,
                     prologueCompletedSideQuests = prologueCompletedSideTemp,
                     chOneCompletedSideQuests = chOneCompletedSideTemp,
                     chOneCompletedStoryQuests = chOneCompletedStoryTemp,
                     chTwoCompletedSideQuests = chTwoCompletedSideTemp,
                     chTwoCompletedStoryQuests = chTwoCompletedStoryTemp,
-                    questHelperQuestNames = questHelperQuestNamesTemp,
 
-                    allQuestsCompletedBoolean = allQuestCompletedBooleansTemp,
+                    allQuests= allQuestsTemp,
                 };
 
 #endregion
@@ -1021,6 +998,7 @@ namespace ISurvived
                     XmlSerializer serializer = new XmlSerializer(typeof(SaveGame));
                     // Store the deserialized data object.
                     SaveGame SaveData = (SaveGame)serializer.Deserialize(isolatedFileStream);
+                    game.saveData = SaveData;
 
                     //Update the game based on the save game file
                     switch (SaveData.chapterState)
@@ -1116,7 +1094,6 @@ namespace ISurvived
                     Game1.schoolMaps.LoadMapData(game.schoolZoneWrapper);
                     Game1.schoolMaps.LoadEnemyData();
 
-
                     //Bio pages
                     player.AllCharacterBios.Clear(); //Clear them so we can read the correct values
                     player.AllMonsterBios.Clear();
@@ -1137,12 +1114,25 @@ namespace ISurvived
                         player.LearnedSkills.Add(SkillManager.AllSkills[SaveData.learnedSkills[i]]);
                         player.LearnedSkills[i].Equipped = SaveData.equippedSkills[i];
                         player.LearnedSkills[i].SkillRank = SaveData.skillWrappers[i].level;
-                        player.LearnedSkills[i].Experience = SaveData.skillWrappers[i].experience;
                         player.LearnedSkills[i].ExperienceUntilLevel = SaveData.skillWrappers[i].experienceUntilLevel;
                         player.LearnedSkills[i].Damage = SaveData.skillWrappers[i].damage;
                         player.LearnedSkills[i].FullCooldown = SaveData.skillWrappers[i].fullCooldown;
 
-                        player.LearnedSkills[i].ApplyLevelUp();
+                        player.LearnedSkills[i].ApplyLevelUp(true);
+
+                        player.LearnedSkills[i].Experience = SaveData.skillWrappers[i].experience;
+                    }
+
+                    if (game.ChapterOne.ChapterOneBooleans["quickRetortObtained"])
+                    {
+                        player.quickRetort.SkillRank = SaveData.quickRetort.level;
+                        player.quickRetort.ExperienceUntilLevel = SaveData.quickRetort.experienceUntilLevel;
+                        player.quickRetort.Damage = SaveData.quickRetort.damage;
+                        player.quickRetort.FullCooldown = SaveData.quickRetort.fullCooldown;
+                        player.quickRetort.ApplyLevelUp(true);
+
+                        player.quickRetort.Experience = SaveData.quickRetort.experience;
+
                     }
 
                     //Add skills in correct order
@@ -1182,7 +1172,7 @@ namespace ISurvived
                         if (SaveData.ownedWeaponWrappers[i].passiveName != "")
                             player.OwnedWeapons[i].PassiveAbility = PassiveManager.allPassives[SaveData.ownedWeaponWrappers[i].passiveName];
 
-                        player.OwnedWeapons[i].UpdateDescription();
+                       // player.OwnedWeapons[i].UpdateDescription();
                     }
                     //Owned Hats
                     for (int i = 0; i < SaveData.ownedHats.Count; i++)
@@ -1196,12 +1186,12 @@ namespace ISurvived
                         if (SaveData.ownedHatWrappers[i].passiveName != "")
                             player.OwnedHats[i].PassiveAbility = PassiveManager.allPassives[SaveData.ownedHatWrappers[i].passiveName];
 
-                        player.OwnedHats[i].UpdateDescription();
+                       // player.OwnedHats[i].UpdateDescription();
                     }
                     //Owned Shirts
                     for (int i = 0; i < SaveData.ownedShirts.Count; i++)
                     {
-                        player.OwnedHoodies.Add(game.AllEquipment[SaveData.ownedShirts[i]] as Hoodie);
+                        player.OwnedHoodies.Add(game.AllEquipment[SaveData.ownedShirts[i]] as Outfit);
                         player.OwnedHoodies[i].UpgradeSlots = SaveData.ownedShirtWrappers[i].upgradeSlots;
                         player.OwnedHoodies[i].Defense = SaveData.ownedShirtWrappers[i].tolerance;
                         player.OwnedHoodies[i].Health = SaveData.ownedShirtWrappers[i].motivation;
@@ -1210,7 +1200,7 @@ namespace ISurvived
                         if (SaveData.ownedShirtWrappers[i].passiveName != "")
                             player.OwnedHoodies[i].PassiveAbility = PassiveManager.allPassives[SaveData.ownedShirtWrappers[i].passiveName];
 
-                        player.OwnedHoodies[i].UpdateDescription();
+                       // player.OwnedHoodies[i].UpdateDescription();
                     }
                     //Owned Accessories
                     for (int i = 0; i < SaveData.ownedAccessories.Count; i++)
@@ -1224,7 +1214,7 @@ namespace ISurvived
                         if (SaveData.ownedAccessoryWrappers[i].passiveName != "")
                             player.OwnedAccessories[i].PassiveAbility = PassiveManager.allPassives[SaveData.ownedAccessoryWrappers[i].passiveName];
 
-                        player.OwnedAccessories[i].UpdateDescription();
+                     //   player.OwnedAccessories[i].UpdateDescription();
                     }
 
 
@@ -1239,7 +1229,7 @@ namespace ISurvived
                         if (SaveData.wep1Wrap.passiveName != "")
                             player.EquippedWeapon.PassiveAbility = PassiveManager.allPassives[SaveData.wep1Wrap.passiveName];
 
-                        player.EquippedWeapon.UpdateDescription();
+                      //  player.EquippedWeapon.UpdateDescription();
                     }
                     if (SaveData.weaponTwo != null)
                     {
@@ -1252,7 +1242,7 @@ namespace ISurvived
                         if (SaveData.wep2Wrap.passiveName != "")
                             player.SecondWeapon.PassiveAbility = PassiveManager.allPassives[SaveData.wep2Wrap.passiveName];
 
-                        player.SecondWeapon.UpdateDescription();
+                       // player.SecondWeapon.UpdateDescription();
 
 
                     }
@@ -1267,11 +1257,11 @@ namespace ISurvived
                         if (SaveData.hatWrap.passiveName != "")
                             player.EquippedHat.PassiveAbility = PassiveManager.allPassives[SaveData.hatWrap.passiveName];
 
-                        player.EquippedHat.UpdateDescription();
+                      //  player.EquippedHat.UpdateDescription();
                     }
                     if (SaveData.shirt != null)
                     {
-                        player.EquippedHoodie = game.AllEquipment[SaveData.shirt] as Hoodie;
+                        player.EquippedHoodie = game.AllEquipment[SaveData.shirt] as Outfit;
                         player.EquippedHoodie.UpgradeSlots = SaveData.shirtWrap.upgradeSlots;
                         player.EquippedHoodie.Strength = SaveData.shirtWrap.strength;
                         player.EquippedHoodie.Defense = SaveData.shirtWrap.tolerance;
@@ -1281,7 +1271,7 @@ namespace ISurvived
                             player.EquippedHoodie.PassiveAbility = PassiveManager.allPassives[SaveData.shirtWrap.passiveName];
 
 
-                        player.EquippedHoodie.UpdateDescription();
+                     //   player.EquippedHoodie.UpdateDescription();
                     }
                     if (SaveData.accessoryOne != null)
                     {
@@ -1293,7 +1283,7 @@ namespace ISurvived
 
                         if (SaveData.acc1Wrap.passiveName != "")
                             player.EquippedAccessory.PassiveAbility = PassiveManager.allPassives[SaveData.acc1Wrap.passiveName];
-                        player.EquippedAccessory.UpdateDescription();
+                      //  player.EquippedAccessory.UpdateDescription();
                     }
                     if (SaveData.accessoryTwo != null)
                     {
@@ -1305,17 +1295,18 @@ namespace ISurvived
 
                         if (SaveData.acc2Wrap.passiveName != "")
                             player.SecondAccessory.PassiveAbility = PassiveManager.allPassives[SaveData.acc2Wrap.passiveName];
-                        player.SecondAccessory.UpdateDescription();
+                     //   player.SecondAccessory.UpdateDescription();
                     }
 
                     //Player attributes
                     player.SocialRank = SaveData.playerRank;
                     player.Money = SaveData.playerMoney;
                     player.Level = SaveData.playerLevel;
-                    player.MaxHealth = SaveData.maxMotivation;
-                    player.Health = player.MaxHealth;
-                    player.Strength = SaveData.strength;
-                    player.Defense = SaveData.tolerance;
+                    player.BaseMaxHealth = SaveData.maxMotivation;
+                    player.BaseStrength = SaveData.strength;
+                    player.BaseDefense = SaveData.tolerance;
+                    player.UpdateStats();
+                    player.Health = player.BaseMaxHealth;
                     player.ExperienceUntilLevel = SaveData.experienceUntilLevel;
                     player.Experience = SaveData.experience;
                     player.Textbooks = SaveData.textbooks;
@@ -1358,26 +1349,28 @@ namespace ISurvived
                     //All quests, set completed or not
                     for (int i = 0; i < game.AllQuests.Count; i++)
                     {
-                        game.AllQuests.ElementAt(i).Value.CompletedQuest = SaveData.allQuestsCompletedBoolean[i];
-                    }
+                        for (int j = 0; j < SaveData.allQuests.Count; j++)
+                        {
+                            if (game.AllQuests.ElementAt(i).Key == SaveData.allQuests[j].questName)
+                            {
+                                game.AllQuests.ElementAt(i).Value.CompletedQuest = SaveData.allQuests[j].completedQuest;
+                                game.AllQuests.ElementAt(i).Value.npcName = SaveData.allQuests[j].npcName;
+                                game.AllQuests.ElementAt(i).Value.EnemiesKilledForQuest = SaveData.allQuests[j].enemiesKilledForQuest;
+                                game.AllQuests.ElementAt(i).Value.inQuestHelper = SaveData.allQuests[j].inQuestHelper;
 
-                    //Quest helper quests
-                    for (int i = 0; i < SaveData.questHelperQuestNames.Count; i++)
-                    {
-                        Game1.questHUD.AddQuestToHelper(game.AllQuests[SaveData.questHelperQuestNames[i]]);
+                                if (game.AllQuests.ElementAt(i).Value.inQuestHelper == true)
+                                {
+                                    Game1.questHUD.AddQuestToHelper(game.AllQuests.ElementAt(i).Value);
+                                }
+                            }
+                        }
                     }
 
                     //Current quests
                     for (int i = 0; i < SaveData.currentQuests.Count; i++)
                     {
-                        //All quests
+                        //All current quests
                         game.CurrentQuests.Add(game.AllQuests[SaveData.currentQuests[i]]);
-
-                        //Side quests
-                        //if(game.AllQuests[SaveData.currentQuests[i]].StoryQuest == false)
-
-                        //Enemies killed
-                        game.CurrentQuests[i].EnemiesKilledForQuest = SaveData.enemiesKilledForQuest[i];
                     }
 
                     for (int i = 0; i < SaveData.currentSideQuests.Count; i++)
@@ -1433,156 +1426,156 @@ namespace ISurvived
 
                     //--WHEN ADDING NPCS INTO THE CHAPTERS, ADD THEM IN THE ORDER THAT THEY SHOW UP IN (AS IN, THE ORDER THEY ARE ADDED TO THE CHAPTER IN.)
 
-                    //NPCs
-                    for (int i = 0; i < game.SideQuestManager.nPCs.Count; i++)
-                    {
-                        if (SaveData.sideQuestNPCs[i].questName != null)
-                        {
-                            game.SideQuestManager.nPCs.ElementAt(i).Value.Dialogue = SaveData.sideQuestNPCs[i].dialogue;
-                            game.SideQuestManager.nPCs.ElementAt(i).Value.QuestDialogue = SaveData.sideQuestNPCs[i].questDialogue;
-                            game.SideQuestManager.nPCs.ElementAt(i).Value.DialogueState = SaveData.sideQuestNPCs[i].dialogueState;
-                            game.SideQuestManager.nPCs.ElementAt(i).Value.FacingRight = SaveData.sideQuestNPCs[i].facingRight;
-                            game.SideQuestManager.nPCs.ElementAt(i).Value.Quest = game.AllQuests[SaveData.sideQuestNPCs[i].questName];
-                            game.SideQuestManager.nPCs.ElementAt(i).Value.AcceptedQuest = SaveData.sideQuestNPCs[i].acceptedQuest;
-                            game.SideQuestManager.nPCs.ElementAt(i).Value.MapName = SaveData.sideQuestNPCs[i].mapName;
-                        }
+                    ////NPCs
+                    //for (int i = 0; i < game.SideQuestManager.nPCs.Count; i++)
+                    //{
+                    //    if (SaveData.sideQuestNPCs[i].questName != null)
+                    //    {
+                    //        game.SideQuestManager.nPCs.ElementAt(i).Value.Dialogue = SaveData.sideQuestNPCs[i].dialogue;
+                    //        game.SideQuestManager.nPCs.ElementAt(i).Value.QuestDialogue = SaveData.sideQuestNPCs[i].questDialogue;
+                    //        game.SideQuestManager.nPCs.ElementAt(i).Value.DialogueState = SaveData.sideQuestNPCs[i].dialogueState;
+                    //        game.SideQuestManager.nPCs.ElementAt(i).Value.FacingRight = SaveData.sideQuestNPCs[i].facingRight;
+                    //        game.SideQuestManager.nPCs.ElementAt(i).Value.Quest = game.AllQuests[SaveData.sideQuestNPCs[i].questName];
+                    //        game.SideQuestManager.nPCs.ElementAt(i).Value.AcceptedQuest = SaveData.sideQuestNPCs[i].acceptedQuest;
+                    //        game.SideQuestManager.nPCs.ElementAt(i).Value.MapName = SaveData.sideQuestNPCs[i].mapName;
+                    //    }
 
-                        else if (SaveData.sideQuestNPCs[i].trenchCoat == false)
-                        {
-                            game.SideQuestManager.nPCs.ElementAt(i).Value.Dialogue = SaveData.sideQuestNPCs[i].dialogue;
-                            game.SideQuestManager.nPCs.ElementAt(i).Value.QuestDialogue = null;
-                            game.SideQuestManager.nPCs.ElementAt(i).Value.DialogueState = SaveData.sideQuestNPCs[i].dialogueState;
-                            game.SideQuestManager.nPCs.ElementAt(i).Value.FacingRight = SaveData.sideQuestNPCs[i].facingRight;
-                            game.SideQuestManager.nPCs.ElementAt(i).Value.Quest = null;
-                            game.SideQuestManager.nPCs.ElementAt(i).Value.AcceptedQuest = false;
-                            game.SideQuestManager.nPCs.ElementAt(i).Value.MapName = SaveData.sideQuestNPCs[i].mapName;
-                        }
-                        else
-                        {
-                            game.SideQuestManager.nPCs.ElementAt(i).Value.Dialogue = SaveData.sideQuestNPCs[i].dialogue;
-                            game.SideQuestManager.nPCs.ElementAt(i).Value.QuestDialogue = null;
-                            game.SideQuestManager.nPCs.ElementAt(i).Value.DialogueState = SaveData.sideQuestNPCs[i].dialogueState;
-                            game.SideQuestManager.nPCs.ElementAt(i).Value.FacingRight = SaveData.sideQuestNPCs[i].facingRight;
-                            game.SideQuestManager.nPCs.ElementAt(i).Value.Quest = null;
-                            game.SideQuestManager.nPCs.ElementAt(i).Value.AcceptedQuest = false;
-                            (game.SideQuestManager.nPCs.ElementAt(i).Value as TrenchcoatKid).SoldOut = SaveData.sideQuestNPCs[i].trenchcoatSoldOut;
-                            game.SideQuestManager.nPCs.ElementAt(i).Value.MapName = SaveData.sideQuestNPCs[i].mapName;
-                        }
-                    }
+                    //    else if (SaveData.sideQuestNPCs[i].trenchCoat == false)
+                    //    {
+                    //        game.SideQuestManager.nPCs.ElementAt(i).Value.Dialogue = SaveData.sideQuestNPCs[i].dialogue;
+                    //        game.SideQuestManager.nPCs.ElementAt(i).Value.QuestDialogue = null;
+                    //        game.SideQuestManager.nPCs.ElementAt(i).Value.DialogueState = SaveData.sideQuestNPCs[i].dialogueState;
+                    //        game.SideQuestManager.nPCs.ElementAt(i).Value.FacingRight = SaveData.sideQuestNPCs[i].facingRight;
+                    //        game.SideQuestManager.nPCs.ElementAt(i).Value.Quest = null;
+                    //        game.SideQuestManager.nPCs.ElementAt(i).Value.AcceptedQuest = false;
+                    //        game.SideQuestManager.nPCs.ElementAt(i).Value.MapName = SaveData.sideQuestNPCs[i].mapName;
+                    //    }
+                    //    else
+                    //    {
+                    //        game.SideQuestManager.nPCs.ElementAt(i).Value.Dialogue = SaveData.sideQuestNPCs[i].dialogue;
+                    //        game.SideQuestManager.nPCs.ElementAt(i).Value.QuestDialogue = null;
+                    //        game.SideQuestManager.nPCs.ElementAt(i).Value.DialogueState = SaveData.sideQuestNPCs[i].dialogueState;
+                    //        game.SideQuestManager.nPCs.ElementAt(i).Value.FacingRight = SaveData.sideQuestNPCs[i].facingRight;
+                    //        game.SideQuestManager.nPCs.ElementAt(i).Value.Quest = null;
+                    //        game.SideQuestManager.nPCs.ElementAt(i).Value.AcceptedQuest = false;
+                    //        (game.SideQuestManager.nPCs.ElementAt(i).Value as TrenchcoatKid).SoldOut = SaveData.sideQuestNPCs[i].trenchcoatSoldOut;
+                    //        game.SideQuestManager.nPCs.ElementAt(i).Value.MapName = SaveData.sideQuestNPCs[i].mapName;
+                    //    }
+                    //}
                     //Prologue
-                    for (int i = 0; i < game.Prologue.NPCs.Count; i++)
-                    {
-                        if (SaveData.prologueNPCWrappers[i].questName != null)
-                        {
-                            game.Prologue.NPCs.ElementAt(i).Value.Dialogue = SaveData.prologueNPCWrappers[i].dialogue;
-                            game.Prologue.NPCs.ElementAt(i).Value.QuestDialogue = SaveData.prologueNPCWrappers[i].questDialogue;
-                            game.Prologue.NPCs.ElementAt(i).Value.DialogueState = SaveData.prologueNPCWrappers[i].dialogueState;
-                            game.Prologue.NPCs.ElementAt(i).Value.FacingRight = SaveData.prologueNPCWrappers[i].facingRight;
-                            game.Prologue.NPCs.ElementAt(i).Value.Quest = game.AllQuests[SaveData.prologueNPCWrappers[i].questName];
-                            game.Prologue.NPCs.ElementAt(i).Value.AcceptedQuest = SaveData.prologueNPCWrappers[i].acceptedQuest;
-                            game.Prologue.NPCs.ElementAt(i).Value.MapName = SaveData.prologueNPCWrappers[i].mapName;
-                        }
-                        else if (SaveData.prologueNPCWrappers[i].trenchCoat == false)
-                        {
-                            game.Prologue.NPCs.ElementAt(i).Value.Dialogue = SaveData.prologueNPCWrappers[i].dialogue;
-                            game.Prologue.NPCs.ElementAt(i).Value.QuestDialogue = null;
-                            game.Prologue.NPCs.ElementAt(i).Value.DialogueState = SaveData.prologueNPCWrappers[i].dialogueState;
-                            game.Prologue.NPCs.ElementAt(i).Value.FacingRight = SaveData.prologueNPCWrappers[i].facingRight;
-                            game.Prologue.NPCs.ElementAt(i).Value.Quest = null;
-                            game.Prologue.NPCs.ElementAt(i).Value.AcceptedQuest = false;
-                            game.Prologue.NPCs.ElementAt(i).Value.MapName = SaveData.prologueNPCWrappers[i].mapName;
-                        }
-                        else
-                        {
-                            game.Prologue.NPCs.ElementAt(i).Value.Dialogue = SaveData.prologueNPCWrappers[i].dialogue;
-                            game.Prologue.NPCs.ElementAt(i).Value.QuestDialogue = null;
-                            game.Prologue.NPCs.ElementAt(i).Value.DialogueState = SaveData.prologueNPCWrappers[i].dialogueState;
-                            game.Prologue.NPCs.ElementAt(i).Value.FacingRight = SaveData.prologueNPCWrappers[i].facingRight;
-                            game.Prologue.NPCs.ElementAt(i).Value.Quest = null;
-                            game.Prologue.NPCs.ElementAt(i).Value.AcceptedQuest = false;
-                            (game.Prologue.NPCs.ElementAt(i).Value as TrenchcoatKid).SoldOut = SaveData.prologueNPCWrappers[i].trenchcoatSoldOut;
-                            game.Prologue.NPCs.ElementAt(i).Value.MapName = SaveData.prologueNPCWrappers[i].mapName;
-                        }
-                    }
+                    //for (int i = 0; i < game.Prologue.NPCs.Count; i++)
+                    //{
+                    //    if (SaveData.prologueNPCWrappers[i].questName != null)
+                    //    {
+                    //        game.Prologue.NPCs.ElementAt(i).Value.Dialogue = SaveData.prologueNPCWrappers[i].dialogue;
+                    //        game.Prologue.NPCs.ElementAt(i).Value.QuestDialogue = SaveData.prologueNPCWrappers[i].questDialogue;
+                    //        game.Prologue.NPCs.ElementAt(i).Value.DialogueState = SaveData.prologueNPCWrappers[i].dialogueState;
+                    //        game.Prologue.NPCs.ElementAt(i).Value.FacingRight = SaveData.prologueNPCWrappers[i].facingRight;
+                    //        game.Prologue.NPCs.ElementAt(i).Value.Quest = game.AllQuests[SaveData.prologueNPCWrappers[i].questName];
+                    //        game.Prologue.NPCs.ElementAt(i).Value.AcceptedQuest = SaveData.prologueNPCWrappers[i].acceptedQuest;
+                    //        game.Prologue.NPCs.ElementAt(i).Value.MapName = SaveData.prologueNPCWrappers[i].mapName;
+                    //    }
+                    //    else if (SaveData.prologueNPCWrappers[i].trenchCoat == false)
+                    //    {
+                    //        game.Prologue.NPCs.ElementAt(i).Value.Dialogue = SaveData.prologueNPCWrappers[i].dialogue;
+                    //        game.Prologue.NPCs.ElementAt(i).Value.QuestDialogue = null;
+                    //        game.Prologue.NPCs.ElementAt(i).Value.DialogueState = SaveData.prologueNPCWrappers[i].dialogueState;
+                    //        game.Prologue.NPCs.ElementAt(i).Value.FacingRight = SaveData.prologueNPCWrappers[i].facingRight;
+                    //        game.Prologue.NPCs.ElementAt(i).Value.Quest = null;
+                    //        game.Prologue.NPCs.ElementAt(i).Value.AcceptedQuest = false;
+                    //        game.Prologue.NPCs.ElementAt(i).Value.MapName = SaveData.prologueNPCWrappers[i].mapName;
+                    //    }
+                    //    else
+                    //    {
+                    //        game.Prologue.NPCs.ElementAt(i).Value.Dialogue = SaveData.prologueNPCWrappers[i].dialogue;
+                    //        game.Prologue.NPCs.ElementAt(i).Value.QuestDialogue = null;
+                    //        game.Prologue.NPCs.ElementAt(i).Value.DialogueState = SaveData.prologueNPCWrappers[i].dialogueState;
+                    //        game.Prologue.NPCs.ElementAt(i).Value.FacingRight = SaveData.prologueNPCWrappers[i].facingRight;
+                    //        game.Prologue.NPCs.ElementAt(i).Value.Quest = null;
+                    //        game.Prologue.NPCs.ElementAt(i).Value.AcceptedQuest = false;
+                    //        (game.Prologue.NPCs.ElementAt(i).Value as TrenchcoatKid).SoldOut = SaveData.prologueNPCWrappers[i].trenchcoatSoldOut;
+                    //        game.Prologue.NPCs.ElementAt(i).Value.MapName = SaveData.prologueNPCWrappers[i].mapName;
+                    //    }
+                    //}
 
                     //Chapter One
-                    for (int i = 0; i < game.ChapterOne.NPCs.Count; i++)
-                    {
-                        if (SaveData.chapterOneNPCWrappers[i].questName != null)
-                        {
-                            game.ChapterOne.NPCs.ElementAt(i).Value.Dialogue = SaveData.chapterOneNPCWrappers[i].dialogue;
-                            game.ChapterOne.NPCs.ElementAt(i).Value.QuestDialogue = SaveData.chapterOneNPCWrappers[i].questDialogue;
-                            game.ChapterOne.NPCs.ElementAt(i).Value.DialogueState = SaveData.chapterOneNPCWrappers[i].dialogueState;
-                            game.ChapterOne.NPCs.ElementAt(i).Value.FacingRight = SaveData.chapterOneNPCWrappers[i].facingRight;
-                            game.ChapterOne.NPCs.ElementAt(i).Value.Quest = game.AllQuests[SaveData.chapterOneNPCWrappers[i].questName];
-                            game.ChapterOne.NPCs.ElementAt(i).Value.AcceptedQuest = SaveData.chapterOneNPCWrappers[i].acceptedQuest;
-                            game.ChapterOne.NPCs.ElementAt(i).Value.MapName = SaveData.chapterOneNPCWrappers[i].mapName;
-                        }
-                        else if (SaveData.chapterOneNPCWrappers[i].trenchCoat == false)
-                        {
-                            game.ChapterOne.NPCs.ElementAt(i).Value.Dialogue = SaveData.chapterOneNPCWrappers[i].dialogue;
-                            game.ChapterOne.NPCs.ElementAt(i).Value.QuestDialogue = null;
-                            game.ChapterOne.NPCs.ElementAt(i).Value.DialogueState = SaveData.chapterOneNPCWrappers[i].dialogueState;
-                            game.ChapterOne.NPCs.ElementAt(i).Value.FacingRight = SaveData.chapterOneNPCWrappers[i].facingRight;
-                            game.ChapterOne.NPCs.ElementAt(i).Value.Quest = null;
-                            game.ChapterOne.NPCs.ElementAt(i).Value.AcceptedQuest = false;
-                            game.ChapterOne.NPCs.ElementAt(i).Value.MapName = SaveData.chapterOneNPCWrappers[i].mapName;
-                        }
-                        else
-                        {
-                            game.ChapterOne.NPCs.ElementAt(i).Value.Dialogue = SaveData.chapterOneNPCWrappers[i].dialogue;
-                            game.ChapterOne.NPCs.ElementAt(i).Value.QuestDialogue = null;
-                            game.ChapterOne.NPCs.ElementAt(i).Value.DialogueState = SaveData.chapterOneNPCWrappers[i].dialogueState;
-                            game.ChapterOne.NPCs.ElementAt(i).Value.FacingRight = SaveData.chapterOneNPCWrappers[i].facingRight;
-                            game.ChapterOne.NPCs.ElementAt(i).Value.Quest = null;
-                            game.ChapterOne.NPCs.ElementAt(i).Value.AcceptedQuest = false;
-                            (game.ChapterOne.NPCs.ElementAt(i).Value as TrenchcoatKid).SoldOut = SaveData.chapterOneNPCWrappers[i].trenchcoatSoldOut;
-                            game.ChapterOne.NPCs.ElementAt(i).Value.MapName = SaveData.chapterOneNPCWrappers[i].mapName;
-                        }
-                    }
+                    //for (int i = 0; i < game.ChapterOne.NPCs.Count; i++)
+                    //{
+                    //    if (SaveData.chapterOneNPCWrappers[i].questName != null)
+                    //    {
+                    //        game.ChapterOne.NPCs.ElementAt(i).Value.Dialogue = SaveData.chapterOneNPCWrappers[i].dialogue;
+                    //        game.ChapterOne.NPCs.ElementAt(i).Value.QuestDialogue = SaveData.chapterOneNPCWrappers[i].questDialogue;
+                    //        game.ChapterOne.NPCs.ElementAt(i).Value.DialogueState = SaveData.chapterOneNPCWrappers[i].dialogueState;
+                    //        game.ChapterOne.NPCs.ElementAt(i).Value.FacingRight = SaveData.chapterOneNPCWrappers[i].facingRight;
+                    //        game.ChapterOne.NPCs.ElementAt(i).Value.Quest = game.AllQuests[SaveData.chapterOneNPCWrappers[i].questName];
+                    //        game.ChapterOne.NPCs.ElementAt(i).Value.AcceptedQuest = SaveData.chapterOneNPCWrappers[i].acceptedQuest;
+                    //        game.ChapterOne.NPCs.ElementAt(i).Value.MapName = SaveData.chapterOneNPCWrappers[i].mapName;
+                    //    }
+                    //    else if (SaveData.chapterOneNPCWrappers[i].trenchCoat == false)
+                    //    {
+                    //        game.ChapterOne.NPCs.ElementAt(i).Value.Dialogue = SaveData.chapterOneNPCWrappers[i].dialogue;
+                    //        game.ChapterOne.NPCs.ElementAt(i).Value.QuestDialogue = null;
+                    //        game.ChapterOne.NPCs.ElementAt(i).Value.DialogueState = SaveData.chapterOneNPCWrappers[i].dialogueState;
+                    //        game.ChapterOne.NPCs.ElementAt(i).Value.FacingRight = SaveData.chapterOneNPCWrappers[i].facingRight;
+                    //        game.ChapterOne.NPCs.ElementAt(i).Value.Quest = null;
+                    //        game.ChapterOne.NPCs.ElementAt(i).Value.AcceptedQuest = false;
+                    //        game.ChapterOne.NPCs.ElementAt(i).Value.MapName = SaveData.chapterOneNPCWrappers[i].mapName;
+                    //    }
+                    //    else
+                    //    {
+                    //        game.ChapterOne.NPCs.ElementAt(i).Value.Dialogue = SaveData.chapterOneNPCWrappers[i].dialogue;
+                    //        game.ChapterOne.NPCs.ElementAt(i).Value.QuestDialogue = null;
+                    //        game.ChapterOne.NPCs.ElementAt(i).Value.DialogueState = SaveData.chapterOneNPCWrappers[i].dialogueState;
+                    //        game.ChapterOne.NPCs.ElementAt(i).Value.FacingRight = SaveData.chapterOneNPCWrappers[i].facingRight;
+                    //        game.ChapterOne.NPCs.ElementAt(i).Value.Quest = null;
+                    //        game.ChapterOne.NPCs.ElementAt(i).Value.AcceptedQuest = false;
+                    //        (game.ChapterOne.NPCs.ElementAt(i).Value as TrenchcoatKid).SoldOut = SaveData.chapterOneNPCWrappers[i].trenchcoatSoldOut;
+                    //        game.ChapterOne.NPCs.ElementAt(i).Value.MapName = SaveData.chapterOneNPCWrappers[i].mapName;
+                    //    }
+                    //}
 
                     //Chapter Two
-                    for (int i = 0; i < game.ChapterTwo.NPCs.Count; i++)
-                    {
-                        if (SaveData.chapterTwoNPCWrappers[i].questName != null)
-                        {
-                            game.ChapterTwo.NPCs.ElementAt(i).Value.Dialogue = SaveData.chapterTwoNPCWrappers[i].dialogue;
-                            game.ChapterTwo.NPCs.ElementAt(i).Value.QuestDialogue = SaveData.chapterTwoNPCWrappers[i].questDialogue;
-                            game.ChapterTwo.NPCs.ElementAt(i).Value.DialogueState = SaveData.chapterTwoNPCWrappers[i].dialogueState;
-                            game.ChapterTwo.NPCs.ElementAt(i).Value.FacingRight = SaveData.chapterTwoNPCWrappers[i].facingRight;
-                            game.ChapterTwo.NPCs.ElementAt(i).Value.Quest = game.AllQuests[SaveData.chapterTwoNPCWrappers[i].questName];
-                            game.ChapterTwo.NPCs.ElementAt(i).Value.AcceptedQuest = SaveData.chapterTwoNPCWrappers[i].acceptedQuest;
-                            game.ChapterTwo.NPCs.ElementAt(i).Value.MapName = SaveData.chapterTwoNPCWrappers[i].mapName;
-                        }
-                        else if (SaveData.chapterTwoNPCWrappers[i].trenchCoat == false)
-                        {
-                            game.ChapterTwo.NPCs.ElementAt(i).Value.Dialogue = SaveData.chapterTwoNPCWrappers[i].dialogue;
-                            game.ChapterTwo.NPCs.ElementAt(i).Value.QuestDialogue = null;
-                            game.ChapterTwo.NPCs.ElementAt(i).Value.DialogueState = SaveData.chapterTwoNPCWrappers[i].dialogueState;
-                            game.ChapterTwo.NPCs.ElementAt(i).Value.FacingRight = SaveData.chapterTwoNPCWrappers[i].facingRight;
-                            game.ChapterTwo.NPCs.ElementAt(i).Value.Quest = null;
-                            game.ChapterTwo.NPCs.ElementAt(i).Value.AcceptedQuest = false;
-                            game.ChapterTwo.NPCs.ElementAt(i).Value.MapName = SaveData.chapterTwoNPCWrappers[i].mapName;
-                        }
-                        else
-                        {
-                            game.ChapterTwo.NPCs.ElementAt(i).Value.Dialogue = SaveData.chapterTwoNPCWrappers[i].dialogue;
-                            game.ChapterTwo.NPCs.ElementAt(i).Value.QuestDialogue = null;
-                            game.ChapterTwo.NPCs.ElementAt(i).Value.DialogueState = SaveData.chapterTwoNPCWrappers[i].dialogueState;
-                            game.ChapterTwo.NPCs.ElementAt(i).Value.FacingRight = SaveData.chapterTwoNPCWrappers[i].facingRight;
-                            game.ChapterTwo.NPCs.ElementAt(i).Value.Quest = null;
-                            game.ChapterTwo.NPCs.ElementAt(i).Value.AcceptedQuest = false;
-                            (game.ChapterTwo.NPCs.ElementAt(i).Value as TrenchcoatKid).SoldOut = SaveData.chapterTwoNPCWrappers[i].trenchcoatSoldOut;
-                            game.ChapterTwo.NPCs.ElementAt(i).Value.MapName = SaveData.chapterTwoNPCWrappers[i].mapName;
-                        }
-                    }
+                    //for (int i = 0; i < game.ChapterTwo.NPCs.Count; i++)
+                    //{
+                    //    if (SaveData.chapterTwoNPCWrappers[i].questName != null)
+                    //    {
+                    //        game.ChapterTwo.NPCs.ElementAt(i).Value.Dialogue = SaveData.chapterTwoNPCWrappers[i].dialogue;
+                    //        game.ChapterTwo.NPCs.ElementAt(i).Value.QuestDialogue = SaveData.chapterTwoNPCWrappers[i].questDialogue;
+                    //        game.ChapterTwo.NPCs.ElementAt(i).Value.DialogueState = SaveData.chapterTwoNPCWrappers[i].dialogueState;
+                    //        game.ChapterTwo.NPCs.ElementAt(i).Value.FacingRight = SaveData.chapterTwoNPCWrappers[i].facingRight;
+                    //        game.ChapterTwo.NPCs.ElementAt(i).Value.Quest = game.AllQuests[SaveData.chapterTwoNPCWrappers[i].questName];
+                    //        game.ChapterTwo.NPCs.ElementAt(i).Value.AcceptedQuest = SaveData.chapterTwoNPCWrappers[i].acceptedQuest;
+                    //        game.ChapterTwo.NPCs.ElementAt(i).Value.MapName = SaveData.chapterTwoNPCWrappers[i].mapName;
+                    //    }
+                    //    else if (SaveData.chapterTwoNPCWrappers[i].trenchCoat == false)
+                    //    {
+                    //        game.ChapterTwo.NPCs.ElementAt(i).Value.Dialogue = SaveData.chapterTwoNPCWrappers[i].dialogue;
+                    //        game.ChapterTwo.NPCs.ElementAt(i).Value.QuestDialogue = null;
+                    //        game.ChapterTwo.NPCs.ElementAt(i).Value.DialogueState = SaveData.chapterTwoNPCWrappers[i].dialogueState;
+                    //        game.ChapterTwo.NPCs.ElementAt(i).Value.FacingRight = SaveData.chapterTwoNPCWrappers[i].facingRight;
+                    //        game.ChapterTwo.NPCs.ElementAt(i).Value.Quest = null;
+                    //        game.ChapterTwo.NPCs.ElementAt(i).Value.AcceptedQuest = false;
+                    //        game.ChapterTwo.NPCs.ElementAt(i).Value.MapName = SaveData.chapterTwoNPCWrappers[i].mapName;
+                    //    }
+                    //    else
+                    //    {
+                    //        game.ChapterTwo.NPCs.ElementAt(i).Value.Dialogue = SaveData.chapterTwoNPCWrappers[i].dialogue;
+                    //        game.ChapterTwo.NPCs.ElementAt(i).Value.QuestDialogue = null;
+                    //        game.ChapterTwo.NPCs.ElementAt(i).Value.DialogueState = SaveData.chapterTwoNPCWrappers[i].dialogueState;
+                    //        game.ChapterTwo.NPCs.ElementAt(i).Value.FacingRight = SaveData.chapterTwoNPCWrappers[i].facingRight;
+                    //        game.ChapterTwo.NPCs.ElementAt(i).Value.Quest = null;
+                    //        game.ChapterTwo.NPCs.ElementAt(i).Value.AcceptedQuest = false;
+                    //        (game.ChapterTwo.NPCs.ElementAt(i).Value as TrenchcoatKid).SoldOut = SaveData.chapterTwoNPCWrappers[i].trenchcoatSoldOut;
+                    //        game.ChapterTwo.NPCs.ElementAt(i).Value.MapName = SaveData.chapterTwoNPCWrappers[i].mapName;
+                    //    }
+                    //}
+
+                    player.Health = player.realMaxHealth;
 
                     game.Camera.centerTarget = new Vector2(player.PositionX + (player.Rec.Width / 2), 0);
 
                     game.Camera.center = game.Camera.centerTarget;
-
                 }
-
                 isolatedFileStream.Close();
             }
         }

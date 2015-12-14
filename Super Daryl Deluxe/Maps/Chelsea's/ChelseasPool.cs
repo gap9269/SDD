@@ -41,8 +41,6 @@ namespace ISurvived
             AddNPCs();
             SetPortals();
 
-            backgroundMusicName = "Exploring";
-
             beer = new Beer(1930, 625);
             beer.ShowFButton = false;
             storyItems.Add(beer);
@@ -55,12 +53,17 @@ namespace ISurvived
         {
             //Sound.PlayBackGroundMusic("Exploring");
         }
+        public override void PlayAmbience()
+        {
+            Sound.PlayAmbience("ambience_outdoors_night");
+        }
 
         public override void Update()
         {
             base.Update();
 
             PlayBackgroundMusic();
+            PlayAmbience();
 
             if (!beer.PickedUp)
             {
@@ -82,13 +85,18 @@ namespace ISurvived
             Game1.npcFaces["Trenchcoat Employee"].faces["Normal"] = content.Load<Texture2D>(@"NPCFaces\Main Characters\Trenchcoat");
 
             ////If the last map does not have the same music
-            //if (Chapter.lastMap != "Old Shed")
-            //{
-            //    SoundEffect bg1 = Sound.backgroundMusicContent.Load<SoundEffect>(@"Sound\Hidden Agenda");
-            //    SoundEffectInstance backgroundMusic1 = bg1.CreateInstance();
-            //    backgroundMusic1.IsLooped = true;
-            //    Sound.music.Add("Exploring", backgroundMusic1);
-            //}
+            if (Chapter.lastMap == "Old Shed")
+            {
+                //SoundEffect bg1 = Sound.backgroundMusicContent.Load<SoundEffect>(@"Sound\Hidden Agenda");
+                //SoundEffectInstance backgroundMusic1 = bg1.CreateInstance();
+                //backgroundMusic1.IsLooped = true;
+                //Sound.music.Add("Exploring", backgroundMusic1);
+
+                SoundEffect am = Sound.ambienceContent.Load<SoundEffect>(@"Sound\Ambience\ambience_outdoors_night");
+                SoundEffectInstance amb = am.CreateInstance();
+                amb.IsLooped = true;
+                Sound.ambience.Add("ambience_outdoors_night", amb);
+            }
 
             //Sound.backgroundVolume = 1f;
         }
@@ -100,10 +108,11 @@ namespace ISurvived
             game.NPCSprites["Trenchcoat Employee"] = Game1.whiteFilter;
             Game1.npcFaces["Trenchcoat Employee"].faces["Normal"] = Game1.whiteFilter;
 
-            //if (Chapter.theNextMap != "OldShed")
-            //{
-            //    Sound.UnloadBackgroundMusic();
-            //}
+            if (Chapter.theNextMap == "Old Shed")
+            {
+                //Sound.UnloadBackgroundMusic();
+                Sound.UnloadAmbience();
+            }
         }
 
 
@@ -111,9 +120,9 @@ namespace ISurvived
         {
             base.SetPortals();
 
-            toOutsideTheParty = new Portal(50, platforms[0], "ChelseasPool");
-            toOldShed = new Portal(1420, platforms[0].Rec.Y - 30, "ChelseasPool");
-            toOldShedTop = new Portal(1650, 240, "ChelseasPool");
+            toOutsideTheParty = new Portal(50, platforms[0], "Chelsea's Pool");
+            toOldShed = new Portal(1420, platforms[0].Rec.Y - 30, "Chelsea's Pool");
+            toOldShedTop = new Portal(1650, 240, "Chelsea's Pool");
             toOldShedTop.PortalRecY = 50;
         }
 

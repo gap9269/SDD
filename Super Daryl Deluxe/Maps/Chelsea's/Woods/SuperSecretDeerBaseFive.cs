@@ -275,7 +275,7 @@ namespace ISurvived
             switchThree = new WallSwitch(Game1.switchTexture, new Rectangle(6000, 460 - 600, 42, 83));
             switches.Add(switchThree);
 
-            kidCage = new KidCage(Game1.interactiveObjects["KidCage"], 6600, 426 - 600, player);
+            kidCage = new KidCage(Game1.whiteFilter, 6600, 426 - 600, player);
 
             cardboardBalto = new BaltoCutOut(-6600, -226, game);
             interactiveObjects.Add(cardboardBalto);
@@ -311,7 +311,7 @@ namespace ISurvived
             }
             else
             {
-                enemiesInMap.Add(en);
+                AddEnemyToEnemyList(en);
             }
 
         }
@@ -466,7 +466,7 @@ namespace ISurvived
         {
             base.SetPortals();
 
-            toDirtyPath = new Portal(50, 60, "SuperSecretDeerBaseAlpha");
+            toDirtyPath = new Portal(50, 60, "Super Secret Deer Base Alpha");
         }
 
         public override void Draw(SpriteBatch s)

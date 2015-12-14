@@ -53,6 +53,7 @@ namespace ISurvived
             bounds = bnds;
             bounds.Height -= 307;
             rec = new Rectangle(bounds.X + 2, bounds.Y + 2, 240, 266);
+            position = new Vector2(bounds.X + 2, bounds.Y + 2);
             mState = movestate.flying;
             health = 1;
 
@@ -99,168 +100,180 @@ namespace ISurvived
             return new Rectangle();
         }
 
+        public override void TakeHit(int damage = 1)
+        {
+            base.TakeHit();
+
+            Sound.PlaySoundInstance(Sound.SoundNames.object_locker_hit);
+        }
+
         public override void Update()
         {
             base.Update();
 
-            switch (mState)
+            if (game.CurrentChapter.state != Chapter.GameState.Cutscene)
             {
-                #region Flying
-                case movestate.flying:
+                switch (mState)
+                {
+                    #region Flying
+                    case movestate.flying:
 
-                    //--If it has been hit, fall
-                    if (health <= 0)
-                    {
-                        mState = movestate.falling;
-                        velocity.Y = 0;
-                        velocity.X = 0;
-                    }
-
-                    #region Animation
-                    frameTimer--;
-
-                    if (frameTimer == 0)
-                    {
-                        moveFrame++;
-                        frameTimer = 5;
-
-                        if (moveFrame > 8)
-                            moveFrame = 0;
-                    }
-                    #endregion
-
-                    #region Wander
-                    UpdateRight();
-
-                    Vector2 steeringForce = calcSteeringForce();
-
-                    ClampSteeringForce(steeringForce);
-
-                    Vector2 accel = steeringForce / mass;
-
-                    velocity += (accel *= .06f);
-
-                    speed = (int)velocity.Length();
-
-                    Fwd = velocity;
-
-                    if (speed > maxSpeed)
-                    {
-                        speed = maxSpeed;
-                        velocity = Fwd * speed;
-                    }
-
-                    MoveSteering(velocity * .06f);
-
-
-                    if (velocity.X > 0)
-                        facingRight = true;
-                    else
-                        facingRight = false;
-                    #endregion
-
-                    break;
-                #endregion
-
-                #region Falling
-                case movestate.falling:
-
-                    velocity.Y += GameConstants.GRAVITY;
-                    position.Y += velocity.Y;
-
-                    //--Clamp velocity
-                    if (velocity.Y > 25)
-                        velocity.Y = 25;
-
-                    //--Hit a platform
-                    for (int i = 0; i < game.CurrentChapter.CurrentMap.Platforms.Count; i++)
-                    {
-                        //Represents the platform and the sides of it
-                        Platform plat = game.CurrentChapter.CurrentMap.Platforms[i];
-                        Rectangle top = new Rectangle(plat.Rec.X + 5, plat.Rec.Y, plat.Rec.Width - 5, 20);
-
-                        Rectangle lockerBot = new Rectangle(rec.X + 20, rec.Y + rec.Height - 5, rec.Width - 40, 25);
-
-                        if (lockerBot.Intersects(top))
+                        //--If it has been hit, fall
+                        if (health <= 0)
                         {
-                            mState = movestate.landed;
+                            mState = movestate.falling;
                             velocity.Y = 0;
-                            frameTimer = 8;
-                            moveFrame = 0;
+                            velocity.X = 0;
                         }
-                    }
 
-                    break;
-                #endregion
-
-                #region Landed
-                case movestate.landed:
-
-                    timeOnGround--;
-
-                    Rectangle frec;
-
-                    if(facingRight)
-                        frec = new Rectangle((rec.X + rec.Width / 2 - 43 / 2) + 25, rec.Y - 65, 43, 65);
-                    else
-                        frec = new Rectangle((rec.X + rec.Width / 2 - 43 / 2) - 25, rec.Y - 65, 43, 65);
-
-                    //--When he first hits the ground he squishes a bit before he pop backs up. It only lasts 8 frames
-                    if (moveFrame == 0)
-                    {
+                        #region Animation
                         frameTimer--;
 
                         if (frameTimer == 0)
                         {
                             moveFrame++;
-                            frameTimer = 8;
-                        }
-                    }
-                    //--If he isn't squished
-                    else
-                    {
+                            frameTimer = 5;
 
-                        #region Draw the F Button if you are intersecting with him
-                        if (Game1.Player.VitalRec.Intersects(vitalRec) && !game.CurrentChapter.TalkingToNPC && game.CurrentChapter.state == Chapter.GameState.Game && game.CurrentChapter.BossFight == false)
-                            drawFButton = true;
-                        else
-                            drawFButton = false;
-
-                        if (drawFButton)
-                        {
-                            if (!Chapter.effectsManager.fButtonRecs.Contains(frec))
-                                Chapter.effectsManager.AddFButton(frec);
-                        }
-                        else
-                        {
-                            if (Chapter.effectsManager.fButtonRecs.Contains(frec))
-                                Chapter.effectsManager.fButtonRecs.Remove(frec);
+                            if (moveFrame > 8)
+                                moveFrame = 0;
                         }
                         #endregion
 
-                        //If you press F, go to your locker
-                        if (Game1.Player.VitalRec.Intersects(vitalRec) && current.IsKeyUp(Keys.F) && last.IsKeyDown(Keys.F) && Game1.Player.LearnedSkills.Count > 0 /*&& game.CurrentChapter.BossFight == false*/)
+                        #region Wander
+                        UpdateRight();
+
+                        Vector2 steeringForce = calcSteeringForce();
+
+                        ClampSteeringForce(steeringForce);
+
+                        Vector2 accel = steeringForce / mass;
+
+                        velocity += (accel *= .06f);
+
+                        speed = (int)velocity.Length();
+
+                        Fwd = velocity;
+
+                        if (speed > maxSpeed)
                         {
-                            game.YourLocker.LoadContent();
-                            game.CurrentChapter.state = Chapter.GameState.YourLocker;
+                            speed = maxSpeed;
+                            velocity = Fwd * speed;
                         }
-                    }
 
-                    //--Once he has been on the ground for 10 seconds, jump back up and remove the fRec so it doesn't get stuck on screen
-                    if (timeOnGround == 0)
-                    {
-                        mState = movestate.gettingUp;
-                        timeOnGround = 600;
-                        moveFrame = 0;
+                        MoveSteering(velocity * .06f);
 
-                        if (Chapter.effectsManager.fButtonRecs.Contains(frec))
-                            Chapter.effectsManager.fButtonRecs.Remove(frec);
-                    }
-                    break;
-                #endregion
 
-                #region Getting Up
-                case movestate.gettingUp:
+                        if (velocity.X > 0)
+                            facingRight = true;
+                        else
+                            facingRight = false;
+                        #endregion
+
+                        break;
+                    #endregion
+
+                    #region Falling
+                    case movestate.falling:
+
+                        velocity.Y += GameConstants.GRAVITY;
+                        position.Y += velocity.Y;
+
+                        //--Clamp velocity
+                        if (velocity.Y > 25)
+                            velocity.Y = 25;
+
+                        //--Hit a platform
+                        for (int i = 0; i < game.CurrentChapter.CurrentMap.Platforms.Count; i++)
+                        {
+                            //Represents the platform and the sides of it
+                            Platform plat = game.CurrentChapter.CurrentMap.Platforms[i];
+                            Rectangle top = new Rectangle(plat.Rec.X + 5, plat.Rec.Y, plat.Rec.Width - 5, 20);
+
+                            Rectangle lockerBot = new Rectangle(rec.X + 20, rec.Y + rec.Height - 25, rec.Width - 40, 25);
+
+                            if (lockerBot.Intersects(top))
+                            {
+                                Sound.PlaySoundInstance(Sound.SoundNames.object_locker_crash);
+                                mState = movestate.landed;
+                                velocity.Y = 0;
+                                frameTimer = 8;
+                                moveFrame = 0;
+                                position.Y = top.Y - 235;
+                            }
+                        }
+
+                        break;
+                    #endregion
+
+                    #region Landed
+                    case movestate.landed:
+
+                        timeOnGround--;
+
+                        Rectangle frec;
+
+                        if (facingRight)
+                            frec = new Rectangle((rec.X + rec.Width / 2 - 43 / 2) + 25, rec.Y - 65, 43, 65);
+                        else
+                            frec = new Rectangle((rec.X + rec.Width / 2 - 43 / 2) - 25, rec.Y - 65, 43, 65);
+
+                        //--When he first hits the ground he squishes a bit before he pop backs up. It only lasts 8 frames
+                        if (moveFrame == 0)
+                        {
+                            frameTimer--;
+
+                            if (frameTimer == 0)
+                            {
+                                moveFrame++;
+                                frameTimer = 8;
+                            }
+                        }
+                        //--If he isn't squished
+                        else
+                        {
+
+                            #region Draw the F Button if you are intersecting with him
+                            if (Game1.Player.VitalRec.Intersects(vitalRec) && !game.CurrentChapter.TalkingToNPC && game.CurrentChapter.state == Chapter.GameState.Game && game.CurrentChapter.BossFight == false)
+                                drawFButton = true;
+                            else
+                                drawFButton = false;
+
+                            if (drawFButton)
+                            {
+                                if (!Chapter.effectsManager.fButtonRecs.Contains(frec))
+                                    Chapter.effectsManager.AddFButton(frec);
+                            }
+                            else
+                            {
+                                if (Chapter.effectsManager.fButtonRecs.Contains(frec))
+                                    Chapter.effectsManager.fButtonRecs.Remove(frec);
+                            }
+                            #endregion
+
+                            //If you press F, go to your locker
+                            if (Game1.Player.VitalRec.Intersects(vitalRec) && ((current.IsKeyUp(Keys.F) && last.IsKeyDown(Keys.F)) || MyGamePad.LeftBumperPressed()) && Game1.Player.LearnedSkills.Count > 0 && Game1.Player.playerState != Player.PlayerState.attackJumping && Game1.Player.playerState != Player.PlayerState.attacking)
+                            {
+                                Game1.Player.StopSkills();
+                                game.YourLocker.LoadContent();
+                                game.CurrentChapter.state = Chapter.GameState.YourLocker;
+                            }
+                        }
+
+                        //--Once he has been on the ground for 10 seconds, jump back up and remove the fRec so it doesn't get stuck on screen
+                        if (timeOnGround == 0)
+                        {
+                            mState = movestate.gettingUp;
+                            timeOnGround = 600;
+                            moveFrame = 0;
+
+                            if (Chapter.effectsManager.fButtonRecs.Contains(frec))
+                                Chapter.effectsManager.fButtonRecs.Remove(frec);
+                        }
+                        break;
+                    #endregion
+
+                    #region Getting Up
+                    case movestate.gettingUp:
                         frameTimer--;
 
                         if (frameTimer == 0)
@@ -281,17 +294,17 @@ namespace ISurvived
                             position.Y += velocity.Y;
                             health = 1;
                         }
-                    
 
-                    break;
-                #endregion
+
+                        break;
+                    #endregion
+                }
+
+                //Update rectangles
+                rec.X = (int)position.X;
+                rec.Y = (int)position.Y;
+                vitalRec = new Rectangle(rec.X + 100, rec.Y + 33, 45, 192);
             }
-
-            //Update rectangles
-            rec.X = (int)position.X;
-            rec.Y = (int)position.Y;
-            vitalRec = new Rectangle(rec.X + 100, rec.Y + 33, 45, 192);
-
         }
 
         public override void Draw(SpriteBatch s)
@@ -307,8 +320,10 @@ namespace ISurvived
                 if (distanceFromLocker.X < 250 && distanceFromLocker.Y < 250 && game.CurrentChapter.state == Chapter.GameState.Game 
                     && game.CurrentChapter.BossFight == false && !drawFButton)
                 {
-                    s.DrawString(game.Font, "Daryl's Locker / Skill Shop", new Vector2(vitalRec.X - 50 -2, vitalRec.Y - 50 - 2), Color.Black);
-                    s.DrawString(game.Font, "Daryl's Locker / Skill Shop", new Vector2(vitalRec.X - 50, vitalRec.Y - 50), Color.White);
+                    if(facingRight)
+                        Game1.OutlineFont(game.Font, s, "Daryl's Locker & Skill Shop", 1, (int)(vitalRec.X - 50 - 2), (int)(vitalRec.Y - 50 - 2), Color.White, new Color(241, 107, 79));
+                    else
+                        Game1.OutlineFont(game.Font, s, "Daryl's Locker & Skill Shop", 1, (int)(vitalRec.X - 100), (int)(vitalRec.Y - 50 - 2), Color.White, new Color(241, 107, 79));
                 }
                 #endregion
             }

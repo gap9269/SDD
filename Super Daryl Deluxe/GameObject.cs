@@ -25,12 +25,12 @@ namespace ISurvived
         protected List<float> damageAlphas; //The damage numbers above their heads
         protected List<String> weaknessStrengthOrNormal; //Use this to use a different font color depending on whether the attack was effective or not
 
-        protected List<Vector2> expVec;
+       // protected List<Vector2> expVec;
         protected List<Vector2> moneyVec;
-        protected List<int> expNum;
+       // protected List<int> expNum;
         protected List<int> monNum;
         protected List<int> moneyTimers;
-        protected List<int> expTimers;
+       // protected List<int> expTimers;
 
         protected float terminalVelocity = 30;
         protected SpriteFont font;
@@ -51,6 +51,7 @@ namespace ISurvived
         public float Alpha { get { return alpha; } set { alpha = value; } }
         public int RecX { get { return rec.X; } set { rec.X = value; } }
         public int RecY { get { return rec.Y; } set { rec.Y = value; } }
+        public Rectangle VitalRec { get { return vitalRec; } set { vitalRec = value; } }
         public int VitalRecWidth { get { return vitalRec.Width; } set { vitalRec.Width = value; } }
         public int VitalRecHeight { get { return vitalRec.Height; } set { vitalRec.Height = value; } }
         public int VitalRecX { get { return vitalRec.X; } set { vitalRec.X = value; } }
@@ -68,9 +69,9 @@ namespace ISurvived
             damageAlphas = new List<float>();
             weaknessStrengthOrNormal = new List<string>();
 
-            expTimers = new List<int>();
-            expVec = new List<Vector2>();
-            expNum = new List<int>();
+            //expTimers = new List<int>();
+            //expVec = new List<Vector2>();
+            //expNum = new List<int>();
         }
 
         public virtual void Stun(int time)
@@ -96,45 +97,49 @@ namespace ISurvived
             }
         }
 
-
-        //--Adds vectors and numbers to the lists, to display when an enemy dies.
-        //--This must be called as "player.addmoneyexpnums" in "enemy", otherwise the lists will be deleted when the enemy is deleted
-        public virtual void AddExpNums(int exp, Rectangle enemyRec, int vitalRecY)
+        public virtual void StopSound()
         {
-            expVec.Add(new Vector2(enemyRec.X + enemyRec.Width / 2, vitalRecY));
-            expNum.Add(exp);
-            expTimers.Add(100);
+
         }
 
-        //--Draws the money and exp numbers above where the enemy was killed
-        public virtual void DrawExpNums(SpriteBatch s)
-        {
-            #region Exp
-            for (int i = 0; i < expVec.Count; i++)
-            {
-                expTimers[i]--;
+        ////--Adds vectors and numbers to the lists, to display when an enemy dies.
+        ////--This must be called as "player.addmoneyexpnums" in "enemy", otherwise the lists will be deleted when the enemy is deleted
+        //public virtual void AddExpNums(int exp, Rectangle enemyRec, int vitalRecY)
+        //{
+        //    expVec.Add(new Vector2(enemyRec.X + enemyRec.Width / 2, vitalRecY));
+        //    expNum.Add(exp);
+        //    expTimers.Add(200);
+        //}
 
-              //  if (expTimers[i] < 15 || (expTimers[i] > 20 && expTimers[i] < 35) || (expTimers[i] > 40 && expTimers[i] < 55) || (expTimers[i] > 60 && expTimers[i] < 75) || (expTimers[i] > 80 && expTimers[i] < 95) || (expTimers[i] > 100 && expTimers[i] < 115))
-             //   {
-                    s.DrawString(Game1.xpFont, "+" + expNum[i].ToString() + "XP", new Vector2(expVec[i].X - Game1.xpFont.MeasureString("+" + expNum[i].ToString() + " XP").X / 2, expVec[i].Y - Game1.xpFont.MeasureString("+" + expNum[i].ToString() + "XP").Y), Color.White);
-                    expTimers[i]--;
-             //   }
+        ////--Draws the money and exp numbers above where the enemy was killed
+        //public virtual void DrawExpNums(SpriteBatch s)
+        //{
+        //    #region Exp
+        //    for (int i = 0; i < expVec.Count; i++)
+        //    {
+        //        expTimers[i]--;
 
-                if (expTimers[i] <= 0)
-                {
-                    expVec.RemoveAt(i);
-                    expNum.RemoveAt(i);
-                    expTimers.RemoveAt(i);
-                    i--;
-                }
-            }
-            #endregion
-        }
+        //      //  if (expTimers[i] < 15 || (expTimers[i] > 20 && expTimers[i] < 35) || (expTimers[i] > 40 && expTimers[i] < 55) || (expTimers[i] > 60 && expTimers[i] < 75) || (expTimers[i] > 80 && expTimers[i] < 95) || (expTimers[i] > 100 && expTimers[i] < 115))
+        //     //   {
+        //            s.DrawString(Game1.xpFont, "+" + expNum[i].ToString() + "XP", new Vector2(expVec[i].X - Game1.xpFont.MeasureString("+" + expNum[i].ToString() + " XP").X / 2, expVec[i].Y - Game1.xpFont.MeasureString("+" + expNum[i].ToString() + "XP").Y), Color.White);
+        //            expTimers[i]--;
+        //     //   }
+
+        //        if (expTimers[i] <= 0)
+        //        {
+        //            expVec.RemoveAt(i);
+        //            expNum.RemoveAt(i);
+        //            expTimers.RemoveAt(i);
+        //            i--;
+        //        }
+        //    }
+        //    #endregion
+        //}
          
 
         public virtual void Draw(SpriteBatch s)
         {
-            DrawExpNums(s);
+            //DrawExpNums(s);
         }
 
         public virtual Vector2 Seek(GameObject target)

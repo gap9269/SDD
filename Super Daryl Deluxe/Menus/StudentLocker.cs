@@ -12,6 +12,33 @@ using Microsoft.Xna.Framework.Media;
 
 namespace ISurvived
 {
+
+    public class LootForStudentLocker
+    {
+
+        public int amount;
+        public String type;
+
+        public LootForStudentLocker(String type, int amount)
+        {
+            this.type = type;
+            this.amount = amount;
+        }
+    }
+
+    public class StoryItemStack
+    {
+
+        public int amount;
+        public String type;
+
+        public StoryItemStack(String type, int amount)
+        {
+            this.type = type;
+            this.amount = amount;
+        }
+    }
+
     public class StudentLocker
     {
 
@@ -30,7 +57,7 @@ namespace ISurvived
         float boxOneY, boxTwoY, boxThreeY;
         float darylPosX = 1280;
 
-        Texture2D backgroundClosed, activeDial, foregroundClosed, descriptionBox, itemBox, numbers, openBlurred, openRegular, spinningLock, overlay, tooltip, staticBoxTex, comboPage, leftStatic, leftActive, rightStatic, rightActive, piggy, piggyRays, keys;
+        Texture2D backgroundClosed, activeDial, RB, foregroundClosed, descriptionBox, itemBox, numbers, openBlurred, openRegular, spinningLock, overlay, tooltip, staticBoxTex, comboPage, leftStatic, leftActive, rightStatic, rightActive, piggy, piggyRays, keys, dPadTip, backspace, b;
         Button leftPageArrow, rightPageArrow;
         int page;
 
@@ -58,6 +85,10 @@ namespace ISurvived
         protected int second;
         protected int third;
 
+        Button backspaceRec;
+
+        SoundEffectInstance ui_locker_spin_loop;
+
         int dialSelected = 1; //Which dial is currently active
 
         int openingTimer;
@@ -75,6 +106,7 @@ namespace ISurvived
         public Rectangle Rec { get { return rec; } set { rec = value; } }
         public List<Boolean> TakenContents { get { return takenContents; } set { takenContents = value; } }
         public String LockerName { get { return lockerName; } }
+        public List<Object> Contents { get { return contents; } }
         public StudentLocker(Player p, Game1 g, Rectangle r, List<Object> content, String lockerName, Texture2D t)
         {
             Content = new ContentManager(g.Services);
@@ -106,6 +138,9 @@ namespace ISurvived
             {
                 takenContents.Add(false);
             }
+
+            backspaceRec = new Button(new Rectangle(1166, 7, 110, 18));
+
         }
 
         public void LoadContent()
@@ -120,23 +155,29 @@ namespace ISurvived
             spinningLock = Content.Load<Texture2D>(@"Menus\StudentLocker\spinningLock");
             overlay = Content.Load<Texture2D>(@"Menus\StudentLocker\overlay");
             tooltip = Content.Load<Texture2D>(@"Menus\StudentLocker\tooltip");
+            dPadTip = Content.Load<Texture2D>(@"Menus\StudentLocker\DPadTip");
             staticBoxTex = Content.Load<Texture2D>(@"Menus\StudentLocker\boxStatic");
-
+            backspace = Content.Load<Texture2D>(@"Menus\BackspaceNotebook");
+            b = Content.Load<Texture2D>(@"Menus\B");
             piggy = Content.Load<Texture2D>(@"Menus\Shop\Piggy");
             keys = Content.Load<Texture2D>(@"Menus\Shop\Keys");
             piggyRays = Content.Load<Texture2D>(@"Menus\Shop\PiggyRay");
-
+            RB = Content.Load<Texture2D>(@"Notifications\RB");
             //Combo page
             comboPage = Content.Load<Texture2D>(@"Menus\StudentLocker\ComboPage");
             rightActive = Content.Load<Texture2D>(@"Menus\StudentLocker\rightArrowActive");
             rightStatic = Content.Load<Texture2D>(@"Menus\StudentLocker\rightArrowStatic");
             leftActive = Content.Load<Texture2D>(@"Menus\StudentLocker\leftArrowActive");
             leftStatic = Content.Load<Texture2D>(@"Menus\StudentLocker\leftArrowStatic");
+
+            Sound.LoadStudentLockerSounds();
+            ui_locker_spin_loop = Sound.menuSoundEffects["ui_locker_spin_loop"].CreateInstance();
         }
 
         public void UnloadContent()
         {
             Content.Unload();
+            Sound.UnloadMenuSounds();
         }
 
         //--Draws all of the item slots in the locker
@@ -202,7 +243,6 @@ namespace ISurvived
         {
             for (int i = 0; i < contents.Count; i++)
             {
-
                 if(contents[i] is Equipment)
                 {
                     Equipment eq = contents[i] as Equipment;
@@ -223,6 +263,11 @@ namespace ISurvived
                         contentBoxes[i].ButtonTexture = Game1.storyItemIcons["Silver Key"];
                     if (contents[i] is Textbook)
                         contentBoxes[i].ButtonTexture = Game1.textbookTextures;
+                }
+                else if (contents[i] is LootForStudentLocker)
+                {
+                    LootForStudentLocker tmp = contents[i] as LootForStudentLocker;
+                    contentBoxes[i].ButtonTexture = EnemyDrop.allDrops[tmp.type].texture;
                 }
             }
         }
@@ -246,13 +291,20 @@ namespace ISurvived
             last = current;
             current = Keyboard.GetState();
 
-            if (player.VitalRec.Intersects(rec) && (current.IsKeyUp(Keys.F) && last.IsKeyDown(Keys.F) || MyGamePad.RightBumperPressed()))
+            if (player.VitalRec.Intersects(rec) && (current.IsKeyUp(Keys.F) && last.IsKeyDown(Keys.F) || MyGamePad.LeftBumperPressed()))
             {
                 LoadContent();
                 game.CurrentChapter.CurrentLocker = this;
                 game.CurrentChapter.state = Chapter.GameState.BreakingLocker;
                 code = GenerateLockerCombinations.combinations[lockerName];
+                Sound.PlaySoundInstance(Sound.SoundNames.ui_locker_other_menu_open);
             }
+        }
+
+        public void PlayClickDialSound()
+        {
+            String soundEffectName = "ui_locker_dial_click_0" + Game1.randomNumberGen.Next(1, 7);
+            Sound.PlaySoundInstance(Sound.menuSoundEffects[soundEffectName], soundEffectName, false);
         }
 
         public virtual void Update()
@@ -270,7 +322,7 @@ namespace ISurvived
             current = Keyboard.GetState();
 
             #region Exit the screen
-            if (((last.IsKeyDown(Keys.Escape) && current.IsKeyUp(Keys.Escape))) || ((last.IsKeyDown(Keys.Back) && current.IsKeyUp(Keys.Back))) || MyGamePad.BPressed())
+            if (((last.IsKeyDown(Keys.Escape) && current.IsKeyUp(Keys.Escape))) || ((last.IsKeyDown(Keys.Back) && current.IsKeyUp(Keys.Back))) || MyGamePad.BPressed() || (backspaceRec.Clicked() && !Game1.gamePadConnected))
             {
                 first = 0;
                 second = 0;
@@ -284,10 +336,18 @@ namespace ISurvived
                 darylPosX = 1280;
                 openingTimer = 0;
 
+
+                if (state == LockerState.open)
+                    Sound.PlaySoundInstance(Sound.SoundNames.ui_locker_shut);
+                else
+                    Sound.PlaySoundInstance(Sound.SoundNames.ui_inventory_close);
+
                 state = LockerState.closed;
                 UnloadContent();
                 game.CurrentChapter.state = Chapter.GameState.Game;
                 game.CurrentChapter.CurrentLocker = null;
+                MyGamePad.ResetStates();
+
             }
             #endregion
 
@@ -345,6 +405,8 @@ namespace ISurvived
                                 if (boxTwoY <= 518)
                                 {
                                     boxTwoY = 517;
+
+                                    Sound.PlaySoundInstance(Sound.SoundNames.ui_locker_other_menu_appear);
                                 }
                             }
                         }
@@ -361,7 +423,7 @@ namespace ISurvived
 
                             dialRotation += dialVelocity;
 
-                            if (dialVelocity <= 0)
+                            if (dialVelocity < 0)
                             {
                                 dialVelocity = 0;
                                 dialAcceleration = 0;
@@ -382,7 +444,7 @@ namespace ISurvived
 
                             dialRotation += dialVelocity;
 
-                            if (dialVelocity >= 0)
+                            if (dialVelocity > 0)
                             {
                                 dialVelocity = 0;
                                 dialAcceleration = 0;
@@ -395,18 +457,57 @@ namespace ISurvived
                                 dialRotation = 360;
                         }
 
+                        if (dialVelocity != 0)
+                        {
+                            Sound.PlaySoundInstance(ui_locker_spin_loop, Game1.GetFileName(() => ui_locker_spin_loop), true);
+
+                            double t = Math.Round(Math.Abs(dialVelocity), 1);
+
+                            if (t == 2.2)
+                                Sound.PlaySoundInstance(Sound.SoundNames.ui_locker_spin_loop_end);
+                        }
+                        else
+                        {
+                            ui_locker_spin_loop.Stop();
+                        }
+
                         #region Change Dials
                         //Which dial is currently selected
-                        if (dial1.IsOver())
-                            dialSelected = 1;
-                        else if (dial2.IsOver())
-                            dialSelected = 2;
-                        else if (dial3.IsOver())
-                            dialSelected = 3;
-                        else dialSelected = 0;
+                        if (Game1.gamePadConnected)
+                        {
+                            if (dialSelected == 0)
+                                dialSelected = 1;
+
+                            if(MyGamePad.RightPadPressed())
+                            {
+                                dialSelected++;
+
+                                if (dialSelected > 3)
+                                    dialSelected = 1;
+                            }
+                            else if (MyGamePad.LeftPadPressed())
+                                {
+                                    dialSelected--;
+
+                                    if (dialSelected < 1)
+                                        dialSelected = 3;
+                                }
+                        }
+                        else
+                        {
+                            if (dial1.IsOver())
+                                dialSelected = 1;
+                            else if (dial2.IsOver())
+                                dialSelected = 2;
+                            else if (dial3.IsOver())
+                                dialSelected = 3;
+                            else dialSelected = 0;
+                        }
+
+
 
                         //--If you click a dial, increment the number. Go back to 0 after 9
-                        if (dial1.Clicked())
+                        if ((dial1.Clicked()  && !Game1.gamePadConnected) || ((MyGamePad.APressed() || MyGamePad.UpPadPressed()) && dialSelected == 1))
                         {
                             dialVelocity = 10;
                             dialAcceleration = 0;
@@ -416,8 +517,10 @@ namespace ISurvived
 
                             if (first > 10)
                                 first = 0;
+
+                            PlayClickDialSound();
                         }
-                        if (dial2.Clicked())
+                        if ((dial2.Clicked()  && !Game1.gamePadConnected) || ((MyGamePad.APressed() || MyGamePad.UpPadPressed()) && dialSelected == 2))
                         {
                             dialVelocity = -10;
                             dialAcceleration = 0;
@@ -427,8 +530,10 @@ namespace ISurvived
 
                             if (second > 10)
                                 second = 0;
+
+                            PlayClickDialSound();
                         }
-                        if (dial3.Clicked())
+                        if ((dial3.Clicked()  && !Game1.gamePadConnected) || ((MyGamePad.APressed() || MyGamePad.UpPadPressed()) && dialSelected == 3))
                         {
                             dialVelocity = 10;
                             dialAcceleration = 0;
@@ -438,9 +543,11 @@ namespace ISurvived
 
                             if (third > 10)
                                 third = 0;
+
+                            PlayClickDialSound();
                         }
 
-                        if (dial1.RightClicked())
+                        if ((dial1.RightClicked() && !Game1.gamePadConnected)  || ((MyGamePad.XPressed() || MyGamePad.DownPadPressed()) && dialSelected == 1))
                         {
                             dialVelocity = -10;
                             dialAcceleration = 0;
@@ -450,8 +557,9 @@ namespace ISurvived
 
                             if (first < 0)
                                 first = 10;
+                            PlayClickDialSound();
                         }
-                        if (dial2.RightClicked())
+                        if ((dial2.RightClicked() && !Game1.gamePadConnected)  || ((MyGamePad.XPressed() || MyGamePad.DownPadPressed()) && dialSelected == 2))
                         {
                             dialVelocity = 10;
                             dialAcceleration = 0;
@@ -461,8 +569,9 @@ namespace ISurvived
 
                             if (second < 0)
                                 second = 10;
+                            PlayClickDialSound();
                         }
-                        if (dial3.RightClicked())
+                        if ((dial3.RightClicked() && !Game1.gamePadConnected) || ((MyGamePad.XPressed() || MyGamePad.DownPadPressed()) && dialSelected == 3))
                         {
                             dialVelocity = -10;
                             dialAcceleration = 0;
@@ -472,8 +581,10 @@ namespace ISurvived
 
                             if (third < 0)
                                 third = 10;
+                            PlayClickDialSound();
                         }
                         #endregion
+
 
                         //If it is less than 10, add a 0 in front
                         if (first != 10)
@@ -492,15 +603,21 @@ namespace ISurvived
                             input += third.ToString();
 
                         //COMBO PAGE
-                        if (leftPageArrow.Clicked() && page > 0)
+                        if ((leftPageArrow.Clicked() || MyGamePad.LeftBumperPressed()) && page > 0)
+                        {
+                            PlayChangePageSound();
                             page--;
-
-                        if (rightPageArrow.Clicked() && page < 5)
+                        }
+                        if ((rightPageArrow.Clicked() || MyGamePad.RightBumperPressed()) && page < 5)
+                        {
+                            PlayChangePageSound();
                             page++;
-
+                        }
                         if (input == code)
                         {
+                            ui_locker_spin_loop.Stop();
                             state = LockerState.opening;
+                           Sound.PlaySoundInstance(Sound.SoundNames.ui_locker_unlock);
                         }
                     }
 
@@ -570,6 +687,12 @@ namespace ISurvived
             }
         }
 
+        public void PlayChangePageSound()
+        {
+            String soundEffectName = "ui_inventory_list_0" + Game1.randomNumberGen.Next(1, 3);
+            Sound.PlaySoundInstance(Sound.menuSoundEffects[soundEffectName], soundEffectName, false);
+        }
+
         public void UpdateContents()
         {
             for (int i = 0; i < contents.Count; i++)
@@ -582,29 +705,39 @@ namespace ISurvived
 
                         if (eq is Weapon)
                         {
+                            Sound.PlaySoundInstance(Sound.SoundNames.ui_locker_take_item_weapon);
                             player.AddWeaponToInventory(eq as Weapon);
                         }
                         if (eq is Hat)
                         {
+                            Sound.PlaySoundInstance(Sound.SoundNames.ui_locker_take_item_outfit);
                             player.AddHatToInventory(eq as Hat);
                         }
-                        if (eq is Hoodie)
+                        if (eq is Outfit)
                         {
-                            player.AddShirtToInventory(eq as Hoodie);
+                            Sound.PlaySoundInstance(Sound.SoundNames.ui_locker_take_item_outfit);
+                            player.AddShirtToInventory(eq as Outfit);
                         }
                         if (eq is Accessory)
                         {
+                            Sound.PlaySoundInstance(Sound.SoundNames.ui_locker_take_item_outfit);
                             player.AddAccessoryToInventory(eq as Accessory);
                         }
                         if (eq is Money)
                         {
+                            Sound.PlaySoundInstance(Sound.SoundNames.ui_locker_take_item_money);
                             player.Money += (eq as Money).Amount;
                         }
 
                         contents.RemoveAt(i);
+
+                        takenContents[i] = true;
+                        i--;
+                        ResetBoxes();
                     }
                     else if (contents[i] is StoryItem)
                     {
+                        Sound.PlaySoundInstance(Sound.SoundNames.ui_locker_take_item_key);
                         StoryItem temp = contents[i] as StoryItem;
 
                         if (player.StoryItems.ContainsKey(temp.Name))
@@ -613,44 +746,77 @@ namespace ISurvived
                             player.StoryItems.Add(temp.Name, 1);
 
                         contents.RemoveAt(i);
+
+                        takenContents[i] = true;
+                        i--;
+                        ResetBoxes();
                     }
                     else if (contents[i] is Collectible)
                     {
                         if (contents[i] is Textbook)
+                        {
+                            Sound.PlaySoundInstance(Sound.SoundNames.ui_locker_take_item_book);
                             player.Textbooks++;
+                        }
                         else if (contents[i] is BronzeKey)
+                        {
+                            Sound.PlaySoundInstance(Sound.SoundNames.ui_locker_take_item_key);
                             player.BronzeKeys++;
+                        }
                         else if (contents[i] is SilverKey)
+                        {
+                            Sound.PlaySoundInstance(Sound.SoundNames.ui_locker_take_item_key);
                             player.SilverKeys++;
+                        }
                         else if (contents[i] is GoldKey)
+                        {
+                            Sound.PlaySoundInstance(Sound.SoundNames.ui_locker_take_item_key);
                             player.GoldKeys++;
-
+                        }
                         contents.RemoveAt(i);
-                    }
 
-                    takenContents[i] = true;
-                    i--;
-                    ResetBoxes();
+                        takenContents[i] = true;
+                        i--;
+                        ResetBoxes();
+                    }
+                    else if (contents[i] is LootForStudentLocker)
+                    {
+                        LootForStudentLocker tmp = contents[i] as LootForStudentLocker;
+
+                        if (this.lockerName.Equals("Drew\'s Locker") && tmp.type == "Broken Glass")
+                        {
+                            Game1.g.ChapterOne.ChapterOneBooleans["stolenGlass"] = true;
+                        }
+
+                        if (player.AddLoot(tmp.type, tmp.amount))
+                        {
+                            contents.RemoveAt(i);
+                            takenContents[i] = true;
+                            i--;
+                            ResetBoxes();
+                        }
+                    }
                 }
             }
         }
 
-
         //--Draws the description boxes for the items
         public void DrawDescriptions()
         {
-            if (state == LockerState.open)
+            if (state == LockerState.open && !(darylPosX > 563))
             {
                 for (int i = 0; i < contents.Count; i++)
                 {
                     if (contentBoxes[i].IsOver())
                     {
-                        if(contents[i] is Equipment)
+                        if (contents[i] is Equipment)
                             descriptionBoxManager.DrawEquipDescriptions(contents[i] as Equipment, contentBoxes[i].ButtonRec);
-                        else if(contents[i] is StoryItem)
+                        else if (contents[i] is StoryItem)
                             descriptionBoxManager.DrawStoryItemDescriptions((contents[i] as StoryItem).Name, contentBoxes[i].ButtonRec);
                         else if (contents[i] is Collectible)
                             descriptionBoxManager.DrawCollectibleDescriptions((contents[i] as Collectible).collecName, (contents[i] as Collectible).Description, contentBoxes[i].ButtonRec);
+                        else if (contents[i] is LootForStudentLocker)
+                            descriptionBoxManager.DrawLootDescriptions((contents[i] as LootForStudentLocker).type, contentBoxes[i].ButtonRec);
                     }
                 }
             }
@@ -677,7 +843,11 @@ namespace ISurvived
 
                     if (boxTwoY == 517)
                     {
-                        s.Draw(tooltip, new Rectangle(1280 - tooltip.Width, 0, tooltip.Width, (int)(Game1.aspectRatio * 1280)), Color.White);
+                        if(!Game1.gamePadConnected)
+                            s.Draw(tooltip, new Rectangle(1280 - tooltip.Width, 0, tooltip.Width, (int)(Game1.aspectRatio * 1280)), Color.White);
+                        else
+                            s.Draw(dPadTip, new Rectangle(1280 - tooltip.Width, 0, tooltip.Width, (int)(Game1.aspectRatio * 1280)), Color.White);
+
                         //DRAW STATIC NUMBERS
                         s.Draw(numbers, new Rectangle(770, 540, 57, 47), new Rectangle(57 * first, 0, 57, 47), Color.White);
                         s.Draw(numbers, new Rectangle(893, 540, 57, 47), new Rectangle(57 * second, 0, 57, 47), Color.White);
@@ -702,17 +872,24 @@ namespace ISurvived
 
                         s.Draw(comboPage, new Rectangle(0, 0, comboPage.Width, comboPage.Height), Color.White);
 
-                        if(leftPageArrow.IsOver())
-                            s.Draw(leftActive, new Rectangle(243, 638, leftActive.Width, leftActive.Height), Color.White);
+                        if (!Game1.gamePadConnected)
+                        {
+                            if (leftPageArrow.IsOver())
+                                s.Draw(leftActive, new Rectangle(243, 638, leftActive.Width, leftActive.Height), Color.White);
+                            else
+                                s.Draw(leftStatic, new Rectangle(243, 638, leftActive.Width, leftActive.Height), Color.White);
+
+                            if (rightPageArrow.IsOver())
+                                s.Draw(rightActive, new Rectangle(243, 638, leftActive.Width, leftActive.Height), Color.White);
+                            else
+                                s.Draw(rightStatic, new Rectangle(243, 638, leftActive.Width, leftActive.Height), Color.White);
+                        }
                         else
-                            s.Draw(leftStatic, new Rectangle(243, 638, leftActive.Width, leftActive.Height), Color.White);
-
-
-                        if (rightPageArrow.IsOver())
-                            s.Draw(rightActive, new Rectangle(243, 638, leftActive.Width, leftActive.Height), Color.White);
-                        else
-                            s.Draw(rightStatic, new Rectangle(243, 638, leftActive.Width, leftActive.Height), Color.White);
-
+                        {
+                            s.Draw(Game1.lbBack, new Vector2(248, 637), Color.White);
+                            s.Draw(Game1.lbOutline, new Vector2(248, 637), Color.White);
+                            s.Draw(RB, new Vector2(360, 635), Color.White);
+                        }
                         s.DrawString(Game1.font, (page + 1).ToString() + " / 6", new Vector2(316, 646), Color.Black);
 
                         //9 is the number of combos per page for this menu
@@ -751,9 +928,20 @@ namespace ISurvived
                                 //}
                                 //else
                                 if (!(contents[i] is Textbook))
+                                {
                                     contentBoxes[i].Draw(s);
+
+                                    if (contents[i] is LootForStudentLocker)
+                                    {
+                                        LootForStudentLocker tmp = contents[i] as LootForStudentLocker;
+
+                                        Game1.OutlineFont(Game1.font, s, "5", 2, contentBoxes[i].ButtonRec.X + 75 - (int)Game1.font.MeasureString("5").X, contentBoxes[i].ButtonRec.Y + 52, Color.White, Color.Black);
+                                    }
+                                }
                                 else
                                     s.Draw(contentBoxes[i].ButtonTexture, contentBoxes[i].ButtonRec, new Rectangle(0, 0, 94, 90), Color.White);
+
+
                             }
                         }
 
@@ -774,7 +962,10 @@ namespace ISurvived
                     break;
             }
 
-            s.Draw(Game1.backspaceTexture, new Rectangle(1126, 16, Game1.backspaceTexture.Width, Game1.backspaceTexture.Height), Color.White);
+            if (!Game1.gamePadConnected)
+                s.Draw(backspace, new Vector2(1280 - backspace.Width - 5, 5), Color.White);
+            else
+                s.Draw(b, new Vector2(1280 - backspace.Width + 20, 5), Color.White);
         }
     }
 }

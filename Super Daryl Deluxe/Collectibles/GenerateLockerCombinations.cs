@@ -16,8 +16,11 @@ namespace ISurvived
             number = new Random();
             combinations = new Dictionary<string, string>();
 
-            combinations.Add("Tim's Locker", "0" + number.Next(0, 10) + "0" + number.Next(0, 10) + "0" + number.Next(0, 10));
-            combinations.Add("Someone's Locker", "0" + number.Next(0, 10) + "0" + number.Next(0, 10) + "0" + number.Next(0, 10));
+            combinations.Add("Tim's Locker", "0" + number.Next(0, 10) + "0" + number.Next(0, 10) + "0" + number.Next(1, 10));
+            combinations.Add("Drew's Locker", "0" + number.Next(0, 10) + "0" + number.Next(1, 10) + "0" + number.Next(0, 10));
+            combinations.Add("Ken's Locker", "0" + number.Next(0, 10) + "0" + number.Next(1, 10) + "0" + number.Next(0, 10));
+            combinations.Add("Chelseas's Locker", "0" + number.Next(0, 10) + "0" + number.Next(0, 10) + "0" + number.Next(1, 10));
+            combinations.Add("Someone's Locker", "0" + number.Next(1, 10) + "0" + number.Next(0, 10) + "0" + number.Next(0, 10));
         }
     }
 }

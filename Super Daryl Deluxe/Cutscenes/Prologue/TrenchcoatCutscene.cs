@@ -55,6 +55,11 @@ namespace ISurvived
                     if (timer == 90)
                     {
                         Chapter.effectsManager.AddSmokePoof(new Rectangle(1765, 450, 175, 175), 2);
+                        Sound.PlayRandomRegularPoof(1765, 450);
+                    }
+
+                    if (timer == 95)
+                    {
                         cronie.PositionX = 1600;
                         cronie.PositionY = 620 - 388;
                     }

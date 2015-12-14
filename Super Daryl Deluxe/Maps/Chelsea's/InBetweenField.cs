@@ -174,9 +174,9 @@ namespace ISurvived
         {
             base.SetPortals();
 
-            toAnotherSpookyField = new Portal(40, platforms[0], "InBetweenField");
-            toWorkers = new Portal(1500, platforms[0], "InBetweenField");
-            toBathroom = new Portal(1030, 420 + 253, "InBetweenField");
+            toAnotherSpookyField = new Portal(40, platforms[0], "InBetween Field");
+            toWorkers = new Portal(1500, platforms[0], "InBetween Field");
+            toBathroom = new Portal(1030, 420 + 253, "InBetween Field");
         }
 
         public override void Draw(SpriteBatch s)

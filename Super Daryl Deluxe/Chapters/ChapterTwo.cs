@@ -17,83 +17,85 @@ namespace ISurvived
         //NPCs
         NPC alan;
         NPC paul;
-
-        //PARTY NPCS
-        Callyn callyn;
-        PeltKid peltKidOne;
-        NPC squirrelBoy;
         Chelsea chelsea;
         Mark mark;
         Julius julius;
         Jesse jesse;
-        BridgeKid bridgeKidOne, outsideCampBob;
-        Balto balto;
-        NPC skillInstructor;
-        NPC saveInstructor;
-        NPC alaina;
-        NPC crossroadsKid;
-        NPC tim;
-        NPC inventoryInstructor;
-        NPC blurso;
+        NPC balto, princess, messengerBoy, robatto;
+
+        NPC jason, steve, claire, ken;
+        TheJanitor janitor;
+        BridgeKid outsideCampBob;
+        BridgeKid cliffBob;
 
         //History
-        NPC napoleon, cleopatra;
+        Cleopatra cleopatra;
+        HistoryHologram hologram;
+        NPC napoleon, genghis, privateBrian, frenchSoldier, pharaohGuardOne, pharaohGuardTwo, pharaohGuardThree;
 
-        //Trenchcoats
-        TrenchcoatKid tutorialShop;
-        TrenchcoatKid poolShop;
-        TrenchcoatKid fieldShop;
+        //Pyramid guards
+        NPC pyramidGuardOne, pyramidGuardTwo, pyramidGuardThree, pyramidGuard4, pyramidGuard5, pyramidGuard6, pyramidGuard7, pyramidGuard8, pyramidGuard9;
 
-        //TUTORIAL NPCS
-        List<List<String>> associateDialogue; //This is gonna get confusing real quick
-        int selectedAssociate; //1 2 or 3
-        NPC friendOne;
+        //Literature
+        NPC pigeon;
+        Scrooge scrooge;
+        BellMan bellman;
+        Marley marley;
 
-        //TUTORIAL/DEMO
-        public Texture2D associateOneTex;
+        TrenchcoatKid trenchcoatCamp, trenchcoatSnowyStreets;
 
         //--Story quests
+        public FindBaltosPhone findBaltosPhone;
         public FortRaid fortRaid;
-        DemoQuestOne demoQuestOne;
-        DemoQuestTwo demoQuestTwo;
-        public FindingBalto findingBalto;
-        public BuildingACornBridge buildBridgeOne;
-        public BuildingBridgeTwo buildBridgeTwo;
-
-        //Side quests
-        BeerForToga beerForToga;
-        BeerForGoggles beerForGoggles;
-        BeerForHat beerForHat;
-        SquirrelQuest squirrelQuest;
-        ScissorsQuest scissorsQuest;
+        public BehindGoblinyLinesPartOne behindGoblinyLinesPartOne;
+        public BehindGoblinyLinesPartTwo behindGoblinyLinesPartTwo;
+        JoiningForcesPartOne joiningForcesPartOne;
+        public LivingLumber livingLumber;
+        public ForeignDebt foreignDebt;
+        public PackageForMrScrooge packageForScrooge;
+        public DeliveringSupplies deliveringSupplies;
+        public JoiningForcesPartTwo joiningForcesPartTwo;
+        public AnubisInvasion anubisInvasion;
+        public TutoringThePrincess tutoringThePrincess;
 
         //--Cutscenes
+        ChapterTwoOpening opening;
+        BaltosPhone baltosPhone;
+        SoldiersLeavingValley soldiersLeavingValley;
+        TreeEntsAppear treeEntsAppear;
+        AfterLumberQuestScene afterLumberScene;
+        InvadeChinaSceneP1 invadeChinaPartOne;
+        InvadeChinaSceneP2 invadeChinaPartTwo;
+        InvadeChinaSceneP3 invadeChinaPartThree;
+        ScroogeRoomOne scroogeRoomOne;
+        ScroogeRoomTwo scroogeRoomTwo;
+        ScroogeRoomThree scroogeRoomThree;
+        LitGuardianDefeated litGuardianDefeated;
+        ScroogeReward scroogeReward;
+        FirstMessageScene firstMessageScene;
+        DeliveringSuppliesScene deliveringSuppliesScene;
+        CaesarArrivesAtCamp caesarArrivesAtCamp;
+        WeddingCrasher weddingCrasher;
+        SecondMessageScene secondMessageScene;
+        PrincessSceneOne princessSceneOne;
+        BombArrives bombArrives;
 
-        //History
+        //Fort raid
         CampGateOpenScene campGateOpenScene;
-
-        //Demo scenes
-        DemoOpening demoOpening;
-        TreeFall treeFall;
-        SteveAustinScene steveAustinScene;
-        TutorialEnd tutorialEnd;
-        DemoEnd demoEnd;
-
-        //Party Scenes
-        CrossroadsScene crossroadsScene;
-        SavedFirstKidScene savedFirstKidScene;
-        GateCollapseScene gateCollapseScene;
-        DarylCaught darylCaughtScene;
-
-        //Timers
-        int firstTextTimer = 120;
+        TrollAppear trollAppearScene;
+        BombExplode bombExplodeScene;
+        EnteringAxisScene enteringAxisScene;
+        HorseDestroyed horseDestroyedScene;
+        RobattoArrivesInHistory robattoArrivesInHistory;
+        ChapterTwoEndOne chapterEndOne;
+        ChapterTwoEndTwo chapterEndTwo;
+        ChapterTwoEndThree chapterEndThree;
 
         //Switch state to decision making, then pick the decision
         public enum Decisions
         {
             none,
-            test,
-            tutorialResolution
+            invadeChina, invadeFort
         }
         public Decisions decisions;
 
@@ -102,8 +104,6 @@ namespace ISurvived
 
         static Random ran = new Random();
 
-        public int SelectedAssociate { get { return selectedAssociate; } set { selectedAssociate = value; } }
-        public List<List<string>> AssociateDialogue { get { return associateDialogue; } }
         public Dictionary<String, Boolean> ChapterTwoBooleans { get { return chapterTwoBooleans; } set { chapterTwoBooleans = value; } }
 
         public ChapterTwo(Game1 g, ref Player p,
@@ -111,214 +111,144 @@ namespace ISurvived
             : base(g, ref p, nHud, cur, cam, textures)
         {
 
-            #region ASSOCIATE DIALOGUE
-            //Tutorial Associate Dialogue
-            List<String> associateOneDialogue = new List<string>();
-            if (!Game1.gamePadConnected)
-            {
-                associateOneDialogue.Add("Hey there! Let's get started! \nPress the Left and Right Arrow keys to \nmake Daryl run!");
-                associateOneDialogue.Add("Press the Up Arrow key to jump!");
-                associateOneDialogue.Add("Press 'F' to use doors! I'm so excited! What \ncould be in the next map?!");
-            }
-            else
-            {
-                associateOneDialogue.Add("Hey there! Let's get started! \nUse the left analog stick to make Daryl run!");
-                associateOneDialogue.Add("Press 'A' to jump!");
-                associateOneDialogue.Add("Press the 'Right Bumper' to use doors! I'm so \nexcited! What could be in the next map?!");
-            }
-            associateOneDialogue.Add("Wow! What a beautiful valley! Look at the \nfabulous textures, player!");
-
-            if (!Game1.gamePadConnected)
-                associateOneDialogue.Add("The tree is blocking your path! Hold [SPACE] \nand press the Down arrow to drop through \ncertain platforms!");
-            else
-                associateOneDialogue.Add("The tree is blocking your path! Hold the Left \n Trigger and press down to drop through \ncertain platforms!");
-
-
-            associateOneDialogue.Add("Good job player! You're a natural!");
-
-            if (Game1.gamePadConnected)
-            {
-                associateOneDialogue.Add("Some jumps are too far for Daryl! \n\nTry holding the Left Trigger while running to \nsprint, then pressing 'A' to jump extra far!");
-                associateOneDialogue.Add("It's okay, player! It takes some practice! \n\nRemember: Hold the Left Trigger and press 'A'.");
-                associateOneDialogue.Add("Everyone makes mistakes! Try again!");
-                associateOneDialogue.Add("...You'll get it!");
-                associateOneDialogue.Add("Hold the Left Trigger while running to sprint. \nJumping while sprinting gives you extra distance.");
-            }
-            else
-            {
-                associateOneDialogue.Add("Some jumps are too far for Daryl! \n\nTry holding [SPACE] while running to sprint, \nthen pressing the Up arrow to jump extra far!");
-                associateOneDialogue.Add("It's okay, player! It takes some practice! \n\nRemember: Hold [SPACE] and press UP.");
-                associateOneDialogue.Add("Everyone makes mistakes! Try again!");
-                associateOneDialogue.Add("...You'll get it!");
-                associateOneDialogue.Add("Hold [SPACE] while running to sprint. Jumping \nwhile sprinting gives you extra distance.");
-            }
-
-
-
-            associateOneDialogue.Add("Wait, I get it. You got me! You're just joking \naround! You're missing the jump on purpose!");
-            associateOneDialogue.Add("You're a plain jokester.");
-            associateOneDialogue.Add("Player, I know you like that hole in the \nground and the cute branch popping out of the \nwall, but we have other things to do!");
-            associateOneDialogue.Add("I'm just going to stop talking until you \nfigure this out.");
-            associateOneDialogue.Add("I knew you could do it!");
-            associateOneDialogue.Add("Wha...why? Why did you do that? You were \nout!");
-            associateOneDialogue.Add("..Oh. Okay, then. Back into the hole, I \nguess.");
-            
-            associateOneDialogue.Add("Oh boy! It's your friend! \n\nHe looks sad. Go talk to him!");
-            associateOneDialogue.Add("A quest! You can see what quests you have up \nhere. Story quests have red names, side quests \nare purple. Pressing 'TAB' would cycle through \nthem...if you had more!");
-            associateOneDialogue.Add("Look! A switch appeared! How convenient!");
-            associateOneDialogue.Add("Switches do a lot of things. This one made the \nplatform move up to the next room.");
-            associateOneDialogue.Add("You can get into that locker with the \ncombination you found!");
-            associateOneDialogue.Add("See that lock? That's a bronze lock. It can \nbe opened with the Bronze Key you just stole!");
-
-            if (Game1.gamePadConnected)
-                associateOneDialogue.Add("Click the dials to enter the combination. You \ncan see the combinations you know by pressing \nthe button up on the left! (Right stick controls \nthe Cursor. Press it in to click.)");
-            else
-                associateOneDialogue.Add("Click the dials to enter the combination. You \ncan see the combinations you know by pressing \nthe button up on the left!");
-
-            associateOneDialogue.Add("A key! Double click it to take it!");
-            associateOneDialogue.Add("Cool, a treasure chest! Hold 'F' to open it!");
-            associateOneDialogue.Add("Back to the chest room! You should probably \nopen it.");
-            associateOneDialogue.Add("A textbook! How lucky! You can use those to \nbuy skills.");
-            associateOneDialogue.Add("It's Paul and Alan, your friends! \nAnd your locker! You can use that for skill \nstuff! Quick, buy a skill from them! Open your \nlocker!");
-
-            if (Game1.gamePadConnected)
-                associateOneDialogue.Add("Your equipped skills! Use them with RT, X, Y, \nand B. Skills level up by killing monsters, and \nyou can view their experience and level on this \nbar. Press Up on the DPad to open and close it.");
-            else
-                associateOneDialogue.Add("Your equipped skills! Use them with Q, W, E, \nand R. Skills level up by killing monsters, and \nyou can view their experience and level on this \nbar. Press 'T' to open and close it.");
-
-            associateOneDialogue.Add("A bathroom! You can save in those!");
-            associateOneDialogue.Add("No, no, no! Go back and save! It's too \ndangerous to continue on without saving!");
-            associateOneDialogue.Add("A monster! Oh no! Quick player, destroy it \nwith your new skill! It will drop money and \nhealth when it dies!");
-
-
-            associateOneDialogue.Add("Keep track of your health and experience up \nhere while you take out the next two monsters!");
-            associateOneDialogue.Add("You can see a skill's experience bar on the \nside of each skill.");
-
-            associateOneDialogue.Add("Great job, player! And look, your skill leveled \nup! You can keep track of it's experience and \nlevel here. \nTry using it twice quickly to see the change. ");
-            associateOneDialogue.Add("That's an Area Quest Sign. Some areas have \nquests that can completed for rewards, or \nsimply passage through the area! Press 'F' near \nit to view the quest.");
-            associateOneDialogue.Add("You leveled up! Sweet! Your stats increase when \nyou do that.");
-            associateOneDialogue.Add("You did it! You can continue now!");
-
-            if (Game1.gamePadConnected)
-            {
-                associateOneDialogue.Add("Look! An item! Press the Left Bumper to pick \nit up!");
-                associateOneDialogue.Add("Lucky! A jar of dirt! Press 'OPTIONS' to open \nyour inventory and equip it!");
-            }
-            else
-            {
-                associateOneDialogue.Add("Look! An item! Press 'SHIFT' to pick it up!");
-                associateOneDialogue.Add("Lucky! A jar of dirt! Press 'i' to open your \ninventory and equip it!");
-            }
-
-            associateOneDialogue.Add("Look, a Trenchcoat Crony! These shady \ncharacters sell you all sorts of great \nknick-knacks.");
-            associateOneDialogue.Add("Remember to equip anything you bought!");
-            associateOneDialogue.Add("You should save now. We're almost at the end, \nand you wouldn't want to die and start from \nthe last save!");
-
-            if (Game1.gamePadConnected)
-                associateOneDialogue.Add("Hold down to duck and avoid his \npunches when he gets close!");
-            else
-                associateOneDialogue.Add("Hold the Down Arrow to duck and avoid his \npunches when he gets close!");
-
-            associateOneDialogue.Add("He's summoning his lawyers! Take them out!");
-            associateOneDialogue.Add("You did it! Great job, player!\n\nLet's get out of here!");
-
-            List<String> associateTwoDialogue = new List<string>();
-            associateTwoDialogue.Add("Can we get this over with? I \nhave places to be, you know. Just\npress the arrow keys to move.");
-            associateTwoDialogue.Add("Press up to jump. Is that really\na surprise?");
-            associateTwoDialogue.Add("See that? That's a door. Good job. Press 'F' to\nuse it.");
-            associateTwoDialogue.Add("What, did they hire a kindergartener to make\n this freaking place?");
-            associateTwoDialogue.Add("Look at that. It just missed you. How unfortuate.\nHold [SPACE] and press the Down Arrow to \ndrop through certain platforms.");
-            associateTwoDialogue.Add("Color me surprised. You actually did it.");
-            associateTwoDialogue.Add("Ha, nice try, but I don't think so. That's a big \ngap. Hold [SPACE] to sprint. You jump farther \nwhen you're sprinting.");
-            associateTwoDialogue.Add("I said, \"Hold [SPACE] and press UP.\"");
-            associateTwoDialogue.Add("You're just full of mistakes, aren't you?");
-            associateTwoDialogue.Add("*Yaaaaaawn*");
-            associateTwoDialogue.Add("...Like I said, Hold [SPACE] while running to \nsprint. Jumping while sprinting gives \nyou extra distance.");
-            associateTwoDialogue.Add("You're just wasting my time on purpose, aren't \nyou?");
-            associateTwoDialogue.Add("I don't get paid enough for this.");
-            associateTwoDialogue.Add("In fact, I don't get paid at all. I don't even \nknow why I'm here.");
-            associateTwoDialogue.Add("I'm gonna put you on hold until you figure \nthis out.");
-            associateTwoDialogue.Add("I truly believed you could do it.");
-            associateTwoDialogue.Add("Now I know you're fucking with me.");
-            associateTwoDialogue.Add("Great. Right back in.");
-
-            associateTwoDialogue.Add("Did they seriously use stock images for this \nentire tutorial? Go talk to your \"friend\".");
-            associateTwoDialogue.Add("You have a quest. You can see your accepted \nquests here. Story quests have red names, side quests \nare purple. Pressing 'TAB' would cycle through \nthem...but you only have one.");
-            associateTwoDialogue.Add("Did that switch just appear out of thin air? \nSeriously?");
-            associateTwoDialogue.Add("I'm instructed to tell you that switches do \"a\nlot of things\". This one moved the platform over \nthere.");
-            associateTwoDialogue.Add("You can break into some random guy's locker with \nthat combination you found. How ethically sound of you.");
-            associateTwoDialogue.Add("If you haven't figured it out yet, keys open locks.\nBronze keys (like the one you just stole) open \nbronze locks (like that one)");
-            associateTwoDialogue.Add("Click that button in the upper left to see what \ncombinations you own. Then click those dials to open \nthe locker.");
-            associateTwoDialogue.Add("Double click to steal that key. See if I care.");
-            associateTwoDialogue.Add("Oh wow, a stock image chest. How immersive. \nHold 'F' to open it.");
-
-
-            associateTwoDialogue.Add("Great idea. Actually open the chest.");
-            associateTwoDialogue.Add("A physics textbook. Kind of weird. But \nI'm being told you can use those to buy skills.");
-            associateTwoDialogue.Add("Two dorks and a locker. You can buy and \nequip skills in there. Go do it.");
-            associateTwoDialogue.Add("Your equipped skills. Use them with Q, W, E, \nand R. Skills level up by killing monsters, and \nyou can view their experience and level on this \nbar. Press 'T' to open and close it.");
-            associateTwoDialogue.Add("A dirty, disgusting bathroom. I guess you can \nsave your progress in them.");
-            associateTwoDialogue.Add("What are you doing? Go back and save first.");
-            associateTwoDialogue.Add("A...garden gnome. *sigh* Alright, kill it with \nyour skill. It'll drop money and health, \nor something.");
-
-
-            associateTwoDialogue.Add("Your health and experience are up here.");
-            associateTwoDialogue.Add("Remember to watch your skill's experience, too.");
-            associateTwoDialogue.Add("Your skill leveled up. Now you can use it twice \nin a row.");
-            associateTwoDialogue.Add("That's a Area Quest Sign. Some you have to do, \nothers are optional for rewards. Press 'F' near \nit to view the quest.");
-            associateTwoDialogue.Add("I guess that was you leveling up. This game is \nso weird.");
-            associateTwoDialogue.Add("Aren't you just an expert?");
-            associateTwoDialogue.Add("Who would have thought that breaking those poorly \ndrawn barrels would give you an item. Press \n[SHIFT] to pick it up.");
-            associateTwoDialogue.Add("A jar of dirt...? Okay...press 'i' to open your \ninventory and equip it.");
-            associateTwoDialogue.Add("That's one shady looking creeper. I guess they're \ncalled \"Trenchcoat Cronies\", and they sell you \nthings.");
-            associateTwoDialogue.Add("Remember to equip anything you bought.");
-            associateTwoDialogue.Add("You should save now. I really don't want to go \nthrough this entire thing again.");
-            associateTwoDialogue.Add("This is absolutely ridiculous...hold down the Down \nArrow to duck and not get punched in the face.");
-            associateTwoDialogue.Add("Is he calling his lawyers? What the hell?");
-            associateTwoDialogue.Add("Queue the confetti. Grab that Health Boost and \nlet's get this done with.");
-
-            List<String> associateThreeDialogue = new List<string>();
-            #endregion
-
-            associateDialogue = new List<List<string>>() { associateOneDialogue, associateTwoDialogue, associateThreeDialogue };
-            //Tutorial textures
-            associateOneTex = textures["associateOne"];
-
             //Quests
-            demoQuestOne = new DemoQuestOne(true);
-            demoQuestTwo = new DemoQuestTwo(true);
-            findingBalto = new FindingBalto(true);
+            findBaltosPhone = new FindBaltosPhone(true);
+            behindGoblinyLinesPartOne = new BehindGoblinyLinesPartOne(true);
+            behindGoblinyLinesPartTwo = new BehindGoblinyLinesPartTwo(true);
+            joiningForcesPartOne = new JoiningForcesPartOne(true);
+            livingLumber = new LivingLumber(true);
+            foreignDebt = new ForeignDebt(true);
+            anubisInvasion = new AnubisInvasion(true);
             fortRaid = new FortRaid(true);
+            packageForScrooge = new PackageForMrScrooge(false);
+            deliveringSupplies = new DeliveringSupplies(true);
+            joiningForcesPartTwo = new JoiningForcesPartTwo(true);
+            tutoringThePrincess = new TutoringThePrincess(true);
 
-            //Side
-            beerForToga = new BeerForToga(false);
-            beerForGoggles = new BeerForGoggles(false);
-            beerForHat = new BeerForHat(false);
-            squirrelQuest = new SquirrelQuest(false);
-            scissorsQuest = new ScissorsQuest(false);
-            buildBridgeOne = new BuildingACornBridge(false);
-            buildBridgeTwo = new BuildingBridgeTwo(false);
-
-            game.AllQuests.Add(demoQuestOne.QuestName, demoQuestOne);
-            game.AllQuests.Add(demoQuestTwo.QuestName, demoQuestTwo);
-            game.AllQuests.Add(findingBalto.QuestName, findingBalto);
+            game.AllQuests.Add(findBaltosPhone.QuestName, findBaltosPhone);
+            game.AllQuests.Add(behindGoblinyLinesPartOne.QuestName, behindGoblinyLinesPartOne);
+            game.AllQuests.Add(behindGoblinyLinesPartTwo.QuestName, behindGoblinyLinesPartTwo);
+            game.AllQuests.Add(joiningForcesPartOne.QuestName, joiningForcesPartOne);
+            game.AllQuests.Add(livingLumber.QuestName, livingLumber);
+            game.AllQuests.Add(foreignDebt.QuestName, foreignDebt);
+            game.AllQuests.Add(anubisInvasion.QuestName, anubisInvasion);
             game.AllQuests.Add(fortRaid.QuestName, fortRaid);
-            game.AllQuests.Add(buildBridgeOne.QuestName, buildBridgeOne);
-            game.AllQuests.Add(buildBridgeTwo.QuestName, buildBridgeTwo);
-
-            //Side
-            game.AllQuests.Add(beerForToga.QuestName, beerForToga);
-            game.AllQuests.Add(beerForGoggles.QuestName, beerForGoggles);
-            game.AllQuests.Add(beerForHat.QuestName, beerForHat);
-            game.AllQuests.Add(squirrelQuest.QuestName, squirrelQuest);
-            game.AllQuests.Add(scissorsQuest.QuestName, scissorsQuest);
+            game.AllQuests.Add(packageForScrooge.QuestName, packageForScrooge);
+            game.AllQuests.Add(deliveringSupplies.QuestName, deliveringSupplies);
+            game.AllQuests.Add(joiningForcesPartTwo.QuestName, joiningForcesPartTwo);
+            game.AllQuests.Add(tutoringThePrincess.QuestName, tutoringThePrincess);
 
             //Booleans
             chapterTwoBooleans = new Dictionary<String, bool>();
 
+            //General
+            chapterTwoBooleans.Add("firstMessageScenePlayed", false);
+            chapterTwoBooleans.Add("secondMessageScenePlayed", false);
+            chapterTwoBooleans.Add("hangermanOfficeScenePlayed", false);
+            chapterTwoBooleans.Add("princessSceneOnePlayed", false);
+            chapterTwoBooleans.Add("enteringAxisScenePlayed", false);
+            chapterTwoBooleans.Add("robattoArrivesInHistoryPlayed", false);
+            chapterTwoBooleans.Add("chapterEndPlayed", false);
+            chapterTwoBooleans.Add("chapterEndPlayedTwo", false);
+            chapterTwoBooleans.Add("chapterEndPlayedThree", false);
+
+            //Side quest
+            chapterTwoBooleans.Add("serumGiven", false);
+            chapterTwoBooleans.Add("dominiqueTransformScenePlayed", false);
+            chapterTwoBooleans.Add("bridgeUsable", false);
+
             //History room
+            chapterTwoBooleans.Add("canEnterBattlefield", false);
+            chapterTwoBooleans.Add("behindGoblinyLinesOneCompleted", false);
+            chapterTwoBooleans.Add("valleyMortarsDestroyed", false);
+            chapterTwoBooleans.Add("behindGoblinyLinesTwoCompleted", false);
+            chapterTwoBooleans.Add("soldiersLeavingValleyPlayed", false);
+            chapterTwoBooleans.Add("centralSandsRiftStarted", false);
+            chapterTwoBooleans.Add("centralSandsRiftCompleted", false);
+            chapterTwoBooleans.Add("larreyTransformedToGoblin", false);
+            chapterTwoBooleans.Add("suppliesDelivered", false);
+            chapterTwoBooleans.Add("caesarArrivesScenePlayed", false);
+            chapterTwoBooleans.Add("movedToOutskirts", false);
+            chapterTwoBooleans.Add("completedJoiningForcesTwo", false);
+            chapterTwoBooleans.Add("bombArriveScenePlayed", false);
+            chapterTwoBooleans.Add("movedToFort", false);
+
+            //Caesar Arc
+            chapterTwoBooleans.Add("entsReleasedScenePlayed", false);
+            chapterTwoBooleans.Add("mongolsRetreated", false);
+            chapterTwoBooleans.Add("lumberQuestFinished", false);
+            chapterTwoBooleans.Add("lumberQuestScenePlayed", false);
+            chapterTwoBooleans.Add("choseToUseHorse", false);
+            chapterTwoBooleans.Add("invadeChinaPartOnePlayed", false);
+            chapterTwoBooleans.Add("invadeChinaPartTwoPlayed", false);
+            chapterTwoBooleans.Add("invadeChinaPartThreePlayed", false);
+            chapterTwoBooleans.Add("finishedCaesarArc", false);
+
+            //Literature
+            chapterTwoBooleans.Add("forestOfEntsRiftStarted", false);
+            chapterTwoBooleans.Add("forestOfEntsRiftCompleted", false);
+            chapterTwoBooleans.Add("lightsTurnedOn", false);
+            chapterTwoBooleans.Add("bedroomOneCleared", false);
+            chapterTwoBooleans.Add("bedroomTwoCleared", false);
+            chapterTwoBooleans.Add("bedroomThreeCleared", false);
+            chapterTwoBooleans.Add("livingRoomChestSpawned", false);
+            chapterTwoBooleans.Add("batteryPlaced", false);
+            chapterTwoBooleans.Add("santaReleased", false);
+            chapterTwoBooleans.Add("keyGhostDisappeared", false);
+            chapterTwoBooleans.Add("keyGhostKilled", false);
+            chapterTwoBooleans.Add("summoningDeathDialoguePlayed", false);
+            chapterTwoBooleans.Add("literatureGuardianDefeated", false);
+            chapterTwoBooleans.Add("moneyReceived", false);
+
+            //Pyramid
+            chapterTwoBooleans.Add("pharaohGuardsChained", false);
+            chapterTwoBooleans.Add("enteredEgyptDialoguePlayed", false);
+            chapterTwoBooleans.Add("savedPharaohGuards", false);
+            chapterTwoBooleans.Add("addedSaveCleoQuest", false);
+
+            //Pyramid
+            chapterTwoBooleans.Add("outerChamberLocked", false);
+            chapterTwoBooleans.Add("outerChamberCleared", false);
+            chapterTwoBooleans.Add("sideChamberIIILocked", false);
+            chapterTwoBooleans.Add("sideChamberIIICleared", false);
+            chapterTwoBooleans.Add("centralHallILocked", false);
+            chapterTwoBooleans.Add("centralHallICleared", false);
+            chapterTwoBooleans.Add("forgottenChamberILocked", false);
+            chapterTwoBooleans.Add("forgottenChamberICleared", false);
+            chapterTwoBooleans.Add("forgottenChamberISpawn", false);
+            chapterTwoBooleans.Add("undergroundTunnelPlatformOpen", false);
+            chapterTwoBooleans.Add("innerChamberPlatformOpen", false);
+            chapterTwoBooleans.Add("jarFound", false);
+            chapterTwoBooleans.Add("flowerWallBlown", false);
+            chapterTwoBooleans.Add("sideChamberIIIWallBlown", false);
+            chapterTwoBooleans.Add("floorBlownOut", false);
+            chapterTwoBooleans.Add("corruptedCoffinDestroyed", false);
+            chapterTwoBooleans.Add("chamberOfCorruptionRockDestroyed", false);
+            chapterTwoBooleans.Add("butterflyChamberLocked", false);
+            chapterTwoBooleans.Add("butterflyChamberCleared", false);
+            chapterTwoBooleans.Add("organChamberThreeWallDestroyed", false);
+            chapterTwoBooleans.Add("organChamberThreeJarObtained", false);
+            chapterTwoBooleans.Add("organChamberTwoJarObtained", false);
+            chapterTwoBooleans.Add("organChamberOneJarObtained", false);
+            chapterTwoBooleans.Add("jarThreePlaced", false);
+            chapterTwoBooleans.Add("jarTwoPlaced", false);
+            chapterTwoBooleans.Add("jarOnePlaced", false);
+            chapterTwoBooleans.Add("mummySummoned", false);
+            chapterTwoBooleans.Add("tortureChamberOpened", false);
+            chapterTwoBooleans.Add("pharaohsTrapStarted", false);
+            chapterTwoBooleans.Add("pharaohsTrapFloorBroken", false);
+            chapterTwoBooleans.Add("pharaohsTrapCleared", false);
+            chapterTwoBooleans.Add("hiddenPassageLocked", false);
+            chapterTwoBooleans.Add("hiddenPassageCleared", false);
+            chapterTwoBooleans.Add("aspRoomUnlocked", false);
+            chapterTwoBooleans.Add("secretPassageOpen", false);
+            chapterTwoBooleans.Add("weddingCrashed", false);
+            chapterTwoBooleans.Add("finishedCleopatraArc", false);
+
+            //Fort raid
             chapterTwoBooleans.Add("campDoorFallen", false);
             chapterTwoBooleans.Add("clearedCentralFortFirstTime", false);
+            chapterTwoBooleans.Add("justEnteredFort", false);
             chapterTwoBooleans.Add("enemyReinforcementsSpawning", false);
             chapterTwoBooleans.Add("clearedEastHuts", false);
             chapterTwoBooleans.Add("clearedWestHuts", false);
@@ -332,75 +262,99 @@ namespace ISurvived
             chapterTwoBooleans.Add("horseInCentral", true);
             chapterTwoBooleans.Add("horseInWest", false);
             chapterTwoBooleans.Add("horseInEast", false);
-            //Party stuff
-            chapterTwoBooleans.Add("firstTextUsed", false);
-            chapterTwoBooleans.Add("secondTextUsed", false);
-            chapterTwoBooleans.Add("ThirdTextUsed", false);
-            chapterTwoBooleans.Add("checkedPartyAfterBarn", false);
-            chapterTwoBooleans.Add("baltoFallen", false);
-            chapterTwoBooleans.Add("baltoOnGround", false);
-            chapterTwoBooleans.Add("movedBalto", false);
-            chapterTwoBooleans.Add("woodsUnlocked", false);
-            chapterTwoBooleans.Add("goblinGateDestroyed", false);
-            chapterTwoBooleans.Add("crossroadsScenePlayed", false);
-            chapterTwoBooleans.Add("kidOneSaved", false);
-            chapterTwoBooleans.Add("kidTwoSaved", false);
-            chapterTwoBooleans.Add("kidThreeSaved", false);
-            chapterTwoBooleans.Add("kidFourSaved", false);
-            chapterTwoBooleans.Add("builtBridgeOne", false);
-            chapterTwoBooleans.Add("builtBridgeTwo", false);
-            chapterTwoBooleans.Add("ApproachedTim", false);
-            chapterTwoBooleans.Add("gateFinished", false);
-            chapterTwoBooleans.Add("ApproachedTimAgain", false);
-            chapterTwoBooleans.Add("SavedTim", false);
-            chapterTwoBooleans.Add("DarylCaughtScenePlayed", false);
-            chapterTwoBooleans.Add("GateCollapseScenePlayed", false);
-            chapterTwoBooleans.Add("trollAdded", false);
-            chapterTwoBooleans.Add("demoEndPlayed", false);
-
-            //TUTORIAL DEMO
-            chapterTwoBooleans.Add("lowResTutorial", false);
-            chapterTwoBooleans.Add("treeFallPlayed", false);
-            chapterTwoBooleans.Add("demoFriendSeen", false);
-            chapterTwoBooleans.Add("equippedDirt", false);
-            chapterTwoBooleans.Add("steveAustinScenePlayed", false);
-            chapterTwoBooleans.Add("tutorialEndScenePlayed", false);
-            chapterTwoBooleans.Add("spawnTutorialEnemies", false);
-            
-
-            AddNPCs();
+            chapterTwoBooleans.Add("trollSpawnedInWest", false);
+            chapterTwoBooleans.Add("westTrollKilled", false);
+            chapterTwoBooleans.Add("bombExploded", false);
 
             //Cutscenes
+            opening = new ChapterTwoOpening(game, camera, player);
+            chapterScenes.Add(opening);
 
-            demoOpening = new DemoOpening(game, camera, player, textures["TutorialPopUps"], textures["Text1"], textures["Text2"], textures["enterButton"]);
-            chapterScenes.Add(demoOpening);
+            baltosPhone = new BaltosPhone(game, camera, player);
+            chapterScenes.Add(baltosPhone);
 
-            treeFall = new TreeFall(game, camera, player);
-            chapterScenes.Add(treeFall);
+            soldiersLeavingValley = new SoldiersLeavingValley(game, camera, player);
+            chapterScenes.Add(soldiersLeavingValley);
 
-            steveAustinScene = new SteveAustinScene(game, camera, player);
-            chapterScenes.Add(steveAustinScene);
+            treeEntsAppear = new TreeEntsAppear(game, camera, player);
+            chapterScenes.Add(treeEntsAppear);
 
-            tutorialEnd = new TutorialEnd(game, camera, player);
-            chapterScenes.Add(tutorialEnd);
+            afterLumberScene = new AfterLumberQuestScene(game, camera, player);
+            chapterScenes.Add(afterLumberScene);
 
+            invadeChinaPartOne = new InvadeChinaSceneP1(game, camera, player);
+            chapterScenes.Add(invadeChinaPartOne);
+
+            invadeChinaPartTwo = new InvadeChinaSceneP2(game, camera, player);
+            chapterScenes.Add(invadeChinaPartTwo);
+
+            invadeChinaPartThree = new InvadeChinaSceneP3(game, camera, player);
+            chapterScenes.Add(invadeChinaPartThree);
+
+            scroogeRoomOne = new ScroogeRoomOne(game, camera, player);
+            chapterScenes.Add(scroogeRoomOne);
+
+            scroogeRoomTwo = new ScroogeRoomTwo(game, camera, player);
+            chapterScenes.Add(scroogeRoomTwo);
+
+            scroogeRoomThree = new ScroogeRoomThree(game, camera, player);
+            chapterScenes.Add(scroogeRoomThree);
+
+            litGuardianDefeated = new LitGuardianDefeated(game, camera, player);
+            chapterScenes.Add(litGuardianDefeated);
+
+            scroogeReward = new ScroogeReward(game, camera, player);
+            chapterScenes.Add(scroogeReward);
+
+            firstMessageScene = new FirstMessageScene(game, camera, player);
+            chapterScenes.Add(firstMessageScene);
+
+            deliveringSuppliesScene = new DeliveringSuppliesScene(game, camera, player);
+            chapterScenes.Add(deliveringSuppliesScene);
+
+            caesarArrivesAtCamp = new CaesarArrivesAtCamp(game, camera, player);
+            chapterScenes.Add(caesarArrivesAtCamp);
+
+            weddingCrasher = new WeddingCrasher(game, camera, player);
+            chapterScenes.Add(weddingCrasher);
+
+            secondMessageScene = new SecondMessageScene(game, camera, player);
+            chapterScenes.Add(secondMessageScene);
+
+            princessSceneOne = new PrincessSceneOne(game, camera, player);
+            chapterScenes.Add(princessSceneOne);
+
+            bombArrives = new BombArrives(game, camera, player);
+            chapterScenes.Add(bombArrives);
+
+            //Fort raid
             campGateOpenScene = new CampGateOpenScene(game, camera, player);
             chapterScenes.Add(campGateOpenScene);
 
-            gateCollapseScene = new GateCollapseScene(game, camera, player);
-            chapterScenes.Add(gateCollapseScene);
+            trollAppearScene = new TrollAppear(game, camera, player);
+            chapterScenes.Add(trollAppearScene);
 
-            demoEnd = new DemoEnd(game, camera, player);
-            chapterScenes.Add(demoEnd);
+            bombExplodeScene = new BombExplode(game, camera, player);
+            chapterScenes.Add(bombExplodeScene);
 
-            crossroadsScene = new CrossroadsScene(game, camera, player);
-            chapterScenes.Add(crossroadsScene);
+            enteringAxisScene = new EnteringAxisScene(game, camera, player);
+            chapterScenes.Add(enteringAxisScene);
 
-            savedFirstKidScene = new SavedFirstKidScene(game, camera, player);
-            chapterScenes.Add(savedFirstKidScene);
+            robattoArrivesInHistory = new RobattoArrivesInHistory(game, camera, player);
+            chapterScenes.Add(robattoArrivesInHistory);
 
-            darylCaughtScene = new DarylCaught(game, camera, player);
-            chapterScenes.Add(darylCaughtScene);
+            chapterEndOne = new ChapterTwoEndOne(game, camera, player);
+            chapterScenes.Add(chapterEndOne);
+
+            chapterEndTwo = new ChapterTwoEndTwo(game, camera, player);
+            chapterScenes.Add(chapterEndTwo);
+
+            chapterEndThree = new ChapterTwoEndThree(game, camera, player);
+            chapterScenes.Add(chapterEndThree);
+
+            horseDestroyedScene = new HorseDestroyed(game, camera, player);
+            //Add it when the horse is actually destroyed
+
 
             //Change to cutscene to play scene
             state = GameState.Game;
@@ -416,47 +370,25 @@ namespace ISurvived
                 player.Update();
             }
 
-#if DEBUG
-            if(current.IsKeyUp(Keys.P) && last.IsKeyDown(Keys.P))
+            #if DEBUG
+            NorthHall.ToScienceIntroRoom.ItemNameToUnlock = null;
+            BridgeOfArmanhand.ToRiver.ItemNameToUnlock = null;
+            TheStage.ToBackstage.ItemNameToUnlock = null;
+
+            if (current.IsKeyUp(Keys.P) && last.IsKeyDown(Keys.P) && !chapterTwoBooleans["chapterEndPlayed"])
             {
-                player.Experience = player.ExperienceUntilLevel;
+                //player.Experience = player.ExperienceUntilLevel;
+                //chapterTwoBooleans["chapterEndPlayed"] = true;
+                //state = GameState.Cutscene;
+
+                player.Health = player.realMaxHealth;
+
+                //napoleon.RemoveQuest(behindGoblinyLinesPartOne);
+                //napoleon.AddQuest(fortRaid);
+                //chapterTwoBooleans["completedJoiningForcesTwo"] = true;
             }
-
-            #region Decisions
-            if (current.IsKeyUp(Keys.M) && last.IsKeyDown(Keys.M) && decisionNum == 0)
-            {
-               // player.Karma++;
-               // makingDecision = true;
-                //decisions = Decisions.test;
-
-                //player.EquippedSkills[0].Experience = player.EquippedSkills[0].ExperienceUntilLevel;
-            }
-
-            if (makingDecision)
-            {
-                switch (decisions)
-                {
-                    case Decisions.test:
-                        int num = effectsManager.UpdateDecision("Test decision!");
-
-                        if (num == 1)
-                        {
-                            effectsManager.AddAnnouncement("It worked!", 60);
-                            makingDecision = false;
-                            decisions = Decisions.none;
-                            decisionNum = 1;
-                        }
-                        else if (num == 2)
-                        {
-                            decisions = Decisions.none;
-                            makingDecision = false;
-                        }
-                        break;
-                }
-            }
-            #endregion
-
-#endif
+            
+            #endif
 
             if (!player.LevelingUp && player.playerState != Player.PlayerState.dead)
             {
@@ -467,84 +399,228 @@ namespace ISurvived
 
                 switch (state)
                 {
-                    case GameState.BreakingLocker:
-
-                        #region TUTORIAL STUFF
-                        if (currentMap.MapName == "Tutorial Map Five")
-                        {
-                            if (game.MapBooleans.tutorialMapBooleans["BrokeIntoTutorialLocker"] == false)
-                            {
-                                game.MapBooleans.tutorialMapBooleans["BrokeIntoTutorialLocker"] = true;
-                                game.MapBooleans.tutorialMapBooleans["TutorialTipElevenUsed"] = true;
-                            }
-                            if (game.MapBooleans.tutorialMapBooleans["FinishedTutorialLocker"] == false)
-                            {
-                                if(currentLocker != null && currentLocker.state == StudentLocker.LockerState.closed)
-                                Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][24], 600, 170, game.ChapterTwo.associateOneTex);
-                                else
-                                    Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][25], 100, 30, game.ChapterTwo.associateOneTex);
-
-                            }
-
-                                if (player.StoryItems.ContainsKey("Bronze Key"))
-                                {
-                                    game.MapBooleans.tutorialMapBooleans["FinishedTutorialLocker"] = true;
-                                    Chapter.effectsManager.RemoveToolTip();
-                                }
-                        }
-                        #endregion
-
-                        break;
-
-                    case GameState.ChangingMaps:
-
-                        //DEMO END
-                        if (nextMap == "TrollsHut" && chapterTwoBooleans["demoEndPlayed"] == false)
-                        {
-                            state = GameState.Cutscene;
-                            chapterTwoBooleans["demoEndPlayed"] = true;
-                        }
-
-                        break;
-
                     case GameState.Game:
                         UpdateNPCs();
+                        game.SideQuestManager.Update();
+                        if(!chapterTwoBooleans["invadeChinaPartOnePlayed"] && !genghis.canTalk && player.StoryItems.ContainsKey("Letter to Caesar"))
+                        {
+                            genghis.canTalk = true;
+                        }
+                        if (!chapterTwoBooleans["invadeChinaPartThreePlayed"] && chapterTwoBooleans["invadeChinaPartTwoPlayed"] && currentMap.MapName == "Behind the Great Wall")
+                        {
+                            state = GameState.Cutscene;
+                            chapterTwoBooleans["invadeChinaPartThreePlayed"] = true;
+                        }
 
-                        #region Unlocking Character Bios
-                        if (chelsea.Talking && player.AllCharacterBios["Chelsea"] == false)
-                            player.UnlockCharacterBio("Chelsea");
+                        if (!chapterTwoBooleans["invadeChinaPartTwoPlayed"] && chapterTwoBooleans["invadeChinaPartOnePlayed"] && currentMap.MapName == "The Great Wall")
+                        {
+                            state = GameState.Cutscene;
+                            chapterTwoBooleans["invadeChinaPartTwoPlayed"] = true;
+                        }
 
-                        if (beerForHat.CompletedQuest && player.AllCharacterBios["Jesse"] == false && !game.CurrentSideQuests.Contains(beerForHat))
-                            player.UnlockCharacterBio("Jesse");
+                        //Start tree ents released scene
+                        if (!chapterTwoBooleans["entsReleasedScenePlayed"] && player.StoryItems.ContainsKey("Letter to Caesar") && currentMap.MapName == "The Great Wall" && genghis.Talking)
+                        {
+                            Chapter.effectsManager.ClearDialogue();
+                            chapterTwoBooleans["entsReleasedScenePlayed"] = true;
+                            genghis.Talking = false;
+                            state = GameState.Cutscene;
+                        }
 
-                        if (beerForToga.CompletedQuest && player.AllCharacterBios["Julius Caesar"] == false && !game.CurrentSideQuests.Contains(beerForToga))
-                            player.UnlockCharacterBio("Julius Caesar");
+                        //Decision to invade caesar's china with the horse
+                        if (chapterTwoBooleans["lumberQuestScenePlayed"] && currentMap.MapName == "Mongolian Camp" && genghis.Talking && !chapterTwoBooleans["choseToUseHorse"])
+                        {
+                            talkingToNPC = false;
+                            genghis.Talking = false;
+                            effectsManager.foregroundFButtonRecs.Clear();
+                            effectsManager.fButtonRecs.Clear();
+                            makingDecision = true;
+                            decisions = Decisions.invadeChina;
+                        }
 
-                        if (scissorsQuest.CompletedQuest && player.AllCharacterBios["Pelt Kid"] == false && !game.CurrentSideQuests.Contains(scissorsQuest))
-                            player.UnlockCharacterBio("Pelt Kid");
+                        //Receive scrooge reward
+                        if (!chapterTwoBooleans["moneyReceived"] && chapterTwoBooleans["literatureGuardianDefeated"] && currentMap.MapName == "Haunted Bedroom" && scrooge.Talking)
+                        {
+                            Chapter.effectsManager.ClearDialogue();
+                            chapterTwoBooleans["moneyReceived"] = true;
+                            scrooge.Talking = false;
+                            state = GameState.Cutscene;
+                        }
+                        if (chapterTwoBooleans["moneyReceived"] && scrooge.isScared)
+                            scrooge.isScared = false;
+                        if (!chapterTwoBooleans["princessSceneOnePlayed"] && chapterTwoBooleans["hangermanOfficeScenePlayed"] && princess.Talking)
+                        {
+                            Chapter.effectsManager.ClearDialogue();
+                            chapterTwoBooleans["princessSceneOnePlayed"] = true;
+                            princess.Talking = false;
+                            state = GameState.Cutscene;
+                        }
 
-                        if (mark.Talking && player.AllCharacterBios["Mark"] == false)
-                            player.UnlockCharacterBio("Mark");
-                        #endregion
+                        if (chapterTwoBooleans["moneyReceived"] && jason.MapName != "Snowy Streets" && !chapterTwoBooleans["finishedCleopatraArc"])
+                        {
+                            game.ChapterTwo.NPCs["Jason Mysterio"].PositionX = 2172;
+                            game.ChapterTwo.NPCs["Jason Mysterio"].PositionY = -470 + 673;
+                            game.ChapterTwo.NPCs["Jason Mysterio"].ClearDialogue();
+                            game.ChapterTwo.NPCs["Jason Mysterio"].Dialogue.Add("Did you just come out of that mansion?");
+                            game.ChapterTwo.NPCs["Jason Mysterio"].Dialogue.Add("It's full of ghosts, I hear. I also hear there's a big cash reward to be earned. Our first bounty is basically already in the bag!");
+                            game.ChapterTwo.NPCs["Jason Mysterio"].UpdateRecAndPosition();
+                            game.ChapterTwo.NPCs["Jason Mysterio"].FacingRight = true;
+                            game.ChapterTwo.NPCs["Jason Mysterio"].MapName = "Snowy Streets";
 
+                            game.ChapterTwo.NPCs["Claire Voyant"].PositionX = 2422;
+                            game.ChapterTwo.NPCs["Claire Voyant"].PositionY = -470 + 673;
+                            game.ChapterTwo.NPCs["Claire Voyant"].ClearDialogue();
+                            game.ChapterTwo.NPCs["Claire Voyant"].Dialogue.Add("There are great riches to be had in this residence.");
+                            game.ChapterTwo.NPCs["Claire Voyant"].Dialogue.Add("And I'm sensing that there is no one more powerful than our Team Squad to take it!");
+                            game.ChapterTwo.NPCs["Claire Voyant"].FacingRight = true;
+                            game.ChapterTwo.NPCs["Claire Voyant"].UpdateRecAndPosition();
+                            game.ChapterTwo.NPCs["Claire Voyant"].MapName = "Snowy Streets";
+
+                            game.ChapterTwo.NPCs["Steve Pantski"].PositionX = 2506;
+                            game.ChapterTwo.NPCs["Steve Pantski"].PositionY = -470 + 600;
+                            game.ChapterTwo.NPCs["Steve Pantski"].canTalk = false;
+                            game.ChapterTwo.NPCs["Steve Pantski"].ClearDialogue();
+                            game.ChapterTwo.NPCs["Steve Pantski"].UpdateRecAndPosition();
+                            game.ChapterTwo.NPCs["Steve Pantski"].MapName = "Snowy Streets";
+
+                            game.ChapterTwo.NPCs["Ken Speercy"].MapName = "No real map";
+                        }
+                        else if (chapterTwoBooleans["finishedCleopatraArc"] && jason.MapName == "Snowy Streets")
+                        {
+                            game.ChapterTwo.NPCs["Jason Mysterio"].MapName = "No real map";
+
+                            game.ChapterTwo.NPCs["Claire Voyant"].MapName = "No real map";
+
+                            game.ChapterTwo.NPCs["Steve Pantski"].MapName = "No real map";
+                        }
+
+                        if (game.AllQuests[joiningForcesPartOne.QuestName].CompletedQuest && napoleon.Quest == null && game.AllQuests[deliveringSupplies.QuestName].CompletedQuest == false)
+                        {
+                            napoleon.AddQuest(deliveringSupplies);
+                        }
+
+                        if (!chapterTwoBooleans["suppliesDelivered"] && game.CurrentQuests.Contains(deliveringSupplies) && currentMap.MapName == "Battlefield Outskirts" && privateBrian.Talking)
+                        {
+                            Chapter.effectsManager.ClearDialogue();
+                            chapterTwoBooleans["suppliesDelivered"] = true;
+                            privateBrian.Talking = false;
+                            state = GameState.Cutscene;
+
+                            genghis.MapName = "The Yurt of Khan";
+                            genghis.RecX = 680;
+                            genghis.RecY = 310;
+                            genghis.PositionX = 680;
+                            genghis.PositionY = 310;
+                            genghis.ClearDialogue();
+                            genghis.Dialogue.Add("Well done, Kublai. Caesar has paid his debt in full, with sufficient interest to keep me from parading around with his head on a pike.");
+                            genghis.Dialogue.Add("He mentioned he was going to a place of riches, power, and beautiful women far across the History Room. Perhaps I should consider joining this alliance as well...");
+                        }
+
+                        if (!chapterTwoBooleans["caesarArrivesScenePlayed"] && chapterTwoBooleans["suppliesDelivered"] && currentMap.MapName == "Napoleon's Camp" && napoleon.Talking)
+                        {
+                            Chapter.effectsManager.ClearDialogue();
+                            chapterTwoBooleans["caesarArrivesScenePlayed"] = true;
+                            napoleon.Talking = false;
+                            state = GameState.Cutscene;
+                            chapterTwoBooleans["pharaohGuardsChained"] = true;
+                        }
+
+                        if (game.ChapterTwo.ChapterTwoBooleans["movedToOutskirts"] && !chapterTwoBooleans["movedToFort"] && napoleon.MapName != "Battlefield Outskirts")
+                        {
+                            genghis.MapName = "Battlefield Outskirts";
+                            genghis.PositionX = 1273;
+                            genghis.PositionY = Game1.schoolMaps.maps["Battlefield Outskirts"].mapRec.Y + 681 + 160;
+                            genghis.UpdateRecAndPosition();
+                            genghis.ClearDialogue();
+                            genghis.Dialogue.Add("Kublai! I am glad to see you have also joined this alliance!");
+                            genghis.Dialogue.Add("We will bathe in the blood of these disgusting creatures and win glory for our tribe!");
+                            genghis.FacingRight = true;
+                            genghis.canTalk = true;
+
+                            napoleon.MapName = "Battlefield Outskirts";
+                            napoleon.PositionX = 925;
+                            napoleon.PositionY = Game1.schoolMaps.maps["Battlefield Outskirts"].mapRec.Y + 685 + 160;
+                            napoleon.UpdateRecAndPosition();
+                            napoleon.FacingRight = false;
+
+                            julius.MapName = "Battlefield Outskirts";
+                            julius.PositionX = 1752;
+                            julius.PositionY = Game1.schoolMaps.maps["Battlefield Outskirts"].mapRec.Y + 678 + 160;
+                            julius.UpdateRecAndPosition();
+                            julius.ClearDialogue();
+                            julius.Dialogue.Add("Now that we are all here, I can finally show my dear Cleopatra how powerful my armies are.");
+                            julius.Dialogue.Add("A woman should never have to dirty herself in a fight such as the one that is about to begin.");
+                            julius.FacingRight = false;
+
+                            cleopatra.MapName = "Battlefield Outskirts";
+                            cleopatra.PositionX = 2059;
+                            cleopatra.PositionY = Game1.schoolMaps.maps["Battlefield Outskirts"].mapRec.Y + 698 + 160;
+                            cleopatra.UpdateRecAndPosition();
+                            cleopatra.ClearDialogue();
+                            cleopatra.chained = false;
+                            cleopatra.FacingRight = true;
+                            cleopatra.Dialogue.Add("I must thank you for saving me earlier, as I never got the chance. It was most courageous, although I wish you had not brought that drooling dog along with you.");
+                        }
+
+                        if (chapterTwoBooleans["completedJoiningForcesTwo"] && napoleon.Quest == null && game.AllQuests[fortRaid.QuestName].CompletedQuest == false)
+                        {
+                            napoleon.AddQuest(fortRaid);
+                        }
+
+                        //Decision to invade caesar's china with the horse
+                        if (chapterTwoBooleans["completedJoiningForcesTwo"] && currentMap.MapName == "Battlefield Outskirts" && napoleon.Talking && napoleon.Quest == fortRaid)
+                        {
+                            talkingToNPC = false;
+                            napoleon.Talking = false;
+                            effectsManager.foregroundFButtonRecs.Clear();
+                            effectsManager.fButtonRecs.Clear();
+                            makingDecision = true;
+                            decisions = Decisions.invadeFort;
+                        }
+
+
+
+                        //--Decision making
                         #region Decisions
                         if (makingDecision)
                         {
                             switch (decisions)
                             {
-                                //Change the tutorial resolution or not
-                                case Decisions.tutorialResolution:
-                                    int num = effectsManager.UpdateDecision("WARNING! We notice your computer may be running this at a lower FPS \nthan you may like. \n\nWould you like to decrease the quality of the tutorial level to ease the \nstress on your machine?");
+                                case Decisions.invadeChina:
+                                    int num = effectsManager.UpdateDecision("Here it is, Kublai! Caesar will never suspect a thing. Are you ready to do your duty to our tribe?", "Genghis");
 
                                     if (num == 1)
                                     {
-                                        //effectsManager.AddAnnouncement("Tutorial Level resolution decreased.", 60);
                                         makingDecision = false;
-                                        chapterTwoBooleans["lowResTutorial"] = true;
                                         decisions = Decisions.none;
+                                        chapterTwoBooleans["choseToUseHorse"] = true;
+                                        chapterTwoBooleans["invadeChinaPartOnePlayed"] = true;
+                                        state = GameState.Cutscene;
+
                                     }
                                     else if (num == 2)
                                     {
+                                        effectsManager.ClearDialogue();
+                                        effectsManager.AddInGameDialogue("What are you waiting for? Caesar must pay, Kublai!", "Genghis", "Normal", 250);
+                                        decisions = Decisions.none;
+                                        makingDecision = false;
+                                    }
+                                    break;
+
+                                case Decisions.invadeFort:
+                                    int num2 = effectsManager.UpdateDecision("We are ready to attack ze enemy's fort now. Once we go will cannot turn back until it is over, you must know. Are you ready?", "Napoleon");
+
+                                    if (num2 == 1)
+                                    {
+                                        makingDecision = false;
+                                        decisions = Decisions.none;
+                                        state = GameState.Cutscene;
+                                        chapterTwoBooleans["movedToFort"] = true;
+                                    }
+                                    else if (num2 == 2)
+                                    {
+                                        effectsManager.ClearDialogue();
+                                        effectsManager.AddInGameDialogue("We will wait for you to be prepared, of course. Perhaps you need to use ze bathroom zat we brought with us?", "Napoleon", "Normal", 250);
                                         decisions = Decisions.none;
                                         makingDecision = false;
                                     }
@@ -553,165 +629,100 @@ namespace ISurvived
                         }
                         #endregion
 
-                        //Add a smoke poof when the bridge is built
-                        if (buildBridgeOne.CompletedQuest && bridgeKidOne.Quest == null && !game.CurrentQuests.Contains(buildBridgeOne) && !talkingToNPC && !chapterTwoBooleans["builtBridgeOne"])
-                        {
-                            chapterTwoBooleans["builtBridgeOne"] = true;
-                            effectsManager.AddSmokePoof(new Rectangle(1000, 300, 300, 300), 2);
-                        }
-
-                        //Add a smoke poof when the second bridge is built
-                        if (buildBridgeTwo.CompletedQuest && bridgeKidOne.Quest == null && !game.CurrentQuests.Contains(buildBridgeTwo) && !talkingToNPC && !chapterTwoBooleans["builtBridgeTwo"])
-                        {
-                            chapterTwoBooleans["builtBridgeTwo"] = true;
-                            effectsManager.AddSmokePoof(new Rectangle(850, 48, 870, 652), 2);
-                        }
-
-                        //Make balto disappear when paul is talking inside
-                        if (paul.Talking && chapterTwoBooleans["baltoOnGround"] && !chapterTwoBooleans["movedBalto"])
-                        {
-                            chapterTwoBooleans["movedBalto"] = true;
-                        }
-
-                        if (chapterTwoBooleans["movedBalto"] && balto.PositionX != 10000)
-                        {
-                            balto.PositionX = 10000;
-                            balto.UpdateRecAndPosition();
-                        }
-
-                        if (chapterTwoBooleans["movedBalto"] && currentMap.MapName == "Outside the Party" && player.PositionX > 1600 && !chapterTwoBooleans["woodsUnlocked"])
-                        {
-                            chapterTwoBooleans["woodsUnlocked"] = true;
-                            findingBalto.ConditionsToComplete = "Find Balto again.";
-                            findingBalto.SpecialConditions.Clear();
-                            findingBalto.SpecialConditions.Add("Find Balto again.", false);
-
-                            TheParty.ToBehindTheParty.IsUseable = true;
-                            mark.MapName = "Behind the Party";
-                            mark.Dialogue.Clear();
-                            mark.Dialogue.Add("I don't feel so good.");
-                        }
-
-                        //--Add the second tutorial quest
-                        if (demoQuestOne.CompletedQuest == true && demoQuestTwo.CompletedQuest == false && friendOne.Quest == null)
-                        {
-                            friendOne.AddQuest(demoQuestTwo);
-                        }
-
                         if (TalkingToNPC == false && makingDecision == false)
                         {
 
-                            //Show first text as soon as party starts to demonstrate you having the phone
-                            if (!chapterTwoBooleans["firstTextUsed"] && currentMap.MapName == "Chelsea's Field" && game.CurrentQuests.Contains(findingBalto))
-                            {
-                                firstTextTimer--;
+                            #region Starting Cutscenes / Story related changes
 
-                                if (firstTextTimer == 0)
-                                {
-                                    chapterTwoBooleans["firstTextUsed"] = true;
-                                    effectsManager.AddTextMessage("Greg", "Yo Balto, we still meeting at the barn?");
-                                    //Don't allow a new message for a while
-                                    effectsManager.timeUntilNextMessage = 12000;
-                                }
+                            if (ChapterTwoBooleans["behindGoblinyLinesTwoCompleted"] && chapterTwoBooleans["soldiersLeavingValleyPlayed"] == false)
+                            {
+                                chapterTwoBooleans["soldiersLeavingValleyPlayed"] = true;
+                                state = GameState.Cutscene;
+
+                                napoleon.AddQuest(joiningForcesPartOne);
                             }
 
-                            /*
-                            //Third text. Lock the door to the roof and put mark in front of it
-                            if (!chapterTwoBooleans["ThirdTextUsed"] && currentMap.MapName == "Spooky Field" && alaina.AcceptedQuest)
+                            if (chapterTwoBooleans["pharaohGuardsChained"] && pharaohGuardOne.Name != "Chained Pharaoh Guard")
                             {
-                                chapterTwoBooleans["ThirdTextUsed"] = true;
-                                effectsManager.AddTextMessage("Chelsea", "DAMN IT BALTO GET DOWN OFF MY ROOF, DON'T ACT \nLIKE I DIDN'T JUST WATCH YOU GO UP THERE!!!!");
-                                findingBalto.ConditionsToComplete = "Go back to the party and get Balto off the roof";
-                                findingBalto.SpecialConditions.Clear();
-                                findingBalto.SpecialConditions.Add("Go back to the party and get Balto off the roof", false);
+                                pharaohGuardOne.Name = "Chained Pharaoh Guard";
+                                pharaohGuardTwo.Name = "Chained Pharaoh Guard";
+                                pharaohGuardThree.Name = "Chained Pharaoh Guard";
 
-                                mark.MapName = "The Party";
-                                mark.PositionX = 1665;
-                                mark.UpdateRecAndPosition();
-                                mark.Dialogue[0] = "bleeegh *moan*";
+                                pharaohGuardOne.canTalk = false;
+                                pharaohGuardTwo.canTalk = false;
+                                pharaohGuardThree.canTalk = false;
 
-                                TheParty.ToBehindTheParty.IsUseable = false;
-                            }*/
-
-                            //When the player checks the party after the barn
-                            if (!chapterTwoBooleans["checkedPartyAfterBarn"] && chapterTwoBooleans["ThirdTextUsed"] && currentMap.MapName == "The Party")
-                            {
-                                chapterTwoBooleans["checkedPartyAfterBarn"] = true;
+                                pharaohGuardThree.PositionX = 3600;
+                                pharaohGuardThree.UpdateRecAndPosition();
                             }
 
-                            if (chapterTwoBooleans["checkedPartyAfterBarn"] && !chapterTwoBooleans["baltoFallen"] && !chapterTwoBooleans["baltoOnGround"] && currentMap.MapName == "Outside the Party" && player.PositionX > 2000)
+                            if (chapterTwoBooleans["savedPharaohGuards"] && !chapterTwoBooleans["addedSaveCleoQuest"])
                             {
-                                chapterTwoBooleans["baltoFallen"] = true;
+                                chapterTwoBooleans["addedSaveCleoQuest"] = true;
+
+                                pharaohGuardOne.ClearDialogue();
+                                pharaohGuardOne.Dialogue.Add("Merciless Aten, chained up and boiling in the sun. I guess it could be worse, we could be fighting through Hell.");
+
+                                pharaohGuardTwo.ClearDialogue();
+                                pharaohGuardTwo.Dialogue.Add("Thank Wadjet, finally, a chance to sit down. I've been standing for hours.");
+
+                                pharaohGuardThree.ClearDialogue();
+                                pharaohGuardThree.AddQuest(anubisInvasion);
+
+                                pharaohGuardOne.canTalk = true;
+                                pharaohGuardTwo.canTalk = true;
+                                pharaohGuardThree.canTalk = true;
                             }
 
-                            if (chapterTwoBooleans["baltoFallen"] && !chapterTwoBooleans["baltoOnGround"])
+                            if (chapterTwoBooleans["lumberQuestFinished"] && !chapterTwoBooleans["lumberQuestScenePlayed"])
                             {
-                                if (balto.PositionY < 680 - 388)
-                                    balto.VelocityY += GameConstants.GRAVITY;
-                                else
-                                {
-                                    balto.PositionY = 680 - 388;
-                                    game.Camera.ShakeCamera(5, 5);
-                                    chapterTwoBooleans["baltoOnGround"] = true;
 
-                                    findingBalto.ConditionsToComplete = "Find help for Balto";
-                                    findingBalto.SpecialConditions.Clear();
-                                    findingBalto.SpecialConditions.Add("Find help for Balto", false);
+                                chapterTwoBooleans["lumberQuestScenePlayed"] = true;
+                                state = GameState.Cutscene;
 
-                                    balto.state = Balto.NPCState.ground;
-                                    balto.VelocityY = 0;
-                                }
-                                
-                                balto.UpdateRecAndPosition();
                             }
 
-                            #region Starting Cutscenes
+                            if (!chapterTwoBooleans["firstMessageScenePlayed"] && chapterTwoBooleans["finishedCaesarArc"] && currentMap.MapName == "Mongolian Camp" && player.VitalRecX > 800 && currentMap.enteringMap == false)
+                            {
+                                chapterTwoBooleans["firstMessageScenePlayed"] = true;
+                                state = GameState.Cutscene;
+                            }
 
+                            if (!chapterTwoBooleans["secondMessageScenePlayed"] && currentMap.MapName == "Pyramid Entrance" && player.VitalRecX < 1000 && currentMap.enteringMap == false)
+                            {
+                                chapterTwoBooleans["secondMessageScenePlayed"] = true;
+                                state = GameState.Cutscene;
+                            }
 
-                            if (currentMap == Game1.schoolMaps.maps["TutorialMapTwo"] && player.PositionX >= 1500 && chapterTwoBooleans["treeFallPlayed"] == false)
+                            if (!chapterTwoBooleans["weddingCrashed"] && currentMap.MapName == "Ancient Altar")
+                            {
+
+                                chapterTwoBooleans["weddingCrashed"] = true;
+                                state = GameState.Cutscene;
+
+                            }
+
+                            if (!chapterTwoBooleans["enteringAxisScenePlayed"] && currentMap.MapName == "Axis of Historical Reality")
                             {
                                 state = GameState.Cutscene;
-                                chapterTwoBooleans["treeFallPlayed"] = true;
                             }
-                            if (currentMap == Game1.schoolMaps.maps["TutorialMapFourteen"] && chapterTwoBooleans["steveAustinScenePlayed"] == false)
+
+                            if (!chapterTwoBooleans["robattoArrivesInHistoryPlayed"] && chapterTwoBooleans["enteringAxisScenePlayed"] && currentMap.MapName == "Axis of Historical Reality" && player.PositionX < 1000)
                             {
+                                chapterTwoBooleans["robattoArrivesInHistoryPlayed"] = true;
                                 state = GameState.Cutscene;
-                                chapterTwoBooleans["steveAustinScenePlayed"] = true;
-                            }
-                            
-
-                            //CROSSROADS SCENE ON ENTER
-                            if (currentMap.MapName == "Crossroads" && chapterTwoBooleans["crossroadsScenePlayed"] == false)
-                            {
-                                //state = GameState.Cutscene;
-                                //chapterTwoBooleans["crossroadsScenePlayed"] = true;
                             }
 
-                            //DARYL GETS CAUGHT
-                            if (chapterTwoBooleans["SavedTim"] == true && chapterTwoBooleans["DarylCaughtScenePlayed"] == false)
+                            if (!chapterTwoBooleans["chapterEndPlayedTwo"] && chapterTwoBooleans["chapterEndPlayed"] && currentMap.MapName == "Princess' Room")
                             {
+                                chapterTwoBooleans["chapterEndPlayedTwo"] = true;
                                 state = GameState.Cutscene;
-                                chapterTwoBooleans["DarylCaughtScenePlayed"] = true;
-                            }
-                            
-
-                            #endregion
-
-                            #region Quest stuff
-                            if (julius.Quest == null && !julius.GaveToga)
-                            {
-                                julius.GaveToga = true;
                             }
 
-                            if (callyn.Quest == null && !callyn.GaveGoggles)
+                            if (!chapterTwoBooleans["chapterEndPlayedThree"] && chapterTwoBooleans["chapterEndPlayedTwo"] && currentMap.MapName == "North Hall")
                             {
-                                callyn.GaveGoggles = true;
-                            }
-
-                            if (peltKidOne.Quest == null && !peltKidOne.Dead && currentMap.MapName != "The Goats")
-                            {
-                                peltKidOne.Dead = true;
-                                peltKidOne.Dialogue[0] = "*sizzle*";
+                                chapterTwoBooleans["chapterEndPlayedThree"] = true;
+                                state = GameState.Cutscene;
                             }
                             #endregion
 
@@ -721,6 +732,22 @@ namespace ISurvived
 
                             camera.Update(player, game, currentMap);
                             player.Enemies = currentMap.EnemiesInMap;
+
+                            #region NPCs Wander
+                            if (paul.AcceptedQuest)
+                            {
+                                paul.RecX = 2880;
+                                //nPCs["Paul"].Wander(2400, 2850);
+                                //nPCs["Alan"].Wander(2350, 2750);
+                                nPCs["Balto"].Wander(2350, 2650);
+                            }
+                            else
+                            {
+                                nPCs["Paul"].moveState = NPC.MoveState.standing;
+                                nPCs["Alan"].moveState = NPC.MoveState.standing;
+                            }
+                            #endregion
+
 
                             String checkPortal = currentMap.CheckPortals();
 
@@ -745,20 +772,77 @@ namespace ISurvived
             {
                 case GameState.Cutscene:
 
-                    chapterScenes[cutsceneState].Draw(s);
-
-                    break;
-                case GameState.Game:
-                    //This draws a frame of black screen before the cutscene plays so the camera doesn't show a frame of the map before it starts
-                    if (!chapterTwoBooleans["crossroadsScenePlayed"] && currentMap.MapName == "Crossroads")
+                    if (game.SideQuestManager.sideQuestScenes == SideQuestManager.SideQuestScenes.none)
                     {
-                        s.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
-    null, null, null, null, camera.StaticTransform);
-                        s.Draw(Game1.whiteFilter, new Rectangle(0, 0, 2000, 2000), Color.Black);
-                        s.End();
+                        chapterScenes[cutsceneState].Draw(s);
+                        if (chapterScenes[cutsceneState].skippingCutscene)
+                            chapterScenes[cutsceneState].DrawSkipCutscene(s);
                     }
-
+                    else
+                        game.SideQuestManager.DrawSideQuestScene(s);
                     break;
+            }
+        }
+
+        public void AddNPC(String name, NPC npc)
+        {
+            nPCs.Add(name, npc);
+
+            if (game.saveData.chapterTwoNPCWrappers != null)
+            {
+                for (int i = 0; i < game.saveData.chapterTwoNPCWrappers.Count; i++)
+                {
+                    if (name == game.saveData.chapterTwoNPCWrappers[i].npcName)
+                    {
+                        if (game.saveData.chapterTwoNPCWrappers[i].questName != null)
+                        {
+                            npc.Dialogue = game.saveData.chapterTwoNPCWrappers[i].dialogue;
+                            npc.QuestDialogue = game.saveData.chapterTwoNPCWrappers[i].questDialogue;
+                            npc.DialogueState = game.saveData.chapterTwoNPCWrappers[i].dialogueState;
+                            npc.FacingRight = game.saveData.chapterTwoNPCWrappers[i].facingRight;
+                            npc.Quest = game.AllQuests[game.saveData.chapterTwoNPCWrappers[i].questName];
+                            npc.AcceptedQuest = game.saveData.chapterTwoNPCWrappers[i].acceptedQuest;
+                            npc.MapName = game.saveData.chapterTwoNPCWrappers[i].mapName;
+                            npc.canTalk = game.saveData.chapterTwoNPCWrappers[i].canTalk;
+                            npc.PositionX = game.saveData.chapterTwoNPCWrappers[i].positionX;
+                            npc.PositionY = game.saveData.chapterTwoNPCWrappers[i].positionY;
+                            npc.RecX = game.saveData.chapterTwoNPCWrappers[i].positionX;
+                            npc.RecY = game.saveData.chapterTwoNPCWrappers[i].positionY;
+                        }
+
+                        else if (game.saveData.chapterTwoNPCWrappers[i].trenchCoat == false)
+                        {
+                            npc.Dialogue = game.saveData.chapterTwoNPCWrappers[i].dialogue;
+                            npc.QuestDialogue = null;
+                            npc.DialogueState = game.saveData.chapterTwoNPCWrappers[i].dialogueState;
+                            npc.FacingRight = game.saveData.chapterTwoNPCWrappers[i].facingRight;
+                            npc.Quest = null;
+                            npc.AcceptedQuest = false;
+                            npc.MapName = game.saveData.chapterTwoNPCWrappers[i].mapName;
+                            npc.canTalk = game.saveData.chapterTwoNPCWrappers[i].canTalk;
+                            npc.PositionX = game.saveData.chapterTwoNPCWrappers[i].positionX;
+                            npc.PositionY = game.saveData.chapterTwoNPCWrappers[i].positionY;
+                            npc.RecX = game.saveData.chapterTwoNPCWrappers[i].positionX;
+                            npc.RecY = game.saveData.chapterTwoNPCWrappers[i].positionY;
+                        }
+                        else
+                        {
+                            npc.Dialogue = game.saveData.chapterTwoNPCWrappers[i].dialogue;
+                            npc.QuestDialogue = null;
+                            npc.DialogueState = game.saveData.chapterTwoNPCWrappers[i].dialogueState;
+                            npc.FacingRight = game.saveData.chapterTwoNPCWrappers[i].facingRight;
+                            npc.Quest = null;
+                            npc.AcceptedQuest = false;
+                            (npc as TrenchcoatKid).SoldOut = game.saveData.chapterTwoNPCWrappers[i].trenchcoatSoldOut;
+                            npc.MapName = game.saveData.chapterTwoNPCWrappers[i].mapName;
+                            npc.canTalk = game.saveData.chapterTwoNPCWrappers[i].canTalk;
+                            npc.PositionX = game.saveData.chapterTwoNPCWrappers[i].positionX;
+                            npc.PositionY = game.saveData.chapterTwoNPCWrappers[i].positionY;
+                            npc.RecX = game.saveData.chapterTwoNPCWrappers[i].positionX;
+                            npc.RecY = game.saveData.chapterTwoNPCWrappers[i].positionY;
+                        }
+                    }
+                }
             }
         }
 
@@ -769,217 +853,98 @@ namespace ISurvived
             if (!nPCs.ContainsKey("Alan"))
             {
                 List<String> dialogue1 = new List<string>();
-                //dialogue1.Add("Chelsea's parties are always rockin'!");
-                dialogue1.Add("Got any textbooks for us?");
-                alan = new NPC(Game1.whiteFilter, dialogue1, new Rectangle(497, 680 - 388, 516, 388),
-                    player, game.Font, game, "The Party", "Alan", false);
-                alan.FacingRight = true;
-                //alan.CurrentDialogueFace = Game1.npcFaces["Alan"]["Tutorial"];
-                nPCs.Add("Alan", alan);
+                dialogue1.Add(" ");
+                alan = new NPC(Game1.whiteFilter, dialogue1, new Rectangle(2750, 270, 516, 388),
+                    player, game.Font, game, "North Hall", "Alan", false);
+
+                AddNPC("Alan", alan);
             }
 
             if (!nPCs.ContainsKey("Paul"))
             {
                 //--Paul
                 List<String> dialogue2 = new List<string>();
-                //dialogue2.Add("Why do you still have Balto's phone? He's been bitching about it all night.");
-                dialogue2.Add("Buy a skill. Go ahead.");
-                paul = new NPC(game.NPCSprites["Paul"], dialogue2, new Rectangle(825, 280, 516, 388), player,
-                    game.Font, game, "The Party", "Paul", false);
-                //paul.CurrentDialogueFace = Game1.npcFaces["Paul"]["Tutorial"];
-                nPCs.Add("Paul", paul);
+                dialogue2.Add(" ");
+                paul = new NPC(game.NPCSprites["Paul"], dialogue2, new Rectangle(2880, 680 - 388, 516, 388), player,
+                    game.Font, game, "North Hall", "Paul", false);
+                AddNPC("Paul", paul);
             }
 
-            if (!nPCs.ContainsKey("YourFriend"))
+            if (!nPCs.ContainsKey("Balto"))
             {
-                //--Friend One
                 List<String> dialogue2 = new List<string>();
-                dialogue2.Add("Melons might taste really bad, but mine can fly!");
-                friendOne = new NPC(game.NPCSprites["Your Friend"], dialogue2, demoQuestOne, new Rectangle(907, 625 - 388, (int)(516 * 1.2f), (int)(388 * 1.2f)), player,
-                    game.Font, game, "Tutorial Map Three", "Your Friend", false);
-                friendOne.FacingRight = true;
-                nPCs.Add("YourFriend", friendOne);
+                dialogue2.Add(" ");
+                balto = new NPC(game.NPCSprites["Balto"], dialogue2, new Rectangle(1500, 277, 516, 388), player,
+                    game.Font, game, "North Hall", "Balto", false);
+                AddNPC("Balto", balto);
             }
 
-            if (!nPCs.ContainsValue(tutorialShop))
+            if (!nPCs.ContainsKey("Mr. Robatto"))
             {
-                //Trenchcoat crony
-                List<String> cronydialogue = new List<string>();
-                cronydialogue.Add("Fresh stock in today");
-                List<ItemForSale> items = new List<ItemForSale>() { new WeaponForSale(new MelonMallet(), .50f), new HatForSale(new GardeningHat(), .30f), new HoodieForSale(new IHateMelons(), .50f) };
-                tutorialShop = new TrenchcoatKid(game.NPCSprites["TrenchcoatBad"], cronydialogue, -10000, 0, player, game, "Tutorial Map Twelve", items);
-                nPCs.Add("TutorialCrony", tutorialShop);
+                List<String> dialogue1 = new List<string>();
+                robatto = new NPC(Game1.whiteFilter, dialogue1, new Rectangle(-200, 330, 516, 388),
+                    player, game.Font, game, "Not a real map", "Mr. Robatto", false);
+
+                AddNPC("Mr. Robatto", robatto);
             }
 
-            if (!nPCs.ContainsValue(poolShop))
+            if (!nPCs.ContainsKey("Jason Mysterio"))
             {
-                //Trenchcoat crony
-                List<String> cronydialogue = new List<string>();
-                cronydialogue.Add("Hey. You look like someone who could use a stolen Textbook or two.");
-                List<ItemForSale> items = new List<ItemForSale>() {new AccessoryForSale(new SoloCup(), 2.00f), new TextbookForSale(5.00f, 2)};
-                 poolShop = new TrenchcoatKid(game.NPCSprites["Trenchcoat Employee"], cronydialogue, 1000, 650, player, game, "Chelsea's Pool", items);
-                nPCs.Add("PoolCrony", poolShop);
+                jason = new NPC(game.NPCSprites["Jason Mysterio"], new List<String>() {"We've decided that Reality TV shows about ghosts are way out of style. Our talent can be put to better use by hunting ghosts.", "That's why, starting today, the Transparanormal Investigation Team Squad is focusing 100% on ghost bounties.", "Tell your friends." }, new Rectangle(1322, 278, 516, 388), player,
+                    game.Font, game, "Paranormal Club", "Jason Mysterio", false);
+                AddNPC("Jason Mysterio", jason);
+
+                claire = new NPC(game.NPCSprites["Claire Voyant"], new List<String>() {"I foresee in our future, great riches and fame.", "...In yours I see unemployment." }, new Rectangle(565, 258, 516, 388), player,
+                    game.Font, game, "Paranormal Club", "Claire Voyant", false);
+                claire.FacingRight = false;
+                AddNPC("Claire Voyant", claire);
+
+                ken = new NPC(game.NPCSprites["Ken Speercy"], new List<String>() {"Jason thinks we can become ghost bounty hunters now that my Ghost Lock Catcher works. I'm not sure how to tell him that it's barely portable, and that the battery is about to die." }, new Rectangle(965, 218, 516, 388), player,
+                    game.Font, game, "Paranormal Club", "Ken Speercy", false);
+                AddNPC("Ken Speercy", ken);
+
+                steve = new NPC(game.NPCSprites["Steve Pantski"], new List<String>() { "Have you heard the story about how we got our name? It's a good one.", "You see, whenever you start a new club around here you have to submit your Articles of Organization to the Vice Principal's office so he can approve whatever it is you're trying to start.", "The problem is, Claire and Jason both filled out and submitted the forms individually. Claire was always calling us the \"Paranormal Investigation Team\", but Jason is the original founder and thought that \"Squad\" sounded way cooler.", "Anyway, they put down different names for our club on each form and it must have confused Mr. Robatto a bit, because he just ended up merging the names together. Ken tried going to him and clarifying, but he got kicked out of the office for not having a Hall Pass.", "The rest is history!" }, new Rectangle(238, 240, 516, 388), player, 
+                    game.Font, game, "Paranormal Club", "Steve Pantski", false);
+                steve.FacingRight = true;
+                AddNPC("Steve Pantski", steve);
             }
 
-            if (!nPCs.ContainsValue(fieldShop))
+            if (!nPCs.ContainsKey("The Princess"))
             {
-                //Trenchcoat crony
-                List<String> cronydialogue = new List<string>();
-                cronydialogue.Add("Nine out of ten doctors recommend buying Textbooks from me.");
-                List<ItemForSale> items = new List<ItemForSale>() { new StoryItemForSale(new Scissors(0, 0), 5.99f), new TextbookForSale(7.99f, 3) };
-                fieldShop = new TrenchcoatKid(game.NPCSprites["Trenchcoat Employee"], cronydialogue, 1100, 680, player, game, "InBetween Field", items);
-                nPCs.Add("FieldShop", fieldShop);
+                //--Princess
+                List<String> dialogue = new List<string>();
+                dialogue.Add("I'd like to thank you for completely shattering my sense of privacy. I don't know how I lived before nerds began dropping down from the ceiling every day.");
+                princess = new NPC(game.NPCSprites["The Princess"], dialogue, new Rectangle(420, -60, 516, 388),
+                    player, game.Font, game, "Princess' Room", "The Princess", false);
+                AddNPC("The Princess", princess);
             }
 
-
-
-            if (!nPCs.ContainsKey("Callyn"))
+            if (!nPCs.ContainsKey("Messenger Boy"))
             {
-                //--Friend One
-                List<String> dialogue2 = new List<string>();
-                dialogue2.Add("There are so many babes here, bro!");
-                callyn = new Callyn(game.NPCSprites["Callyn"], dialogue2, beerForGoggles, new Rectangle(907, 650 - 388, 516, 388), player,
-                    game.Font, game, "Ooky Spooky Barn", "Callyn", false);
-                callyn.FacingRight = true;
-                nPCs.Add("Callyn", callyn);
-            }
-
-            if (!nPCs.ContainsKey("PeltKidOne"))
-            {
-                //--Friend One
-                List<String> dialogue2 = new List<string>();
-                dialogue2.Add("Come back once I've harvested this beautiful pelt.");
-                peltKidOne = new PeltKid(game.NPCSprites["Pelt Kid"], dialogue2, scissorsQuest, new Rectangle(800, 260, 516, 388), player, game.Font, game, "The Goats", "Pelt Kid", false);
-                peltKidOne.FacingRight = true;
-                nPCs.Add("PeltKidOne", peltKidOne);
+                List<String> dialogue = new List<string>();
+                messengerBoy = new NPC(game.NPCSprites["Messenger Boy"], dialogue, new Rectangle(420, -60, 516, 388),
+                    player, game.Font, game, "No Map", "Messenger Boy", false);
+                AddNPC("Messenger Boy", messengerBoy);
             }
 
             if (!nPCs.ContainsKey("Julius"))
             {
-                //--Friend One
                 List<String> dialogue2 = new List<string>();
+                //dialogue2.Add("Have a gander at that one over there! I sure would like to conquer -her- lands. I do think I'll go ask for her numerals.");
+                //julius = new Julius(game.NPCSprites["Julius Caesar"], dialogue2, beerForToga, new Rectangle(1920, 290, 516,388), player, game.Font, game, "The Party", "Julius Caesar", false);
+                //julius.FacingRight = false;
+
+                //dialogue2.Add("Have a gander at that one over there! I sure would like to conquer -her- lands. I do think I'll go ask for her numerals.");
+                //julius = new Julius(game.NPCSprites["Julius Caesar"], dialogue2, new Rectangle(2350, 370, 516, 388), player, game.Font, game, "Stone Fort Gate", "Julius Caesar", false);
+                //julius.FacingRight = false;
+                //julius.BattleReady = true;
+                //AddNPC("Julius", julius);
+
                 dialogue2.Add("Have a gander at that one over there! I sure would like to conquer -her- lands. I do think I'll go ask for her numerals.");
-                julius = new Julius(game.NPCSprites["Julius Caesar"], dialogue2, beerForToga, new Rectangle(1920, 290, 516,388), player, game.Font, game, "The Party", "Julius Caesar", false);
-                julius.FacingRight = false;
-                nPCs.Add("Julius", julius);
-            }
-
-            if (!nPCs.ContainsKey("Napoleon"))
-            {
-                //--Friend One
-                List<String> dialogue2 = new List<string>();
-                dialogue2.Add("Gimme french fries");
-                napoleon = new NPC(game.NPCSprites["Napoleon"], dialogue2, fortRaid, new Rectangle(500, 370, 516, 388), player, game.Font, game, "Outside Stone Fort", "Napoleon", false);
-                napoleon.FacingRight = true;
-                nPCs.Add("Napoleon", napoleon);
-            }
-
-            if (!nPCs.ContainsKey("Cleopatra"))
-            {
-                //--Friend One
-                List<String> dialogue2 = new List<string>();
-                dialogue2.Add("Gimme french fries");
-                cleopatra = new NPC(game.NPCSprites["Cleopatra"], dialogue2, new Rectangle(300, 385, 516, 388), player, game.Font, game, "Outside Stone Fort", "Cleopatra", false);
-                cleopatra.FacingRight = true;
-                nPCs.Add("Cleopatra", cleopatra);
-            }
-
-            if (!nPCs.ContainsKey("Squirrel Boy"))
-            {
-                //--Friend One
-                List<String> dialogue2 = new List<string>();
-                dialogue2.Add("Is...is he g-gone?");
-                squirrelBoy = new NPC(game.NPCSprites["Squirrel Boy"], dialogue2, new Rectangle(515, 235, 516, 388), player,
-                    game.Font, game, "Tree House", "Squirrel Boy", false);
-                squirrelBoy.FacingRight = false;
-                nPCs.Add("Squirrel Boy", squirrelBoy);
-            }
-
-            if (!nPCs.ContainsKey("Chelsea"))
-            {
-                //--Friend One
-                List<String> dialogue2 = new List<string>();
-                dialogue2.Add("...What do you want, Daryl?");
-                chelsea = new Chelsea(game.NPCSprites["Chelsea"], dialogue2, new Rectangle(1200, 650 - 388, 516, 388), player,
-                    game.Font, game, "Outside the Party", "Chelsea", false);
-                chelsea.FacingRight = false;
-                nPCs.Add("Chelsea", chelsea);
-            }
-
-            if (!nPCs.ContainsKey("Alaina"))
-            {
-                //--Friend One
-                List<String> dialogue2 = new List<string>();
-                dialogue2.Add("Ooga booga");
-                alaina = new NPC(game.NPCSprites["Paul"], dialogue2, new Rectangle(800, -106 - 388, 516, 388), player,
-                    game.Font, game, "Ooky Spooky Barn", "Paul", false);
-                alaina.FacingRight = true;
-                nPCs.Add("Alaina", alaina);
-            }
-
-            if (!nPCs.ContainsKey("Blurso"))
-            {
-                //--Friend One
-                List<String> dialogue2 = new List<string>();
-                dialogue2.Add("Duuuuuuuude. Like, what?");
-                blurso = new NPC(game.NPCSprites["Blurso"], dialogue2, findingBalto, new Rectangle(2900, 630 - 388, 516, 388), player,
-                    game.Font, game, "Outside the Party", "Blurso", false);
-                blurso.FacingRight = true;
-                nPCs.Add("Blurso", blurso);
-            }
-
-            if (!nPCs.ContainsKey("Jesse"))
-            {
-                //--Friend One
-                List<String> dialogue2 = new List<string>();
-                dialogue2.Add("Maybe I'll go ask that guy for his recipe.");
-                jesse = new Jesse(game.NPCSprites["Jesse"], dialogue2, beerForHat, new Rectangle(1500, 660 - 388, 516, 388), player,
-                    game.Font, game, "Outside the Party", "Jesse", false);
-                jesse.FacingRight = true;
-                nPCs.Add("Jesse", jesse);
-            }
-
-            if (!nPCs.ContainsKey("SaveInstructor"))
-            {
-                //--Level up NPC
-                List<String> dialogueSave = new List<string>();
-
-                dialogueSave.Add("AAAAAAAAHHHHHHHHHHHHHHHH...");
-                dialogueSave.Add("Oh, sorry. I'm powering up before we raid the fields over there.");
-                dialogueSave.Add("I should be ready in a few more days. I always get annoyed when they try to rush me.");
-                saveInstructor = new NPC(game.NPCSprites["Saving Instructor"], dialogueSave,
-                    new Rectangle(950, 630 - 388, 516, 388), player, game.Font, game, "Chelsea's Field", "Saving Instructor", false);
-                saveInstructor.FacingRight = false;
-                nPCs.Add("SaveInstructor", saveInstructor);
-                
-            }
-
-            if (!nPCs.ContainsKey("SkillInstructor"))
-            {
-                //--Skill Instructor next to Daryl's Locker
-                List<String> dialogueSkill = new List<string>();
-                dialogueSkill.Add("One is wise not to proceed any further without first mastering the ancient art of...uh, skilling. With skills.");
-                skillInstructor = new NPC(game.NPCSprites["Skill Sorceress"], dialogueSkill,
-                    new Rectangle(700, 630 - 388, 516, 388), player, game.Font, game, "Chelsea's Field", "Skill Sorceress", false);
-                skillInstructor.FacingRight = true;
-                nPCs.Add("SkillInstructor", skillInstructor);
-            }
-
-            
-            if (!nPCs.ContainsKey("InventoryInstructor"))
-            {
-                //--Inventory Instructor
-                List<String> dialogueEquipment = new List<string>();
-                dialogueEquipment.Add("Greetings weary traveler.");
-                dialogueEquipment.Add("I must warn you that beyond this great wall of grass a powerful evil is present.");
-                dialogueEquipment.Add("...");
-                dialogueEquipment.Add("I would, like, not suggest going in unless you're at least level fourteen.");
-                dialogueEquipment.Add("Farewell fellow warrior, and good luck in your, like, goals.");
-
-                inventoryInstructor = new NPC(game.NPCSprites["Weapons Master"], dialogueEquipment,
-                    new Rectangle(1605, 630 - 388, 516, 388), player, game.Font, game, "Chelsea's Field", "Weapons Master", false);
-
-                nPCs.Add("InventoryInstructor", inventoryInstructor);
+                julius = new Julius(game.NPCSprites["Julius Caesar"], dialogue2, new Rectangle(461, 282, 516, 388), player, game.Font, game, "Behind the Great Wall", "Julius Caesar", false);
+                julius.FacingRight = true;
+                julius.BattleReady = true;
+                AddNPC("Julius", julius);
             }
 
             if (!nPCs.ContainsKey("BobTheConstructionGuyOne"))
@@ -987,15 +952,16 @@ namespace ISurvived
                 //--Skill Instructor next to Daryl's Locker
                 List<String> dialogue = new List<string>();
 
-                dialogue.Add("Whoa there, stranger! Hard hats are required beyond this point. This here map is under construction.");
-                dialogue.Add("So far we've been making maps free of charge, but the boys and I haven't eaten in weeks!");
-                dialogue.Add("Ha ha! Yep, and now I'm the only one left. Human meat ain't so bad.");
-                dialogue.Add("But this map could take a while with just one guy, so feel free to stick around and lend a hand if you want. I've got some leftover chili if you're interested.");
-                bridgeKidOne = new BridgeKid(game.NPCSprites["Bob the Construction Guy"], dialogue,
-                    new Rectangle(500, 680 - 388, 516, 388), player, game.Font, game, "Behind the Party", "Bob the Construction Guy", false);
-                bridgeKidOne.FacingRight = false;
-                nPCs.Add("BobTheConstructionGuyOne", bridgeKidOne);
+                dialogue.Add("Whoa there, pal! Watch where you step, alright?");
+                dialogue.Add("My name's Bob and I fix a whole bunch of stuff, like this big ol' scary cliff.");
+                dialogue.Add("The problem is that I ran out of bricks and I just can't seem to find my way out of this dang pyramid.");
+                dialogue.Add("Haha, yep. Oh well. Unless you have wings or wear shoes with springs in them, I suggest you don't go jumping down there.");
+                dialogue.Add("Of course if you do have one of those things, go right ahead. There's treasure all over this place.");
+                outsideCampBob = new BridgeKid(game.NPCSprites["Bob the Construction Guy"], dialogue,
+                    new Rectangle(600, 100, 516, 388), player, game.Font, game, "The Cliff of Ile", "Bob the Construction Guy", false);
+                nPCs.Add("BobTheConstructionGuyOne", outsideCampBob);
             }
+
             if (!nPCs.ContainsKey("BobTheConstructionGuyTwo"))
             {
                 //--Skill Instructor next to Daryl's Locker
@@ -1004,9 +970,119 @@ namespace ISurvived
                 dialogue.Add("Whoa there, pal! Watch where you step, alright?");
                 dialogue.Add("You're free to drown in this moat all you want, but don't expect anything realistic. There have been a lot of budget cuts lately, we can't afford a splash.");
                 outsideCampBob = new BridgeKid(game.NPCSprites["Bob the Construction Guy"], dialogue,
-                    new Rectangle(3150, 385, 516, 388), player, game.Font, game, "Outside Stone Fort", "Bob the Construction Guy", false);
-                bridgeKidOne.FacingRight = false;
+                    new Rectangle(3150, 385, 516, 388), player, game.Font, game, "Stone Fort Gate", "Bob the Construction Guy", false);
                 nPCs.Add("BobTheConstructionGuyTwo", outsideCampBob);
+            }
+
+
+            if (!nPCs.ContainsKey("Napoleon"))
+            {
+                //--Friend One
+                List<String> dialogue2 = new List<string>();
+                dialogue2.Add("Be careful in ze deserts between here and Egypt. I doubt even ze Warlord has his forces there. Ze place is dangerous, and odd things lurk there.");
+
+                //This is where he should stand for the fortraid quest
+                //napoleon = new NPC(game.NPCSprites["Napoleon"], dialogue2, fortRaid, new Rectangle(1840, 370, 516, 388), player, game.Font, game, "Stone Fort Gate", "Napoleon", false);
+
+                napoleon = new NPC(game.NPCSprites["Napoleon"], dialogue2, behindGoblinyLinesPartOne, new Rectangle(680, 310, 516, 388), player, game.Font, game, "Napoleon's Tent", "Napoleon", false);
+                napoleon.FacingRight = true;
+                AddNPC("Napoleon", napoleon);
+            }
+
+            if (!nPCs.ContainsKey("Private Brian"))
+            {
+                List<String> dialogue2 = new List<string>();
+                dialogue2.Add("I have a quest");
+                privateBrian = new NPC(game.NPCSprites["Private Brian"], dialogue2, behindGoblinyLinesPartTwo, new Rectangle(5125, 350, 516, 388), player, game.Font, game, "No Man's Valley", "Private Brian", false);
+                privateBrian.FacingRight = true;
+                AddNPC("Private Brian", privateBrian);
+
+
+                List<String> dialogue3 = new List<string>();
+                dialogue3.Add("I knew I should have stayed back and helped Dr. Dominique collect medical supplies...");
+                frenchSoldier = new NPC(game.NPCSprites["French Soldier"], dialogue3, new Rectangle(4861, 330, 516, 388), player, game.Font, game, "No Man's Valley", "French Soldier", false);
+                frenchSoldier.FacingRight = false;
+                AddNPC("French Soldier", frenchSoldier);
+            }
+
+            if (!nPCs.ContainsKey("Pharaoh Guard 1"))
+            {
+                List<String> dialogue2 = new List<string>();
+                dialogue2.Add("Holy Ra, it's hot out. I suppose it could be worse though, at least we aren't wrapped in chains under this merciless sun. I hate being wrapped in chains.");
+                pharaohGuardOne = new NPC(game.NPCSprites["Pharaoh Guard"], dialogue2, new Rectangle(2440, 273, 516, 388), player, game.Font, game, "Egypt", "Pharaoh Guard", false);
+                pharaohGuardOne.FacingRight = false;
+                AddNPC("Pharaoh Guard 1", pharaohGuardOne);
+
+                List<String> dialogue3 = new List<string>();
+                dialogue3.Add("Criminy, it's hot today. I need a break. I haven't sat down in hours.");
+                pharaohGuardTwo = new NPC(game.NPCSprites["Pharaoh Guard"], dialogue3, new Rectangle(2947, 287, 516, 388), player, game.Font, game, "Egypt", "Pharaoh Guard", false);
+                pharaohGuardTwo.FacingRight = true;
+                AddNPC("Pharaoh Guard 2", pharaohGuardTwo);
+
+                List<String> dialogue4 = new List<string>();
+                dialogue4.Add("Sorry, pale one. Only the Pharaoh is allowed beyond these gates.");
+                pharaohGuardThree = new NPC(game.NPCSprites["Pharaoh Guard"], dialogue4, new Rectangle(3303, 286, 516, 388), player, game.Font, game, "Egypt", "Pharaoh Guard", false);
+                pharaohGuardThree.FacingRight = true;
+                AddNPC("Pharaoh Guard 3", pharaohGuardThree);
+            }
+
+            if (!nPCs.ContainsKey("Cleopatra"))
+            {
+
+                //Stone fort cleo
+                //List<String> dialogue2 = new List<string>();
+                //dialogue2.Add("I am starting to believe that my soldiers may be underdressed for the occasion.");
+                //cleopatra = new Cleopatra(game.NPCSprites["Cleopatra"], dialogue2, new Rectangle(1690, 370, 516, 388), player, game.Font, game, "Stone Fort Gate", "Cleopatra", false);
+                //cleopatra.FacingRight = true;
+                //AddNPC("Cleopatra", cleopatra);
+
+                List<String> dialogue2 = new List<string>();
+                dialogue2.Add("Take these chains off of me at once!");
+                cleopatra = new Cleopatra(game.NPCSprites["Cleopatra"], dialogue2, new Rectangle(1792, 301, 516, 388), player, game.Font, game, "Ancient Altar", "Cleopatra", false);
+                cleopatra.FacingRight = true;
+                cleopatra.chained = true;
+                AddNPC("Cleopatra", cleopatra);
+
+                hologram = new HistoryHologram(game.NPCSprites["Time Lord"], new List<String>(), new Rectangle(2121, 269, 516, 388), player, game.Font, game, "Ancient Altar", "Time Lord", false);
+                hologram.FacingRight = false;
+                AddNPC("Time Lord", hologram);
+            }
+
+            if (!nPCs.ContainsKey("Genghis"))
+            {
+                //List<String> dialogue2 = new List<string>();
+                //dialogue2.Add("Kublai! Where have you been?");
+                //genghis = new NPC(game.NPCSprites["Genghis"], dialogue2, new Rectangle(1470, 350, 516, 388), player, game.Font, game, "Stone Fort Gate", "Genghis", false);
+                //genghis.FacingRight = true;
+                //AddNPC("Genghis", genghis);
+
+                List<String> dialogue2 = new List<string>();
+                dialogue2.Add("You will be mine, Caesar!");
+                genghis = new NPC(game.NPCSprites["Genghis"], dialogue2, new Rectangle(1623, 650, 516, 388), player, game.Font, game, "The Great Wall", "Genghis", false);
+                genghis.FacingRight = false;
+                genghis.canTalk = false;
+                AddNPC("Genghis", genghis);
+            }
+
+            if (!nPCs.ContainsKey("Chelsea"))
+            {
+                //--Friend One
+                List<String> dialogue2 = new List<string>();
+                chelsea = new Chelsea(game.NPCSprites["Chelsea"], dialogue2, new Rectangle(3504- 516, 286, 516, 388), player,
+                    game.Font, game, "Not a real map", "Chelsea", false);
+                chelsea.FacingRight = false;
+                AddNPC("Chelsea", chelsea);
+            }
+
+            if (!nPCs.ContainsKey("Jesse"))
+            {
+                //--Friend One
+                List<String> dialogue2 = new List<string>();
+                dialogue2.Add("Maybe I'll go ask that guy for his recipe.");
+                jesse = new Jesse(game.NPCSprites["Jesse"], dialogue2, new Rectangle(1500, 660 - 388, 516, 388), player,
+                    game.Font, game, "Outside the Party", "Jesse", false);
+                jesse.FacingRight = true;
+                AddNPC("Jesse", jesse);
             }
 
             if (!nPCs.ContainsKey("Mark"))
@@ -1017,7 +1093,7 @@ namespace ISurvived
                 mark = new Mark(game.NPCSprites["Mark"], dialogue,
                     new Rectangle(400, 680 - 388, 516, 388), player, game.Font, game, "Outside the Party", "Mark", false);
                 mark.FacingRight = true;
-                nPCs.Add("Mark", mark);
+                AddNPC("Mark", mark);
             }
 
             if (!nPCs.ContainsKey("Balto"))
@@ -1027,29 +1103,171 @@ namespace ISurvived
                 balto = new Balto(game.NPCSprites["Balto"], dialogue,
                     new Rectangle(2400, -388, 516, 388), player, game.Font, game, "Outside the Party", "Balto", false);
                 balto.FacingRight = true;
-                nPCs.Add("Balto", balto);
+                
+                AddNPC("Balto", balto);
             }
 
-            if (!nPCs.ContainsKey("CrossroadsKid"))
+            if (!nPCs.ContainsKey("Bell Man"))
             {
                 List<String> dialogue = new List<string>();
-                dialogue.Add("You go on ahead! I'll keep watch here.");
-                crossroadsKid = new NPC(game.NPCSprites["Paul"], dialogue,
-                    new Rectangle(-1508, 322, 516, 388), player, game.Font, game, "Crossroads", "Paul", false);
-                crossroadsKid.FacingRight = false;
-                nPCs.Add("CrossroadsKid", crossroadsKid);
+                dialogue.Add("Wanted! Wanted! Ghost slayer for hire!");
+                dialogue.Add("Will you be the one to rid Master Scrooge's residence of those foul demons?");
+                bellman = new BellMan(game.NPCSprites["Bell Man"], dialogue,
+                    new Rectangle(883, -470 + 742, 516, 388), player, game.Font, game, "Snowy Streets", "Bell Man", false);
+                AddNPC("Bell Man", bellman);
             }
 
-            if (!nPCs.ContainsKey("Tim"))
+            if (!nPCs.ContainsKey("Ebenezer Scrooge"))
             {
                 List<String> dialogue = new List<string>();
-                dialogue.Add("Nope. There's no fuckin' way I'm going with you.");
-                dialogue.Add("Just get your goofy lookin' ass out of here and leave me alone. I'll take my chances with the deer.");
-                tim = new NPC(game.NPCSprites["Tim"], dialogue,
-                    new Rectangle(-1508, 322, 516, 388), player, game.Font, game, "Woodsy River", "Tim", false);
-                crossroadsKid.FacingRight = false;
-                nPCs.Add("Tim", tim);
+                dialogue.Add(". . .");
+                scrooge = new Scrooge(game.NPCSprites["Ebenezer Scrooge"], dialogue,
+                    new Rectangle(370 + 516, 165, 516, 388), player, game.Font, game, "Scrooge's Bedroom", "Ebenezer Scrooge", false);
+                scrooge.FacingRight = false;
+                scrooge.isScared = true;
+                scrooge.canTalk = false;
+                AddNPC("Ebenezer Scrooge", scrooge);
             }
+
+            if (!nPCs.ContainsKey("Marley"))
+            {
+                List<String> dialogue = new List<string>();
+                dialogue.Add(". . .");
+                marley = new Marley(game.NPCSprites["Jacob Marley"], dialogue,
+                    new Rectangle(433, 45, 516, 388), player, game.Font, game, "Scrooge's Bedroom", "Jacob Marley", false);
+                marley.FacingRight = true;
+                marley.canTalk = false;
+                AddNPC("Marley", marley);
+            }
+
+            if (!nPCs.ContainsKey("Gary R. Pigeon") && chapterTwoBooleans["bedroomTwoCleared"])
+            {
+                List<String> dialogue = new List<string>();
+                dialogue.Add("Pleasure doin' bidness widya. Coo.");
+                pigeon = new NPC(game.NPCSprites["Gary R. Pigeon"], dialogue, packageForScrooge,
+                    new Rectangle(3562, -605, 516, 388), player, game.Font, game, "The Grand Corridor", "Gary R. Pigeon", false);
+                pigeon.FacingRight = false;
+
+                AddNPC("Gary R. Pigeon", pigeon);
+            }
+
+            if (!nPCs.ContainsKey("The Janitor"))
+            {
+                //--Paul
+                List<String> dialogue2 = new List<string>();
+                dialogue2.Add(" ");
+                janitor = new TheJanitor(game.NPCSprites["The Janitor"], dialogue2, new Rectangle(2104, 349, 516, 388), player,
+                    game.Font, game, "Not a real map", "The Janitor", false);
+                AddNPC("The Janitor", janitor);
+            }
+
+            #region Pyramid Guards
+            if (!nPCs.ContainsKey("Pyramid Guard One"))
+            {
+                List<String> dialogue = new List<string>();
+                dialogue.Add("Watch your step. I was just repairing the floor when the bastards got me.");
+                dialogue.Add("They didn't have our Pharaoh with them. Perhaps they haven't taken her?");
+                pyramidGuardOne = new NPC(game.NPCSprites["Chained Pharaoh Guard"], dialogue,
+                    new Rectangle(331, 253, 516, 388), player, game.Font, game, "Side Chamber IV", "Chained Pharaoh Guard", false);
+                pyramidGuardOne.FacingRight = false;
+                AddNPC("Pyramid Guard One", pyramidGuardOne);
+
+                List<String> dialogue2 = new List<string>();
+                dialogue2.Add("They went through here! They have Pharaoh Cleopatra!");
+                dialogue2.Add("Oh gods, they're headed for the Pyramid's center. Legend says the greatest treasure is stored there, and only the Pharaoh can open the door!");
+                pyramidGuardTwo = new NPC(game.NPCSprites["Chained Pharaoh Guard"], dialogue2,
+                    new Rectangle(1513, -720 + 483, 516, 388), player, game.Font, game, "Main Chamber", "Chained Pharaoh Guard", false);
+                AddNPC("Pyramid Guard Two", pyramidGuardTwo);
+
+
+                List<String> dialogue3 = new List<string>();
+                dialogue3.Add("And here I thought I was immune to the powers of Hell.");
+                pyramidGuardThree = new NPC(game.NPCSprites["Chained Pharaoh Guard"], dialogue3,
+                    new Rectangle(1819, -720 + 483, 516, 388), player, game.Font, game, "Main Chamber", "Chained Pharaoh Guard", false);
+                AddNPC("Pyramid Guard Three", pyramidGuardThree);
+
+                List<String> dialogue4 = new List<string>();
+                dialogue4.Add("There used to be a tunnel here leading to the Pyramid's Center, and the wonderous treasure that lies there.");
+                dialogue4.Add("Luckily I covered it up nice and good before those hellspawn tied me up. Yep, nothing's getting through there. Nothing at all.");
+                pyramidGuard4 = new NPC(game.NPCSprites["Chained Pharaoh Guard"], dialogue4,
+                    new Rectangle(641, -300 + 146, 516, 388), player, game.Font, game, "Central Hall III", "Chained Pharaoh Guard", false);
+                AddNPC("Pyramid Guard 4", pyramidGuard4);
+
+                List<String> dialogue5 = new List<string>();
+                dialogue5.Add("The demons came through here not very long ago. They're using the Pharaoh to get into the room at the Pyramid's Center.");
+                dialogue5.Add("Our poor Cleopatra...she was chained and screaming. I stopped hearing her a few minutes ago, I hope they haven't done anything to harm her.");
+                pyramidGuard5 = new NPC(game.NPCSprites["Chained Pharaoh Guard"], dialogue5,
+                    new Rectangle(2319, 267, 516, 388), player, game.Font, game, "Inner Chamber", "Chained Pharaoh Guard", false);
+                AddNPC("Pyramid Guard 5", pyramidGuard5);
+
+                List<String> dialogue6 = new List<string>();
+                dialogue6.Add("You! You have to save our Pharaoh! Ra knows what those bastard demons plan to do to her once she's opened the Pyramid's Center for them!");
+                dialogue6.Add("It's not too far up ahead, but be careful...you're following a very dangerous path now, meant to make intruders very dead.");
+                pyramidGuard6 = new NPC(game.NPCSprites["Chained Pharaoh Guard"], dialogue6,
+                    new Rectangle(435, 257, 516, 388), player, game.Font, game, "Pharaoh's Road", "Chained Pharaoh Guard", false);
+                pyramidGuard6.FacingRight = false;
+                AddNPC("Pyramid Guard 6", pyramidGuard6);
+
+                List<String> dialogue7 = new List<string>();
+                dialogue7.Add("It's said that a wonderful treasure sits at the Pyramid's Center. That's what they're after. None of us mortals know what it could possibly be.");
+                dialogue7.Add("Only the Pharaoh knows, and only she can unlock it...");
+                pyramidGuard7 = new NPC(game.NPCSprites["Chained Pharaoh Guard"], dialogue7,
+                    new Rectangle(670, 255, 516, 388), player, game.Font, game, "Pharaoh's Road", "Chained Pharaoh Guard", false);
+                pyramidGuard7.FacingRight = true;
+                AddNPC("Pyramid Guard 7", pyramidGuard7);
+
+                List<String> dialogue8 = new List<string>();
+                dialogue8.Add("They just came through her with the Pharaoh and forced her to unlock the gate! Only a couple of them went inside...what could they be doing?");
+                dialogue8.Add("I hope they spare our poor Pharaoh...you may be too late.");
+                pyramidGuard8 = new NPC(game.NPCSprites["Chained Pharaoh Guard"], dialogue8,
+                    new Rectangle(3129, 262, 516, 388), player, game.Font, game, "Pharaoh's Gate", "Chained Pharaoh Guard", false);
+                pyramidGuard8.FacingRight = false;
+                pyramidGuard8.canTalk = false;
+                AddNPC("Pyramid Guard 8", pyramidGuard8);
+
+                List<String> dialogue9 = new List<string>();
+                dialogue9.Add("Did you ever consider untying us so we could help you?");
+                pyramidGuard9 = new NPC(game.NPCSprites["Chained Pharaoh Guard"], dialogue9,
+                    new Rectangle(3702, 262, 516, 388), player, game.Font, game, "Pharaoh's Gate", "Chained Pharaoh Guard", false);
+                pyramidGuard9.FacingRight = false;
+                pyramidGuard9.canTalk = false;
+
+                AddNPC("Pyramid Guard 9", pyramidGuard9);
+            }
+            #endregion
+
+            if (!nPCs.ContainsKey("Trenchcoat Camp"))
+            {
+                //Napoleons Camp
+                List<String> cronydialogue = new List<string>();
+                cronydialogue.Add("Hey kid, any idea what Robatto is doing here? Thought he was coming to bust me, but he walked right on by.");
+                cronydialogue.Add("Anyway, looking for some textbooks? Boss raised the prices recently.");
+                List<ItemForSale> items = new List<ItemForSale>();
+                items.Add(new TextbookForSale(45, 2));
+                items.Add(new TextbookForSale(45, 1));
+                items.Add(new TextbookForSale(45, 0));
+                trenchcoatCamp = new TrenchcoatKid(game.NPCSprites["Trenchcoat Employee"], cronydialogue, 3026, 638, player, game, "Napoleon's Camp", items);
+                trenchcoatCamp.FacingRight = true;
+                AddNPC("Trenchcoat Camp", trenchcoatCamp);
+
+                //Snowy Streets
+                List<String> cronydialogue2 = new List<string>();
+                cronydialogue2.Add("You're looking pretty cold. Can I interest you in some textbooks?");
+                List<ItemForSale> items2 = new List<ItemForSale>();
+                items2.Add(new TextbookForSale(65, 3));
+                items2.Add(new TextbookForSale(65, 0));
+                items2.Add(new KeyForSale(150, KeyForSale.KeyType.Silver));
+                trenchcoatSnowyStreets = new TrenchcoatKid(game.NPCSprites["Trenchcoat Employee"], cronydialogue2, 1417, -470 + 710 + 388, player, game, "Snowy Streets", items2);
+                trenchcoatSnowyStreets.FacingRight = true;
+                AddNPC("Trenchcoat Snowy Streets", trenchcoatSnowyStreets);
+            }
+        }
+
+        public void PlayHorseExplosion()
+        {
+            chapterScenes.Add(horseDestroyedScene);
+            cutsceneState = chapterScenes.Count - 1;
+            state = GameState.Cutscene;
         }
     }
 }

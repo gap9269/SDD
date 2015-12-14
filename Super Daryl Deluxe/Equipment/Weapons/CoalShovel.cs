@@ -11,15 +11,17 @@ namespace ISurvived
         public CoalShovel()
             : base()
         {
-            strength = 7;
+            strength = 10;
             health = 5;
+            defense = 3;
             name = "Coal Shovel";
             moveSpeed = 0;
             jumpHeight = 0;
             level = 5;
             description = "An old coal shovel given to Daryl by a furnace worker. \n\n";
             canHoldTwo = false;
-icon = Game1.equipmentTextures[name];
+            icon = Game1.equipmentTextures[name];
+            sellPrice = 3.00f;
         }
 
         public override void UpdateDescription()

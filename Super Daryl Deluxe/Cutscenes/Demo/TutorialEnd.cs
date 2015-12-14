@@ -77,7 +77,7 @@ namespace ISurvived
                             }
                         }
 
-                        game.CurrentChapter.CurrentMap = Game1.schoolMaps.maps["TheParty"];
+                        game.CurrentChapter.CurrentMap = Game1.schoolMaps.maps["The Party"];
                         game.CurrentChapter.CurrentMap.LoadContent();
                         game.CurrentChapter.CurrentMap.LoadEnemyData();
 

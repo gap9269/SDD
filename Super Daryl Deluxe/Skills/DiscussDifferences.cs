@@ -17,7 +17,7 @@ namespace ISurvived
         // ATTRIBUTES \\
         Rectangle punch;
         Rectangle secondPunch;
-        Rectangle thirdPunch;
+        Rectangle thirdPunch, checkPlatRec;
         int phase;
         int timer;
         int defaultTimer = 90;
@@ -45,12 +45,27 @@ namespace ISurvived
             levelToUse = 1;
             skillBarColor = new Color(238, 28, 36);
 
+            transformLevels = new int[2] { 2, 3 };
+
             skillType = AttackType.AttackTypes.Blunt;
             rangedOrMelee = AttackType.RangedOrMelee.Melee;
 
             playerLevelRequiredToLevel.Add(1);
             playerLevelRequiredToLevel.Add(1);
+            playerLevelRequiredToLevel.Add(4);
+            playerLevelRequiredToLevel.Add(5);
+
+            playerLevelRequiredToLevel.Add(6);
             playerLevelRequiredToLevel.Add(8);
+            playerLevelRequiredToLevel.Add(10);
+            playerLevelRequiredToLevel.Add(13);
+            playerLevelRequiredToLevel.Add(15);
+
+            playerLevelRequiredToLevel.Add(16);
+            playerLevelRequiredToLevel.Add(19);
+            playerLevelRequiredToLevel.Add(23);
+            playerLevelRequiredToLevel.Add(25);
+            playerLevelRequiredToLevel.Add(27);
         }
 
         public override Rectangle GetSourceRec()
@@ -93,7 +108,9 @@ namespace ISurvived
                     timer = defaultTimer;
                     phase = 1;
                     hitPauseTime = 0;
-                    PlayRandomUseSound(0, 4);
+                    if (skillRank == 4)
+                        hitPauseTime = 2;
+                    PlayRandomUseSound(0, 5);
                 }
 
                 //--Second press, cooldown is set back to 100, and restarts the timer
@@ -104,7 +121,9 @@ namespace ISurvived
                     timer = defaultTimer;
                     phase = 2;
                     hitPauseTime = 0;
-                    PlayRandomUseSound(4, 7);
+                    if (skillRank == 4)
+                        hitPauseTime = 2;
+                    PlayRandomUseSound(5, 10);
                 }
 
                 //--On the third hit, give the skill experience
@@ -116,7 +135,9 @@ namespace ISurvived
                     timer = 25;
                     phase = 3;
                     hitPauseTime = 3;
-                    PlayRandomUseSound(0, 7);
+                    if (skillRank == 4)
+                        hitPauseTime = 5;
+                    PlayRandomUseSound(10, 15);
                 }
             #endregion
             }
@@ -156,7 +177,7 @@ namespace ISurvived
 
 
                     if(animationLength == 8)
-                        CheckCollisions(punch, damage - .1f, new Vector2(15, -6), 3,3);
+                        CheckCollisions(punch, damage - .05f, new Vector2(15, -6), 3,3);
 
                     if (animationLength == 0 && useNext[0] == true && skillRank >= 2)
                     {
@@ -164,8 +185,10 @@ namespace ISurvived
                         timer = defaultTimer;
                         phase = 2;
                         hitPauseTime = 0;
+                        if (skillRank == 4)
+                            hitPauseTime = 2;
                         moveFrame = 0;
-                        PlayRandomUseSound(4, 7);
+                        PlayRandomUseSound(5, 10);
                     }
 
                     break;
@@ -182,7 +205,7 @@ namespace ISurvived
                         moveFrame = 4;
 
                     if(animationLength == 8)
-                        CheckCollisions(secondPunch, damage - .1f, new Vector2(15, -6),3,3);
+                        CheckCollisions(secondPunch, damage - .05f, new Vector2(15, -6),3,3);
 
                     if (animationLength == 0 && useNext[1] == true && skillRank >= 3)
                     {
@@ -192,8 +215,19 @@ namespace ISurvived
                         timer = 25;
                         phase = 3;
                         hitPauseTime = 3;
+                        if (skillRank == 4)
+                            hitPauseTime = 5;
                         moveFrame = 0;
-                        PlayRandomUseSound(0, 7);
+                        PlayRandomUseSound(10, 15);
+                        if (player.VelocityX < 6 && player.VelocityX > -6)
+                            player.VelocityX = 0;
+                        else
+                        {
+                            if (player.VelocityX > 0)
+                                player.VelocityX -= 5;
+                            else
+                                player.VelocityX += 5;
+                        }
                     }
                     break;
                 case 3:
@@ -249,33 +283,67 @@ namespace ISurvived
         public override void Update()
         {
             base.Update();
-            
+
             timer--;
             updateMoveFrameAndCheckCollisions();
 
             //Stay in air when attacking
             if (animationLength > 0)
             {
+
+                if (animationLength > 0 && phase != 3)
+                {
+                    if (player.VelocityX > -5 && player.VelocityX < 5)
+                    {
+                        if (player.FacingRight)
+                        {
+                            player.VelocityX = 5;
+
+                        }
+                        else
+                        {
+                            player.VelocityX = -5;
+                        }
+                    }
+                }
+
                 player.AttackFloating = true;
                 player.VelocityY = 0;
+
+                for (int i = 0; i < Game1.currentChapter.CurrentMap.Platforms.Count; i++)
+                {
+                    if (checkPlatRec.Intersects(Game1.currentChapter.CurrentMap.Platforms[i].Rec) && Game1.currentChapter.CurrentMap.Platforms[i].Passable == false)
+                    {
+                        if (player.VelocityX < 6 && player.VelocityX > -6)
+                            player.VelocityX = 0;
+                        else
+                        {
+                            if (player.VelocityX > 0)
+                                player.VelocityX -= 5;
+                            else
+                                player.VelocityX += 5;
+                        }
+                    }
+                }
             }
             else
+            {
                 player.AttackFloating = false;
 
-
-            if (animationLength > 0 && phase != 3)
-            {
-                if (player.FacingRight)
+                if (animationLength == 0)
                 {
-                    player.PositionX += 5;
-                    player.RecX += 5;
-                }
-                else
-                {
-                    player.PositionX -= 5;
-                    player.RecX -= 5;
+                    if (player.VelocityX < 6 && player.VelocityX > -6)
+                        player.VelocityX = 0;
+                    else
+                    {
+                        if (player.VelocityX > 0)
+                            player.VelocityX -= 5;
+                        else
+                            player.VelocityX += 5;
+                    }
                 }
             }
+
 
             if (skillRank < 2 && phase == 1)
             {
@@ -312,12 +380,16 @@ namespace ISurvived
                 punch = new Rectangle((int)player.VitalRecX, (int)player.VitalRecY, 170, 150);
                 secondPunch = new Rectangle((int)player.VitalRecX, (int)player.VitalRecY- 10, 180, 160);
                 thirdPunch = new Rectangle((int)player.VitalRecX, (int)player.VitalRecY - 30, 180, 230);
+                checkPlatRec = new Rectangle(player.VitalRecX + player.VitalRecWidth, player.VitalRecY, (int)50,
+player.VitalRecHeight - 40);
             }
             else
             {
                 punch = new Rectangle((int)player.VitalRecX - player.VitalRecWidth - 50, (int)player.VitalRecY, 170, 150);
                 secondPunch = new Rectangle((int)player.VitalRecX - player.VitalRecWidth - 50, (int)player.VitalRecY - 10, 180, 160);
                 thirdPunch = new Rectangle((int)player.VitalRecX - player.VitalRecWidth - 50, (int)player.VitalRecY - 30, 180, 230);
+                checkPlatRec = new Rectangle(player.VitalRecX - (int)50, player.VitalRecY, (int)50,
+player.VitalRecHeight - 40);
             }
             #endregion
         }
@@ -367,9 +439,9 @@ namespace ISurvived
 
         //--If the experience hits what is needed to level up, this is called
         //--Increase stats and other things based on level
-        public override void ApplyLevelUp()
+        public override void ApplyLevelUp(Boolean silent = false)
         {
-            base.ApplyLevelUp();
+            base.ApplyLevelUp(silent);
 
             switch (skillRank)
             {
@@ -381,15 +453,80 @@ namespace ISurvived
                     break;
                 case 3:
                     damage = .5f;
-                    experienceUntilLevel = 5000;
+                    experienceUntilLevel = 500;
                     description = "A basic ability that offers a longer combo as its rank increases. \n# of Punches: 3";
                     experience = 0;
                     break;
                 case 4:
-                    damage = .8f;
+                    damage = .51f;
+                    experience = 0;
+                    experienceUntilLevel = 700;
+                    description = "A basic ability that offers a longer combo as its rank increases. \n# of Punches: 3";
+                    break;
+                case 5:
+                    damage = .53f;
+                    experience = 0;
+                    experienceUntilLevel = 700;
+                    description = "A basic ability that offers a longer combo as its rank increases. \n# of Punches: 3";
+                    break;
+                case 6:
+                    damage = .54f;
+                    experience = 0;
+                    experienceUntilLevel = 1200;
+                    description = "A basic ability that offers a longer combo as its rank increases. \n# of Punches: 3";
+                    break;
+                case 7:
+                    damage = .56f;
+                    experience = 0;
+                    experienceUntilLevel = 1200;
+                    description = "A basic ability that offers a longer combo as its rank increases. \n# of Punches: 3";
+                    break;
+                case 8:
+                    damage = .59f;
+                    experience = 0;
+                    experienceUntilLevel = 1200;
+                    description = "A basic ability that offers a longer combo as its rank increases. \n# of Punches: 3";
+                    break;
+                case 9:
+                    damage = .6f;
+                    experience = 0;
+                    experienceUntilLevel = 1200;
+                    description = "A basic ability that offers a longer combo as its rank increases. \n# of Punches: 3";
+                    break;
+                case 10:
+                    damage = .61f;
+                    experienceUntilLevel = 1650;
                     experience = 0;
                     description = "A basic ability that offers a longer combo as its rank increases. \n# of Punches: 3";
-                    //name = "Deliberate Dissimilarities";
+                    break;
+                case 11:
+                    damage = .63f;
+                    experienceUntilLevel = 1650;
+                    experience = 0;
+                    description = "A basic ability that offers a longer combo as its rank increases. \n# of Punches: 3";
+                    break;
+                case 12:
+                    damage = .65f;
+                    experienceUntilLevel = 1650;
+                    experience = 0;
+                    description = "A basic ability that offers a longer combo as its rank increases. \n# of Punches: 3";
+                    break;
+                case 13:
+                    damage = .67f;
+                    experienceUntilLevel = 1650;
+                    experience = 0;
+                    description = "A basic ability that offers a longer combo as its rank increases. \n# of Punches: 3";
+                    break;
+                case 14:
+                    damage = .68f;
+                    experienceUntilLevel = 1650;
+                    experience = 0;
+                    description = "A basic ability that offers a longer combo as its rank increases. \n# of Punches: 3";
+                    break;
+                case 15:
+                    damage = .7f;
+                    experience = 0;
+                    description = "A basic ability that offers a longer combo as its rank increases. \n# of Punches: 3";
                     break;
             }
         }

@@ -19,6 +19,7 @@ namespace ISurvived
             name = "Lab Goggles";
             level = 3;
             description = "Now you can see in SCIENCE VISION! \n\n";
+            sellPrice = .65f;
             icon = Game1.equipmentTextures[name];
         }
 

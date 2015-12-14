@@ -20,11 +20,15 @@ namespace ISurvived
         Platform doorOne;
         Platform doorTwo;
 
+        int erlTrapExplodeDelay = 20;
+
         public static Portal ToBathroom { get { return toBathroom; } }
         public static Portal ToScience101 { get { return toScience101; } }
         public static Portal ToScience103 { get { return toScience103; } }
 
         public Dictionary<String, Texture2D> giantErlTextures;
+
+        SoundEffectInstance object_giant_flask_trap_start, object_giant_flask_trap_destroy;
 
         Texture2D outhouse, fore, pulse, bubbles, panels1, panels2, flask, erl, erlBottom;
 
@@ -49,7 +53,7 @@ namespace ISurvived
             mapName = "Science 102";
 
             mapRec = new Rectangle(0, -mapHeight + 720 + 360, mapWidth, mapHeight);
-            enemyAmount = 1;
+            enemyAmount = 4;
 
             yScroll = true;
             zoomLevel = .85f;
@@ -66,26 +70,38 @@ namespace ISurvived
 
             giantErlTextures = new Dictionary<String, Texture2D>();
 
-            Barrel bar = new Barrel(game, 2000, -300 + 155, Game1.interactiveObjects["Barrel"], true, 1, 3, .04f, true, Barrel.BarrelType.ScienceJar);
+            Barrel bar = new Barrel(game, 2000, -300 + 155, Game1.interactiveObjects["Barrel"], true, 2, 3, .04f, true, Barrel.BarrelType.ScienceJar);
             interactiveObjects.Add(bar);
 
             Barrel bar2 = new Barrel(game, 1700, -275 + 155, Game1.interactiveObjects["Barrel"], true, 1, 0, .07f, false, Barrel.BarrelType.ScienceTube);
             interactiveObjects.Add(bar2);
 
-            Barrel bar3 = new Barrel(game, 1350, 500 + 155, Game1.interactiveObjects["Barrel"], true, 1, 0, .03f, false, Barrel.BarrelType.ScienceBarrel);
+            Barrel bar3 = new Barrel(game, 1350, 500 + 155, Game1.interactiveObjects["Barrel"], true, 2, 0, .03f, false, Barrel.BarrelType.ScienceBarrel);
             interactiveObjects.Add(bar3);
 
             up3 = true;
             up2 = false;
+
+            currentBackgroundMusic = Sound.MusicNames.DoingScienceMed;
+
+            enemyNamesAndNumberInMap.Add("Erl The Flask", 0);
+
+        }
+
+        public override void ResetMapAssetsOnEnter()
+        {
+            base.ResetMapAssetsOnEnter();
+            spawnEnemies = true;
         }
 
         public override void RespawnGroundEnemies()
         {
-            if (game.MapBooleans.prologueMapBooleans["enemyKilled"] == false && game.MapBooleans.prologueMapBooleans["doorsAdded"])
+
+            switch (game.chapterState)
             {
-                switch (game.chapterState)
-                {
-                    case Game1.ChapterState.prologue:
+                case Game1.ChapterState.prologue:
+                    if (game.MapBooleans.prologueMapBooleans["enemyKilled"] == false && game.MapBooleans.prologueMapBooleans["doorsAdded"])
+                    {
                         ErlTheFlask en = new ErlTheFlask(pos, "Erl The Flask", game, ref player, this);
                         en.TimeBeforeSpawn = 60;
                         monsterY = -20 - en.Rec.Height - 1;
@@ -97,12 +113,33 @@ namespace ISurvived
                         }
                         else
                         {
-                            enemiesInMap.Add(en);
+                            AddEnemyToEnemyList(en);
                             game.MapBooleans.prologueMapBooleans["enemyAdded"] = true;
                         }
-                        break;
-                }
+                    }
+                    break;
+                default:
+                    base.RespawnGroundEnemies();
+
+                    if (enemyNamesAndNumberInMap["Erl The Flask"] < 4)
+                    {
+                        ErlTheFlask erl = new ErlTheFlask(pos, "Erl The Flask", game, ref player, this);
+                        monsterY = platforms[platformNum].Rec.Y - erl.Rec.Height - 1;
+                        erl.Position = new Vector2(monsterX, monsterY);
+
+                        Rectangle erlRec = new Rectangle(erl.RecX, monsterY, erl.Rec.Width, erl.Rec.Height);
+                        if (erlRec.Intersects(player.Rec))
+                        {
+                        }
+                        else
+                        {
+                            AddEnemyToEnemyList(erl);
+                            enemyNamesAndNumberInMap["Erl The Flask"]++;
+                        }
+                    }
+                    break;
             }
+
         }
 
         public override void LoadContent()
@@ -118,9 +155,50 @@ namespace ISurvived
             flask = content.Load<Texture2D>(@"Maps\Science\102\flask");
             erl = content.Load<Texture2D>(@"Maps\Science\102\erl");
             erlBottom = content.Load<Texture2D>(@"Maps\Science\102\erlBottom");
+            object_giant_flask_trap_start = content.Load<SoundEffect>("Sound\\Objects\\Traps\\object_giant_flask_trap_start").CreateInstance();
+            object_giant_flask_trap_destroy = content.Load<SoundEffect>("Sound\\Objects\\Traps\\object_giant_flask_trap_destroy").CreateInstance();
+            Sound.LoadScienceZoneSounds();
 
             if (game.MapBooleans.prologueMapBooleans["doorsAdded"] == false)
                 giantErlTextures = ContentLoader.LoadContent(content, "Maps\\Science\\102\\Erl");
+
+            if (Chapter.lastMap != "Science 101" && Chapter.lastMap != "Science 103" && !Sound.music.ContainsKey("DoingScienceLow"))
+            {
+                SoundEffect bg = Sound.backgroundMusicContent.Load<SoundEffect>(@"Sound\Music\Science\DoingScienceLow");
+                SoundEffectInstance backgroundMusic = bg.CreateInstance();
+                backgroundMusic.IsLooped = true;
+                Sound.music.Add("DoingScienceLow", backgroundMusic);
+
+                SoundEffect bg2 = Sound.backgroundMusicContent.Load<SoundEffect>(@"Sound\Music\Science\DoingScienceMed");
+                SoundEffectInstance backgroundMusic2 = bg2.CreateInstance();
+                backgroundMusic2.IsLooped = true;
+                Sound.music.Add("DoingScienceMed", backgroundMusic2);
+
+                SoundEffect bg3 = Sound.backgroundMusicContent.Load<SoundEffect>(@"Sound\Music\Science\DoingScienceHigh");
+                SoundEffectInstance backgroundMusic3 = bg3.CreateInstance();
+                backgroundMusic3.IsLooped = true;
+                Sound.music.Add("DoingScienceHigh", backgroundMusic3);
+            }
+
+            if (Chapter.lastMap != "Science 101" && Chapter.lastMap != "Science 103" && !Sound.ambience.ContainsKey("ambience_wasteland"))
+            {
+                SoundEffect am = Sound.ambienceContent.Load<SoundEffect>(@"Sound\Ambience\ambience_wasteland");
+                SoundEffectInstance amb = am.CreateInstance();
+                amb.IsLooped = true;
+                Sound.ambience.Add("ambience_wasteland", amb);
+            }
+        }
+
+        public override void UnloadContent()
+        {
+            base.UnloadContent();
+
+            if (nextMapName == "Bathroom")
+            {
+                Sound.UnloadMapZoneSounds();
+                Sound.PauseBackgroundMusic();
+                Sound.StopAmbience();
+            }
         }
 
         public override void LoadEnemyData()
@@ -130,9 +208,30 @@ namespace ISurvived
             EnemyContentLoader.ErlTheFlask(content);
         }
 
+        public override void PlayAmbience()
+        {
+            Sound.PlayAmbience("ambience_wasteland");
+        }
+
+        public override void PlayBackgroundMusic()
+        {
+            Sound.PlayBackGroundMusic(currentBackgroundMusic.ToString());
+        }
+
         public override void Update()
         {
             base.Update();
+
+            PlayAmbience();
+            PlayBackgroundMusic();
+
+            if (enemiesInMap.Count < enemyAmount && spawnEnemies)
+            {
+                RespawnGroundEnemies();
+            }
+
+            if (enemiesInMap.Count == enemyAmount)
+                spawnEnemies = false;
 
             interactiveObjects[0].RecY = 340 + (int)y2;
             interactiveObjects[1].RecY = 275 + (int)y3;
@@ -177,69 +276,87 @@ namespace ISurvived
                 pulseX = -2000;
             }
 
-            if (player.PositionX > 3970 && game.MapBooleans.prologueMapBooleans["doorsAdded"] == false)
+            #region Prologue stuff
+            if (game.chapterState == Game1.ChapterState.prologue)
             {
-                platforms.Add(doorOne);
-                platforms.Add(doorTwo);
-                game.Camera.ShakeCamera(30, 4);
-                game.MapBooleans.prologueMapBooleans["doorsAdded"] = true;
-                spawnGiantErl = true;
-            }
-
-            if (spawnGiantErl)
-            {
-                erlDelay--;
-
-                if (erlDelay <= 0)
+                enemyAmount = 1;
+                if (player.PositionX > 3970 && game.MapBooleans.prologueMapBooleans["doorsAdded"] == false)
                 {
-                    erlFrame++;
+                    platforms.Add(doorOne);
+                    platforms.Add(doorTwo);
+                    game.Camera.ShakeCamera(30, 4);
+                    game.MapBooleans.prologueMapBooleans["doorsAdded"] = true;
+                    spawnGiantErl = true;
+                    Sound.PlaySoundInstance(object_giant_flask_trap_start, Game1.GetFileName(() => object_giant_flask_trap_start));
 
-                    erlDelay = 6;
+                }
 
-                    if(erlFrame > 3)
-                        erlDelay = 4;
+                if (spawnGiantErl)
+                {
+                    erlDelay--;
 
-                    if (erlFrame > 13)
+                    if (erlDelay <= 0)
                     {
-                        spawnGiantErl = false;
+                        erlFrame++;
+
+                        erlDelay = 6;
+
+                        if (erlFrame > 3)
+                            erlDelay = 4;
+
+                        if (erlFrame > 13)
+                        {
+                            spawnGiantErl = false;
+                        }
                     }
                 }
-            }
-            else if (destroyGiantErl)
-            {
-                erlDelay--;
-
-                if (erlDelay <= 0)
+                else if (destroyGiantErl)
                 {
-                    erlFrame++;
+                    erlDelay--;
 
-                    if (erlFrame > 3)
-                        erlDelay = 4;
-
-                    if (erlFrame > 21)
+                    if (erlDelay <= 0)
                     {
-                        destroyGiantErl = false;
-                        platforms.Remove(doorOne);
-                        platforms.Remove(doorTwo);
+                        erlFrame++;
 
+                        if (erlFrame > 3)
+                            erlDelay = 4;
+
+                        if (erlFrame > 21)
+                        {
+                            destroyGiantErl = false;
+                            platforms.Remove(doorOne);
+                            platforms.Remove(doorTwo);
+
+                        }
                     }
                 }
-            }
 
-            if (game.MapBooleans.prologueMapBooleans["doorsAdded"] == true && game.MapBooleans.prologueMapBooleans["enemyAdded"] == false && !spawnGiantErl)
-            {
-                //--If there aren't max enemies on the screen, spawn more
-                if (enemiesInMap.Count < enemyAmount)
-                    RespawnGroundEnemies();
-            }
+                if (game.MapBooleans.prologueMapBooleans["doorsAdded"] == true && game.MapBooleans.prologueMapBooleans["enemyAdded"] == false && !spawnGiantErl)
+                {
+                    //--If there aren't max enemies on the screen, spawn more
+                    if (enemiesInMap.Count < enemyAmount)
+                        RespawnGroundEnemies();
+                }
 
-            if (game.MapBooleans.prologueMapBooleans["doorsAdded"] && enemiesInMap.Count == 0 && game.MapBooleans.prologueMapBooleans["enemyAdded"] && !game.MapBooleans.prologueMapBooleans["enemyKilled"])
-            {
-                game.MapBooleans.prologueMapBooleans["enemyKilled"] = true;
-                game.Prologue.PrologueBooleans["removeNPCs"] = true;
-                destroyGiantErl = true;
-                game.Camera.ShakeCamera(20, 4);
+                if (game.MapBooleans.prologueMapBooleans["doorsAdded"] && enemiesInMap.Count == 0 && game.MapBooleans.prologueMapBooleans["enemyAdded"] && !game.MapBooleans.prologueMapBooleans["enemyKilled"])
+                {
+                    if (erlTrapExplodeDelay <= 0)
+                    {
+                        game.MapBooleans.prologueMapBooleans["enemyKilled"] = true;
+                        game.Prologue.PrologueBooleans["removeNPCs"] = true;
+                        destroyGiantErl = true;
+
+                        Sound.PlaySoundInstance(object_giant_flask_trap_destroy, Game1.GetFileName(() => object_giant_flask_trap_destroy));
+
+                        game.Camera.ShakeCamera(20, 4);
+                    }
+                    else
+                        erlTrapExplodeDelay--;
+                }
             }
+            else
+                enemyAmount = 3;
+            #endregion
         }
 
         public override void DrawBackgroundAndParallax(SpriteBatch s)
@@ -271,7 +388,7 @@ null, null, null, null, Game1.camera.Transform);
 
             if (erlFrame < 22 && (spawnGiantErl || destroyGiantErl))
             {
-                String textureString = "science102";
+                String textureString = "Science 102";
                 if (erlFrame < 10)
                     textureString += "0" + erlFrame.ToString();
                 else
@@ -338,12 +455,12 @@ null, null, null, null, Game1.camera.Transform);
         {
             base.SetPortals();
 
-            toScience101 = new Portal(-20, platforms[0], "Science102");
+            toScience101 = new Portal(-20, platforms[0], "Science 102", Portal.DoorType.movement_door_open);
             toScience101.FButtonYOffset = -10;
             toScience101.PortalNameYOffset = -10;
 
-            toScience103 = new Portal(5500, 14, "Science102");
-            toBathroom = new Portal(5000, 14, "Science102");
+            toScience103 = new Portal(5500, 14, "Science 102", Portal.DoorType.movement_door_open);
+            toBathroom = new Portal(5000, 14, "Science 102", Portal.DoorType.movement_door_open);
             toBathroom.PortalRecY = -230; //Keep this here
             toScience103.PortalRecY = -230; //this one too
 

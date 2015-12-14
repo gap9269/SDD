@@ -91,7 +91,7 @@ icon = Game1.equipmentTextures[name];
         public HandSaw()
             : base()
         {
-            strength = 55;
+            strength = 35;
             health = 0;
             name = "Hand Saw";
             moveSpeed = 0;

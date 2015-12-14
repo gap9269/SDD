@@ -46,7 +46,7 @@ namespace ISurvived
             AddBounds();
             AddNPCs();
             SetPortals();
-            kidCage = new KidCage(Game1.interactiveObjects["KidCage"], 1670, 436, player);
+            kidCage = new KidCage(Game1.whiteFilter, 1670, 436, player);
         }
 
         public override void Update()

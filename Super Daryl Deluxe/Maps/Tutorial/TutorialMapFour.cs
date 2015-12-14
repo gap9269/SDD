@@ -99,14 +99,14 @@ namespace ISurvived
             //TIP ONCE THE PLAYED HAS THE COMBO
             if (game.MapBooleans.tutorialMapBooleans["TutorialTipNineUsed"] == false && combo.PickedUp)
             {
-                Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][20], 700, 150, game.ChapterTwo.associateOneTex);
+                //Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][20], 700, 150, game.ChapterTwo.associateOneTex);
             }
 
             //CHECK TO SEE IF THE SWITCH IS BEING USED AND DRAW A TOOLTIP WHEN IT IS
             if (switches.Count > 0 && CheckSwitch(doorSwitch) && game.MapBooleans.tutorialMapBooleans["TutorialTipTenUsed"] == false)
             {
                 game.MapBooleans.tutorialMapBooleans["TutorialTipNineUsed"] = true;
-                Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][21], 360, 0, game.ChapterTwo.associateOneTex);
+                //Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][21], 360, 0, game.ChapterTwo.associateOneTex);
             }
 
             //CLEAR FINAL TOOLTIP AND MOVE THE NPC TO MAP 8

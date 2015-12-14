@@ -15,21 +15,17 @@ namespace ISurvived
     public class Cursor
     {
         Texture2D cursorTexture;
-        Rectangle cursorRec;
-        Vector2 lastPos;
-        Vector2 currentPos;
+         Rectangle cursorRec;
+        public static Vector2 lastPos;
+        public static Vector2 currentPos;
         public static int hoverTimer, clickTimer; //These are set to 1 when you hover or click a button
-
-        ButtonState previous;
-        ButtonState current;
-
-        ButtonState rightPrevious;
-        ButtonState rightCurrent;
 
         public static Rectangle cursorOnMapRec; //For map editting
 
         int idleTime = 0;
         public Boolean active;
+
+        float analogSensitivity = 13f;
 
         public static Cursor last;
 
@@ -42,7 +38,7 @@ namespace ISurvived
         {
             last = this;
             cursorTexture = tex;
-            cursorRec = new Rectangle(0, 0, 101,93 );
+            cursorRec = new Rectangle(0, 0, cursorWidth, cursorHeight);
         }
 
         public void Update()
@@ -54,27 +50,14 @@ namespace ISurvived
                 cursorOnMapRec.Y += (int)Game1.camera.Center.Y - 360;
             else
                 cursorOnMapRec.Y += (int)Game1.camera.Center.Y;
-            MouseState mouse = Mouse.GetState();
+
             lastPos = currentPos;
 
-            //--Update the mouse states, so last state is set to "previous"
-            rightPrevious = rightCurrent;
-            previous = current;
-            //--If the mouse is right clicking, make "current" equal to pressed.
-            //--If not, make it released
-            if (mouse.RightButton == ButtonState.Pressed)
-                rightCurrent = ButtonState.Pressed;
-            else
-                rightCurrent = ButtonState.Released;
-
-            if (mouse.LeftButton == ButtonState.Pressed)
-                current = ButtonState.Pressed;
-            else
-                current = ButtonState.Released;
+            analogSensitivity = 20f;
 
             //--If the previous state was pressed, and it is now released, the user must have right clicked
             //--Return true
-            if (((rightCurrent == ButtonState.Released && rightPrevious == ButtonState.Pressed)) || ((current == ButtonState.Released && previous == ButtonState.Pressed) || MyGamePad.RightAnalogPressedIn()))
+            if (((MouseManager.rightCurrent == ButtonState.Released && MouseManager.rightPrevious == ButtonState.Pressed)) || ((MouseManager.current == ButtonState.Released && MouseManager.previous == ButtonState.Pressed) || (MyGamePad.APressed() && Game1.g.CurrentChapter != null && Game1.g.CurrentChapter.state != Chapter.GameState.Game)))
             {
                 clickTimer = 5;
                 active = true;
@@ -83,12 +66,12 @@ namespace ISurvived
 
             if (!Game1.gamePadConnected)
             {
-                cursorRec.X = (int)(mouse.X / Camera.cursorScale);
-                cursorRec.Y = (int)(mouse.Y / Camera.cursorScale);
+                cursorRec.X = (int)(MouseManager.mouse.X / Camera.cursorScale);
+                cursorRec.Y = (int)(MouseManager.mouse.Y / Camera.cursorScale);
             }
             else
             {
-                if (MyGamePad.currentState.ThumbSticks.Right.X != 0 || MyGamePad.currentState.ThumbSticks.Right.Y != 0)
+                if (MyGamePad.currentState.ThumbSticks.Left.X != 0 || MyGamePad.currentState.ThumbSticks.Left.Y != 0)
                 {
                     if (cursorRec.X < 0)
                         cursorRec.X = 0;
@@ -100,11 +83,11 @@ namespace ISurvived
                     else if (cursorRec.Y > Game1.screenHeight)
                         cursorRec.Y = Game1.screenHeight - 1;
 
-                    if(cursorRec.X + (int)(MyGamePad.currentState.ThumbSticks.Right.X * 10) > 0 && cursorRec.X + (int)(MyGamePad.currentState.ThumbSticks.Right.X * 10) < Game1.screenWidth)
-                        cursorRec.X += (int)(MyGamePad.currentState.ThumbSticks.Right.X * 10);
+                    if (cursorRec.X + (int)(MyGamePad.currentState.ThumbSticks.Left.X * analogSensitivity) > 0 && cursorRec.X + (int)(MyGamePad.currentState.ThumbSticks.Left.X * analogSensitivity) < Game1.screenWidth)
+                        cursorRec.X += (int)(MyGamePad.currentState.ThumbSticks.Left.X * analogSensitivity);
 
-                    if (cursorRec.Y - (int)(MyGamePad.currentState.ThumbSticks.Right.Y * 10) > 0 && cursorRec.Y - (int)(MyGamePad.currentState.ThumbSticks.Right.Y * 10) < Game1.screenHeight)
-                        cursorRec.Y -= (int)(MyGamePad.currentState.ThumbSticks.Right.Y * 10);
+                    if (cursorRec.Y - (int)(MyGamePad.currentState.ThumbSticks.Left.Y * analogSensitivity) > 0 && cursorRec.Y - (int)(MyGamePad.currentState.ThumbSticks.Left.Y * analogSensitivity) < Game1.screenHeight)
+                        cursorRec.Y -= (int)(MyGamePad.currentState.ThumbSticks.Left.Y * analogSensitivity);
                 }
             }
 
@@ -132,7 +115,6 @@ namespace ISurvived
                     s.Draw(cursorTexture, new Rectangle(cursorRec.X - 30, cursorRec.Y - 9, 101, 93), new Rectangle(101, 0, 101, 93), Color.White);
                 else
                     s.Draw(cursorTexture, new Rectangle(cursorRec.X - 30, cursorRec.Y - 9, 101, 93), new Rectangle(0, 0, 101, 93), Color.White);
-
             }
             else
                 active = false;

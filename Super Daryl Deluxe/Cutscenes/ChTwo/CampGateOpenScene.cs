@@ -19,7 +19,7 @@ namespace ISurvived
         Boolean opening = true;
         GameObject camFollow = new GameObject();
         TrojanHorse horse;
-
+        SoundEffect cutscene_goblin_fort_gate_open;
         //--Takes in a background and all necessary objects
         public CampGateOpenScene(Game1 g, Camera cam, Player player)
             : base(g, cam, player)
@@ -31,7 +31,7 @@ namespace ISurvived
         {
             base.LoadContent();
 
-            //gateCollapseSound = content.Load<SoundEffect>(@"Sound\Cutscenes\cutscene_goblin_gate");
+            cutscene_goblin_fort_gate_open = content.Load<SoundEffect>(@"Sound\Cutscenes\cutscene_goblin_fort_gate_open");
         }
         public override void Play()
         {
@@ -45,7 +45,10 @@ namespace ISurvived
 
                     if (firstFrameOfTheState)
                     {
+
                         LoadContent();
+                        Sound.PlaySoundInstance(cutscene_goblin_fort_gate_open, Game1.GetFileName(() => cutscene_goblin_fort_gate_open));
+
                         player.StopSkills();
 
                        // camFollow.Rec = new Rectangle((int)camFollow.PositionX, (int)camFollow.PositionY, 1, 1);
@@ -88,14 +91,16 @@ namespace ISurvived
                     player.CutsceneStand();
 
                     horse.Move(6);
-                    horse.Update();
+                    horse.Update(8000);
                     if (horse.PositionX > 4900)
                     {
                         timer = 0;
                         game.CurrentChapter.state = Chapter.GameState.Game;
                         game.CurrentChapter.CutsceneState++;
                         UnloadContent();
-                        Chapter.effectsManager.AddInGameDialogue("Well done, soldier! Now get inside and let's blow this place to smithereens!", "Napoleon", "Normal", 300);
+                        Chapter.effectsManager.AddInGameDialogue("Honh honh! Well done! Now get inside and blow zis place to smizhereens!", "Napoleon", "Normal", 300);
+                        Chapter.effectsManager.NotificationQueue.Enqueue(new QuestUpdatedNotification(true));
+
                     }
                     break;
             }
@@ -117,7 +122,7 @@ namespace ISurvived
 
                     game.CurrentChapter.CurrentMap.Draw(s);
                     game.CurrentChapter.DrawNPC(s);
-                    game.CurrentChapter.CurrentMap.DrawEnemies(s);
+                    game.CurrentChapter.CurrentMap.DrawEnemiesAndHazards(s);
                     Chapter.effectsManager.DrawPoofs(s);
                     player.Draw(s);
                     s.End();
@@ -145,10 +150,10 @@ namespace ISurvived
 
                     game.CurrentChapter.CurrentMap.Draw(s);
                     game.CurrentChapter.DrawNPC(s);
-                    game.CurrentChapter.CurrentMap.DrawEnemies(s);
+                    game.CurrentChapter.CurrentMap.DrawEnemiesAndHazards(s);
                     Chapter.effectsManager.DrawPoofs(s);
                     player.Draw(s);
-                    OutsideStoneFort.horse.Draw(s);
+                    horse.DrawHorse(s);
                     s.End();
 
                     game.CurrentChapter.CurrentMap.DrawParallaxAndForeground(s);

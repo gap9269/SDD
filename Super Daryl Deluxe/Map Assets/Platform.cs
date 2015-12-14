@@ -25,8 +25,8 @@ namespace ISurvived
         Boolean atRestAtBottom = false;
         Boolean atRestAtTop = true;
 
-        public SinkingDisappearingPlatform(Texture2D t, Rectangle r, bool pass, bool spawn, bool invis, int speedOfSink, int maxSink, int speedRise, int hel, int respawnTime)
-            : base(t, r, pass, spawn, invis, new List<Vector2> { new Vector2(r.X, r.Y + maxSink), new Vector2(r.X, r.Y) }, speedOfSink, 50)
+        public SinkingDisappearingPlatform(Texture2D t, Rectangle r, bool pass, bool spawn, bool invis, int speedOfSink, int maxSink, int speedRise, int hel, int respawnTime, PlatformType platType = PlatformType.rock)
+            : base(t, r, pass, spawn, invis, new List<Vector2> { new Vector2(r.X, r.Y + maxSink), new Vector2(r.X, r.Y) }, speedOfSink, 50, platType)
         {
             texture = t;
             rec = r;
@@ -46,9 +46,6 @@ namespace ISurvived
             health = maxHealth = hel;
 
             maxTimeBeforeRespawn = timeBeforeRespawn = respawnTime;
-
-            if (texture == Game1.platformTextures["RockFloor2"] || texture == Game1.platformTextures["RockFloor"])
-                type = "Normal";
         }
 
         //--So this method is basically stolen from MovingPlatform, but with a few changes
@@ -177,8 +174,8 @@ namespace ISurvived
         Boolean atRestAtBottom = false;
         Boolean atRestAtTop = true;
 
-        public SinkingPlatform(Texture2D t, Rectangle r, bool pass, bool spawn, bool invis, int speedOfSink, int maxSink, int speedRise)
-            : base(t, r, pass, spawn, invis, new List<Vector2>{new Vector2(r.X, r.Y + maxSink), new Vector2(r.X, r.Y)}, speedOfSink, 50)
+        public SinkingPlatform(Texture2D t, Rectangle r, bool pass, bool spawn, bool invis, int speedOfSink, int maxSink, int speedRise, PlatformType platType = PlatformType.rock)
+            : base(t, r, pass, spawn, invis, new List<Vector2>{new Vector2(r.X, r.Y + maxSink), new Vector2(r.X, r.Y)}, speedOfSink, 50, platType)
         {
             texture = t;
             rec = r;
@@ -194,9 +191,6 @@ namespace ISurvived
 
             sinkSpeed = speedOfSink;
             riseSpeed = speedRise;
-
-            if (texture == Game1.platformTextures["RockFloor2"] || texture == Game1.platformTextures["RockFloor"])
-                type = "Normal";
         }
 
         //--So this method is basically stolen from MovingPlatform, but with a few changes
@@ -287,13 +281,13 @@ namespace ISurvived
     public class DisappearingPlatform : Platform
     {
         //Used to make the platforms disappear and reappear
-        int maxHealth;
-        int health;
+        public int maxHealth;
+        public int health;
         int timeBeforeRespawn;
         int maxTimeBeforeRespawn;
 
-        public DisappearingPlatform(Texture2D t, Rectangle r, bool pass, bool spawn, bool invis, int hel, int respawnTime)
-            : base(t, r, pass, spawn, invis)
+        public DisappearingPlatform(Texture2D t, Rectangle r, bool pass, bool spawn, bool invis, int hel, int respawnTime, PlatformType platType = PlatformType.rock)
+            : base(t, r, pass, spawn, invis, platType)
         {
             texture = t;
             rec = r;
@@ -304,9 +298,11 @@ namespace ISurvived
             health = maxHealth = hel;
 
             maxTimeBeforeRespawn = timeBeforeRespawn = respawnTime;
+        }
 
-            if (texture == Game1.platformTextures["RockFloor2"] || texture == Game1.platformTextures["RockFloor"])
-                type = "Normal";
+        public float GetPercentHealth()
+        {
+            return health / maxHealth;
         }
 
         public override void Update()
@@ -320,16 +316,21 @@ namespace ISurvived
                 health--;
 
                 if (health <= 0)
+                {
                     exists = false;
+
+                    Chapter.effectsManager.AddSmokePoof(new Rectangle(rec.Center.X - 75, rec.Center.Y - 50, 150, 150), 2);
+                }
             }
             //If it doesn't exist, start respawning it
-            else if (!exists && health < maxHealth)
+            else if (!exists && health < maxHealth && maxTimeBeforeRespawn != 0)
             {
                 timeBeforeRespawn--;
 
                 //--Spawn it and reset its health and respawn timer
                 if (timeBeforeRespawn <= 0)
                 {
+                    Chapter.effectsManager.AddSmokePoof(new Rectangle(rec.Center.X - 75, rec.Center.Y - 50, 150, 150), 2);
                     health = maxHealth;
                     exists = true;
                     timeBeforeRespawn = maxTimeBeforeRespawn;
@@ -347,7 +348,6 @@ namespace ISurvived
         protected bool invisible = false;
         protected Vector2 velocity;
         protected Vector2 position;
-        protected String type;
         protected Boolean exists = true; //used to make platforms disappear without actually removing them from the map
         Boolean drawPlatform = false;
 
@@ -358,7 +358,6 @@ namespace ISurvived
 
         // PROPERTIES \\
         public Boolean DrawPlatform { get { return drawPlatform; } set { drawPlatform = value; } }
-        public String Type { get { return type; } }
         public Vector2 Velocity { get { return velocity; } set { velocity = value; } }
         public bool Passable { get { return passable; } set { passable = value; } }
         public bool SpawnOnTop { get { return spawnOnTop; } set { spawnOnTop = value; } }
@@ -371,7 +370,18 @@ namespace ISurvived
         public int RecWidth { get { return rec.Width; } set { rec.Width = value; } }
         public int RecHeight { get { return rec.Height; } set { rec.Height = value; } }
 
-        public Platform(Texture2D t, Rectangle r, bool pass, bool spawn, bool invis)
+        public enum PlatformType
+        {
+            rock,
+            tile,
+            grass,
+            science,
+            echo,
+            vents
+        }
+        public PlatformType type;
+
+        public Platform(Texture2D t, Rectangle r, bool pass, bool spawn, bool invis, PlatformType platType = PlatformType.rock)
         {
             texture = t;
             rec = r;
@@ -380,11 +390,39 @@ namespace ISurvived
             passable = pass;
             spawnOnTop = spawn;
             invisible = invis;
-
-            if (texture == Game1.platformTextures["RockFloor2"] || texture == Game1.platformTextures["RockFloor"])
-                type = "Normal";
+            type = platType;
 
             mapEditButton = new Button(r);
+            
+        }
+
+        public virtual void StopSound() { }
+
+        public void SetType(String t)
+        {
+            switch (t)
+            {
+                case "RockFloor2":
+                case "RockFloor":
+                case "rock":
+                    type = PlatformType.rock;
+                    break;
+                case "tile":
+                    type = PlatformType.tile;
+                    break;
+                case "grass":
+                    type = PlatformType.grass;
+                    break;
+                case "science":
+                    type = PlatformType.science;
+                    break;
+                case "echo":
+                    type = PlatformType.echo;
+                    break;
+                case "vents":
+                    type = PlatformType.vents;
+                    break;
+            }
         }
 
         public virtual void Update() { }

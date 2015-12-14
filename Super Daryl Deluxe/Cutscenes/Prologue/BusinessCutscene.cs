@@ -27,6 +27,9 @@ namespace ISurvived
         public override void Play()
         {
             base.Play();
+
+            Sound.ChangeBackgroundMusicWithFade(Sound.MusicNames.PaulAndAlanTheme, 25);
+
             switch (state)
             {
                 case 0:
@@ -142,7 +145,7 @@ namespace ISurvived
                         else if (talkingState == 8)
                         {
                             alan.Dialogue.Add("The problem is, Darren, we don't have any textbooks.");
-                            alan.Dialogue.Add("To jumpstart our company, you (our employee) needs to get us some product. See, Trenchcoat Kid and his cronies have all of the easy sources on lockdown...");
+                            alan.Dialogue.Add("To jumpstart our company, you, our employee, need to get us some product. See, Trenchcoat Kid and his cronies have all of the easy sources on lockdown...");
                             alan.Dialogue.Add("But last year the school was remodeled and all the old classrooms were locked down. It was done so quickly, I bet they didn't even clean the rooms out. The old Science Room should have some textbooks still.");
                             alan.Dialogue.Add("You get us some of those books and we'll give you some pages to that book we gave you, and you'll make a ton of friends. You'll be The Fonz in no time!");
                             alan.Talking = true;
@@ -184,6 +187,8 @@ namespace ISurvived
                         game.CurrentChapter.state = Chapter.GameState.Game;
                         player.playerState = Player.PlayerState.standing;
                         game.CurrentChapter.CutsceneState++;
+                        game.CurrentChapter.CurrentMap.PlayBackgroundMusic();
+
                     }
                     break;
             }
@@ -228,6 +233,9 @@ null, null, null, null, camera.StaticTransform);
 
                             Vector2 meas = Game1.twConRegularSmall.MeasureString("'How to Interact with Others'!");
 
+                            if(specialTimer == 1)
+                                Sound.PlaySoundInstance(Sound.SoundNames.object_pickup_misc);
+
                             s.DrawString(Game1.twConRegularSmall, "You found a Textbook: ", new Vector2(650 - Game1.twConRegularSmall.MeasureString("You found a Textbook: ").X / 2, 330), Color.Black);
                             s.DrawString(Game1.twConRegularSmall, "'How to Interact with Others'!", new Vector2(650 - (int)(meas.X / 2), 355), Color.Black);
                             break;
@@ -235,6 +243,9 @@ null, null, null, null, camera.StaticTransform);
                             s.Draw(Game1.youFoundItemTexture, new Rectangle(485, 300, 310, Game1.youFoundItemTexture.Height), Color.White);
 
                             Vector2 meas2 = Game1.twConRegularSmall.MeasureString("'Discuss Differences'!");
+
+                            if (specialTimer == 1)
+                                Sound.PlaySoundInstance(Sound.SoundNames.object_pickup_misc);
 
                             s.DrawString(Game1.twConRegularSmall, "You found a Skill Page:", new Vector2(645 - Game1.twConRegularSmall.MeasureString("You found a Skill Page:").X / 2, 330), Color.Black);
                             s.DrawString(Game1.twConRegularSmall, "'Discuss Differences'!", new Vector2(645 - (int)(meas2.X / 2), 355), Color.Black);

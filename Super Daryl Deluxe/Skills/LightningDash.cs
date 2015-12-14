@@ -155,9 +155,9 @@ namespace ISurvived
             }
         }
 
-        public override void ApplyLevelUp()
+        public override void ApplyLevelUp(Boolean silent = false)
         {
-            base.ApplyLevelUp();
+            base.ApplyLevelUp(silent);
 
             switch (skillRank)
             {

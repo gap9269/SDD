@@ -21,11 +21,18 @@ namespace ISurvived
         int bobFrame = 14;
         Boolean gateGone = false;
         int timesBobbed;
+        SoundEffectInstance cutscene_science_plant_guy;
+
         public Science103Scene(Game1 g, Camera cam, Player p)
             : base(g, cam, p)
         {
             camFollow = new GameObject();
             camFollow.Rec = new Rectangle(0, 0, 1, 1);
+        }
+
+        public override void LoadContent()
+        {
+            cutscene_science_plant_guy = content.Load<SoundEffect>("Sound\\Cutscenes\\cutscene_science_plant_guy").CreateInstance();
         }
 
         public override void Play()
@@ -36,11 +43,15 @@ namespace ISurvived
                 case 0:
                     if (firstFrameOfTheState)
                     {
+                        LoadContent();
                         camFollow.YScroll = true;
                         camFollow.PositionX = 1050;// player.VitalRec.Center.X;
                         camFollow.PositionY = -670;// player.VitalRec.Center.Y;
                         game.Camera.center = camFollow.Position;
                         game.Camera.ShakeCamera(40, 4);
+
+                        Sound.PlaySoundInstance(cutscene_science_plant_guy, Game1.GetFileName(() => cutscene_science_plant_guy));
+
                     }
 
                     player.CanJump = false;
@@ -127,6 +138,7 @@ namespace ISurvived
                                     game.Camera.centerTarget = new Vector2(player.PositionX + (player.Rec.Width / 2), 0);
                                     game.Camera.centerTarget += new Vector2(0, player.Position.Y + (player.Rec.Height / 2));
 
+                                    UnloadContent();
                                     player.playerState = Player.PlayerState.standing;
                                     game.CurrentChapter.state = Chapter.GameState.Game;
                                     game.CurrentChapter.CutsceneState++;

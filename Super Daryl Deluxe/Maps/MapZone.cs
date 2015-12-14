@@ -169,7 +169,7 @@ namespace ISurvived
 
                 for (int j = 0; j < maps.ElementAt(i).Value.InteractiveObjects.Count; j++)
                 {
-                    mapInteractiveObjects[i].Add(new InteractiveWrapper(maps.ElementAt(i).Value.InteractiveObjects[j].State, maps.ElementAt(i).Value.InteractiveObjects[j].Finished, maps.ElementAt(i).Value.InteractiveObjects[j].Health));
+                    mapInteractiveObjects[i].Add(new InteractiveWrapper(maps.ElementAt(i).Value.InteractiveObjects[j].State, maps.ElementAt(i).Value.InteractiveObjects[j].Finished, maps.ElementAt(i).Value.InteractiveObjects[j].Health, maps.ElementAt(i).Value.InteractiveObjects[j].IsHidden));
                 }
             }
 
@@ -302,7 +302,7 @@ namespace ISurvived
             {
                 for (int j = 0; j < maps.ElementAt(i).Value.InteractiveObjects.Count; j++)
                 {
-                    mapInteractiveObjects[i][j] = (new InteractiveWrapper(maps.ElementAt(i).Value.InteractiveObjects[j].State, maps.ElementAt(i).Value.InteractiveObjects[j].Finished, maps.ElementAt(i).Value.InteractiveObjects[j].Health));
+                    mapInteractiveObjects[i][j] = (new InteractiveWrapper(maps.ElementAt(i).Value.InteractiveObjects[j].State, maps.ElementAt(i).Value.InteractiveObjects[j].Finished, maps.ElementAt(i).Value.InteractiveObjects[j].Health, maps.ElementAt(i).Value.InteractiveObjects[j].IsHidden));
                 }
             }
 
@@ -382,6 +382,7 @@ namespace ISurvived
                     if (maps.ElementAt(i).Value.TreasureChests[j].Opened)
                     {
                         maps.ElementAt(i).Value.TreasureChests[j].Empty = true;
+                        maps.ElementAt(i).Value.TreasureChests[j].popUpFinised = true;
                     }
                 }
             }
@@ -459,6 +460,7 @@ namespace ISurvived
                     maps.ElementAt(i).Value.InteractiveObjects[j].State = wrapper.mapInteractiveObjects[i][j].state;
                     maps.ElementAt(i).Value.InteractiveObjects[j].Finished = wrapper.mapInteractiveObjects[i][j].finished;
                     maps.ElementAt(i).Value.InteractiveObjects[j].Health = wrapper.mapInteractiveObjects[i][j].health;
+                    maps.ElementAt(i).Value.InteractiveObjects[j].IsHidden = wrapper.mapInteractiveObjects[i][j].hidden;
                 }
             }
 

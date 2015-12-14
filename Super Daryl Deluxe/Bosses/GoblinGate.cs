@@ -93,7 +93,5 @@ namespace ISurvived
         {
             //s.Draw(Game1.whiteFilter, rec, Color.White);
         }
-
-
     }
 }

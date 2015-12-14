@@ -73,7 +73,7 @@ namespace ISurvived
             }
             else
             {
-                enemiesInMap.Add(en);
+                AddEnemyToEnemyList(en);
             }
 
         }
@@ -92,7 +92,7 @@ namespace ISurvived
             else
             {
                 en.UpdateRectangles();
-                enemiesInMap.Add(en);
+                AddEnemyToEnemyList(en);
                 Chapter.effectsManager.AddSmokePoof(en.VitalRec, 2);
             }
 
@@ -105,11 +105,11 @@ namespace ISurvived
             //TOOLTIPS FOR SAVING
             if (player.VitalRec.Intersects(toBathroom.PortalRec) && !game.MapBooleans.tutorialMapBooleans["TutorialSaved"])
             {
-                Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][31], 400, 100, game.ChapterTwo.associateOneTex);
+                //Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][31], 400, 100, game.ChapterTwo.associateOneTex);
             }
             else if (player.PositionX > 1250 && !game.MapBooleans.tutorialMapBooleans["TutorialSaved"])
             {
-                Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][32], 400, 100, game.ChapterTwo.associateOneTex);
+                //Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][32], 400, 100, game.ChapterTwo.associateOneTex);
             }
 
 
@@ -119,9 +119,9 @@ namespace ISurvived
                 monsterY = platforms[platformNum].Rec.Y - en.Rec.Height - 1;
                 en.Position = new Vector2(1700, monsterY);
 
-                enemiesInMap.Add(en);
+                AddEnemyToEnemyList(en);
 
-                Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][33], 400, 100, game.ChapterTwo.associateOneTex);
+                //Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][33], 400, 100, game.ChapterTwo.associateOneTex);
             }
 
             if (!game.MapBooleans.tutorialMapBooleans["MonsterOneKilled"] && player.Experience > 0)
@@ -147,7 +147,7 @@ namespace ISurvived
             {
                 game.MapBooleans.tutorialMapBooleans["MonsterTwoKilled"] = true;
 
-                Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][36], 0, 400, game.ChapterTwo.associateOneTex);
+                //Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][36], 0, 400, game.ChapterTwo.associateOneTex);
 
                 toMapTen.IsUseable = true;
             }

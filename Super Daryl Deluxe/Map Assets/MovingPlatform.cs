@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 
 namespace ISurvived
 {
@@ -18,8 +19,11 @@ namespace ISurvived
 
         public int PointIndex { get { return pointIndex; } set { pointIndex = value; } }
 
-        public MovingPlatform(Texture2D t, Rectangle r, bool pass, bool spawn, bool invis, List<Vector2> p, int s, float stopMagnitude)
-            : base(t, r, pass, spawn, invis)
+        SoundEffectInstance object_platform_loop;
+
+
+        public MovingPlatform(Texture2D t, Rectangle r, bool pass, bool spawn, bool invis, List<Vector2> p, int s, float stopMagnitude, PlatformType platType = PlatformType.rock)
+            : base(t, r, pass, spawn, invis, platType)
         {
             speed = s;
             stopMag = stopMagnitude;
@@ -32,6 +36,13 @@ namespace ISurvived
 
             centerPos.X += centerOfPlat.X;
             centerPos.Y += centerOfPlat.Y;
+
+            object_platform_loop = Sound.permanentSoundEffects["object_platform_loop"].CreateInstance();
+        }
+
+        public override void StopSound()
+        {
+            object_platform_loop.Stop();
         }
 
         public override void Update()
@@ -51,6 +62,11 @@ namespace ISurvived
 
             if (path.Count > 0)
             {
+
+                if (object_platform_loop.State != SoundState.Playing)
+                {
+                    Sound.PlaySoundInstance(object_platform_loop, Game1.GetFileName(() => object_platform_loop), true, rec.Center.X, rec.Center.Y, 600, 500, 3000);
+                }
 
                 Vector2 nextPoint = path[pointIndex];
                 velocity = Seek(nextPoint);

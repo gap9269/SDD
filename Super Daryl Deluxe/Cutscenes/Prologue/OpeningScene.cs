@@ -28,6 +28,7 @@ namespace ISurvived
 
         Video flashbackAndOpening;
         VideoPlayer videoPlayer;
+        SoundEffectInstance PaulAndAlanTheme;
 
         int specialTimer;
         int talkingState;
@@ -44,6 +45,16 @@ namespace ISurvived
             Game1.npcFaces["Mr. Robatto"].faces["Normal"] = content.Load<Texture2D>(@"NPCFaces\Main Characters\Robatto");
 
             flashbackAndOpening = content.Load<Video>(@"Cutscenes\OpeningScene");
+            PaulAndAlanTheme = content.Load<SoundEffect>(@"Sound\Music\PaulAndAlanTheme").CreateInstance();
+        }
+
+        public override void UnloadContent()
+        {
+            base.UnloadContent();
+
+            game.NPCSprites["Mr. Robatto"] = Game1.whiteFilter;
+
+            Game1.npcFaces["Mr. Robatto"].faces["Normal"] = Game1.whiteFilter;
         }
 
         //--Takes in a background and all necessary objects
@@ -75,136 +86,35 @@ namespace ISurvived
                         videoPlayer.Play(flashbackAndOpening);
                     }
 
+                    if (videoPlayer.PlayPosition.Minutes == 3 && videoPlayer.PlayPosition.Seconds == 33)
+                        game.CurrentChapter.CurrentMap.PlayBackgroundMusic();
+
+                    if (videoPlayer.PlayPosition.Minutes == 4 && videoPlayer.PlayPosition.Seconds >= 39 && Sound.music[game.CurrentChapter.CurrentMap.currentBackgroundMusic.ToString()].State == SoundState.Playing)
+                    {
+                        if (Sound.currentBackgroundVolume > 0)
+                        {
+                            game.CurrentChapter.CurrentMap.PlayBackgroundMusic();
+                            if (Sound.currentBackgroundVolume > 0)
+                                Sound.IncrementBackgroundVolume(-(float)((1f * Sound.setBackgroundVolume) / 240f));
+                        }
+                    }
+
                     //camera.GetStaticTransform(game);
                     topBarPos = 0;
                     botBarPos = (int)(Game1.aspectRatio * 1280) - 66;
                     //FadeOut(120);
                     break;
-
-                //-- FADE IN AND PAN ACROSS OUTSIDE OF SCHOOL
-                case 1:
- state++;
-                        timer = 0;
-                    break;
-
-
-                //-- KEEP MOVING CAMERA OUTSIDE OF SCHOOL UNTIL YOU REACH THE END OF THE MAP
-                case 2:
-                    if (firstFrameOfTheState)
-                    {
-                        dialogue.Add("Ah yes, you must be Daryl Whitelaw. I am Mr. Robatto, the vice principal here.");
-                    }
-                    //camera.GetStaticTransform(game);
-                    camera.Update(camFollow, game);
-
-                    clouds1Pos += .3f;
-                    clouds2Pos += .5f;
-
-                    if (timer > 120)
-                    {
-                        if (textAlpha > 0)
-                            textAlpha -= .01f;
-                    }
-                    if (timer > 400)
-                    {
-                       state++;
-                       timer = 0;
-                    }
-                    break;
-
-                //-- FADE OUT FROM OUTSIDE SCHOOL
-                case 3:
-                    clouds1Pos += .3f;
-                    clouds2Pos += .5f;
-                    FadeOut(35);
-                    break;
-
-                //-- PAN ACROSS MAIN LOBBY SLOWLY, PLAY DIALOGUE WITHOUT KNOWING WHO IS TALKING
-                case 4:
-                    if (firstFrameOfTheState)
-                    {
-                        //--SET DIALOGUE AND CAM POSITION
-                        camFollow.PositionX = 2;
-                        dialogue.Clear();
-                        dialogue.Add("Welcome! Water Falls High School is the finest school in the state. We pride ourselves on the beauty and safety that our campus offers.");
-                        dialogue.Add("Looking around you, you're sure to see a vast community of friendly, helpful students. If you ever need help, don't be afraid to reach out to any of your peers or faculty.");
-                        dialogue.Add("Of course, academics are of the utmost importance to us. There's nothing we care about more than the success of our students, so we have created the perfect environment for learning and growing into an upstanding citizen.");
-                        dialogue.Add("Speaking of, here is your class schedule. What do you think of your classes?");
-                        DialogueState = 0;
-                    }
-
-                    //--CHANGE DIALOGUE STATES BASED ON CAMERA POSITION
-                    else if (camFollow.PositionX == 1900)
-                        DialogueState = 3;
-                    else if (camFollow.PositionX == 1400)
-                        DialogueState = 2;
-                    else if (camFollow.PositionX == 850)
-                        DialogueState = 1;
-
-                    //--REACH END OF LOBBY, RESET TIMER AND DIALOGUE
-                    if (camFollow.PositionX >= 3425 - 1280)
-                    {
-                        specialTimer++;
-                    }
-                    else
-                    {
-                        camFollow.PositionX += 1f;
-                        camera.Update(camFollow, game);
-                    }
-
-                    if (specialTimer >= 100)
-                    {
-                        timer = 0;
-                        state++;
-                        dialogueState = 0;
-                        dialogue.Clear();
-                        specialTimer = 0;
-                    }
-                    break;
-
-
-                //-- THIS SCENE DRAWS ONLY DARYL HOLDING HIS SCHEDULE
-                case 5:
-                    camera.Update(camFollow, game);
-                    if (timer > 280)
-                    {
-                        //alpha = 0;
-                        timer = 0;
-                        state++;
-                    }
-                    break;
                 
-
-                //-- DARYL AND VITALE IN MAIN OFFICE, VITALE MONOLOGUE ABOUT SCHOOL IMPORTANCE
-                case 6:
-                    camera.Update(camFollow, game);
-                    if (firstFrameOfTheState)
-                    {
-                        //--CREATE VITALE
-                        robatto.Rec = new Rectangle(0, 0, 518, 388);
-
-                        dialogue.Clear();
-                        robatto.Dialogue.Add("Yes Daryl, that schedule will be your guide to success here at WFHS. You're going to do just fine.");
-                        robatto.Dialogue.Add("Classes are about to begin soon. If you would follow me, I'll show you to your locker.");
-
-                    }
-                    if (timer == 21)
-                        robatto.Talking = true;
-                    if (timer > 20)
-                        robatto.UpdateInteraction();
-
-                    if (robatto.Talking == false && timer > 22)
-                    {
-                        state++;
-                        timer = 0;
-                    }
-                    break;
-
-
                 //-- FADE OUT OF MAIN OFFICE
                 case 7:
                     camera.Update(camFollow, game);
                     FadeOut(120);
+                    if (Sound.currentBackgroundVolume > 0)
+                    {
+                        game.CurrentChapter.CurrentMap.PlayBackgroundMusic();
+                        if (Sound.currentBackgroundVolume > 0)
+                            Sound.IncrementBackgroundVolume(-(float)((1f * Sound.setBackgroundVolume) / 240f));
+                    }
 
                     if (timer == 119)
                     {
@@ -213,8 +123,10 @@ namespace ISurvived
 
                         game.CurrentChapter.CurrentMap.UnloadContent();
                         game.CurrentChapter.CurrentMap.UnloadNPCContent();
-                        game.CurrentChapter.CurrentMap = Game1.schoolMaps.maps["NorthHall"];
+                        game.CurrentChapter.CurrentMap = Game1.schoolMaps.maps["North Hall"];
                         game.CurrentChapter.CurrentMap.LoadContent();
+                        game.CurrentChapter.CurrentMap.PlayAmbience();
+                        game.CurrentChapter.CurrentMap.PlayBackgroundMusic();
                         game.CurrentChapter.LoadCurrentMapLocks();
                         player.PositionX = game.CurrentChapter.CurrentMap.MapWidth - 600;
                         player.PositionY = game.CurrentChapter.CurrentMap.Platforms[0].Rec.Y - player.VitalRecHeight - 135 - 37;
@@ -225,6 +137,8 @@ namespace ISurvived
 
                         camera.centerTarget = new Vector2(camFollow.PositionX, 0);
                         camera.center = camera.centerTarget;
+
+                        Sound.StopBackgroundMusic();
                     }
                     break;
 
@@ -232,11 +146,14 @@ namespace ISurvived
                 case 8:
                     FadeIn(120);
 
+
                     //-- SET CURRENT MAP, PLAYER AND VITALE POSITION AND SET THE POSITON FOR DAN AND GARY
                     if (firstFrameOfTheState)
                     {
                         paul = game.CurrentChapter.NPCs["Paul"];
                         alan = game.CurrentChapter.NPCs["Alan"];
+
+                        Sound.PlaySoundInstance(PaulAndAlanTheme, Game1.GetFileName(() => PaulAndAlanTheme), true);
                     }
                     camFollow.PositionX -= 5;
                     robatto.Move(new Vector2(-5, 0));
@@ -284,6 +201,7 @@ namespace ISurvived
                         camFollow.PositionX = robatto.Rec.Center.X;
                         robatto.Talking = true;
                     }
+
                     if (robatto.DialogueState == 2 || robatto.DialogueState == 3 || robatto.DialogueState == 4 || robatto.DialogueState == 5)
                         robatto.FacingRight = false;
                     else
@@ -660,7 +578,24 @@ namespace ISurvived
                     if (timer == 121)
                         alan.Talking = true;
                     if (timer > 120)
+                    {
                         alan.UpdateInteraction();
+
+                        if (PaulAndAlanTheme.Volume > 0)
+                        {
+
+                            float vol = PaulAndAlanTheme.Volume;
+                            vol -= (float)((1f * Sound.setBackgroundVolume) / 120f);
+
+                            if (vol <= 0)
+                            {
+                                PaulAndAlanTheme.Volume = 0;
+                                PaulAndAlanTheme.Stop();
+                            }
+                            else
+                                PaulAndAlanTheme.Volume = vol;
+                        }
+                    }
 
                     if (timer > 120 && alan.Talking == false)
                     {
@@ -681,11 +616,26 @@ namespace ISurvived
                     if (disX > 0)
                         camFollow.PositionX--;
 
-                    if (camFollow.PositionX == player.VitalRecX)
+                    if (PaulAndAlanTheme.Volume > 0)
                     {
+                        float vol = PaulAndAlanTheme.Volume;
+                        vol -= (float)((1f * Sound.setBackgroundVolume) / 60f);
+
+                        if (vol <= 0)
+                        {
+                            PaulAndAlanTheme.Volume = 0;
+                            PaulAndAlanTheme.Stop();
+                        }
+                        else
+                            PaulAndAlanTheme.Volume = vol;
+                    }
+
+                    if (camFollow.PositionX == player.VitalRecX && PaulAndAlanTheme.Volume == 0)
+                    {
+                        Sound.currentBackgroundVolume = Sound.setBackgroundVolume;
                         paul.Dialogue.Clear();
                         alan.Dialogue.Clear();
-                        alan.Dialogue.Add("Whatever you do, don't go to the far side of the quad. It's said anyone who does that faces Death.");
+                        alan.Dialogue.Add("Whatever you do, don't go to the far side of the quad. Of course if you want to have an unpleasant meeting with Death, go right ahead.");
                         game.CurrentSideQuests.Add((game.CurrentChapter as Prologue).QuestOne);
                         player.playerState = Player.PlayerState.standing;
                         player.CanJump = false;

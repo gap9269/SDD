@@ -111,7 +111,7 @@ Math.Abs(player.VitalRec.Center.Y - rec.Center.Y));
                 s.DrawString(Game1.font, "Opening...", new Vector2(rec.X + rec.Width / 2 - 50, rec.Y - 25), Color.Black);
                 s.Draw(Game1.emptyBox, new Rectangle(rec.X + rec.Width / 2 - 50, rec.Y, 100, 20), Color.DarkGray * .8f);
                 s.Draw(Game1.emptyBox, openBar, Color.LightBlue);
-                Console.WriteLine(openBar.ToString());
+                //Console.Writeline(openBar.ToString());
 
                 if (Chapter.effectsManager.fButtonRecs.Contains(fRec))
                     Chapter.effectsManager.fButtonRecs.Remove(fRec);

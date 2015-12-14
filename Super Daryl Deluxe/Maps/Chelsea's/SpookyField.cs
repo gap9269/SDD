@@ -65,8 +65,6 @@ namespace ISurvived
 
             Scarecrow scare1 = new Scarecrow(game, 2674, 308 + 310 + 72, Game1.interactiveObjects["Scarecrow"], true, 5, 230, .13f, false);
             interactiveObjects.Add(scare1);
-
-            backgroundMusicName = "Spooky Field";
             
         }
 
@@ -115,7 +113,7 @@ namespace ISurvived
         {
             base.UnloadNPCContent();
 
-            //if (Chapter.theNextMap != "AnotherSpookyField")
+            //if (Chapter.theNextMap != "Another Spooky Field")
             //{
             //    Sound.UnloadBackgroundMusic();
             //}
@@ -149,7 +147,7 @@ namespace ISurvived
                         }
                         else
                         {
-                            enemiesInMap.Add(ben);
+                            AddEnemyToEnemyList(ben);
                             enemyNamesAndNumberInMap["Scarecrow"]++;
                         }
                     }
@@ -175,7 +173,7 @@ namespace ISurvived
                         }
                         else
                         {
-                            enemiesInMap.Add(en);
+                            AddEnemyToEnemyList(en);
                             enemyNamesAndNumberInMap["Crow"]++;
                         }
                     }
@@ -305,13 +303,13 @@ namespace ISurvived
                 s2.SpawnWithPoof = false;
                 s3.SpawnWithPoof = false;
 
-                enemiesInMap.Add(s1);
-                enemiesInMap.Add(s2);
-                enemiesInMap.Add(s3);
-                enemiesInMap.Add(s6);
-                enemiesInMap.Add(s4);
-                enemiesInMap.Add(s5);
-                enemiesInMap.Add(s7);
+                AddEnemyToEnemyList(s1);
+                AddEnemyToEnemyList(s2);
+                AddEnemyToEnemyList(s3);
+                AddEnemyToEnemyList(s6);
+                AddEnemyToEnemyList(s4);
+                AddEnemyToEnemyList(s5);
+                AddEnemyToEnemyList(s7);
 
 
                 enemyNamesAndNumberInMap["Scarecrow"] = 7;
@@ -380,8 +378,8 @@ namespace ISurvived
         {
             base.SetPortals();
 
-            toChelseasField = new Portal(100, platforms[0], "SpookyField");
-            toAnotherSpookyField = new Portal(4200, platforms[0], "SpookyField");
+            toChelseasField = new Portal(100, platforms[0], "Spooky Field");
+            toAnotherSpookyField = new Portal(4200, platforms[0], "Spooky Field");
             toAnotherSpookyField.IsUseable = false;
         }
 

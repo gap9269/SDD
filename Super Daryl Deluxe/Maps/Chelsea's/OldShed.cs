@@ -63,7 +63,7 @@ namespace ISurvived
 
             collectibles.Add(text);
 
-            Barrel bar1 = new Barrel(game, 105, 646 + 55, Game1.interactiveObjects["Barrel"], true, 1, 0, .09f, true, Barrel.BarrelType.Radioactive);
+            Barrel bar1 = new Barrel(game, 105, 646 + 55, Game1.interactiveObjects["Barrel"], true, 1, 0, .09f, true, Barrel.BarrelType.MetalRadioactive);
             interactiveObjects.Add(bar1);
 
             Barrel bar2 = new Barrel(game, 1041, 237 + 55, Game1.interactiveObjects["Barrel"], true, 1, 0, 2.34f, true, Barrel.BarrelType.MetalLabel);
@@ -82,8 +82,6 @@ namespace ISurvived
 
             lightRandom = new Random();
             maxFlick = lightRandom.Next(2, 8);
-
-            backgroundMusicName = "Exploring";
 
             sparkles = new Sparkles(1080, skeletonRec.Y);
         }
@@ -120,7 +118,7 @@ namespace ISurvived
         {
             base.UnloadNPCContent();
 
-            //if (Chapter.theNextMap != "ChelseasPool")
+            //if (Chapter.theNextMap != "Chelsea's Pool")
             //{
             //    Sound.UnloadBackgroundMusic();
             //}
@@ -172,8 +170,8 @@ namespace ISurvived
         {
             base.SetPortals();
 
-            toChelseasPool = new Portal(230, platforms[0].Rec.Y + 40, "OldShed");
-            toChelseasPoolTop = new Portal(900, 223, "OldShed");
+            toChelseasPool = new Portal(230, platforms[0].Rec.Y + 40, "Old Shed");
+            toChelseasPoolTop = new Portal(900, 223, "Old Shed");
         }
 
         public override void SetDestinationPortals()

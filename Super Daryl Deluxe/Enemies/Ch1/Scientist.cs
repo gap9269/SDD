@@ -23,6 +23,7 @@ namespace ISurvived
         MapClass currentMap;
         Texture2D sprite;
 
+        int armorPen;
         int landTimer;
         Boolean active;
         int explosionFrame;
@@ -131,7 +132,7 @@ namespace ISurvived
 
                     if (player.CheckIfHit(explosionRec) && explosionFrame < 6)
                     {
-                        player.TakeDamage(25);
+                        //player.TakeDamage(25);
                         player.KnockPlayerBack(new Vector2(5, -5));
                     }
                 break;
@@ -157,7 +158,7 @@ namespace ISurvived
 
                 if (player.CheckIfHit(explosionRec) && explosionFrame < 6)
                 {
-                    player.TakeDamage(15);
+                    //player.TakeDamage(15);
                     player.KnockPlayerBack(new Vector2(5, -5));
                 }
                 break;
@@ -182,7 +183,7 @@ namespace ISurvived
 
                     if (player.CheckIfHit(explosionRec))
                     {
-                        player.TakeDamage(15);
+                       // player.TakeDamage(15);
                         player.Stun(80);
                         player.KnockPlayerBack(new Vector2(1, 1));
                     }
@@ -647,7 +648,7 @@ namespace ISurvived
 
             //Add story item to the map, keycard
 
-            currentMap.Drops.Add(new EnemyDrop(new ViennaAccessCard(0,0), new Rectangle(rec.Center.X, rec.Center.Y, dropDiameter, dropDiameter)));
+            currentMap.Drops.Add(new EnemyDrop(new SecurityClearanceID(0,0), new Rectangle(rec.Center.X, rec.Center.Y, dropDiameter, dropDiameter)));
 
         }
     }

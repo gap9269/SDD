@@ -19,11 +19,15 @@ namespace ISurvived
         Journal journal;
         BioPage bioPage;
         QuestsPage questsPage;
+        MapPage mapPage;
+
         public static ContentManager Content;
         public static ContentManager BioNPCAndEnemyContentLoader;
         public static Texture2D newIcon;
+        public static Button backspaceRec;
+        Texture2D staticTabs, inventoryTabActive, bioTabActive, mapTabActive, journalTabActive, comboTabActive, questsTabActive, backspace, b;
 
-        Texture2D staticTabs, inventoryTabActive, bioTabActive, mapTabActive, journalTabActive, comboTabActive, questsTabActive;
+        public static Texture2D dUp, dDown, dLeft, dRight;
 
         //Notebook tabs
         public static Button inventoryTab, combosTab, journalTab, bioTab, mapsTab, questsTab;
@@ -63,6 +67,7 @@ namespace ISurvived
         public BioPage BioPage { get { return bioPage; } }
         public Journal Journal { get { return journal; } }
         public QuestsPage QuestsPage { get { return questsPage; } }
+        public MapPage MapPage { get { return mapPage; } }
 
         public DarylsNotebook(Game1 g)
         {
@@ -82,6 +87,7 @@ namespace ISurvived
             journal = new Journal(journalTextures, game);
             bioPage = new BioPage(bioTextures, game);
             questsPage = new QuestsPage(game, questTextures);
+            mapPage = new MapPage(game);
 
             Content = new ContentManager(g.Services);
             Content.RootDirectory = "Content";
@@ -97,6 +103,8 @@ namespace ISurvived
             journalTab = new Button(new Rectangle(0, 333, 177, 53));
             bioTab = new Button(new Rectangle(0, 416, 177, 53));
             questsTab = new Button(new Rectangle(0, 494, 177, 53));
+
+            backspaceRec = new Button(new Rectangle(1166, 7, 110, 18));
         }
 
         public void UpdateGameResolution()
@@ -113,7 +121,9 @@ namespace ISurvived
             current = Keyboard.GetState();
 
                 //--Show or hide the inventory
-            if (((current.IsKeyUp(Keys.Escape) && last.IsKeyDown(Keys.Escape)) || (current.IsKeyUp(Keys.Back) && last.IsKeyDown(Keys.Back)) || MyGamePad.BPressed()) && !inventory.showingPassives)
+            if (((current.IsKeyUp(Keys.Escape) && last.IsKeyDown(Keys.Escape)) || (current.IsKeyUp(Keys.Back) && last.IsKeyDown(Keys.Back)) || MyGamePad.BPressed() || 
+                (backspaceRec.Clicked() && !Game1.gamePadConnected && (state != State.maps || (!mapPage.dragging && mapPage.afterDragTimer <= 0))))
+                && !inventory.showingPassives)
             {
                 Chapter.effectsManager.RemoveToolTip();
                 
@@ -145,11 +155,14 @@ namespace ISurvived
 
                 comboPage.Page = 0;
 
+                if(game.CurrentChapter.state != Chapter.GameState.BreakingLocker)
+                    Sound.PlaySoundInstance(Sound.SoundNames.ui_inventory_close);
+
                 game.CurrentChapter.state = Chapter.GameState.Game;
 
                 state = State.inventory;
 
-                Sound.PlaySoundInstance(Sound.SoundNames.UIClose);
+                MyGamePad.ResetStates();
 
                 UnloadContent();
             }
@@ -158,35 +171,42 @@ namespace ISurvived
             {
                 state = State.inventory;
                 Chapter.effectsManager.RemoveToolTip();
-                Sound.PlaySoundInstance(Sound.SoundNames.UITab);
+                Sound.PlaySoundInstance(Sound.SoundNames.ui_general_tab);
             }
 
             if (current.IsKeyUp(Keys.K) && last.IsKeyDown(Keys.K) && state != State.quests)
             {
                 state = State.quests;
                 Chapter.effectsManager.RemoveToolTip();
-                Sound.PlaySoundInstance(Sound.SoundNames.UITab);
+                Sound.PlaySoundInstance(Sound.SoundNames.ui_general_tab);
             }
 
             if (current.IsKeyUp(Keys.J) && last.IsKeyDown(Keys.J) && state != State.journal)
             {
                 state = State.journal;
                 Chapter.effectsManager.RemoveToolTip();
-                Sound.PlaySoundInstance(Sound.SoundNames.UITab);
+                Sound.PlaySoundInstance(Sound.SoundNames.ui_general_tab);
             }
 
             if (current.IsKeyUp(Keys.B) && last.IsKeyDown(Keys.B) && state != State.bios)
             {
                 state = State.bios;
                 Chapter.effectsManager.RemoveToolTip();
-                Sound.PlaySoundInstance(Sound.SoundNames.UITab);
+                Sound.PlaySoundInstance(Sound.SoundNames.ui_general_tab);
             }
-            
+
+            if (current.IsKeyUp(Keys.M) && last.IsKeyDown(Keys.M) && state != State.maps)
+            {
+                state = State.maps;
+                Chapter.effectsManager.RemoveToolTip();
+                Sound.PlaySoundInstance(Sound.SoundNames.ui_general_tab);
+            }
+
             if (current.IsKeyUp(Keys.L) && last.IsKeyDown(Keys.L) && state != State.combos)
             {
                 state = State.combos;
                 Chapter.effectsManager.RemoveToolTip();
-                Sound.PlaySoundInstance(Sound.SoundNames.UITab);
+                Sound.PlaySoundInstance(Sound.SoundNames.ui_general_tab);
             }
 
             if (journal.drawNewIcon)
@@ -226,11 +246,16 @@ namespace ISurvived
                 case State.quests:
                     questsPage.Update();
                     break;
+
+                case State.maps:
+                    mapPage.Update();
+                    break;
             }
         }
 
         public void LoadContent()
         {
+            Sound.PauseAllSoundEffects();
             newIcon = Content.Load<Texture2D>(@"Inventory\newEquipmentIcon");
 
             //Notebook tabs
@@ -241,8 +266,15 @@ namespace ISurvived
             journalTabActive = Content.Load<Texture2D>(@"Inventory\journalTabActive");
             mapTabActive = Content.Load<Texture2D>(@"Inventory\mapTabActive");
             questsTabActive = Content.Load<Texture2D>(@"Inventory\questTabActive");
+            backspace = Content.Load<Texture2D>(@"Menus\BackspaceNotebook");
+            b = Content.Load<Texture2D>(@"Menus\B");
 
-            Sound.LoadMenuSounds();
+            dUp = Content.Load<Texture2D>(@"Menus\up");
+            dDown = Content.Load<Texture2D>(@"Menus\down");
+            dLeft = Content.Load<Texture2D>(@"Menus\left");
+            dRight = Content.Load<Texture2D>(@"Menus\right");
+
+            Sound.LoadNotebookSounds();
 
             #region Inventory
             inventoryTextures.Add("Background", Content.Load<Texture2D>(@"Inventory\inventoryBackground"));
@@ -250,6 +282,13 @@ namespace ISurvived
             inventoryTextures.Add("PassivePage", Content.Load<Texture2D>(@"Inventory\passives"));
             inventoryTextures.Add("newEquipmentIcon", Content.Load<Texture2D>(@"Inventory\newEquipmentIcon"));
             inventoryTextures.Add("iconInfoBox", Content.Load<Texture2D>(@"Inventory\iconInfoBoxes"));
+
+            if (game.Prologue.PrologueBooleans["firstInventory"])
+            {
+                inventoryTextures.Add("inventoryTip", Content.Load<Texture2D>(@"Notifications\inventoryTip"));
+                inventoryTextures.Add("inventoryTipController", Content.Load<Texture2D>(@"Notifications\inventoryTipController"));
+            }
+
 
             //Equipment tabs
             inventoryTextures.Add("AccessoriesPage", Content.Load<Texture2D>(@"Inventory\accessoryTab"));
@@ -290,6 +329,9 @@ namespace ISurvived
 
             passiveBoxes = ContentLoader.LoadContent(Content, "Inventory\\Passives Boxes");
             inventory.passiveBoxes = passiveBoxes;
+
+            game.Notebook.Inventory.ResetInventoryBoxes();
+            game.Notebook.Inventory.ResetStoryBoxes();
             #endregion
 
             #region Combo Page
@@ -306,41 +348,59 @@ namespace ISurvived
             journal.textures = journalTextures;
             #endregion
 
+            #region Map Page
+
+            mapPage.menuTextures = ContentLoader.LoadContent(Content, "Menus\\MapPage\\Menu");
+            mapPage.mapIconTextures = ContentLoader.LoadContent(Content, "Menus\\MapPage\\Map Icons");
+            mapPage.activeMapButtonTextures = ContentLoader.LoadContent(Content, "Menus\\MapPage\\Active");
+            mapPage.staticMapButtonTextures = ContentLoader.LoadContent(Content, "Menus\\MapPage\\Static");
+            mapPage.mapPieceTextures.Clear();
+            mapPage.mapPieceTextures.Add("Water Falls High School", ContentLoader.LoadContent(Content, "Menus\\MapPage\\Water Falls High School"));
+            mapPage.mapPieceTextures.Add("Science", ContentLoader.LoadContent(Content, "Menus\\MapPage\\Science"));
+            mapPage.mapPieceTextures.Add("History", ContentLoader.LoadContent(Content, "Menus\\MapPage\\History"));
+
+            mapPage.OpenMapPage();
+            #endregion
+
             #region BIO
             bioTextures = ContentLoader.LoadContent(Content, "BioPage");
             bioPage.textures = bioTextures;
             #endregion
 
             #region Daryldrawings
-            darylDrawings.Add("HatClean", Game1.whiteFilter);
-            darylDrawings.Add("Dunce Cap", Game1.whiteFilter);
-            darylDrawings.Add("Powdered Wig", Game1.whiteFilter);
-            darylDrawings.Add("Band Hat", Game1.whiteFilter);
-            darylDrawings.Add("Gardening Hat", Game1.whiteFilter);
-            darylDrawings.Add("Scarecrow Hat", Game1.whiteFilter);
-            darylDrawings.Add("Party Hat", Game1.whiteFilter);
-            darylDrawings.Add("Pelt Kid's Hat", Game1.whiteFilter);
+            //darylDrawings.Add("HatClean", Game1.whiteFilter);
+            //darylDrawings.Add("Dunce Cap", Game1.whiteFilter);
+            //darylDrawings.Add("Powdered Wig", Game1.whiteFilter);
+            //darylDrawings.Add("Band Hat", Game1.whiteFilter);
+            //darylDrawings.Add("Gardening Hat", Game1.whiteFilter);
+            //darylDrawings.Add("Scarecrow Hat", Game1.whiteFilter);
+            //darylDrawings.Add("Party Hat", Game1.whiteFilter);
+            //darylDrawings.Add("Pelt Kid's Hat", Game1.whiteFilter);
+            //darylDrawings.Add("Lucky Beret", Game1.whiteFilter);
 
-            darylDrawings.Add("MainClean", Game1.whiteFilter);
-            darylDrawings.Add("Dried Out Marker", Game1.whiteFilter);
-            darylDrawings.Add("Coal Shovel", Game1.whiteFilter);
-            darylDrawings.Add("Conductor's Wand", Game1.whiteFilter);
-            darylDrawings.Add("Melon-Mashing Mallet", Game1.whiteFilter);
-            darylDrawings.Add("Dirty Broken Hoe", Game1.whiteFilter);
-            darylDrawings.Add("Hand Saw", Game1.whiteFilter);
+            //darylDrawings.Add("MainClean", Game1.whiteFilter);
+            //darylDrawings.Add("Dried Out Marker", Game1.whiteFilter);
+            //darylDrawings.Add("Coal Shovel", Game1.whiteFilter);
+            //darylDrawings.Add("Conductor's Wand", Game1.whiteFilter);
+            //darylDrawings.Add("Melon-Mashing Mallet", Game1.whiteFilter);
+            //darylDrawings.Add("Dirty Broken Hoe", Game1.whiteFilter);
+            //darylDrawings.Add("Hand Saw", Game1.whiteFilter);
+            //darylDrawings.Add("Paintbrush of Destruction", Game1.whiteFilter);
 
-            darylDrawings.Add("SecondClean", Game1.whiteFilter);
-            darylDrawings.Add("Dried Out Marker Second", Game1.whiteFilter);
-            darylDrawings.Add("Conductor's Wand Second", Game1.whiteFilter);
-            darylDrawings.Add("Hand Saw Second", Game1.whiteFilter);
+            //darylDrawings.Add("SecondClean", Game1.whiteFilter);
+            //darylDrawings.Add("Dried Out Marker Second", Game1.whiteFilter);
+            //darylDrawings.Add("Conductor's Wand Second", Game1.whiteFilter);
+            //darylDrawings.Add("Hand Saw Second", Game1.whiteFilter);
+            //darylDrawings.Add("Paintbrush of Destruction Second", Game1.whiteFilter);
 
-            darylDrawings.Add("ShirtClean", Game1.whiteFilter);
-            darylDrawings.Add("Lab Coat", Game1.whiteFilter);
-            darylDrawings.Add("Band Uniform", Game1.whiteFilter);
-            darylDrawings.Add("'I Love Melons' Band Tee", Game1.whiteFilter);
-            darylDrawings.Add("'I Hate Melons' Band Tee", Game1.whiteFilter);
-            darylDrawings.Add("Scarecrow Vest", Game1.whiteFilter);
-            darylDrawings.Add("Toga", Game1.whiteFilter);
+            //darylDrawings.Add("ShirtClean", Game1.whiteFilter);
+            //darylDrawings.Add("Lab Coat", Game1.whiteFilter);
+            //darylDrawings.Add("Band Uniform", Game1.whiteFilter);
+            //darylDrawings.Add("'I Love Melons' Band Tee", Game1.whiteFilter);
+            //darylDrawings.Add("'I Hate Melons' Band Tee", Game1.whiteFilter);
+            //darylDrawings.Add("Scarecrow Vest", Game1.whiteFilter);
+            //darylDrawings.Add("Toga", Game1.whiteFilter);
+            //darylDrawings.Add("Smock of Desperation", Game1.whiteFilter);
 
 
             //Load the currently equipped stuff
@@ -357,8 +417,13 @@ namespace ISurvived
             if (Game1.Player.EquippedWeapon == null)
                 darylDrawings["MainClean"] = Content.Load<Texture2D>(@"DarylDrawing\Main\MainClean");
             else
+            {
                 darylDrawings[Game1.Player.EquippedWeapon.Name] = Content.Load<Texture2D>(@"DarylDrawing\Main\" + Game1.Player.EquippedWeapon.Name);
 
+                if (Game1.Player.EquippedWeapon.Name == "Chisel of Forgotten Love")
+                    darylDrawings["Chisel of Forgotten Love Second"] = DarylsNotebook.Content.Load<Texture2D>(@"DarylDrawing\Second\" + "Chisel of Forgotten Love Second");
+
+            }
             if (Game1.Player.SecondWeapon == null)
                 darylDrawings["SecondClean"] = Content.Load<Texture2D>(@"DarylDrawing\Second\SecondClean");
             else
@@ -369,21 +434,33 @@ namespace ISurvived
             questTextures = ContentLoader.LoadContent(Content, "QuestsPage");
             questsPage.textures = questTextures;
 
-            for (int i = 0; i < game.CurrentQuests.Count; i++)
+            for (int i = game.CurrentQuests.Count - 1; i >= 0; i--)
             {
                 if (game.CurrentQuests[i].StoryQuest)
                 {
                     questsPage.currentStoryQuest = game.CurrentQuests[i];
+
+                    //Remove the old story quest from the quest helper
+                    for (int j = 0; j < Game1.questHUD.questHelperQuests.Count; j++)
+                    {
+                        if (Game1.questHUD.questHelperQuests[j].StoryQuest && Game1.questHUD.questHelperQuests[j] != questsPage.currentStoryQuest)
+                        {
+                            Game1.questHUD.RemoveQuestFromHelper(Game1.questHUD.questHelperQuests[j]);
+                        }
+                    }
                     break;
                 }
 
                 if (i == game.CurrentQuests.Count - 1)
                     questsPage.currentStoryQuest = null;
             }
+
+            if (game.CurrentQuests.Count == 0)
+                questsPage.currentStoryQuest = null;
             #endregion
 
             //Play opening sound
-            Sound.PlaySoundInstance(Sound.SoundNames.UIOpen);
+            Sound.PlaySoundInstance(Sound.SoundNames.ui_inventory_open);
         }
 
         public void UnloadContent()
@@ -398,6 +475,7 @@ namespace ISurvived
             smallEnemyPortraits.Clear();
             Sound.UnloadMenuSounds();
             Content.Unload();
+            Sound.ResumeAllSoundEffects();
         }
 
         public void Draw(SpriteBatch s)
@@ -423,31 +501,45 @@ namespace ISurvived
                 case State.quests:
                     questsPage.Draw(s);
                     break;
+
+                case State.maps:
+                    mapPage.Draw(s);
+                    break;
             }
 
-            s.Draw(staticTabs, new Rectangle(0, 0, staticTabs.Width, staticTabs.Height), Color.White);
+            if(!Game1.gamePadConnected)
+                s.Draw(backspace, new Vector2(1280 - backspace.Width - 5, 5), Color.White);
+            else
+                s.Draw(b, new Vector2(1280 - backspace.Width + 20, 5), Color.White);
+
+            float menuAlpha = 1f;
+            if ((mapPage.dragging || mapPage.afterDragTimer > 0) && state == State.maps)
+                menuAlpha = .2f;
+
+
+            s.Draw(staticTabs, new Rectangle(0, 0, staticTabs.Width, staticTabs.Height), Color.White * menuAlpha);
 
             if ((inventoryTab.IsOver() && !inventory.showingPassives) || state == State.inventory)
             {
-                s.Draw(inventoryTabActive, new Rectangle(0, 0, 202, 503), Color.White);
+                s.Draw(inventoryTabActive, new Rectangle(0, 0, 202, 503), Color.White * menuAlpha);
 
                 if (inventoryTab.IsOver() && firstFrameOverInventory)
                 {
                     firstFrameOverInventory = false;
-                    Sound.PlaySoundInstance(Sound.SoundNames.UIList2);
+                    Sound.PlaySoundInstance(Sound.SoundNames.ui_inventory_list_02);
                 }
             }
             else
                 firstFrameOverInventory = true;
 
-            if ((mapsTab.IsOver() && !inventory.showingPassives)|| state == State.maps)
+            if ((mapsTab.IsOver() && !inventory.showingPassives) || state == State.maps)
             {
-                s.Draw(mapTabActive, new Rectangle(0, 0, 202, 503), Color.White);
+                s.Draw(mapTabActive, new Rectangle(0, 0, 202, 503), Color.White * menuAlpha);
 
                 if (mapsTab.IsOver() && firstFrameOverMaps)
                 {
                     firstFrameOverMaps = false;
-                    Sound.PlaySoundInstance(Sound.SoundNames.UIList2);
+                    Sound.PlaySoundInstance(Sound.SoundNames.ui_inventory_list_02);
                 }
             }
             else
@@ -455,25 +547,25 @@ namespace ISurvived
 
             if ((combosTab.IsOver() && !inventory.showingPassives) || state == State.combos)
             {
-                s.Draw(comboTabActive, new Rectangle(0, 0, 202, 503), Color.White);
+                s.Draw(comboTabActive, new Rectangle(0, 0, 202, 503), Color.White * menuAlpha);
 
                 if (combosTab.IsOver() && firstFrameOverCombos)
                 {
                     firstFrameOverCombos = false;
-                    Sound.PlaySoundInstance(Sound.SoundNames.UIList2);
+                    Sound.PlaySoundInstance(Sound.SoundNames.ui_inventory_list_02);
                 }
             }
             else
                 firstFrameOverCombos = true;
 
-            if ((journalTab.IsOver() && !inventory.showingPassives)|| state == State.journal)
+            if ((journalTab.IsOver() && !inventory.showingPassives) || state == State.journal)
             {
-                s.Draw(journalTabActive, new Rectangle(0, 0, 202, 503), Color.White);
+                s.Draw(journalTabActive, new Rectangle(0, 0, 202, 503), Color.White * menuAlpha);
 
                 if (journalTab.IsOver() && firstFrameOverJournal)
                 {
                     firstFrameOverJournal = false;
-                    Sound.PlaySoundInstance(Sound.SoundNames.UIList2);
+                    Sound.PlaySoundInstance(Sound.SoundNames.ui_inventory_list_02);
                 }
             }
             else
@@ -481,12 +573,12 @@ namespace ISurvived
 
             if ((bioTab.IsOver() && !inventory.showingPassives) || state == State.bios)
             {
-                s.Draw(bioTabActive, new Rectangle(0, 0, 202, 503), Color.White);
+                s.Draw(bioTabActive, new Rectangle(0, 0, 202, 503), Color.White * menuAlpha);
 
                 if (bioTab.IsOver() && firstFrameOverBios)
                 {
                     firstFrameOverBios = false;
-                    Sound.PlaySoundInstance(Sound.SoundNames.UIList2);
+                    Sound.PlaySoundInstance(Sound.SoundNames.ui_inventory_list_02);
                 }
             }
             else
@@ -494,12 +586,12 @@ namespace ISurvived
 
             if ((questsTab.IsOver() && !inventory.showingPassives) || state == State.quests)
             {
-                s.Draw(questsTabActive, new Rectangle(0, 0, 193, 571), Color.White);
+                s.Draw(questsTabActive, new Rectangle(0, 0, 193, 571), Color.White * menuAlpha);
 
                 if (questsTab.IsOver() && firstFrameOverQuests)
                 {
                     firstFrameOverQuests = false;
-                    Sound.PlaySoundInstance(Sound.SoundNames.UIList2);
+                    Sound.PlaySoundInstance(Sound.SoundNames.ui_inventory_list_02);
                 }
             }
             else
@@ -508,12 +600,13 @@ namespace ISurvived
             //'NEW' ICONS ON TABS
             if (inventory.newAccessory || inventory.newHat || inventory.newLoot || inventory.newShirt || inventory.newWeapon)
             {
-                s.Draw(inventoryTextures["newEquipmentIcon"], new Rectangle(158, 55, 45, 45), Color.White);
+                s.Draw(inventoryTextures["newEquipmentIcon"], new Rectangle(158, 55, 45, 45), Color.White * menuAlpha);
             }
             if (journal.drawNewIcon)
             {
-                s.Draw(inventoryTextures["newEquipmentIcon"], new Rectangle(158, 305, 45, 45), Color.White);
+                s.Draw(inventoryTextures["newEquipmentIcon"], new Rectangle(158, 305, 45, 45), Color.White * menuAlpha);
             }
+
         }
     }
 }

@@ -11,14 +11,15 @@ namespace ISurvived
         public Fez()
             : base()
         {
-            health = 4;
+            health = 10;
             strength = 0;
-            defense = 0;
+            defense = 2;
             moveSpeed = 0;
             jumpHeight = 0;
             name = "Fez";
             level = 1;
             description = "Everything about how you obtained this Fez is weird. \n\n";
+            sellPrice = .50f;
             icon = Game1.equipmentTextures[name];
         }
 

@@ -43,16 +43,43 @@ namespace ISurvived
             background.Add(content.Load<Texture2D>(@"Maps\Science\105\background"));
             foreground = content.Load<Texture2D>(@"Maps\Science\105\fore");
 
+            Sound.LoadScienceZoneSounds();
+
             game.NPCSprites["Trenchcoat Employee"] = content.Load<Texture2D>(@"NPC\Main\trenchcoat");
             Game1.npcFaces["Trenchcoat Employee"].faces["Normal"] = content.Load<Texture2D>(@"NPCFaces\Main Characters\Trenchcoat");
+
+            SoundEffect am = Sound.ambienceContent.Load<SoundEffect>(@"Sound\Ambience\ambience_ethereal");
+            SoundEffectInstance amb = am.CreateInstance();
+            amb.IsLooped = true;
+            Sound.ambience.Add("ambience_ethereal", amb);
         }
 
         public override void UnloadNPCContent()
         {
             base.UnloadNPCContent();
 
+            Sound.UnloadAmbience();
+
             game.NPCSprites["Trenchcoat Employee"] = Game1.whiteFilter;
             Game1.npcFaces["Trenchcoat Employee"].faces["Normal"] = Game1.whiteFilter;
+        }
+
+        public override void PlayAmbience()
+        {
+            //Sound.ambience["ambience_wasteland"].Stop();
+            Sound.PlayAmbience("ambience_ethereal");
+        }
+
+        public override void PlayBackgroundMusic()
+        {
+            Sound.PauseBackgroundMusic();
+        }
+
+        public override void Update()
+        {
+            base.Update();
+            PlayBackgroundMusic();
+            PlayAmbience();
         }
 
         public override void DrawParallaxAndForeground(SpriteBatch s)
@@ -71,7 +98,7 @@ null, null, null, null, Game1.camera.Transform);
         public override void SetPortals()
         {
             base.SetPortals();
-            toScience104 = new Portal(45, platforms[0], "Science105");
+            toScience104 = new Portal(45, platforms[0], "Science 105", Portal.DoorType.movement_door_open);
             toScience104.FButtonYOffset = -40;
             toScience104.PortalNameYOffset = -40;
         }

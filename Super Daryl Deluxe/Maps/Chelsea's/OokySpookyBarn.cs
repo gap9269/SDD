@@ -65,8 +65,8 @@ namespace ISurvived
         {
             base.SetPortals();
 
-            toIrrigationCanal = new Portal(100, platforms[0], "OokySpookyBarn");
-            toSilo1 = new Portal(80, -480, "OokySpookyBarn");
+            toIrrigationCanal = new Portal(100, platforms[0], "Ooky Spooky Barn");
+            toSilo1 = new Portal(80, -480, "Ooky Spooky Barn");
         }
 
         public override void SetDestinationPortals()

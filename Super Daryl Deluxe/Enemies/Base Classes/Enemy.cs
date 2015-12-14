@@ -23,7 +23,14 @@ namespace ISurvived
         protected float notEffectiveMultiplier = .8f; //////////////////////
         protected float veryEffectiveMultiplier = 1.2f; //////////////
 
+        public GameObject objectToAttack;
+        public Boolean attackingOtherObject = false;
 
+        public int distanceFromFeetToBottomOfRectangle = 20;
+        public int distanceFromFeetToBottomOfRectangleRandomOffset;
+        protected int rectanglePaddingLeftRight = 0;
+
+        public Boolean fellOffMap = false;
         protected int health;
         protected int tolerance;
         protected Texture2D spriteSheet;
@@ -36,7 +43,7 @@ namespace ISurvived
         protected Game1 game;
         protected Player player;
         protected int frameDelay = 5;
-        protected int moveFrame;
+        public int moveFrame;
         protected int attackFrame;
         protected int attackCooldown;
         protected int enemySpeed;
@@ -70,28 +77,29 @@ namespace ISurvived
         static Random ranX = new Random();
         static Random ranY = new Random();
 
-        protected int dropDiameter = 50;
+        protected int starFrame, starTimer;
+
+        protected int dropDiameter = 70;
         protected MapClass currentMap;
         //--For randomly moving enemies
         protected static Random moveNum = new Random();
         protected static Random moveTime = new Random();
         protected static Random healthGiven = new Random();
-        protected int moveTimer;
+        public int moveTimer;
         protected int moveState;
         protected bool hostile;
         protected Vector2 distanceFromPlayer;
         protected Rectangle attackRec;
         //--State Machine
-        protected enum EnemyState
+        public enum EnemyState
         {
             standing,
             moving,
             attacking
         }
-        protected EnemyState enemyState;
+        public EnemyState enemyState;
 
         // PROPERTIES \\
-        public Rectangle VitalRec { get { return vitalRec; } set { vitalRec = value; } }
         public Rectangle AttackRec { get { return attackRec; } set { attackRec = value; } }
         public List<Rectangle> RangedAttackRecs { get { return rangedAttackRecs; } set { rangedAttackRecs = value; } }
         public int Level { get { return level; } set { level = value; } }
@@ -133,6 +141,9 @@ namespace ISurvived
             distanceFromPlayer = new Vector2();
             rangedAttackRecs = new List<Rectangle>();
             currentMap = cur;
+            starTimer = 15;
+
+            distanceFromFeetToBottomOfRectangleRandomOffset = Game1.randomNumberGen.Next(-13, 0);
         }
 
         //--Return the source rectangle for the enemy move frames
@@ -152,7 +163,6 @@ namespace ISurvived
         public override void Draw(SpriteBatch s)
         {
             base.Draw(s);
-            //s.Draw(Game1.emptyBox, vitalRec, Color.Black);
 
             #region Draw Enemy
             if (facingRight == true)
@@ -185,15 +195,32 @@ namespace ISurvived
 
                 float measX = Game1.descriptionFont.MeasureString("Lv." + level + " " + displayName).X;
 
-                s.DrawString(Game1.descriptionFont, "Lv. " + level + " " + displayName, new Vector2(rec.X + rec.Width / 2 - measX / 2 - 2, rec.Y - 35 - 2), Color.Black);
-                s.DrawString(Game1.descriptionFont, "Lv. " + level + " " + displayName, new Vector2(rec.X + rec.Width / 2 - measX / 2, rec.Y - 35), Color.White);
+                Game1.OutlineFont(Game1.font, s, "Lv. " + level + " " + displayName, 1, (int)(rec.X + rec.Width / 2 - measX / 2 - 2), healthBoxRec.Y - 25 - 2, Color.Black, Color.White);
             }
             #endregion
 
-            //s.Draw(Game1.whiteFilter, vitalRec, Color.Black * .5f);
+            //Draw the stars above his head when he's stunned
+            if (isStunned)
+            {
+                //Stars
+                starTimer--;
 
-           // if (enemyState == EnemyState.attacking)
-                //s.Draw(Game1.emptyBox, attackRec, Color.Blue);
+                if (starTimer <= 0)
+                {
+                    starFrame++;
+                    starTimer = 15;
+
+                    if (starFrame > 3)
+                    {
+                        starFrame = 0;
+                    }
+                }
+
+                if (facingRight)
+                    s.Draw(player.PlayerSheet, rec, new Rectangle(530 + (530 * starFrame), 3610, 530, 398), Color.White * alpha);
+                else
+                    s.Draw(player.PlayerSheet, rec, new Rectangle(530 + (530 * starFrame), 3610, 530, 398), Color.White * alpha, 0f, Vector2.Zero, SpriteEffects.FlipHorizontally, 0f);
+            }
         }
 
         public void AddDamageNum(int damage, Rectangle collision)
@@ -218,12 +245,18 @@ namespace ISurvived
                 if (damageTimers[i] > 10)
                     damageAlphas[i] -= .02f;
 
-                if(weaknessStrengthOrNormal[i] == "Normal")
+                if (weaknessStrengthOrNormal.Count > i)
+                {
+
+                    if (weaknessStrengthOrNormal[i] == "Normal")
+                        s.DrawString(Game1.enemyFont, damageNums[i].ToString() + "DMG", damageVecs[i], Color.White * damageAlphas[i]);
+                    else if (weaknessStrengthOrNormal[i] == "Strength")
+                        s.DrawString(Game1.enemyFontWeak, damageNums[i].ToString() + "DMG", damageVecs[i], Color.White * damageAlphas[i]);
+                    else if (weaknessStrengthOrNormal[i] == "Weakness")
+                        s.DrawString(Game1.enemyFontStrong, damageNums[i].ToString() + " DMG", damageVecs[i], Color.White);
+                }
+                else
                     s.DrawString(Game1.enemyFont, damageNums[i].ToString() + "DMG", damageVecs[i], Color.White * damageAlphas[i]);
-                else if (weaknessStrengthOrNormal[i] == "Strength")
-                    s.DrawString(Game1.enemyFontWeak, damageNums[i].ToString() + "DMG", damageVecs[i], Color.White * damageAlphas[i]);
-                else if(weaknessStrengthOrNormal[i] == "Weakness")
-                    s.DrawString(Game1.enemyFontStrong, damageNums[i].ToString() + " DMG", damageVecs[i], Color.White);
 
                 if (damageTimers[i] > 60)
                 {
@@ -232,7 +265,11 @@ namespace ISurvived
                     damageNums.RemoveAt(i);
                     endingDamageNumVecs.RemoveAt(i);
                     damageTimers.RemoveAt(i);
-                    weaknessStrengthOrNormal.RemoveAt(i);
+
+                    if (weaknessStrengthOrNormal.Count > i)
+                    {
+                        weaknessStrengthOrNormal.RemoveAt(i);
+                    }
                     i--;
                 }
             }
@@ -255,6 +292,10 @@ namespace ISurvived
            verticalDistanceToPlayer = Math.Abs(Vector2.Distance(new Vector2(0, player.VitalRec.Center.Y), new Vector2(0, vitalRec.Center.Y)));
            horizontalDistanceToPlayer = Math.Abs(Vector2.Distance(new Vector2(player.VitalRec.Center.X, 0), new Vector2(vitalRec.Center.X, 0)));
 
+           if (PositionY > 3000)
+           {
+               fellOffMap = true;
+           }
             if (isStunned)
             {
                 stunTime--;
@@ -268,57 +309,58 @@ namespace ISurvived
 
             if (hitPauseTimer >= 0)
                 hitPauseTimer--;
-
-            //--Implement forces
-            if (!(this is SteeringEnemy))
-            {
-                ImplementGravity();
-
-                UpdateKnockBack();
-            }
             else
-                UpdateFlyingKnockback();
-
-            UpdateRectangles();
-
-            #region Fade In
-            if (spawnWithPoof)
             {
-                if (respawning == true)
+                //--Implement forces
+                if (!(this is SteeringEnemy))
                 {
-                    //alpha += .5f;
-                    timeBeforeSpawn--;
+                    ImplementGravity();
+
+                    UpdateKnockBack();
                 }
-                if (timeBeforeSpawn <= 0 && respawning == true)
+                else
+                    UpdateFlyingKnockback();
+
+                UpdateRectangles();
+
+                #region Fade In
+                if (spawnWithPoof)
+                {
+                    if (respawning == true)
+                    {
+                        //alpha += .5f;
+                        timeBeforeSpawn--;
+                    }
+                    if (timeBeforeSpawn <= 0 && respawning == true)
+                    {
+                        alpha = 1f;
+                        Sound.PlayRandomRegularPoof(vitalRec.Center.X, vitalRec.Center.Y);
+                        Chapter.effectsManager.AddSmokePoof(vitalRec, 2);
+                        respawning = false;
+                    }
+                }
+                else
                 {
                     alpha = 1f;
-                    Sound.PlayRandomRegularPoof();
-                    Chapter.effectsManager.AddSmokePoof(vitalRec, 2);
                     respawning = false;
                 }
+                #endregion
             }
-            else
-            {
-                alpha = 1f;
-                respawning = false;
-            }
-            #endregion
 
             #region Dont run off map
-            if (position.X <= 0)
+            if (position.X + rectanglePaddingLeftRight  <= 0)
             {
-                position.X = 0;
+                position.X = -(rectanglePaddingLeftRight);
             }
 
-            if (position.X + rec.Width >= mapwidth)
+            if (position.X + rec.Width - rectanglePaddingLeftRight >= mapwidth)
             {
-                position.X = mapwidth - rec.Width;
+                position.X = mapwidth - rec.Width + rectanglePaddingLeftRight;
             }
             #endregion
-
         }
 
-        public void UpdateRectangles()
+        public virtual void UpdateRectangles()
         {
             #region Update Rectangles
             rec.X = (int)position.X;
@@ -361,7 +403,7 @@ namespace ISurvived
                         knockback.X = Math.Abs(knockback.X);
 
                     //--Take damage and knock the player back
-                    player.TakeDamage(damage);
+                    player.TakeDamage(damage, level);
                     player.KnockPlayerBack(knockback);
 
 
@@ -398,12 +440,13 @@ namespace ISurvived
                 }
                 #endregion
 
-                damage -= tolerance;
+                damage = (int)(damage * (250f / (250f + tolerance)));
 
                 PlaySoundWhenHit();
 
                 if (damage <= 0)
                     damage = 1;
+
                 enemyState = EnemyState.standing;
                 health -= damage;
                 KnockBack(kbvel);
@@ -537,7 +580,9 @@ namespace ISurvived
 
             position += velocity;
 
-            Rectangle feet = new Rectangle((int)position.X, (int)position.Y + rec.Height - 20, rec.Width, 20);
+           // Rectangle feet = new Rectangle((int)rec.X, (int)position.Y + rec.Height - 20 - distanceFromFeetToBottomOfRectangle - distanceFromFeetToBottomOfRectangleRandomOffset, rec.Width, 20);
+            Rectangle feet = new Rectangle((int)vitalRec.X, (int)position.Y + rec.Height - 20 - distanceFromFeetToBottomOfRectangle - distanceFromFeetToBottomOfRectangleRandomOffset, vitalRec.Width, 20);
+            Rectangle vitalRecFeet = new Rectangle((int)vitalRec.X, (int)position.Y + rec.Height - 20 - distanceFromFeetToBottomOfRectangle - distanceFromFeetToBottomOfRectangleRandomOffset, vitalRec.Width, 20);
             Rectangle topEn = new Rectangle((int)vitalRec.X + 5, (int)vitalRec.Y, vitalRec.Width - 5, 10);
             Rectangle rightEn = new Rectangle((int)vitalRec.X + vitalRec.Width, (int)vitalRec.Y + 5, 15, vitalRec.Height + 35);
             Rectangle leftEn = new Rectangle((int)vitalRec.X - 15, (int)vitalRec.Y + 5, 15, vitalRec.Height + 35);
@@ -553,6 +598,31 @@ namespace ISurvived
 
 
 
+                if (knockedBack)
+                {
+                    Rectangle checkPlatRec;
+
+                    if (VelocityX >= 0)
+                    {
+                        checkPlatRec = new Rectangle(rightEn.X, rightEn.Y, Math.Abs((int)velocity.X), rightEn.Height);
+
+                        if (checkPlatRec.Intersects(left))
+                        {
+                            PositionX -= VelocityX;
+                            VelocityX = 0;
+                        }
+                    }
+                    else
+                    {
+                        checkPlatRec = new Rectangle(leftEn.X - Math.Abs((int)VelocityX), leftEn.Y, Math.Abs((int)velocity.X), leftEn.Height);
+
+                        if (checkPlatRec.Intersects(right))
+                        {
+                            PositionX += Math.Abs(VelocityX);
+                            VelocityX = 0;
+                        }
+                    }
+                }
                 //DOn't move through non passable platforms
                 if ((rightEn.Intersects(left) || leftEn.Intersects(right)) && plat.Passable == false)
                 {
@@ -580,49 +650,17 @@ namespace ISurvived
                     }
                 }
 
-                if (knockedBack)
-                {
-                    Rectangle checkPlatRec;
-
-                    if (VelocityX >= 0)
-                    {
-                        checkPlatRec = new Rectangle(rightEn.X, rightEn.Y, (int)velocity.X, rightEn.Height);
-
-                        if (checkPlatRec.Intersects(left))
-                        {
-                            //playerState = PlayerState.standing;
-                            PositionX -= VelocityX;
-                            knockedBack = false;
-                            VelocityX = 0;
-                            // playerState = PlayerState.standing;
-                        }
-                    }
-                    else
-                    {
-                        checkPlatRec = new Rectangle(leftEn.X - Math.Abs((int)VelocityX), leftEn.Y, Math.Abs((int)velocity.X), leftEn.Height);
-
-                        if (checkPlatRec.Intersects(right))
-                        {
-                            // playerState = PlayerState.standing;
-                            PositionX += Math.Abs(VelocityX);
-                            knockedBack = false;
-                            VelocityX = 0;
-                            //playerState = PlayerState.standing;
-                        }
-                    }
-                }
-
 
                 //--If you jump up into a nonpassable wall, push him back down
 
                 #region Landing on a platform
                 //--REPLACE THIS WITH COLLIDES WITH GROUND CHECK
-                if (feet.Intersects(top) && velocity.Y > 0)
+                if (((feet.Intersects(top) && !knockedBack) || (vitalRecFeet.Intersects(top) && knockedBack) || new Rectangle(feet.X, feet.Y, feet.Width, (int)velocity.Y).Intersects(top)) && velocity.Y > 0)
                 {
                     //Set the platform it's currently on to currentPlat
                     currentPlat = plat;
 
-                    position.Y = currentMap.Platforms[i].Rec.Y - rec.Height;
+                    position.Y = currentMap.Platforms[i].Rec.Y - rec.Height + distanceFromFeetToBottomOfRectangle + distanceFromFeetToBottomOfRectangleRandomOffset;
                     velocity.Y = 0;
 
 
@@ -648,17 +686,31 @@ namespace ISurvived
 
             #region Not falling off a platform
             //--Don't fall off the platform you're on!
+            //if (currentPlat != null)
+            //{
+            //    if (position.X < currentPlat.Rec.X - rectanglePaddingLeftRight)
+            //    {
+            //        velocity.X = 0;
+            //        position.X = currentPlat.Rec.X - rectanglePaddingLeftRight;
+            //    }
+            //    if (position.X + rec.Width > currentPlat.Rec.X + currentPlat.Rec.Width + rectanglePaddingLeftRight)
+            //    {
+            //        velocity.X = 0;
+            //        position.X = (currentPlat.Rec.X + currentPlat.Rec.Width) - rec.Width + rectanglePaddingLeftRight;
+            //    }
+            //}
+
             if (currentPlat != null)
             {
-                if (position.X < currentPlat.Rec.X)
+                if (position.X + (Math.Abs(rec.X - feet.X)) < currentPlat.Rec.X)
                 {
                     velocity.X = 0;
-                    position.X = currentPlat.Rec.X;
+                    position.X = currentPlat.Rec.X - (Math.Abs(rec.X - feet.X));
                 }
-                if (position.X + rec.Width > currentPlat.Rec.X + currentPlat.Rec.Width)
+                if (position.X + (Math.Abs(rec.X - feet.X)) + feet.Width > currentPlat.Rec.X + currentPlat.Rec.Width)
                 {
                     velocity.X = 0;
-                    position.X = (currentPlat.Rec.X + currentPlat.Rec.Width) - rec.Width;
+                    position.X = (currentPlat.Rec.X + currentPlat.Rec.Width) - feet.Width - (Math.Abs(rec.X - feet.X));
                 }
             }
             #endregion
@@ -670,23 +722,42 @@ namespace ISurvived
         {
             if (health <= 0)
             {
+                if (player.Level > level)
+                {
+                    int levelOffset = player.Level - level;
+
+                    if (levelOffset > 4)
+                        levelOffset = 4;
+
+                    experienceGiven = experienceGiven - (int)(experienceGiven * (.2f * levelOffset));
+                }
+
+                experienceGiven += (int)player.extraExperiencePerKill;
+
                 for (int i = 0; i < player.EquippedSkills.Count; i++)
                 {
                     if (level >= player.Level - 5)
                     {
                         //Check to see if the skill is below level 4, and that the player's level is high enough to level the skill
-                        if (player.EquippedSkills[i].SkillRank < 4 && player.Level >= player.EquippedSkills[i].PlayerLevelsRequiredToLevel[player.EquippedSkills[i].SkillRank - 1])
+                        if (player.EquippedSkills[i].SkillRank < Skill.maxLevel && player.Level >= player.EquippedSkills[i].PlayerLevelsRequiredToLevel[player.EquippedSkills[i].SkillRank - 1])
                             player.EquippedSkills[i].Experience += experienceGiven;
+
                     }
                 }
 
-                player.AddExpNums(experienceGiven, rec, vitalRec.Y);
+                if (game.ChapterOne.ChapterOneBooleans["quickRetortObtained"])
+                {
+                    if (player.quickRetort.SkillRank < Skill.maxLevel && player.Level >= player.quickRetort.PlayerLevelsRequiredToLevel[player.quickRetort.SkillRank - 1])
+                        player.quickRetort.Experience += experienceGiven;
+                }
+
+                Chapter.effectsManager.AddExpNums(experienceGiven, rec, vitalRec.Y);
                 player.Experience += experienceGiven;
                 DropItem();
                 DropHealth();
                 DropMoney();
                 Chapter.effectsManager.AddSmokePoof(deathRec,1);
-                Sound.PlayRandomRegularPoof();
+                Sound.PlayRandomRegularPoof(deathRec.Center.X, deathRec.Center.Y);
                 //Unlock enemy bio for this enemy
                 if (player.AllMonsterBios[name] == false)
                     player.UnlockEnemyBio(name);
@@ -712,7 +783,7 @@ namespace ISurvived
         public void DropMoney()
         {
             float increment = 0f;
-
+            moneyToDrop = (float)Math.Round((double)(moneyToDrop * (1 + player.moneyModifier / 100)), 2);
             float moneyLeft = moneyToDrop;
 
             for (float i = 0; i < moneyToDrop; i += increment)
@@ -767,12 +838,62 @@ namespace ISurvived
             //    }
             //}
 
+            int gem = Game1.randomNumberGen.Next(101);
+
+            switch (player.Luck)
+            {
+                case 1:
+                    if (gem == 1)
+                    {
+                        currentMap.Drops.Add(new EnemyDrop("Topaz", new Rectangle(rec.Center.X, rec.Center.Y, dropDiameter, dropDiameter)));
+                    }
+                    break;
+                case 2:
+                    if (gem < 2)
+                        currentMap.Drops.Add(new EnemyDrop("Topaz", new Rectangle(rec.Center.X, rec.Center.Y, dropDiameter, dropDiameter)));
+                    else if(gem == 2)
+                        currentMap.Drops.Add(new EnemyDrop("Ruby", new Rectangle(rec.Center.X, rec.Center.Y, dropDiameter, dropDiameter)));
+                    break;
+                case 3:
+                    if (gem < 2)
+                        currentMap.Drops.Add(new EnemyDrop("Topaz", new Rectangle(rec.Center.X, rec.Center.Y, dropDiameter, dropDiameter)));
+                    else if(gem < 4)
+                        currentMap.Drops.Add(new EnemyDrop("Ruby", new Rectangle(rec.Center.X, rec.Center.Y, dropDiameter, dropDiameter)));
+                    else if(gem == 4)
+                        currentMap.Drops.Add(new EnemyDrop("Sapphire", new Rectangle(rec.Center.X, rec.Center.Y, dropDiameter, dropDiameter)));
+
+                    break;
+                case 4:
+                    if (gem < 3)
+                        currentMap.Drops.Add(new EnemyDrop("Topaz", new Rectangle(rec.Center.X, rec.Center.Y, dropDiameter, dropDiameter)));
+                    else if (gem < 5)
+                        currentMap.Drops.Add(new EnemyDrop("Ruby", new Rectangle(rec.Center.X, rec.Center.Y, dropDiameter, dropDiameter)));
+                    else if (gem == 5)
+                        currentMap.Drops.Add(new EnemyDrop("Sapphire", new Rectangle(rec.Center.X, rec.Center.Y, dropDiameter, dropDiameter)));
+                    else if (gem == 6)
+                        currentMap.Drops.Add(new EnemyDrop("Emerald", new Rectangle(rec.Center.X, rec.Center.Y, dropDiameter, dropDiameter)));
+
+                    break;
+                case 5:
+                case 6:
+                case 7:
+                    if (gem < 4)
+                        currentMap.Drops.Add(new EnemyDrop("Topaz", new Rectangle(rec.Center.X, rec.Center.Y, dropDiameter, dropDiameter)));
+                    else if (gem < 6)
+                        currentMap.Drops.Add(new EnemyDrop("Ruby", new Rectangle(rec.Center.X, rec.Center.Y, dropDiameter, dropDiameter)));
+                    else if (gem < 8)
+                        currentMap.Drops.Add(new EnemyDrop("Sapphire", new Rectangle(rec.Center.X, rec.Center.Y, dropDiameter, dropDiameter)));
+                    else if (gem == 8)
+                        currentMap.Drops.Add(new EnemyDrop("Emerald", new Rectangle(rec.Center.X, rec.Center.Y, dropDiameter, dropDiameter)));
+                    else if (gem == 9)
+                        currentMap.Drops.Add(new EnemyDrop("Diamond", new Rectangle(rec.Center.X, rec.Center.Y, dropDiameter, dropDiameter)));
+                    break;
+            }
+
         }
 
         public virtual void Attack(int damage, Vector2 kb)
         {
         }
-
-
     }
 }

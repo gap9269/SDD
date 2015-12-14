@@ -11,7 +11,7 @@ namespace ISurvived
         public ComposersWand()
             : base()
         {
-            strength = 4;
+            strength = 13;
             health = 0;
             name = "Conductor's Wand";
             moveSpeed = 0;
@@ -19,7 +19,8 @@ namespace ISurvived
             level = 7;
             description = "A flimsy stick that musicians use for something. \n\n";
             canHoldTwo = true;
-            ////icon = Game1.equipSheetOne;
+            icon = Game1.equipmentTextures[name];
+            sellPrice = 6.00f;
         }
 
         public override void UpdateDescription()

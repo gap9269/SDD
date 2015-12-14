@@ -52,8 +52,8 @@ namespace ISurvived
         {
             base.SetPortals();
 
-            toCrossroads = new Portal(100, platforms[0], "DirtyPath");
-            toBuilding = new Portal(1600, platforms[0], "DirtyPath");
+            toCrossroads = new Portal(100, platforms[0], "Dirty Path");
+            toBuilding = new Portal(1600, platforms[0], "Dirty Path");
         }
 
         public override void Draw(SpriteBatch s)

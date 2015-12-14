@@ -17,15 +17,15 @@ namespace ISurvived
         //--Textures
         Texture2D backgroundTexture, healthBarTexture, skillBarTexture,
                   experienceBarTexture, qBarTex, wBarTex, eBarTex, rBarTex,
-                  minimizeTexture, maximizeTexture, hudFront, skillFront, skillFrontPad, piggy, skillLevelCircle, skillTip, hudGradient, lootBox;
+                  hudFront, skillFront, skillFrontPad, piggy, skillLevelCircle, skillTip, hudGradient, lootBox;
 
         //--Rectangles
         Rectangle HUDRec, healthRec, experienceRec, skillBarRec;
 
         //--Buttons
         Button skillQButton, skillWButton, skillEButton, skillRButton,
-               skillQExperienceBarButton, skillWExperienceBarButton, skillEExperienceBarButton, skillRExperienceBarButton,
-               minimizeQuestButton, expBarButton;
+               skillQExperienceBarButton, skillWExperienceBarButton, skillEExperienceBarButton, skillRExperienceBarButton, quickRetortBarButton,
+               minimizeQuestButton, expBarButton, quickRetortButton;
 
         //--Attributes
         List<Button> skillButtons;
@@ -45,9 +45,9 @@ namespace ISurvived
 
         float targetHealthWidth;
         float targetExpWidth;
-
+        float skillAlpha = .75f;
         Boolean minimized;
-        Boolean skillsHidden = true;
+        Boolean skillsHidden = false;
 
         KeyboardState current;
         KeyboardState previous;
@@ -61,7 +61,7 @@ namespace ISurvived
         //  CONSTRUCTOR  \\
         public HUD(Texture2D back, Texture2D health, Texture2D skillBar,
             Texture2D experience, Texture2D qBar, Texture2D wBar, Texture2D eBar, Texture2D rBar, Player play, SpriteFont font, Game1 g, 
-            DescriptionBoxManager desc, Texture2D min, Texture2D max, Texture2D hudTop, Texture2D skillTop, Texture2D skillTopPad, Texture2D pig, Texture2D skillLevel, Texture2D gradient, Texture2D skillTool, Texture2D lootBox)
+            DescriptionBoxManager desc, Texture2D hudTop, Texture2D skillTop, Texture2D skillTopPad, Texture2D pig, Texture2D skillLevel, Texture2D gradient, Texture2D skillTool, Texture2D lootBox)
         {
             //--Set attributes
             hudFront = hudTop;
@@ -83,8 +83,6 @@ namespace ISurvived
             skillExperienceBacks = new List<Button>();
             pickUps = new List<Rectangle>();
             skillBoxManager = desc;
-            minimizeTexture = min;
-            maximizeTexture = max;
             skillFrontPad = skillTopPad;
             skillTip = skillTool;
             hudGradient = gradient;
@@ -99,14 +97,14 @@ namespace ISurvived
             HUDRec = new Rectangle(0, 0, backgroundTexture.Width, backgroundTexture.Height);
             healthRec = new Rectangle(21, 36, healthBarTexture.Width, healthBarTexture.Height);
             experienceRec = new Rectangle(95, 99, experienceBarTexture.Width, experienceBarTexture.Height);
-            skillBarRec = new Rectangle(22, 624, skillBarTexture.Width, skillBarTexture.Height);
+            skillBarRec = new Rectangle(2, 644, skillBarTexture.Width, skillBarTexture.Height);
 
             //--Skill Boxes
-            skillQButton = new Button(Game1.emptyBox, new Rectangle(33, 630, 66, 66));
-            skillWButton = new Button(Game1.emptyBox, new Rectangle(116, 630, 66, 66));
-            skillEButton = new Button(Game1.emptyBox, new Rectangle(192, 630, 66, 66));
-            skillRButton = new Button(Game1.emptyBox, new Rectangle(272, 630, 66, 66));
-
+            skillQButton = new Button(Game1.emptyBox, new Rectangle(11, 650, 66, 66));
+            skillWButton = new Button(Game1.emptyBox, new Rectangle(91, 650, 66, 66));
+            skillEButton = new Button(Game1.emptyBox, new Rectangle(169, 650, 66, 66));
+            skillRButton = new Button(Game1.emptyBox, new Rectangle(247, 650, 66, 66));
+            quickRetortButton = new Button(new Rectangle(325, 650, 66, 66));
             skillButtons.Add(skillQButton);
             skillButtons.Add(skillWButton);
             skillButtons.Add(skillEButton);
@@ -114,13 +112,14 @@ namespace ISurvived
 
             //--The actual colored bars. These are buttons for simplicity of drawing
             skillQExperienceBarButton = new Button(qBarTex,
-                                        new Rectangle(26, 628, qBarTex.Width, qBarTex.Height));
+                                        new Rectangle(6, 648, qBarTex.Width, qBarTex.Height));
             skillWExperienceBarButton = new Button(qBarTex,
-                                        new Rectangle(106, 628, wBarTex.Width, wBarTex.Height));
+                                        new Rectangle(86, 648, wBarTex.Width, wBarTex.Height));
             skillEExperienceBarButton = new Button(qBarTex,
-                                        new Rectangle(184, 628, eBarTex.Width, eBarTex.Height));
+                                        new Rectangle(164, 648, eBarTex.Width, eBarTex.Height));
             skillRExperienceBarButton = new Button(qBarTex,
-                                        new Rectangle(262, 628, rBarTex.Width, rBarTex.Height));
+                                        new Rectangle(242, 648, rBarTex.Width, rBarTex.Height));
+            quickRetortBarButton = new Button(qBarTex, new Rectangle(320, 648, rBarTex.Width, rBarTex.Height));
 
             skillExperienceBars.Add(skillQExperienceBarButton);
             skillExperienceBars.Add(skillWExperienceBarButton);
@@ -144,25 +143,29 @@ namespace ISurvived
             expBarButton = new Button(experienceRec);
 
             //--Minimize the quest box
-            minimizeQuestButton = new Button(minimizeTexture, new Rectangle(1250, 10, 30, 20));
+            minimizeQuestButton = new Button(new Rectangle(1250, 10, 30, 20));
 
             UpdateResolution();
             experienceRec.Width = 0;
+
+            skillsHidden = false;
         }
 
         public void UpdateResolution()
         {
-            skillQButton.ButtonRecY = (int)(1280 * Game1.aspectRatio) - 82;
-            skillWButton.ButtonRecY = (int)(1280 * Game1.aspectRatio) - 82;
-            skillEButton.ButtonRecY = (int)(1280 * Game1.aspectRatio) - 82;
-            skillRButton.ButtonRecY = (int)(1280 * Game1.aspectRatio) - 82;
-            skillBarRec.Y = (int)(1280 * Game1.aspectRatio) - 94;
-            pickUps[0] = new Rectangle(50, (int)(1280 * Game1.aspectRatio) - 160, 200, 25);
-            pickUps[1] = new Rectangle(50, (int)(1280 * Game1.aspectRatio) - 185, 200, 25);
-            pickUps[2] = new Rectangle(50, (int)(1280 * Game1.aspectRatio) - 210, 200, 25);
-            pickUps[3] = new Rectangle(50, (int)(1280 * Game1.aspectRatio) - 235, 200, 25);
-            pickUps[4] = new Rectangle(50, (int)(1280 * Game1.aspectRatio) - 260, 200, 25);
+            //skillQButton.ButtonRecY = (int)(1280 * Game1.aspectRatio) - 82;
+            //skillWButton.ButtonRecY = (int)(1280 * Game1.aspectRatio) - 82;
+            //skillEButton.ButtonRecY = (int)(1280 * Game1.aspectRatio) - 82;
+            //skillRButton.ButtonRecY = (int)(1280 * Game1.aspectRatio) - 82;
+            //skillBarRec.Y = (int)(1280 * Game1.aspectRatio) - 94;
+            //pickUps[0] = new Rectangle(50, (int)(1280 * Game1.aspectRatio) - 160, 200, 25);
+            //pickUps[1] = new Rectangle(50, (int)(1280 * Game1.aspectRatio) - 185, 200, 25);
+            //pickUps[2] = new Rectangle(50, (int)(1280 * Game1.aspectRatio) - 210, 200, 25);
+            //pickUps[3] = new Rectangle(50, (int)(1280 * Game1.aspectRatio) - 235, 200, 25);
+            //pickUps[4] = new Rectangle(50, (int)(1280 * Game1.aspectRatio) - 260, 200, 25);
 
+            // 638 = 720 * x
+            // 878 = 960 * x
             
         }
 
@@ -176,10 +179,7 @@ namespace ISurvived
 
             Game1.questHUD.Update();
 
-            skillButtons[1].ButtonRecX = 111;
-            skillButtons[2].ButtonRecX = 189;
-
-            targetHealthWidth = (int)((float)originalHealthWidth * ((float)player.Health / (float)player.MaxHealth));
+            targetHealthWidth = (int)((float)originalHealthWidth * ((float)player.Health / (float)player.realMaxHealth));
             targetExpWidth = (int)((float)originalExperienceWidth * ((float)player.Experience / (float)player.ExperienceUntilLevel));
 
             addToHealthWidth += ((targetHealthWidth - healthRec.Width) * .1f);
@@ -209,40 +209,20 @@ namespace ISurvived
                     ((float)player.EquippedSkills[3].Experience / (float)player.EquippedSkills[3].ExperienceUntilLevel));
             #endregion
 
+            if (game.ChapterOne.ChapterOneBooleans["quickRetortObtained"])
+                quickRetortBarButton.ButtonRecHeight = (int)((float)originalSkillExperienceHeight * ((float)player.quickRetort.Experience / (float)player.quickRetort.ExperienceUntilLevel));
+
             //MinimizeQuest();
 
-            if((current.IsKeyUp(Keys.T) && previous.IsKeyDown(Keys.T)) || MyGamePad.UpPadPressed())
+            if((current.IsKeyUp(Keys.T) && previous.IsKeyDown(Keys.T)) || MyGamePad.RightBumperPressed())
             {
-                if(skillsHidden)
+               // if(skillsHidden)
                     skillsHidden = false;
-                else
-                    skillsHidden = true;
+               // else
+                   // skillsHidden = true;
             }
         }
 
-
-        //--Minimizes the quest helper box if the button is clicked
-        void MinimizeQuest()
-        {
-            //--Only update if there is an active quest
-            if (game.CurrentQuests.Count > 0)
-            {
-                if (minimizeQuestButton.Clicked())
-                {
-                    switch (minimized)
-                    {
-                        case false:
-                            minimized = true;
-                            minimizeQuestButton.ButtonTexture = maximizeTexture;
-                            break;
-                        case true:
-                            minimized = false;
-                            minimizeQuestButton.ButtonTexture = minimizeTexture;
-                            break;
-                    }
-                }
-            }
-        }
 
         public void Draw(SpriteBatch s)
         {
@@ -257,15 +237,17 @@ namespace ISurvived
             s.Draw(hudFront, HUDRec, Color.White);
 
             //--Fonts on the HUD
-            s.DrawString(Game1.smallHUDFont, player.Health + " / " + player.MaxHealth, new Vector2(330 - Game1.smallHUDFont.MeasureString(player.Health + " / " + player.MaxHealth).X, 50), Color.White * 1f);
+            //s.DrawString(Game1.smallHUDFont, player.Health + " / " + player.realMaxHealth, new Vector2(330 - Game1.smallHUDFont.MeasureString(player.Health + " / " + player.realMaxHealth).X, 50), Color.White * 1f);
+
+            Game1.OutlineFont(Game1.hudStatsFont, s, player.Health + " / " + player.realMaxHealth, 1, (int)(320 - Game1.hudStatsFont.MeasureString(player.Health + " / " + player.realMaxHealth).X), 71, Color.Black, Color.White);
+
 
             if(!expBarButton.IsOver())
-                s.DrawString(Game1.xpHUDFont, ((float)player.Experience / (float)player.ExperienceUntilLevel * 100).ToString("N0") + "%", new Vector2(272 - Game1.xpHUDFont.MeasureString(((float)player.Experience / (float)player.ExperienceUntilLevel * 100).ToString("N0") + "%").X, 74), Color.White * 1f);
+                Game1.OutlineFont(Game1.hudStatsFont, s, ((float)player.Experience / (float)player.ExperienceUntilLevel * 100).ToString("N0") + "%", 1, (int)(260 - Game1.hudStatsFont.MeasureString(((float)player.Experience / (float)player.ExperienceUntilLevel * 100).ToString("N0") + "%").X), 96, Color.Black, Color.White);
             else
-            s.DrawString(Game1.xpHUDFont, player.Experience + " / " + player.ExperienceUntilLevel, new Vector2(272 - Game1.xpHUDFont.MeasureString(player.Experience + " / " + player.ExperienceUntilLevel).X, 74), Color.White * 1f);
+                Game1.OutlineFont(Game1.hudStatsFont, s, player.Experience + " / " + player.ExperienceUntilLevel, 1, (int)(260 - Game1.hudStatsFont.MeasureString(player.Experience + " / " + player.ExperienceUntilLevel).X), 96, Color.Black, Color.White);
 
-
-            s.DrawString(Game1.bioPageNameFont, "Lvl " + player.Level + ": " + player.SocialRank, new Vector2(112, 40), Color.White, 0, Vector2.Zero, .63f, SpriteEffects.None, 0);
+            Game1.OutlineFont(Game1.hudLevelFont, s, "Lvl " + player.Level + ": " + player.SocialRank, 1, 110, 36, Color.Black, Color.White);
             //--Draw how many textbooks the player has
             if (player.Textbooks == 0)
             {
@@ -289,24 +271,27 @@ namespace ISurvived
 
             DrawPickUpText(s);
 
-            if (!skillsHidden)
+            if (player.LearnedSkills.Count > 0)//!skillsHidden)
             {
                 DrawSkillBoxes(s);
 
                 if (player.EquippedSkills.Count > 0)
-                    s.DrawString(Game1.font, player.EquippedSkills[0].SkillRank.ToString(), new Vector2(84, (int)(1280 * Game1.aspectRatio) - 87), Color.Black);
+                    s.DrawString(Game1.descriptionFont, player.EquippedSkills[0].SkillRank.ToString(), new Vector2(63 - Game1.descriptionFont.MeasureString(player.EquippedSkills[0].SkillRank.ToString()).X / 2, 643), Color.Black);
 
                 if (player.EquippedSkills.Count > 1)
-                    s.DrawString(Game1.font, player.EquippedSkills[1].SkillRank.ToString(), new Vector2(164, (int)(1280 * Game1.aspectRatio) - 87), Color.Black);
+                    s.DrawString(Game1.descriptionFont, player.EquippedSkills[1].SkillRank.ToString(), new Vector2(143 - Game1.descriptionFont.MeasureString(player.EquippedSkills[1].SkillRank.ToString()).X / 2, 643), Color.Black);
 
                 if (player.EquippedSkills.Count > 2)
-                    s.DrawString(Game1.font, player.EquippedSkills[2].SkillRank.ToString(), new Vector2(242, (int)(1280 * Game1.aspectRatio) - 87), Color.Black);
+                    s.DrawString(Game1.descriptionFont, player.EquippedSkills[2].SkillRank.ToString(), new Vector2(221 - Game1.descriptionFont.MeasureString(player.EquippedSkills[2].SkillRank.ToString()).X / 2, 643), Color.Black);
 
                 if (player.EquippedSkills.Count > 3)
-                    s.DrawString(Game1.font, player.EquippedSkills[3].SkillRank.ToString(), new Vector2(324, (int)(1280 * Game1.aspectRatio) - 87), Color.Black);
+                    s.DrawString(Game1.descriptionFont, player.EquippedSkills[3].SkillRank.ToString(), new Vector2(299 - Game1.descriptionFont.MeasureString(player.EquippedSkills[3].SkillRank.ToString()).X / 2, 643), Color.Black);
             }
 
-            s.Draw(skillTip, new Rectangle(10, 704, skillTip.Width, skillTip.Height), Color.White);
+            if (game.ChapterOne.ChapterOneBooleans["quickRetortObtained"])
+                s.DrawString(Game1.descriptionFont, player.quickRetort.SkillRank.ToString(), new Vector2(377 - Game1.descriptionFont.MeasureString(player.quickRetort.SkillRank.ToString()).X / 2, 643), Color.Black);
+
+            //s.Draw(skillTip, new Rectangle(10, (int)(1280 * Game1.aspectRatio) - 16, skillTip.Width, skillTip.Height), Color.White);
 
             Game1.questHUD.Draw(s);
         }
@@ -323,7 +308,7 @@ namespace ISurvived
             {
                 if (skillButtons[i].ButtonTexture != Game1.emptyBox)
                 {
-                    skillButtons[i].Draw(s);
+                    skillButtons[i].Draw(s, skillAlpha);
                 }
                 if (skillButtons[i].IsOver() && player.EquippedSkills.Count >= i + 1)
                 {
@@ -333,10 +318,19 @@ namespace ISurvived
                 }
             }
 
-            s.Draw(skillBarTexture, skillBarRec, Color.White);
+            if (game.ChapterOne.ChapterOneBooleans["quickRetortObtained"])
+            {
+                s.Draw(player.quickRetort.Icon, quickRetortButton.ButtonRec, Color.White * skillAlpha);
+
+                if (quickRetortButton.IsOver())
+                {
+                    Rectangle descRec = new Rectangle(300, 270, 1, 1);
+                    skillBoxManager.DrawSkillDescriptions(player.quickRetort, descRec);
+                }
+            }
+
             //--Updates the skill icons and cooldown bars
             #region Skill Icon Update / Cooldown drawing
-
             //-- Q SKILL
             if (player.EquippedSkills.Count >= 1)
             {
@@ -345,10 +339,9 @@ namespace ISurvived
                 cooldownQWidth = (int)((float)60 * ((float)player.EquippedSkills[0].currentCooldown / (float)player.EquippedSkills[0].FullCooldown));
                 Rectangle cooldownRec = skillButtons[0].ButtonRec;
                 cooldownRec.Width = cooldownQWidth;
-                cooldownRec.X += 8;
-                s.Draw(Game1.whiteFilter, cooldownRec, Color.Gray * .85f);
+                s.Draw(skillButtons[0].ButtonTexture, new Rectangle(skillButtons[0].ButtonRecX, skillButtons[0].ButtonRecY, cooldownRec.Width, skillButtons[0].ButtonRec.Height), new Rectangle(0, 0, cooldownRec.Width, skillButtons[0].ButtonRec.Height), Color.Black * .9f);
 
-                s.Draw(skillLevelCircle, new Rectangle(skillButtons[0].ButtonRec.X + 44, skillButtons[0].ButtonRecY - 5, skillLevelCircle.Width, skillLevelCircle.Height), Color.White);
+                s.Draw(skillLevelCircle, new Rectangle(skillButtons[0].ButtonRec.X + 36, skillButtons[0].ButtonRecY - 14, (int)(skillLevelCircle.Width), (int)(skillLevelCircle.Height)), Color.White * skillAlpha);
             }
             else
                 skillButtons[0].ButtonTexture = Game1.emptyBox;
@@ -362,10 +355,9 @@ namespace ISurvived
                 cooldownWWidth = (int)((float)60 * ((float)player.EquippedSkills[1].currentCooldown / (float)player.EquippedSkills[1].FullCooldown));
                 Rectangle cooldownRec = skillButtons[1].ButtonRec;
                 cooldownRec.Width = cooldownWWidth;
-                cooldownRec.X += 8;
-                s.Draw(Game1.whiteFilter, cooldownRec, Color.Gray * .85f);
+                s.Draw(skillButtons[1].ButtonTexture, new Rectangle(skillButtons[1].ButtonRecX, skillButtons[1].ButtonRecY, cooldownRec.Width, skillButtons[1].ButtonRec.Height), new Rectangle(0, 0, cooldownRec.Width, skillButtons[1].ButtonRec.Height), Color.Black * .9f);
 
-                s.Draw(skillLevelCircle, new Rectangle(skillButtons[1].ButtonRec.X + 44, skillButtons[1].ButtonRecY - 5, skillLevelCircle.Width, skillLevelCircle.Height), Color.White);
+                s.Draw(skillLevelCircle, new Rectangle(skillButtons[1].ButtonRec.X + 36, skillButtons[0].ButtonRecY - 14, (int)(skillLevelCircle.Width), (int)(skillLevelCircle.Height)), Color.White * skillAlpha);
             }
             else
                 skillButtons[1].ButtonTexture = Game1.emptyBox;
@@ -378,9 +370,8 @@ namespace ISurvived
                 cooldownEWidth = (int)((float)60 * ((float)player.EquippedSkills[2].currentCooldown / (float)player.EquippedSkills[2].FullCooldown));
                 Rectangle cooldownRec = skillButtons[2].ButtonRec;
                 cooldownRec.Width = cooldownEWidth;
-                cooldownRec.X += 8;
-                s.Draw(Game1.whiteFilter, cooldownRec, Color.Gray * .85f);
-                s.Draw(skillLevelCircle, new Rectangle(skillButtons[2].ButtonRec.X + 44, skillButtons[2].ButtonRecY - 5, skillLevelCircle.Width, skillLevelCircle.Height), Color.White);
+                s.Draw(skillButtons[2].ButtonTexture, new Rectangle(skillButtons[2].ButtonRecX, skillButtons[2].ButtonRecY, cooldownRec.Width, skillButtons[2].ButtonRec.Height), new Rectangle(0, 0, cooldownRec.Width, skillButtons[2].ButtonRec.Height), Color.Black * .9f);
+                s.Draw(skillLevelCircle, new Rectangle(skillButtons[2].ButtonRec.X + 36, skillButtons[2].ButtonRecY - 14, skillLevelCircle.Width, skillLevelCircle.Height), Color.White * skillAlpha);
             }
             else
                 skillButtons[2].ButtonTexture = Game1.emptyBox;
@@ -394,39 +385,70 @@ namespace ISurvived
                 cooldownRWidth = (int)((float)60 * ((float)player.EquippedSkills[3].currentCooldown / (float)player.EquippedSkills[3].FullCooldown));
                 Rectangle cooldownRec = skillButtons[3].ButtonRec;
                 cooldownRec.Width = cooldownRWidth;
-                cooldownRec.X += 8;
-                s.Draw(Game1.whiteFilter, cooldownRec, Color.Gray * .85f);
-                s.Draw(skillLevelCircle, new Rectangle(skillButtons[3].ButtonRec.X + 44, skillButtons[3].ButtonRecY - 5, skillLevelCircle.Width, skillLevelCircle.Height), Color.White);
+                s.Draw(skillButtons[3].ButtonTexture, new Rectangle(skillButtons[3].ButtonRecX, skillButtons[3].ButtonRecY, cooldownRec.Width, skillButtons[3].ButtonRec.Height), new Rectangle(0, 0, cooldownRec.Width, skillButtons[3].ButtonRec.Height), Color.Black * .9f);
+                s.Draw(skillLevelCircle, new Rectangle(skillButtons[3].ButtonRec.X + 36, skillButtons[3].ButtonRecY - 14, skillLevelCircle.Width, skillLevelCircle.Height), Color.White * skillAlpha);
             }
             else
                 skillButtons[3].ButtonTexture = Game1.emptyBox;
             #endregion
 
+            if (game.ChapterOne.ChapterOneBooleans["quickRetortObtained"])
+            {
+                //Quick Retort
+                int cooldownQuickRetortWidth = (int)((float)60 * ((float)player.quickRetort.currentCooldown / (float)player.quickRetort.FullCooldown));
+                Rectangle cooldownQuickRetortRec = quickRetortButton.ButtonRec;
+                cooldownQuickRetortRec.Width = cooldownQuickRetortWidth;
+                s.Draw(player.quickRetort.Icon, new Rectangle(cooldownQuickRetortRec.X, cooldownQuickRetortRec.Y, cooldownQuickRetortRec.Width, cooldownQuickRetortRec.Height), new Rectangle(0, 0, cooldownQuickRetortRec.Width, cooldownQuickRetortRec.Height), Color.Black * .9f);
+                s.Draw(skillLevelCircle, new Rectangle(cooldownQuickRetortRec.X + 36, cooldownQuickRetortRec.Y - 14, skillLevelCircle.Width, skillLevelCircle.Height), Color.White * skillAlpha);
+            }
+
+
+            s.Draw(skillBarTexture, skillBarRec, Color.White * skillAlpha);
 
             //--Draws the experience bars
             for (int i = 0; i < player.EquippedSkills.Count; i++)
             {
                 //--Max leveled skill, make the bar full and a deep blue
-                if (player.EquippedSkills[i].SkillRank == 4)
+                if (player.EquippedSkills[i].SkillRank == Skill.maxLevel)
                 {
                     skillExperienceBars[i].ButtonRecY = 630;
                     skillExperienceBars[i].ButtonRecHeight = 63;
-                    s.Draw(skillExperienceBars[i].ButtonTexture, skillExperienceBars[i].ButtonRec, player.EquippedSkills[i].SkillBarColor);
+                    s.Draw(skillExperienceBars[i].ButtonTexture, skillExperienceBars[i].ButtonRec, player.EquippedSkills[i].SkillBarColor * skillAlpha);
                 }
                 //--Otherwise draw it normally
                 else
                 {
                     float yPos = originalSkillExperienceHeight - skillExperienceBars[i].ButtonRecHeight;
-                    skillExperienceBars[i].ButtonRecY = (int)(((1280 * Game1.aspectRatio) - 90) + yPos);
+                    skillExperienceBars[i].ButtonRecY = (int)(648 + yPos);
 
-                    s.Draw(skillExperienceBars[i].ButtonTexture, skillExperienceBars[i].ButtonRec, new Rectangle(0, originalSkillExperienceHeight - skillExperienceBars[i].ButtonRecHeight, skillExperienceBars[i].ButtonRecWidth, skillExperienceBars[i].ButtonRecHeight), player.EquippedSkills[i].SkillBarColor);
+                    s.Draw(skillExperienceBars[i].ButtonTexture, skillExperienceBars[i].ButtonRec, new Rectangle(0, originalSkillExperienceHeight - skillExperienceBars[i].ButtonRecHeight, skillExperienceBars[i].ButtonRecWidth, skillExperienceBars[i].ButtonRecHeight), player.EquippedSkills[i].SkillBarColor * skillAlpha);
+                }
+            }
+
+            if (game.ChapterOne.ChapterOneBooleans["quickRetortObtained"])
+            {
+                s.Draw(Game1.singleSkillBarBack, new Vector2(quickRetortBarButton.ButtonRecX - 4, 644), Color.White * skillAlpha);
+                //--Max leveled skill, make the bar full and a deep blue
+                if (player.quickRetort.SkillRank == Skill.maxLevel)
+                {
+                    quickRetortBarButton.ButtonRecY = 630;
+                    quickRetortBarButton.ButtonRecHeight = 63;
+                    s.Draw(quickRetortBarButton.ButtonTexture, quickRetortBarButton.ButtonRec, player.quickRetort.SkillBarColor * skillAlpha);
+                }
+                //--Otherwise draw it normally
+                else
+                {
+                    float yPos = originalSkillExperienceHeight - quickRetortBarButton.ButtonRecHeight;
+                    quickRetortBarButton.ButtonRecY = (int)(648 + yPos);
+
+                    s.Draw(quickRetortBarButton.ButtonTexture, quickRetortBarButton.ButtonRec, new Rectangle(0, originalSkillExperienceHeight - quickRetortBarButton.ButtonRecHeight, quickRetortBarButton.ButtonRecWidth, quickRetortBarButton.ButtonRecHeight), player.quickRetort.SkillBarColor * skillAlpha);
                 }
             }
 
             if (!Game1.gamePadConnected)
-                s.Draw(skillFront, skillBarRec, Color.White);
+                s.Draw(skillFront, skillBarRec, Color.White * skillAlpha);
             else
-                s.Draw(skillFrontPad, new Rectangle(skillBarRec.X, skillBarRec.Y, 269, 77), Color.White);
+                s.Draw(skillFrontPad, new Vector2(0, 720 - skillFrontPad.Height + 10), Color.White * skillAlpha);
         }
 
         /// <summary>
@@ -560,7 +582,7 @@ namespace ISurvived
         int timeHoldingTab;
         int questSelected;
 
-        Texture2D storyExpanded, sideExpanded, minimized, selectBox;
+        Texture2D storyExpanded, sideExpanded, minimized, selectBox, storyExpandedPad, sideExpandedPad, minimizedPad;
 
         public QuestHud(Game1 g)
         {
@@ -576,6 +598,10 @@ namespace ISurvived
             sideExpanded = Content.Load<Texture2D>(@"HUD\sideQuestBox");
             minimized = Content.Load<Texture2D>(@"HUD\minimizedQuestHud");
             selectBox = Content.Load<Texture2D>(@"HUD\questSelectBox");
+
+            storyExpandedPad = Content.Load<Texture2D>(@"HUD\storyQuestBoxController");
+            sideExpandedPad = Content.Load<Texture2D>(@"HUD\sideQuestBoxController");
+            minimizedPad = Content.Load<Texture2D>(@"HUD\minimizedQuestHudController");
         }
 
         public void AddQuestToHelper(Quest q)
@@ -615,7 +641,7 @@ namespace ISurvived
                 timeHoldingTab = 0;
 
             //Change selected quest
-            if (last.IsKeyDown(Keys.Tab) && current.IsKeyUp(Keys.Tab) && !holdingTab)
+            if ((last.IsKeyDown(Keys.Tab) && current.IsKeyUp(Keys.Tab) && !holdingTab) || MyGamePad.RightDownAnalogPressed())
             {
                 questSelected++;
 
@@ -625,12 +651,20 @@ namespace ISurvived
                 timeHoldingTab = 0;
             }
                 //Expand or minimize the quest HUD
-            else if (((last.IsKeyDown(Keys.Tab) && current.IsKeyUp(Keys.Tab)) || current.IsKeyDown(Keys.Tab)) && timeHoldingTab > 30)
+            else if ((((last.IsKeyDown(Keys.Tab) && current.IsKeyUp(Keys.Tab)) || current.IsKeyDown(Keys.Tab)) && timeHoldingTab > 30) || MyGamePad.RightAnalogPressedIn())
             {
                 expanded = !expanded;
 
                 timeHoldingTab = 0;
             }
+
+            if (MyGamePad.RightUpAnalogPressed())
+            {
+                questSelected--;
+
+                if (questSelected < 0)
+                    questSelected = questHelperQuests.Count - 1;
+            } 
 
             if (current.IsKeyUp(Keys.Tab) && holdingTab)
                 holdingTab = false;
@@ -657,12 +691,20 @@ namespace ISurvived
                 {
                     if (questHelperQuests[questSelected].StoryQuest)
                     {
-                        s.Draw(storyExpanded, new Rectangle(1280 - storyExpanded.Width, 0, storyExpanded.Width, storyExpanded.Height), Color.White);
+                        if(!Game1.gamePadConnected)
+                            s.Draw(storyExpanded, new Rectangle(1280 - storyExpanded.Width, 0, storyExpanded.Width, storyExpanded.Height), Color.White);
+                        else
+                            s.Draw(storyExpandedPad, new Rectangle(1280 - storyExpandedPad.Width, 0, storyExpandedPad.Width, storyExpandedPad.Height), Color.White);
+
                     }
 
                     if (questHelperQuests[questSelected].StoryQuest == false)
                     {
-                        s.Draw(sideExpanded, new Rectangle(1280 - sideExpanded.Width, 0, sideExpanded.Width, sideExpanded.Height), Color.White);
+                        if (!Game1.gamePadConnected)
+                            s.Draw(sideExpanded, new Rectangle(1280 - sideExpanded.Width, 0, sideExpanded.Width, sideExpanded.Height), Color.White);
+                        else
+                            s.Draw(sideExpandedPad, new Rectangle(1280 - sideExpandedPad.Width, 0, sideExpandedPad.Width, sideExpandedPad.Height), Color.White);
+
                     }
 
                     s.Draw(selectBox, new Rectangle(1280 - selectBox.Width, 108 + (22 * questSelected), selectBox.Width, selectBox.Height), Color.White);
@@ -728,7 +770,11 @@ namespace ISurvived
                                 gathered.Add(0);
 
                             //--Set the string
-                            String itemsGathered = questHelperQuests[questSelected].ItemName[i] + "'s : " +
+                            String tmp = questHelperQuests[questSelected].ItemName[i];
+
+                            //if (questHelperQuests[questSelected].ItemsToGather[i] > 1)
+                            //    tmp += "'s";
+                            String itemsGathered = tmp + " : " +
                                                     gathered[i].ToString() + " / " +
                                                     questHelperQuests[questSelected].ItemsToGather[i].ToString();
 
@@ -744,7 +790,12 @@ namespace ISurvived
                 //Otherwise draw the minimized version
                 else
                 {
-                    s.Draw(minimized, new Rectangle(1280 - minimized.Width, 0, minimized.Width, minimized.Height), Color.White);
+                    if(!Game1.gamePadConnected)
+                        s.Draw(minimized, new Rectangle(1280 - minimized.Width, 0, minimized.Width, minimized.Height), Color.White);
+                    else
+                        s.Draw(minimizedPad, new Rectangle(1280 - minimizedPad.Width, 0, minimizedPad.Width, minimizedPad.Height), Color.White);
+
+
                     s.Draw(selectBox, new Rectangle(1280 - selectBox.Width, 10 + (22 * questSelected), selectBox.Width, selectBox.Height), Color.White);
 
                     for (int i = 0; i < questHelperQuests.Count; i++)

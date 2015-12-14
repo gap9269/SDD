@@ -27,10 +27,31 @@ namespace ISurvived
             allStoryItems.Add("Challenge Room Key", "A key that unlocks challenge rooms.");
             allStoryItems.Add("Key Ring", "The janitor's key ring.");
             allStoryItems.Add("Closet Key", "A key that opens the janitor's closet.");
+            allStoryItems.Add("Pyramid Key", "An ancient key made of sandstone.");
+            allStoryItems.Add("Christmas Cage Key", "A key that locks the door on Christmas Spirit.");
+            allStoryItems.Add("Backstage Key", "Meet the band!");
+            allStoryItems.Add("Security Clearance I.D", "An I.D card that gives you high security clearance in the Theater An Der Wien.");
+            allStoryItems.Add("Empty Bottle", "Unlike it's older counterparts, this bottle never runs out of precious liquid once it's filled.");
+            allStoryItems.Add("Pyramid Water", "Thousand year old water from the musty pyramid springs. Try pouring it on stuff!");
             allStoryItems.Add("Piece of Paper", "A crumpled up piece of paper.");
+            allStoryItems.Add("Old painting", "A painting that is centuries old. Probably worth a lot of lunches.");
+            allStoryItems.Add("Coal", "A chunk of dirty coal. Try eating it.");
+            allStoryItems.Add("Harpsichord", "Wow! What a great gift from Beethoven!");
+            allStoryItems.Add("Recorder", "The most precious of fipple flutes.");
+            allStoryItems.Add("Ten Dollars", "You should invest.");
+            allStoryItems.Add("Napoleon's Supplies", "Barrels full of white flags.");
+            allStoryItems.Add("Old Battery", "A cheap, old battery.");
+            allStoryItems.Add("250 Ducats", "Also known as arcade tokens.");
             allStoryItems.Add("Vienna Access Card", "An access card to the Vienna portal.");
-            allStoryItems.Add("Beethoven's Ear Horn", "Beethoven's prized ear horn.");
+            allStoryItems.Add("Ear Trumpet", "Beethoven pretends to hear when he has this.");
             allStoryItems.Add("Dandelion", "A beautiful dandelion.");
+            allStoryItems.Add("Goblin Morphine", "Try injecting into your favorite test subjects!");
+            allStoryItems.Add("Jarred Brain", "The jarred brain of a European Swamp Ape.");
+            allStoryItems.Add("Jarred Liver", "The profoundly efficient liver of the legendary ruler, Pharaoh Drinx Ahlut.");
+            allStoryItems.Add("Jarred Heart", "Yes, it still beats, but can it still love?");
+            allStoryItems.Add("Letter to Caesar", "An invitation to join forces, from Napoleon to Julius.");
+            allStoryItems.Add("Letter to Cleopatra", "An invitation to join forces, from Napoleon to Cleopatra.");
+
             allStoryItems.Add("Beer", "Some beer from Chelsea's party.");
             allStoryItems.Add("Assorted Nuts", "An old, moldy can of assorted nuts.");
             allStoryItems.Add("Scissors", "A pair of 100% conductable metal scissors.");
@@ -94,7 +115,7 @@ namespace ISurvived
                 previous = current;
                 current = Keyboard.GetState();
 
-                if (NearPlayer() && ((previous.IsKeyDown(Keys.Space) && current.IsKeyUp(Keys.Space)) || MyGamePad.RightBumperPressed()) && !pickedUp)
+                if (NearPlayer() && ((previous.IsKeyDown(Keys.Space) && current.IsKeyUp(Keys.Space)) || MyGamePad.RightTriggerPressed()) && !pickedUp)
                 {
                     if (player.StoryItems.ContainsKey(name))
                         player.StoryItems[name]++;
@@ -103,6 +124,8 @@ namespace ISurvived
 
                     pickedUp = true;
                     Chapter.effectsManager.AddFoundItem(pickUpName, Game1.storyItemIcons[name]);
+
+                    Sound.PlaySoundInstance(Sound.SoundNames.object_pickup_misc);
                 }
             }
         }

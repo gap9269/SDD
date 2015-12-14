@@ -163,6 +163,7 @@ namespace ISurvived
                     break;
 
                 case Game1.ChapterState.chapterTwo:
+                case Game1.ChapterState.demo:
                     chTwoSynopsisRead = false;
                     break;
             }
@@ -178,14 +179,19 @@ namespace ISurvived
             {
                 game.Notebook.state = DarylsNotebook.State.quests;
                 Chapter.effectsManager.RemoveToolTip();
-                Sound.PlaySoundInstance(Sound.SoundNames.UITab);
+                Sound.PlaySoundInstance(Sound.SoundNames.ui_general_tab);
             }
-
+            if (DarylsNotebook.mapsTab.Clicked())
+            {
+                game.Notebook.state = DarylsNotebook.State.maps;
+                Chapter.effectsManager.RemoveToolTip();
+                Sound.PlaySoundInstance(Sound.SoundNames.ui_general_tab);
+            }
             if (DarylsNotebook.combosTab.Clicked())
             {
                 game.Notebook.state = DarylsNotebook.State.combos;
                 Chapter.effectsManager.RemoveToolTip();
-                Sound.PlaySoundInstance(Sound.SoundNames.UITab);
+                Sound.PlaySoundInstance(Sound.SoundNames.ui_general_tab);
             }
 
             if (DarylsNotebook.bioTab.Clicked())
@@ -195,14 +201,14 @@ namespace ISurvived
 
                 //The sound is automatically played once the bio page is loaded, so we need to make sure it doesn't play twice
                 if (game.Notebook.BioPage.changeToBioSound == false)
-                    Sound.PlaySoundInstance(Sound.SoundNames.UITab);
+                    Sound.PlaySoundInstance(Sound.SoundNames.ui_general_tab);
             }
 
             if (DarylsNotebook.inventoryTab.Clicked())
             {
                 game.Notebook.state = DarylsNotebook.State.inventory;
                 Chapter.effectsManager.RemoveToolTip();
-                Sound.PlaySoundInstance(Sound.SoundNames.UITab);
+                Sound.PlaySoundInstance(Sound.SoundNames.ui_general_tab);
             }
             #endregion
 
@@ -215,6 +221,7 @@ namespace ISurvived
                     currentChapterInt = 1;
                     break;
                 case Game1.ChapterState.chapterTwo:
+                case Game1.ChapterState.demo:
                     currentChapterInt = 2;
                     break;
             }
@@ -230,6 +237,7 @@ namespace ISurvived
                         chapterState = ChapterState.ChapterOne;
                         break;
                     case Game1.ChapterState.chapterTwo:
+                    case Game1.ChapterState.demo:
                         chapterState = ChapterState.ChapterTwo;
                         break;
                 }
@@ -243,7 +251,7 @@ namespace ISurvived
                 {
                     if (currentChapterInt >= i)
                     {
-                        Sound.PlaySoundInstance(Sound.SoundNames.UIList2);
+                        Sound.PlaySoundInstance(Sound.SoundNames.ui_inventory_list_02);
                         synopsisPages.Clear();
                         synopsisPage = 0;
 
@@ -277,7 +285,7 @@ namespace ISurvived
 
             if (synopsisButton.Clicked())
             {
-                Sound.PlaySoundInstance(Sound.SoundNames.UIPaperTab4);
+                Sound.PlaySoundInstance(Sound.SoundNames.ui_inventory_tab_04);
                 viewingSpecificQuest = false;
             }
 
@@ -308,7 +316,7 @@ namespace ISurvived
             //VIEWING SIDE QUESTS
             if (sideButton.Clicked())
             {
-                Sound.PlaySoundInstance(Sound.SoundNames.UIPaperTab2);
+                Sound.PlaySoundInstance(Sound.SoundNames.ui_inventory_tab_02);
                 Chapter.effectsManager.RemoveToolTip();
                 insideChapterState = InsideChapterState.side;
                 selectedQuest = null;
@@ -319,7 +327,7 @@ namespace ISurvived
             //VIEWING STORY QUESTS
             if (storyButton.Clicked())
             {
-                Sound.PlaySoundInstance(Sound.SoundNames.UIPaperTab2);
+                Sound.PlaySoundInstance(Sound.SoundNames.ui_inventory_tab_02);
                 Chapter.effectsManager.RemoveToolTip();
                 insideChapterState = InsideChapterState.story;
                 selectedQuest = null;
@@ -360,6 +368,23 @@ namespace ISurvived
                         synopsisPages = WrapSynopsisText(Game1.expMoneyFloatingNumFont, game.ChapterOne.Synopsis, 280);
                     maxStoryQuestPage = game.ChapterOne.CompletedStoryQuests.Count / 11; //11 because you can fit 10 on a page, and if you do /10 it would mean there should be 2 pages for 10 quests
                     maxSideQuestPage = game.ChapterOne.CompletedSideQuests.Count / 11;
+
+                    if (openedToSpecificQuest)
+                    {
+                        openedToSpecificQuest = false;
+
+                        if (insideChapterState == InsideChapterState.side)
+                        {
+                            selectedIndex = game.ChapterOne.CompletedSideQuests.Count - 1 - (10 * maxSideQuestPage);
+                            chOneSideQuestsRead[game.ChapterOne.CompletedSideQuests.Count - 1 - (10 * maxSideQuestPage)] = true;
+                        }
+                        else
+                        {
+                            selectedIndex = game.ChapterOne.CompletedStoryQuests.Count - 1 - (10 * maxStoryQuestPage);
+                            chOneStoryQuestsRead[game.ChapterOne.CompletedStoryQuests.Count - 1 - (10 * maxStoryQuestPage)] = true;
+                        }
+
+                    }
                     break;
                 case ChapterState.ChapterTwo:
                     if (synopsisPages.Count == 0)
@@ -379,7 +404,7 @@ namespace ISurvived
                         else
                         {
                             selectedIndex = game.ChapterTwo.CompletedStoryQuests.Count - 1 - (10 * maxStoryQuestPage);
-                            chTwoSideQuestsRead[game.ChapterTwo.CompletedStoryQuests.Count - 1 - (10 * maxStoryQuestPage)] = true;
+                            chTwoStoryQuestsRead[game.ChapterTwo.CompletedStoryQuests.Count - 1 - (10 * maxStoryQuestPage)] = true;
                         }
 
                     }
@@ -392,14 +417,14 @@ namespace ISurvived
             {
                 if (synopsisPages.Count > 1)
                 {
-                    if (synRight.Clicked() && synopsisPage < synopsisPages.Count - 1)
+                    if ((synRight.Clicked() || MyGamePad.DownPadPressed()) && synopsisPage < synopsisPages.Count - 1)
                     {
-                        Sound.PlaySoundInstance(Sound.SoundNames.UIPage2);
+                        Sound.PlaySoundInstance(Sound.SoundNames.ui_inventory_page_02);
                         synopsisPage++;
                     }
-                    if (synLeft.Clicked() && synopsisPage > 0)
+                    if ((synLeft.Clicked()|| MyGamePad.UpPadPressed()) && synopsisPage > 0)
                     {
-                        Sound.PlaySoundInstance(Sound.SoundNames.UIPage1);
+                        Sound.PlaySoundInstance(Sound.SoundNames.ui_inventory_page_01);
                         synopsisPage--;
                     }
                 }
@@ -409,45 +434,49 @@ namespace ISurvived
             #region QUEST PAGE ARROWS
             if (insideChapterState == InsideChapterState.story && maxStoryQuestPage > 0)
             {
-                if (questLeft.Clicked())
+                if ((questLeft.Clicked() || MyGamePad.LeftPadPressed()))
                 {
                     if (questPage > 0)
                     {
                         selectedQuest = null;
                         selectedIndex = 0;
                         questPage--;
-                        Sound.PlaySoundInstance(Sound.SoundNames.UIPage1);
+                        Sound.PlaySoundInstance(Sound.SoundNames.ui_inventory_page_01);
+                        viewingSpecificQuest = false;
                     }
                 }
-                else if (questRight.Clicked())
+                else if ((questRight.Clicked() || MyGamePad.RightPadPressed()))
                 {
                     if (questPage < maxStoryQuestPage)
                     {
                         questPage++;
-                        Sound.PlaySoundInstance(Sound.SoundNames.UIPage2);
+                        Sound.PlaySoundInstance(Sound.SoundNames.ui_inventory_page_02);
                         selectedQuest = null;
                         selectedIndex = 0;
+                        viewingSpecificQuest = false;
                     }
                 }
             }
             else if (insideChapterState == InsideChapterState.side && maxSideQuestPage > 0)
             {
-                if (questLeft.Clicked())
+                if ((questLeft.Clicked()|| MyGamePad.LeftPadPressed()))
                 {
                     if (questPage > 0)
                     {
                         selectedQuest = null;
                         selectedIndex = 0;
                         questPage--;
+                        viewingSpecificQuest = false;
                     }
                 }
-                else if (questRight.Clicked())
+                else if ((questRight.Clicked() || MyGamePad.RightPadPressed()))
                 {
                     if (questPage < maxSideQuestPage)
                     {
                         questPage++;
                         selectedQuest = null;
                         selectedIndex = 0;
+                        viewingSpecificQuest = false;
                     }
                 }
             }
@@ -502,7 +531,7 @@ namespace ISurvived
                     {
                         viewingSpecificQuest = true;
                         selectedIndex = i;
-                        Sound.PlaySoundInstance(Sound.SoundNames.UIPaperTab1);
+                        Sound.PlaySoundInstance(Sound.SoundNames.ui_inventory_tab_01);
 
                         #region SIDE QUESTS
                         if (insideChapterState == InsideChapterState.side)
@@ -583,7 +612,7 @@ namespace ISurvived
                 if (firstFrameOverSynopsis)
                 {
                     firstFrameOverSynopsis = false;
-                    Sound.PlaySoundInstance(Sound.SoundNames.UIPaperTab1);
+                    Sound.PlaySoundInstance(Sound.SoundNames.ui_inventory_tab_01);
                 }
                 s.Draw(textures["synopsisActive"], new Rectangle(341, 191, textures["synopsisActive"].Width, textures["synopsisActive"].Height), Color.White);
             }
@@ -598,7 +627,7 @@ namespace ISurvived
                 if (firstFrameOverStory)
                 {
                     firstFrameOverStory = false;
-                    Sound.PlaySoundInstance(Sound.SoundNames.UIList2);
+                    Sound.PlaySoundInstance(Sound.SoundNames.ui_inventory_list_02);
                 }
                 s.Draw(textures["storyActive"], new Rectangle(352, 308, textures["storyActive"].Width, textures["storyActive"].Height), Color.White);
             }
@@ -613,7 +642,7 @@ namespace ISurvived
                 if (firstFrameOverSide)
                 {
                     firstFrameOverSide = false;
-                    Sound.PlaySoundInstance(Sound.SoundNames.UIList2);
+                    Sound.PlaySoundInstance(Sound.SoundNames.ui_inventory_list_02);
                 }
                 s.Draw(textures["sideActive"], new Rectangle(352, 308, textures["sideActive"].Width, textures["sideActive"].Height), Color.White);
             }
@@ -626,37 +655,57 @@ namespace ISurvived
             #region Quest Arrows
             if ((maxSideQuestPage > 0 && insideChapterState == InsideChapterState.side) || (maxStoryQuestPage > 0 && insideChapterState == InsideChapterState.story))
             {
-                if (questLeft.IsOver())
-                    s.Draw(textures["leftActive"], new Rectangle(410, 655, textures["leftActive"].Width, textures["leftActive"].Height), Color.White);
+                if (Game1.gamePadConnected)
+                    s.Draw(DarylsNotebook.dLeft, new Vector2(431, 658), Color.White);
                 else
-                    s.Draw(textures["leftStatic"], new Rectangle(410, 655, textures["leftActive"].Width, textures["leftActive"].Height), Color.White);
+                {
+                    if (questLeft.IsOver())
+                        s.Draw(textures["leftActive"], new Rectangle(410, 655, textures["leftActive"].Width, textures["leftActive"].Height), Color.White);
+                    else
+                        s.Draw(textures["leftStatic"], new Rectangle(410, 655, textures["leftActive"].Width, textures["leftActive"].Height), Color.White);
+                }
 
-                if(insideChapterState == InsideChapterState.side)
-                    s.DrawString(Game1.twConQuestHudName, (questPage + 1) + " / " + (maxSideQuestPage + 1), new Vector2(482, 664), Color.Black);
+                if (insideChapterState == InsideChapterState.side)
+                    s.DrawString(Game1.twConQuestHudName, (questPage + 1) + " / " + (maxSideQuestPage + 1), new Vector2(485, 664), Color.Black);
                 else
-                    s.DrawString(Game1.twConQuestHudName, (questPage + 1) + " / " + (maxStoryQuestPage + 1), new Vector2(482, 664), Color.Black);
+                    s.DrawString(Game1.twConQuestHudName, (questPage + 1) + " / " + (maxStoryQuestPage + 1), new Vector2(485, 664), Color.Black);
 
-                if (questRight.IsOver())
-                    s.Draw(textures["rightActive"], new Rectangle(410, 655, textures["rightActive"].Width, textures["rightActive"].Height), Color.White);
+                if (Game1.gamePadConnected)
+                    s.Draw(DarylsNotebook.dRight, new Vector2(542, 658), Color.White);
                 else
-                    s.Draw(textures["rightStatic"], new Rectangle(410, 655, textures["rightActive"].Width, textures["rightActive"].Height), Color.White);
+                {
+                    if (questRight.IsOver())
+                        s.Draw(textures["rightActive"], new Rectangle(410, 655, textures["rightActive"].Width, textures["rightActive"].Height), Color.White);
+                    else
+                        s.Draw(textures["rightStatic"], new Rectangle(410, 655, textures["rightActive"].Width, textures["rightActive"].Height), Color.White);
+                }
             }
             #endregion
 
             #region Synopsis Arrows
             if ((synopsisPages.Count > 0 && !viewingSpecificQuest))
             {
-                if (synLeft.IsOver())
-                    s.Draw(textures["leftActive"], new Rectangle(846, 653, textures["leftActive"].Width, textures["leftActive"].Height), Color.White);
-                else
-                    s.Draw(textures["leftStatic"], new Rectangle(846, 653, textures["leftActive"].Width, textures["leftActive"].Height), Color.White);
 
+                if (Game1.gamePadConnected)
+                    s.Draw(DarylsNotebook.dUp, new Vector2(864, 656), Color.White);
+                else
+                {
+                    if (synLeft.IsOver())
+                        s.Draw(textures["leftActive"], new Rectangle(846, 653, textures["leftActive"].Width, textures["leftActive"].Height), Color.White);
+                    else
+                        s.Draw(textures["leftStatic"], new Rectangle(846, 653, textures["leftActive"].Width, textures["leftActive"].Height), Color.White);
+                }
                 s.DrawString(Game1.twConQuestHudName, (synopsisPage + 1) + " / " + (synopsisPages.Count), new Vector2(918, 662), Color.Black);
 
-                if (synRight.IsOver())
-                    s.Draw(textures["rightActive"], new Rectangle(846, 653, textures["rightActive"].Width, textures["rightActive"].Height), Color.White);
+                if (Game1.gamePadConnected)
+                    s.Draw(DarylsNotebook.dDown, new Vector2(978, 656), Color.White);
                 else
-                    s.Draw(textures["rightStatic"], new Rectangle(846, 653, textures["rightActive"].Width, textures["rightActive"].Height), Color.White);
+                {
+                    if (synRight.IsOver())
+                        s.Draw(textures["rightActive"], new Rectangle(846, 653, textures["rightActive"].Width, textures["rightActive"].Height), Color.White);
+                    else
+                        s.Draw(textures["rightStatic"], new Rectangle(846, 653, textures["rightActive"].Width, textures["rightActive"].Height), Color.White);
+                }
             }
             #endregion
 
@@ -673,49 +722,49 @@ namespace ISurvived
                             if (firstFrameOverPrologue)
                             {
                                 firstFrameOverPrologue = false;
-                                Sound.PlaySoundInstance(Sound.SoundNames.UIPaperTab3);
+                                Sound.PlaySoundInstance(Sound.SoundNames.ui_inventory_tab_03);
                             }
                             break;
                         case 1:
                             if (firstFrameOverCh1)
                             {
                                 firstFrameOverCh1 = false;
-                                Sound.PlaySoundInstance(Sound.SoundNames.UIPaperTab3);
+                                Sound.PlaySoundInstance(Sound.SoundNames.ui_inventory_tab_03);
                             }
                             break;
                         case 2:
                             if (firstFrameOverCh2)
                             {
                                 firstFrameOverCh2 = false;
-                                Sound.PlaySoundInstance(Sound.SoundNames.UIPaperTab3);
+                                Sound.PlaySoundInstance(Sound.SoundNames.ui_inventory_tab_03);
                             }
                             break;
                         case 3:
                             if (firstFrameOverCh3)
                             {
                                 firstFrameOverCh3 = false;
-                                Sound.PlaySoundInstance(Sound.SoundNames.UIPaperTab3);
+                                Sound.PlaySoundInstance(Sound.SoundNames.ui_inventory_tab_03);
                             }
                             break;
                         case 4:
                             if (firstFrameOverCh4)
                             {
                                 firstFrameOverCh4 = false;
-                                Sound.PlaySoundInstance(Sound.SoundNames.UIPaperTab3);
+                                Sound.PlaySoundInstance(Sound.SoundNames.ui_inventory_tab_03);
                             }
                             break;
                         case 5:
                             if (firstFrameOverCh5)
                             {
                                 firstFrameOverCh5 = false;
-                                Sound.PlaySoundInstance(Sound.SoundNames.UIPaperTab3);
+                                Sound.PlaySoundInstance(Sound.SoundNames.ui_inventory_tab_03);
                             }
                             break;
                         case 6:
                             if (firstFrameOverCh6)
                             {
                                 firstFrameOverCh6 = false;
-                                Sound.PlaySoundInstance(Sound.SoundNames.UIPaperTab3);
+                                Sound.PlaySoundInstance(Sound.SoundNames.ui_inventory_tab_03);
                             }
                             break;
                     }
@@ -776,6 +825,7 @@ namespace ISurvived
                     s.Draw(textures["chOne"], new Rectangle(377, 108, textures["prologue"].Width, textures["prologue"].Height), Color.White);
                     break;
                 case Game1.ChapterState.chapterTwo:
+                case Game1.ChapterState.demo:
                     s.Draw(textures["chTwo"], new Rectangle(377, 108, textures["prologue"].Width, textures["prologue"].Height), Color.White);
                     break;
             }
@@ -883,26 +933,27 @@ namespace ISurvived
                         if (eq is Money)
                         {
                             s.Draw(Game1.smallTypeIcons["smallMoneyIcon"], new Rectangle(922, 124 + (i * 27), 20, 20), Color.White);
-                            s.DrawString(Game1.font, "$" + (eq as Money).Amount.ToString("N2"), new Vector2(950, 122 + (i * 27)), Color.Black);
+                            s.DrawString(Game1.twConQuestHudInfo, "$" + (eq as Money).Amount.ToString("N2"), new Vector2(950, 122 + (i * 27)), Color.Black);
                         }
                         else if (eq is Experience)
                         {
                             s.Draw(Game1.smallTypeIcons["smallExperienceIcon"], new Rectangle(922, 124 + (i * 27), 20, 20), Color.White);
-                            s.DrawString(Game1.font, "+ " + (eq as Experience).Amount.ToString(), new Vector2(950, 122 + (i * 27)), Color.Black);
+                            s.DrawString(Game1.twConQuestHudInfo, "+ " + (eq as Experience).Amount.ToString(), new Vector2(950, 122 + (i * 27)), Color.Black);
                         }
                         else if (eq is Karma)
                         {
                             s.Draw(Game1.smallTypeIcons["smallKarmaIcon"], new Rectangle(922, 124 + (i * 27), 20, 20), Color.White);
-                            s.DrawString(Game1.font, "+ " + (eq as Karma).Amount.ToString(), new Vector2(950, 122 + (i * 27)), Color.Black);
+                            s.DrawString(Game1.twConQuestHudInfo, "+ " + (eq as Karma).Amount.ToString(), new Vector2(950, 122 + (i * 27)), Color.Black);
                         }
                         else
                         {
-                            s.DrawString(Game1.font, eq.Name, new Vector2(950, 122 + (i * 27)), Color.Black);
+                                s.DrawString(Game1.twConQuestHudInfo, eq.Name, new Vector2(950, 125 + (i * 27)), Color.Black);
+
                             if (eq is Weapon)
                                 s.Draw(Game1.smallTypeIcons["smallWeaponIcon"], new Rectangle(922, 124 + (i * 27), 20, 20), Color.White);
                             if (eq is Hat)
                                 s.Draw(Game1.smallTypeIcons["smallHatIcon"], new Rectangle(922, 124 + (i * 27), 20, 20), Color.White);
-                            if (eq is Hoodie)
+                            if (eq is Outfit)
                                 s.Draw(Game1.smallTypeIcons["smallShirtIcon"], new Rectangle(922, 124 + (i * 27), 20, 20), Color.White);
                             if (eq is Accessory)
                                 s.Draw(Game1.smallTypeIcons["smallAccessoryIcon"], new Rectangle(922, 124 + (i * 27), 20, 20), Color.White);
@@ -911,30 +962,35 @@ namespace ISurvived
                     else if (selectedQuest.RewardObjects[i] is StoryItem)
                     {
                         StoryItem sItem = selectedQuest.RewardObjects[i] as StoryItem;
-                        s.DrawString(Game1.twConQuestHudInfo, sItem.PickUpName, new Vector2(950, 122 + (i * 27)), Color.Black);
+                        s.DrawString(Game1.twConQuestHudInfo, sItem.Name, new Vector2(950, 125 + (i * 27)), Color.Black);
                         s.Draw(Game1.smallTypeIcons["smallStoryItemIcon"], new Rectangle(922, 124 + (i * 27), 20, 20), Color.White);
                     }
                     else if (selectedQuest.RewardObjects[i] is Collectible)
                     {
                         if (selectedQuest.RewardObjects[i] is Textbook)
                         {
-                            s.DrawString(Game1.font, "Textbook", new Vector2(950, 122 + (i * 27)), Color.Black);
+                            s.DrawString(Game1.twConQuestHudInfo, "Textbook", new Vector2(950, 125 + (i * 27)), Color.Black);
                             s.Draw(Game1.smallTypeIcons["smallTextbookIcon"], new Rectangle(922, 124 + (i * 27), 20, 20), Color.White);
                         }
                         else if (selectedQuest.RewardObjects[i] is BronzeKey)
                         {
-                            s.DrawString(Game1.twConQuestHudInfo, "Bronze Key", new Vector2(950, 122 + (i * 27)), Color.Black);
+                            s.DrawString(Game1.twConQuestHudInfo, "Bronze Key", new Vector2(950, 125 + (i * 27)), Color.Black);
                             s.Draw(Game1.smallTypeIcons["smallBronzeKeyIcon"], new Rectangle(922, 124 + (i * 27), 20, 20), Color.White);
                         }
                         else if (selectedQuest.RewardObjects[i] is SilverKey)
                         {
-                            s.DrawString(Game1.font, "Silver Key", new Vector2(950, 122 + (i * 27)), Color.Black);
+                            s.DrawString(Game1.twConQuestHudInfo, "Silver Key", new Vector2(950, 125 + (i * 27)), Color.Black);
                             s.Draw(Game1.smallTypeIcons["smallSilverKeyIcon"], new Rectangle(922, 124 + (i * 27), 20, 20), Color.White);
                         }
                         else if (selectedQuest.RewardObjects[i] is GoldKey)
                         {
-                            s.DrawString(Game1.font, "Gold Key", new Vector2(950, 122 + (i * 27)), Color.Black);
+                            s.DrawString(Game1.twConQuestHudInfo, "Gold Key", new Vector2(950, 125 + (i * 27)), Color.Black);
                             s.Draw(Game1.smallTypeIcons["smallGoldKeyIcon"], new Rectangle(922, 124 + (i * 27), 20, 20), Color.White);
+                        }
+                        else if (selectedQuest.RewardObjects[i] is LockerCombo)
+                        {
+                            s.DrawString(Game1.twConQuestHudInfo, (selectedQuest.RewardObjects[i] as LockerCombo).name + "\'s locker combo", new Vector2(950, 125 + (i * 27)), Color.Black * .8f);
+                            s.Draw(Game1.smallTypeIcons["smallComboIcon"], new Rectangle(922, 124 + (i * 27), Game1.smallTypeIcons["smallExperienceIcon"].Width, Game1.smallTypeIcons["smallExperienceIcon"].Height), Color.White);
                         }
                     }
                 }

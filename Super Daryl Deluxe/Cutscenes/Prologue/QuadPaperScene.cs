@@ -16,6 +16,7 @@ namespace ISurvived
     {
         GameObject camFollow;
         LockerSheet pieceOfPaper;
+        SoundEffect cutscene_prologue_bird_steals_note;
 
         public QuadPaperScene(Game1 g, Camera cam, Player p)
             : base(g, cam, p)

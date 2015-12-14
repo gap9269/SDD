@@ -7,18 +7,19 @@ using Microsoft.Xna.Framework;
 
 namespace ISurvived
 {
-    class RoomOne : MapClass
+    //Hall West
+    class MozartsRoom : MapClass
     {
         static Portal toTenantHallway;
 
         public static Portal ToTenantHallway { get { return toTenantHallway; } }
 
-        public RoomOne(List<Texture2D> bg, Game1 g, ref Player play)
+        public MozartsRoom(List<Texture2D> bg, Game1 g, ref Player play)
             : base(bg, g, ref play)
         {
             mapHeight = 720;
             mapWidth = 1300;
-            mapName = "Tenant Room #1";
+            mapName = "Mozart's Room";
 
             mapRec = new Rectangle(0, 0, mapWidth, mapHeight);
             enemyAmount = 0;
@@ -31,6 +32,22 @@ namespace ISurvived
             SetPortals();
         }
 
+        public override void LoadContent()
+        {
+            background.Add(content.Load<Texture2D>(@"Maps\Music\Tenant Bedroom\background"));
+
+            game.NPCSprites["Mozart"] = content.Load<Texture2D>(@"NPC\Music\Mozart");
+            Game1.npcFaces["Mozart"].faces["Normal"] = content.Load<Texture2D>(@"NPCFaces\Music\MozartNormal");
+        }
+
+        public override void UnloadNPCContent()
+        {
+            base.UnloadNPCContent();
+
+            game.NPCSprites["Mozart"] = Game1.whiteFilter;
+            Game1.npcFaces["Mozart"].faces["Normal"] = Game1.whiteFilter;
+        }
+
         public override void Update()
         {
             base.Update();
@@ -40,29 +57,29 @@ namespace ISurvived
         {
             base.SetPortals();
 
-            toTenantHallway = new Portal(50, 630, "TenantRoom#1");
+            toTenantHallway = new Portal(50, 630, "Mozart's Room");
         }
 
         public override void SetDestinationPortals()
         {
             base.SetDestinationPortals();
 
-            portals.Add(toTenantHallway, TenantHallway.ToRoomOne);
+            portals.Add(toTenantHallway, TenantHallwayWest.ToMozartsRoom);
         }
     }
 
-    class RoomTwo : MapClass
+    class TchaikovskysRoom : MapClass
     {
         static Portal toTenantHallway;
 
         public static Portal ToTenantHallway { get { return toTenantHallway; } }
 
-        public RoomTwo(List<Texture2D> bg, Game1 g, ref Player play)
+        public TchaikovskysRoom(List<Texture2D> bg, Game1 g, ref Player play)
             : base(bg, g, ref play)
         {
             mapHeight = 720;
             mapWidth = 1300;
-            mapName = "Tenant Room #2";
+            mapName = "Tchaikovsky's Room";
 
             mapRec = new Rectangle(0, 0, mapWidth, mapHeight);
             enemyAmount = 0;
@@ -74,6 +91,21 @@ namespace ISurvived
             AddNPCs();
             SetPortals();
         }
+        public override void LoadContent()
+        {
+            background.Add(content.Load<Texture2D>(@"Maps\Music\Tenant Bedroom\background"));
+
+            game.NPCSprites["Tchaikovsky"] = content.Load<Texture2D>(@"NPC\Music\Tchaikovsky");
+            Game1.npcFaces["Tchaikovsky"].faces["Normal"] = content.Load<Texture2D>(@"NPCFaces\Music\TchaikovskyNormal");
+        }
+
+        public override void UnloadNPCContent()
+        {
+            base.UnloadNPCContent();
+
+            game.NPCSprites["Tchaikovsky"] = Game1.whiteFilter;
+            Game1.npcFaces["Tchaikovsky"].faces["Normal"] = Game1.whiteFilter;
+        }
 
         public override void Update()
         {
@@ -84,16 +116,146 @@ namespace ISurvived
         {
             base.SetPortals();
 
-            toTenantHallway = new Portal(50, 630, "TenantRoom#2");
+            toTenantHallway = new Portal(50, 630, "Tchaikovsky's Room");
         }
 
         public override void SetDestinationPortals()
         {
             base.SetDestinationPortals();
 
-            portals.Add(toTenantHallway, TenantHallway.ToRoomTwo);
+            portals.Add(toTenantHallway, TenantHallwayWest.ToTchaikovskysRoom);
         }
     }
+
+    class VacantRoom : MapClass
+    {
+        static Portal toTenantHallway;
+
+        public static Portal ToTenantHallway { get { return toTenantHallway; } }
+
+        LivingLocker locker;
+
+        public VacantRoom(List<Texture2D> bg, Game1 g, ref Player play)
+            : base(bg, g, ref play)
+        {
+            mapHeight = 720;
+            mapWidth = 1300;
+            mapName = "Vacant Room";
+
+            mapRec = new Rectangle(0, 0, mapWidth, mapHeight);
+            enemyAmount = 0;
+
+            yScroll = false;
+
+            locker = new LivingLocker(game, new Rectangle(350, 200, 750, 400));
+            interactiveObjects.Add(locker);
+
+            AddPlatforms();
+            AddBounds();
+            AddNPCs();
+            SetPortals();
+        }
+        public override void LoadContent()
+        {
+            background.Add(content.Load<Texture2D>(@"Maps\Music\Tenant Bedroom\background"));
+        }
+
+        public override void Update()
+        {
+            base.Update();
+        }
+
+        public override void SetPortals()
+        {
+            base.SetPortals();
+
+            toTenantHallway = new Portal(50, 630, "Vacant Room");
+        }
+
+        public override void SetDestinationPortals()
+        {
+            base.SetDestinationPortals();
+
+            portals.Add(toTenantHallway, TenantHallwayWest.ToVacantRoom);
+        }
+    }
+
+    class BeethovensRoom : MapClass
+    {
+        static Portal toTenantHallway;
+
+        public static Portal ToTenantHallway { get { return toTenantHallway; } }
+
+
+        BeethovensEarHorn earHorn;
+        Sparkles sparkles;
+
+        public BeethovensRoom(List<Texture2D> bg, Game1 g, ref Player play)
+            : base(bg, g, ref play)
+        {
+            mapHeight = 720;
+            mapWidth = 1300;
+            mapName = "Beethoven's Room";
+
+            mapRec = new Rectangle(0, 0, mapWidth, mapHeight);
+            enemyAmount = 0;
+
+            yScroll = false;
+
+            AddPlatforms();
+            AddBounds();
+            AddNPCs();
+            SetPortals();
+
+            earHorn = new BeethovensEarHorn(900, 400);
+            earHorn.ShowFButton = false;
+            storyItems.Add(earHorn);
+            sparkles = new Sparkles(900, 400);
+
+        }
+        public override void LoadContent()
+        {
+            background.Add(content.Load<Texture2D>(@"Maps\Music\Beethoven's Room\background"));
+        }
+
+        public override void Update()
+        {
+            base.Update();
+
+            if (!earHorn.PickedUp)
+            {
+                sparkles.Update();
+            }
+        }
+
+        public override void SetPortals()
+        {
+            base.SetPortals();
+
+            toTenantHallway = new Portal(50, 630, "Beethoven's Room");
+        }
+
+        public override void SetDestinationPortals()
+        {
+            base.SetDestinationPortals();
+
+            portals.Add(toTenantHallway, TenantHallwayWest.ToBeethovensRoom);
+        }
+
+        public override void Draw(SpriteBatch s)
+        {
+            base.Draw(s);
+
+            if (!earHorn.PickedUp)
+            {
+                sparkles.Draw(s);
+            }
+        }
+    }
+
+
+
+    //Hall East
 
     class RoomThree : MapClass
     {
@@ -118,6 +280,10 @@ namespace ISurvived
             AddNPCs();
             SetPortals();
         }
+        public override void LoadContent()
+        {
+            background.Add(content.Load<Texture2D>(@"Maps\Music\Tenant Bedroom\background"));
+        }
 
         public override void Update()
         {
@@ -128,17 +294,66 @@ namespace ISurvived
         {
             base.SetPortals();
 
-            toTenantHallway = new Portal(50, 630, "TenantRoom#3");
+            toTenantHallway = new Portal(50, 630, "Tenant Room #3");
         }
 
         public override void SetDestinationPortals()
         {
             base.SetDestinationPortals();
 
-            portals.Add(toTenantHallway, TenantHallway.ToRoomThree);
+            portals.Add(toTenantHallway, TenantHallwayEast.ToRoomThree);
         }
     }
 
+    class WarholsRoom : MapClass
+    {
+        static Portal toTenantHallway;
+
+        public static Portal ToTenantHallway { get { return toTenantHallway; } }
+
+        public WarholsRoom(List<Texture2D> bg, Game1 g, ref Player play)
+            : base(bg, g, ref play)
+        {
+            mapHeight = 720;
+            mapWidth = 1300;
+            mapName = "Warhol's Room";
+
+            mapRec = new Rectangle(0, 0, mapWidth, mapHeight);
+            enemyAmount = 0;
+
+            yScroll = false;
+
+            AddPlatforms();
+            AddBounds();
+            AddNPCs();
+            SetPortals();
+        }
+        public override void LoadContent()
+        {
+            background.Add(content.Load<Texture2D>(@"Maps\Music\Tenant Bedroom\background"));
+        }
+
+        public override void Update()
+        {
+            base.Update();
+        }
+
+        public override void SetPortals()
+        {
+            base.SetPortals();
+
+            toTenantHallway = new Portal(50, 630, "Warhol's Room");
+        }
+
+        public override void SetDestinationPortals()
+        {
+            base.SetDestinationPortals();
+
+            portals.Add(toTenantHallway, TenantHallwayEast.ToWarholsRoom);
+        }
+    }
+
+    //Trenchcoat
     class RoomFour : MapClass
     {
         static Portal toTenantHallway;
@@ -162,6 +377,21 @@ namespace ISurvived
             AddNPCs();
             SetPortals();
         }
+        public override void LoadContent()
+        {
+            background.Add(content.Load<Texture2D>(@"Maps\Music\Tenant Bedroom\background"));
+            game.NPCSprites["Trenchcoat Employee"] = content.Load<Texture2D>(@"NPC\Main\trenchcoat");
+            Game1.npcFaces["Trenchcoat Employee"].faces["Normal"] = content.Load<Texture2D>(@"NPCFaces\Main Characters\Trenchcoat");
+        }
+
+        public override void UnloadNPCContent()
+        {
+            base.UnloadNPCContent();
+
+            game.NPCSprites["Trenchcoat Employee"] = Game1.whiteFilter;
+            Game1.npcFaces["Trenchcoat Employee"].faces["Normal"] = Game1.whiteFilter;
+        }
+
 
         public override void Update()
         {
@@ -172,31 +402,29 @@ namespace ISurvived
         {
             base.SetPortals();
 
-            toTenantHallway = new Portal(50, 630, "TenantRoom#4");
+            toTenantHallway = new Portal(50, 630, "Tenant Room #4");
         }
 
         public override void SetDestinationPortals()
         {
             base.SetDestinationPortals();
 
-            portals.Add(toTenantHallway, TenantHallway.ToRoomFour);
+            portals.Add(toTenantHallway, TenantHallwayEast.ToRoomFour);
         }
     }
 
-    class BeethovensRoom : MapClass
+    class RoomFive : MapClass
     {
         static Portal toTenantHallway;
 
         public static Portal ToTenantHallway { get { return toTenantHallway; } }
 
-
-        BeethovensEarHorn earHorn;
-        public BeethovensRoom(List<Texture2D> bg, Game1 g, ref Player play)
+        public RoomFive(List<Texture2D> bg, Game1 g, ref Player play)
             : base(bg, g, ref play)
         {
             mapHeight = 720;
             mapWidth = 1300;
-            mapName = "Beethoven's Room";
+            mapName = "Tenant Room #5";
 
             mapRec = new Rectangle(0, 0, mapWidth, mapHeight);
             enemyAmount = 0;
@@ -207,9 +435,10 @@ namespace ISurvived
             AddBounds();
             AddNPCs();
             SetPortals();
-
-            earHorn = new BeethovensEarHorn(900, 400);
-            storyItems.Add(earHorn);
+        }
+        public override void LoadContent()
+        {
+            background.Add(content.Load<Texture2D>(@"Maps\Music\Tenant Bedroom\background"));
         }
 
         public override void Update()
@@ -221,14 +450,62 @@ namespace ISurvived
         {
             base.SetPortals();
 
-            toTenantHallway = new Portal(50, 630, "Beethoven'sRoom");
+            toTenantHallway = new Portal(50, 630, "Tenant Room #5");
         }
 
         public override void SetDestinationPortals()
         {
             base.SetDestinationPortals();
 
-            portals.Add(toTenantHallway, TenantHallway.ToBeethovensRoom);
+            portals.Add(toTenantHallway, TenantHallwayEast.ToRoomFive);
+        }
+    }
+
+    class StorageRoom : MapClass
+    {
+        static Portal toTenantHallway;
+
+        public static Portal ToTenantHallway { get { return toTenantHallway; } }
+
+        public StorageRoom(List<Texture2D> bg, Game1 g, ref Player play)
+            : base(bg, g, ref play)
+        {
+            mapHeight = 720;
+            mapWidth = 1300;
+            mapName = "Storage Room";
+
+            mapRec = new Rectangle(0, 0, mapWidth, mapHeight);
+            enemyAmount = 0;
+
+            yScroll = false;
+
+            AddPlatforms();
+            AddBounds();
+            AddNPCs();
+            SetPortals();
+        }
+        public override void LoadContent()
+        {
+            background.Add(content.Load<Texture2D>(@"Maps\Music\Tenant Bedroom\background"));
+        }
+
+        public override void Update()
+        {
+            base.Update();
+        }
+
+        public override void SetPortals()
+        {
+            base.SetPortals();
+
+            toTenantHallway = new Portal(50, 630, "Storage Room");
+        }
+
+        public override void SetDestinationPortals()
+        {
+            base.SetDestinationPortals();
+
+            portals.Add(toTenantHallway, TenantHallwayEast.ToStorageRoom);
         }
     }
 }

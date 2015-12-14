@@ -82,22 +82,23 @@ namespace ISurvived
             //Tooltip for friends
             if (game.Prologue.PrologueBooleans["firstSkillLocker"] == true)
             {
-                Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][29], 400, 100, game.ChapterTwo.associateOneTex);
+                //Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][29], 400, 100, game.ChapterTwo.associateOneTex);
             }
 
             //Tooltip for skill HUD
             if (player.EquippedSkills.Count > 0 && !game.MapBooleans.tutorialMapBooleans["TutorialTipThirteenUsed"])
             {
                 game.CurrentChapter.HUD.SkillsHidden = false;
-                Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][30], 0, 440, game.ChapterTwo.associateOneTex);
+                //Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][30], 0, 440, game.ChapterTwo.associateOneTex);
                 game.MapBooleans.tutorialMapBooleans["TutorialTipThirteenUsed"] = true;
 
                 game.AllQuests["A Convenient Sequence of Tasks"].CompletedQuest = true;
                 game.CurrentChapter.NPCs["YourFriend"].RemoveQuest(game.AllQuests["A Convenient Sequence of Tasks"]);
             }
 
-            if (player.VitalRec.Intersects(toYourLockerButton.ButtonRec) && ((current.IsKeyUp(Keys.F) && last.IsKeyDown(Keys.F)) || MyGamePad.RightBumperPressed()))
+            if (player.VitalRec.Intersects(toYourLockerButton.ButtonRec) && ((current.IsKeyUp(Keys.F) && last.IsKeyDown(Keys.F)) || MyGamePad.LeftBumperPressed()) && Game1.Player.playerState != Player.PlayerState.attackJumping && Game1.Player.playerState != Player.PlayerState.attacking)
             {
+                Game1.Player.StopSkills();
                 game.YourLocker.LoadContent();
                 Chapter.effectsManager.RemoveToolTip();
                 game.CurrentChapter.state = Chapter.GameState.YourLocker;

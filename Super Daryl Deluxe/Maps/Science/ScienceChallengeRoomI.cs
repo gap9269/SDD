@@ -84,7 +84,7 @@ namespace ISurvived
                 }
                 else
                 {
-                    enemiesInMap.Add(erl);
+                    AddEnemyToEnemyList(erl);
                     enemyNamesAndNumberInMap["Erl The Flask"]++;
                 }
             }
@@ -100,7 +100,7 @@ namespace ISurvived
                 }
                 else
                 {
-                    enemiesInMap.Add(ben);
+                    AddEnemyToEnemyList(ben);
                     enemyNamesAndNumberInMap["Benny Beaker"]++;
                 }
 

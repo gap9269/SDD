@@ -78,7 +78,7 @@ namespace ISurvived
                         gob.Respawning = false;
                         gob.Alpha = 1f;
                         gob.FacingRight = false;
-                        game.CurrentChapter.CurrentMap.EnemiesInMap.Add(gob);
+                        game.CurrentChapter.CurrentMap.AddEnemyToEnemyList(gob);
                         Chapter.effectsManager.AddSmokePoof(gob.VitalRec, 2);
                     }
 
@@ -92,7 +92,7 @@ namespace ISurvived
                         gob.Respawning = false;
                         gob.Alpha = 1f;
                         gob.FacingRight = true;
-                        game.CurrentChapter.CurrentMap.EnemiesInMap.Add(gob);
+                        game.CurrentChapter.CurrentMap.AddEnemyToEnemyList(gob);
                         Chapter.effectsManager.AddSmokePoof(gob.VitalRec, 2);
                     }
 
@@ -151,7 +151,7 @@ namespace ISurvived
 
                     game.CurrentChapter.CurrentMap.Draw(s);
                     game.CurrentChapter.DrawNPC(s);
-                    game.CurrentChapter.CurrentMap.DrawEnemies(s);
+                    game.CurrentChapter.CurrentMap.DrawEnemiesAndHazards(s);
                     Chapter.effectsManager.DrawPoofs(s);
                     player.Draw(s);
                     s.Draw(Game1.whiteFilter, cageRec, Color.Gray * .5f);
@@ -166,7 +166,7 @@ namespace ISurvived
 
                     game.CurrentChapter.CurrentMap.Draw(s);
                     game.CurrentChapter.DrawNPC(s);
-                    game.CurrentChapter.CurrentMap.DrawEnemies(s);
+                    game.CurrentChapter.CurrentMap.DrawEnemiesAndHazards(s);
                     Chapter.effectsManager.DrawPoofs(s);
                     player.Draw(s);
                     s.Draw(Game1.whiteFilter, cageRec, Color.Gray * .5f);
@@ -188,7 +188,7 @@ null, null, null, null, camera.StaticTransform);
 
                     game.CurrentChapter.CurrentMap.Draw(s);
                     game.CurrentChapter.DrawNPC(s);
-                    game.CurrentChapter.CurrentMap.DrawEnemies(s);
+                    game.CurrentChapter.CurrentMap.DrawEnemiesAndHazards(s);
                     Chapter.effectsManager.DrawPoofs(s);
                     player.Draw(s);
                     s.Draw(Game1.whiteFilter, cageRec, Color.Gray * .5f);
@@ -211,7 +211,7 @@ null, null, null, null, camera.StaticTransform);
 
                     game.CurrentChapter.CurrentMap.Draw(s);
                     game.CurrentChapter.DrawNPC(s);
-                    game.CurrentChapter.CurrentMap.DrawEnemies(s);
+                    game.CurrentChapter.CurrentMap.DrawEnemiesAndHazards(s);
                     Chapter.effectsManager.DrawPoofs(s);
                     player.Draw(s);
                     s.Draw(Game1.whiteFilter, cageRec, Color.Gray * .5f);

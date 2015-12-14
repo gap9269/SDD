@@ -90,6 +90,8 @@ namespace ISurvived
             base.PickUpCollectible();
 
             Game1.Player.Textbooks++;
+            Sound.PlaySoundInstance(Sound.SoundNames.object_pickup_textbook);
+
             Chapter.effectsManager.AddFoundItem("a Textbook", Game1.equipmentTextures["Textbook"]);
         }
 

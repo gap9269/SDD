@@ -152,7 +152,7 @@ namespace ISurvived
             {
                 if (attackRec.Intersects(player.VitalRec) && player.InvincibleTime <= 0)
                 {
-                    player.TakeDamage(damage);
+                    player.TakeDamage(damage, level);
                     player.KnockPlayerBack(kb);
                     hitPauseTimer = 3;
                     player.HitPauseTimer = 3;

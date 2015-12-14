@@ -15,7 +15,9 @@ namespace ISurvived
     class JanitorCloset:MapClass
     {
         static Portal toArtHall;
+        static Portal toPrincess;
 
+        public static Portal ToPrincess { get { return toPrincess; } }
         public static Portal ToArtHall { get { return toArtHall; } }
 
         Texture2D fore, lights, drip, splashSheet, overlay;
@@ -56,6 +58,11 @@ namespace ISurvived
         {
             base.Update();
 
+            if (game.chapterState >= Game1.ChapterState.chapterTwo)
+                toPrincess.IsUseable = true;
+            else
+                toPrincess.IsUseable = false;
+
             if (splashFrame < 5)
             {
                 splashFrameDelay--;
@@ -87,11 +94,20 @@ namespace ISurvived
                     timeUntilNextDrip = 250;
                 }
             }
+
+            if (game.chapterState == Game1.ChapterState.prologue)
+                PlayAmbience();
         }
+
+        public override void PlayAmbience()
+        {
+            if (game.chapterState == Game1.ChapterState.prologue)
+                Sound.PlayAmbience("ambience_janitor_snoring");
+        }
+
 
         public override void LoadContent()
         {
-            background.Add(content.Load<Texture2D>(@"Maps\School\Closet\background"));
 
             fore = content.Load<Texture2D>(@"Maps\School\Closet\foreground");
             lights = content.Load<Texture2D>(@"Maps\School\Closet\lightsOn");
@@ -99,8 +115,35 @@ namespace ISurvived
             drip = content.Load<Texture2D>(@"Maps\School\Closet\drip");
             splashSheet = content.Load<Texture2D>(@"Maps\School\Closet\splashSheet");
 
-            if(game.chapterState == Game1.ChapterState.prologue)
+            if (game.chapterState == Game1.ChapterState.prologue)
+            {
+                background.Add(content.Load<Texture2D>(@"Maps\School\Closet\background"));
+
                 janitorSleeping = ContentLoader.LoadContent(content, "Maps\\School\\Closet\\Janitor");
+
+                SoundEffect am = Sound.ambienceContent.Load<SoundEffect>(@"Sound\Ambience\ambience_janitor_snoring");
+                SoundEffectInstance amb = am.CreateInstance();
+                amb.IsLooped = true;
+                Sound.ambience.Add("ambience_janitor_snoring", amb);
+            }
+            else
+            {
+                background.Add(content.Load<Texture2D>(@"Maps\School\Closet\background open"));
+
+                game.NPCSprites["The Janitor"] = content.Load<Texture2D>(@"NPC\Main\The Janitor");
+                Game1.npcFaces["The Janitor"].faces["Normal"] = content.Load<Texture2D>(@"NPCFaces\Main Characters\The Janitor Normal");
+            }
+        }
+
+        public override void UnloadNPCContent()
+        {
+            base.UnloadNPCContent();
+
+            game.NPCSprites["The Janitor"] = Game1.whiteFilter;
+            Game1.npcFaces["The Janitor"].faces["Normal"] = Game1.whiteFilter;
+
+            if (game.chapterState == Game1.ChapterState.prologue)
+                Sound.UnloadAmbience();
         }
 
         public override void Draw(SpriteBatch s)
@@ -161,16 +204,21 @@ namespace ISurvived
         {
             base.SetPortals();
 
-            toArtHall = new Portal(0, platforms[0], "JanitorsCloset");
+            toArtHall = new Portal(0, platforms[0], "Janitor's Closet", Portal.DoorType.movement_door_open);
+            toPrincess = new Portal(560, platforms[0], "Janitor's Closet");
             toArtHall.FButtonYOffset = -10;
             toArtHall.PortalNameYOffset = -10;
+
+            toPrincess.FButtonYOffset = -50;
+            toPrincess.PortalNameYOffset = -50;
         }
 
         public override void SetDestinationPortals()
         {
             base.SetDestinationPortals();
 
-            portals.Add(toArtHall, ArtHall.ToJanitorsCloset);
+            portals.Add(toArtHall, EastHall.ToJanitorsCloset);
+            portals.Add(toPrincess, PrincessLockerRoom.ToJanitor);
         }
 
         public override void AddNPCs()

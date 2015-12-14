@@ -53,8 +53,6 @@ namespace ISurvived
         protected List<Platform> platforms;
         String name;
         protected Vector2 velocity;
-        protected static Random ranX, ranY;
-
 
         public static Dictionary<String, DropType> allDrops = new Dictionary<string, DropType>();
 
@@ -75,10 +73,7 @@ namespace ISurvived
                 tex = allDrops[drop].texture;
             rec = r;
             name = drop;
-
-            ranX = new Random();
-            ranY = new Random();
-            velocity = new Vector2(ranX.Next(-8, 8), -ranY.Next(3, 14));
+            velocity = new Vector2(Game1.randomNumberGen.Next(-8, 8), -Game1.randomNumberGen.Next(3, 14));
         }
 
         //--If they drop equipment
@@ -89,9 +84,7 @@ namespace ISurvived
             rec = r;
             tex = eq.Icon;
             equip = eq;
-            ranX = new Random();
-            ranY = new Random();
-            velocity = new Vector2(ranX.Next(-8, 8), -ranY.Next(3, 14));
+            velocity = new Vector2(Game1.randomNumberGen.Next(-8, 8), -Game1.randomNumberGen.Next(3, 14));
         }
 
         //--If they drop a story item
@@ -102,12 +95,8 @@ namespace ISurvived
             rec = r;
             tex = stryItem.Icon;
             storyItem = stryItem;
-            ranX = new Random();
-            ranY = new Random();
-            velocity = new Vector2(ranX.Next(-8, 8), -ranY.Next(3, 14));
-            ranX = new Random();
-            ranY = new Random();
-            velocity = new Vector2(ranX.Next(-8, 8), -ranY.Next(3, 14));
+            velocity = new Vector2(Game1.randomNumberGen.Next(-8, 8), -Game1.randomNumberGen.Next(3, 14));
+            velocity = new Vector2(Game1.randomNumberGen.Next(-8, 8), -Game1.randomNumberGen.Next(3, 14));
         }
 
         
@@ -203,8 +192,16 @@ namespace ISurvived
             {
                 Rectangle spaceRec = new Rectangle(rec.X + rec.Width / 2 - 96 / 2, rec.Y - 70, (int)(120 * .8f), (int)(52 * .8f));
 
-                s.Draw(Game1.spaceInner, spaceRec , Color.White);
-                s.Draw(Game1.spaceOuter, spaceRec, Color.White * .7f);
+                if (Game1.gamePadConnected)
+                {
+                    s.Draw(Game1.rtOutline, new Vector2(spaceRec.X + spaceRec.Width / 4, spaceRec.Y - 15), Color.White);
+                    s.Draw(Game1.rtBack, new Vector2(spaceRec.X + spaceRec.Width / 4, spaceRec.Y - 15), Color.White * .7f);
+                }
+                else
+                {
+                    s.Draw(Game1.spaceInner, spaceRec, Color.White);
+                    s.Draw(Game1.spaceOuter, spaceRec, Color.White * .7f);
+                }
             }
 
             if(equip != null)

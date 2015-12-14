@@ -72,11 +72,11 @@ namespace ISurvived
 
             if (game.MapBooleans.tutorialMapBooleans["TakenClown"] == false)
             {
-                Chapter.effectsManager.AddToolTipWithImage("What a surprise! It's Squiggles! And look! See \nthose sparkles on the balloon? You can interact \nwith objects that have sparkles. Press 'F' to \ntake the balloon away from Squiggles!", 100, 150, game.ChapterTwo.associateOneTex);
+                //Chapter.effectsManager.AddToolTipWithImage("What a surprise! It's Squiggles! And look! See \nthose sparkles on the balloon? You can interact \nwith objects that have sparkles. Press 'F' to \ntake the balloon away from Squiggles!", 100, 150, game.ChapterTwo.associateOneTex);
             }
             else if (game.MapBooleans.tutorialMapBooleans["BalloonFloated"] == false)
             {
-                Chapter.effectsManager.AddToolTipWithImage("Good job!\n\nLet's get out of here.", 100, 150, game.ChapterTwo.associateOneTex);
+               // Chapter.effectsManager.AddToolTipWithImage("Good job!\n\nLet's get out of here.", 100, 150, game.ChapterTwo.associateOneTex);
                 game.MapBooleans.tutorialMapBooleans["BalloonFloated"] = true;
                 toMapSix.IsUseable = true;
                 toMapFive.IsUseable = true;

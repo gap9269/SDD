@@ -33,7 +33,6 @@ namespace ISurvived
         TutorialQuestFour questFour;
         TutorialQuestFive questFive;
 
-
         //--Side quests
         KarmaQuest karmaQuest;
         InventoryQuest inventoryQuest;
@@ -50,7 +49,6 @@ namespace ISurvived
         TrenchcoatCutscene trenchcoatScene;
         TimScene timScene;
         PrologueEnd prologueEnd;
-
 
         //--Story Quest attributes
         Dictionary<String, Boolean> prologueBooleans;
@@ -125,6 +123,7 @@ namespace ISurvived
             prologueBooleans.Add("buriedRiley", false);
             prologueBooleans.Add("FoundGoggles", false);
             prologueBooleans.Add("PickedUpDrop", false);
+            prologueBooleans.Add("skillShopTutorialCompleted", false);
 
             prologueBooleans.Add("secondSceneNotPlayed", true);
             prologueBooleans.Add("thirdSceneNotPlayed", true);
@@ -152,8 +151,6 @@ namespace ISurvived
             prologueBooleans.Add("firstSkillLocker", true);
             prologueBooleans.Add("firstSkillLockerWithSkill", true);
             prologueBooleans.Add("firstShop", true);
-
-            AddNPCs();
 
             introFlashback = new PrologueIntroFlashBack(game, game.Camera, p, chapterTextures["Flashback"]);
             openingScene = new OpeningScene(game, game.Camera, p, chapterTextures);
@@ -212,8 +209,11 @@ namespace ISurvived
             if (NorthHall.ToGymLobby.IsUseable)
             {
                 NorthHall.ToGymLobby.IsUseable = false;
-                MainLobby.ToSideHall.IsUseable = false;
-                NorthHall.ToUpstairs.IsUseable = false;
+                NorthHall.ToHistoryIntroRoom.IsUseable = false;
+                NorthHall.ToUpstairsRight.IsUseable = false;
+                MainLobby.ToSouthHall.IsUseable = false;
+                NorthHall.ToUpstairsLeft.IsUseable = false;
+                EastHall.ToKitchen.IsUseable = false;
             }
 
             if (questOne.CompletedQuest == false)
@@ -286,7 +286,7 @@ namespace ISurvived
                         #endregion
 
                         //--Gardener talking to herself
-                        if (prologueBooleans["sawGardener"] == false && prologueBooleans["addedGardener"] && CurrentMap == Game1.schoolMaps.maps["EastHall"])
+                        if (prologueBooleans["sawGardener"] == false && prologueBooleans["addedGardener"] && CurrentMap == Game1.schoolMaps.maps["East Hall"])
                         {
                             Chapter.effectsManager.AddInGameDialogue("Oh my poor sweet Riley! *sob* Why did this have to happen? *sniff*", "The Gardener", "Normal", 180);
 
@@ -299,7 +299,7 @@ namespace ISurvived
                         #region Quests
 
                         //--If you try to open the locked science door, set the boolean to true
-                        if (player.VitalRec.Intersects(NorthHall.ToScienceIntroRoom.PortalRec) && current.IsKeyUp(Keys.F) && last.IsKeyDown(Keys.F)
+                        if (player.VitalRec.Intersects(NorthHall.ToScienceIntroRoom.PortalRec) && ((current.IsKeyUp(Keys.F) && last.IsKeyDown(Keys.F)) || MyGamePad.LeftBumperPressed())
                             && questTwo.CompletedQuest && prologueBooleans["checkedPhysicsDoor"] == false)
                         {
                             prologueBooleans["checkedPhysicsDoor"] = true;
@@ -328,6 +328,12 @@ namespace ISurvived
                             paul.Talking = false;
                             alan.Talking = false;
                             state = GameState.Cutscene;
+                            game.CurrentChapter.CurrentMap.PlayBackgroundMusic();
+                        }
+
+                        if (prologueBooleans["fourthSceneNotPlayed"] == false && state == GameState.Game && currentMap.MapName == "North Hall" && (currentMap.currentBackgroundMusic != Sound.MusicNames.NoirHalls || Sound.currentBackgroundVolume < Sound.setBackgroundVolume))
+                        {
+                            Sound.ChangeBackgroundMusicWithFade(Sound.MusicNames.NoirHalls, 25);
                         }
 
                         //--Add Quest 4 to Paul
@@ -439,13 +445,16 @@ namespace ISurvived
                             }
                             #endregion
 
-
                             #region Starting Cutscenes
 
                             //-----
                             //--Quad Paper Scene is handled in The Quad map
                             //-----
 
+                            if (game.CurrentQuests.Contains(questOne) && questOne.CompletedQuest)
+                            {
+                                Game1.schoolMaps.maps["North Hall"].currentBackgroundMusic = Sound.MusicNames.PaulAndAlanTheme;
+                            }
 
                             //--Getting quest two
                             if (prologueBooleans["thirdSceneNotPlayed"] && game.CurrentQuests.Contains(questOne) && questOne.CompletedQuest && game.CurrentChapter.CurrentMap.MapName == "North Hall")
@@ -458,7 +467,7 @@ namespace ISurvived
                             }
 
                             //--Trenchcoat in science 5
-                            if (prologueBooleans["fifthSceneNotPlayed"] && game.CurrentChapter.CurrentMap == Game1.schoolMaps.maps["Science105"] && player.PositionX > 1900)
+                            if (prologueBooleans["fifthSceneNotPlayed"] && game.CurrentChapter.CurrentMap == Game1.schoolMaps.maps["Science 105"] && player.PositionX > 1900)
                             {
                                 prologueBooleans["fifthSceneNotPlayed"] = false;
                                 state = GameState.Cutscene;
@@ -543,13 +552,20 @@ namespace ISurvived
             {
                 case GameState.Cutscene:
 
-                    chapterScenes[cutsceneState].Draw(s);
+                    if (game.SideQuestManager.sideQuestScenes == SideQuestManager.SideQuestScenes.none)
+                    {
+                        chapterScenes[cutsceneState].Draw(s);
+                        if (chapterScenes[cutsceneState].skippingCutscene)
+                            chapterScenes[cutsceneState].DrawSkipCutscene(s);
+                    }
+                    else
+                        game.SideQuestManager.DrawSideQuestScene(s);
 
                     break;
                 case GameState.BreakingLocker:
                     if (prologueBooleans["brokeIntoLocker"] == false)
                     {
-                        if ((Game1.schoolMaps.maps["NorthHall"] as NorthHall).TimsLocker.state == StudentLocker.LockerState.open 
+                        if ((Game1.schoolMaps.maps["North Hall"] as NorthHall).TimsLocker.state == StudentLocker.LockerState.open 
                             && player.StoryItems.ContainsKey("Dandelion") && player.StoryItems["Dandelion"] == 3)
                         {
                             prologueBooleans["brokeIntoLocker"] = true;
@@ -586,6 +602,68 @@ null, null, null, null, camera.StaticTransform);
             }
         }
 
+        public void AddNPC(String name, NPC npc)
+        {
+            nPCs.Add(name, npc);
+
+            if (game.saveData.prologueNPCWrappers != null)
+            {
+                for (int i = 0; i < game.saveData.prologueNPCWrappers.Count; i++)
+                {
+                    if (name == game.saveData.prologueNPCWrappers[i].npcName)
+                    {
+                        if (game.saveData.prologueNPCWrappers[i].questName != null)
+                        {
+                            npc.Dialogue = game.saveData.prologueNPCWrappers[i].dialogue;
+                            npc.QuestDialogue = game.saveData.prologueNPCWrappers[i].questDialogue;
+                            npc.DialogueState = game.saveData.prologueNPCWrappers[i].dialogueState;
+                            npc.FacingRight = game.saveData.prologueNPCWrappers[i].facingRight;
+                            npc.Quest = game.AllQuests[game.saveData.prologueNPCWrappers[i].questName];
+                            npc.AcceptedQuest = game.saveData.prologueNPCWrappers[i].acceptedQuest;
+                            npc.MapName = game.saveData.prologueNPCWrappers[i].mapName;
+                            npc.canTalk = game.saveData.prologueNPCWrappers[i].canTalk;
+                            npc.PositionX = game.saveData.prologueNPCWrappers[i].positionX;
+                            npc.PositionY = game.saveData.prologueNPCWrappers[i].positionY;
+                            npc.RecX = game.saveData.prologueNPCWrappers[i].positionX;
+                            npc.RecY = game.saveData.prologueNPCWrappers[i].positionY;
+                        }
+
+                        else if (game.saveData.prologueNPCWrappers[i].trenchCoat == false)
+                        {
+                            npc.Dialogue = game.saveData.prologueNPCWrappers[i].dialogue;
+                            npc.QuestDialogue = null;
+                            npc.DialogueState = game.saveData.prologueNPCWrappers[i].dialogueState;
+                            npc.FacingRight = game.saveData.prologueNPCWrappers[i].facingRight;
+                            npc.Quest = null;
+                            npc.AcceptedQuest = false;
+                            npc.MapName = game.saveData.prologueNPCWrappers[i].mapName;
+                            npc.canTalk = game.saveData.prologueNPCWrappers[i].canTalk;
+                            npc.PositionX = game.saveData.prologueNPCWrappers[i].positionX;
+                            npc.PositionY = game.saveData.prologueNPCWrappers[i].positionY;
+                            npc.RecX = game.saveData.prologueNPCWrappers[i].positionX;
+                            npc.RecY = game.saveData.prologueNPCWrappers[i].positionY;
+                        }
+                        else
+                        {
+                            npc.Dialogue = game.saveData.prologueNPCWrappers[i].dialogue;
+                            npc.QuestDialogue = null;
+                            npc.DialogueState = game.saveData.prologueNPCWrappers[i].dialogueState;
+                            npc.FacingRight = game.saveData.prologueNPCWrappers[i].facingRight;
+                            npc.Quest = null;
+                            npc.AcceptedQuest = false;
+                            (npc as TrenchcoatKid).SoldOut = game.saveData.prologueNPCWrappers[i].trenchcoatSoldOut;
+                            npc.MapName = game.saveData.prologueNPCWrappers[i].mapName;
+                            npc.canTalk = game.saveData.prologueNPCWrappers[i].canTalk;
+                            npc.PositionX = game.saveData.prologueNPCWrappers[i].positionX;
+                            npc.PositionY = game.saveData.prologueNPCWrappers[i].positionY;
+                            npc.RecX = game.saveData.prologueNPCWrappers[i].positionX;
+                            npc.RecY = game.saveData.prologueNPCWrappers[i].positionY;
+                        }
+                    }
+                }
+            }
+        }
+
         public override void AddNPCs()
         {
             base.AddNPCs();
@@ -596,7 +674,7 @@ null, null, null, null, camera.StaticTransform);
                 List<String> dialogue1 = new List<string>();
                 alan = new NPC(Game1.whiteFilter, dialogue1, new Rectangle(2700, 270, 516, 388),
                     player, game.Font, game,  "North Hall" , "Alan", false);
-                nPCs.Add("Alan", alan);
+                AddNPC("Alan", alan);
             }
 
             if (!nPCs.ContainsKey("Paul"))
@@ -605,7 +683,7 @@ null, null, null, null, camera.StaticTransform);
                 List<String> dialogue2 = new List<string>();
                 paul = new NPC(game.NPCSprites["Paul"], dialogue2, questOne, new Rectangle(2880, 680 - 388, 516, 388), player,
                     game.Font, game,  "North Hall" , "Paul", false);
-                nPCs.Add("Paul", paul);
+                AddNPC("Paul", paul);
             }
 
 
@@ -616,28 +694,7 @@ null, null, null, null, camera.StaticTransform);
                 List<ItemForSale> items = new List<ItemForSale>();
                 items.Add(new TextbookForSale(5.00f, 1));
                 trenchcoatEmployee = new TrenchcoatKid(game.NPCSprites["Trenchcoat Employee"], cronydialogue, -10000, 0, player, game, "Science 105", items);
-                nPCs.Add("TrenchcoatCrony", trenchcoatEmployee);
-            }
-
-            if (!nPCs.ContainsKey("SaveInstructor") && prologueBooleans["addedJournalInstructor"] == true && prologueBooleans["removeNPCs"] == false)
-            {
-                //--Level up NPC
-                List<String> dialogueSave = new List<string>();
-                dialogueSave.Add("I save every time I come in here!");
-                saveInstructor = new NPC(game.NPCSprites["Saving Instructor"], dialogueSave, saveQuest,
-                    new Rectangle(470, 680 - 388, 516, 388), player, game.Font, game, "Bathroom", "Saving Instructor", false);
-                nPCs.Add("SaveInstructor", saveInstructor);
-            }
-
-            if (!nPCs.ContainsKey("JournalInstructor") && prologueBooleans["addedJournalInstructor"] == true && prologueBooleans["removeNPCs"] == false)
-            {
-                //--Journal Instructor
-                List<String> dialogueJournal = new List<string>();
-                dialogueJournal.Add("Organization is power!");
-                journalInstructor = new NPC(game.NPCSprites["Keeper of the Quests"], dialogueJournal, journalQuest,
-                    new Rectangle(1630, 670 - 388, 516, 388), player, game.Font, game, "North Hall", "Keeper of the Quests", false);
-
-                nPCs.Add("JournalInstructor", journalInstructor);
+                AddNPC("TrenchcoatCrony", trenchcoatEmployee);
             }
 
             if (!nPCs.ContainsKey("SkillInstructor") && prologueBooleans["addedSkillInstructor"] == true && prologueBooleans["removeNPCs"] == false)
@@ -649,8 +706,29 @@ null, null, null, null, camera.StaticTransform);
                 skillInstructor = new NPC(game.NPCSprites["Skill Sorceress"], dialogueSkill, skillQuest,
                     new Rectangle(3350, 680 - 395, 516, 388), player, game.Font, game, "North Hall", "Skill Sorceress", false);
 
-                nPCs.Add("SkillInstructor", skillInstructor);
+                AddNPC("SkillInstructor", skillInstructor);
                 #endregion
+            }
+
+            if (!nPCs.ContainsKey("SaveInstructor") && prologueBooleans["addedJournalInstructor"] == true && prologueBooleans["removeNPCs"] == false)
+            {
+                //--Level up NPC
+                List<String> dialogueSave = new List<string>();
+                dialogueSave.Add("I save every time I come in here!");
+                saveInstructor = new NPC(game.NPCSprites["Saving Instructor"], dialogueSave, saveQuest,
+                    new Rectangle(470, 680 - 388, 516, 388), player, game.Font, game, "Bathroom", "Saving Instructor", false);
+                AddNPC("SaveInstructor", saveInstructor);
+            }
+
+            if (!nPCs.ContainsKey("JournalInstructor") && prologueBooleans["addedJournalInstructor"] == true && prologueBooleans["removeNPCs"] == false)
+            {
+                //--Journal Instructor
+                List<String> dialogueJournal = new List<string>();
+                dialogueJournal.Add("Organization is power!");
+                journalInstructor = new NPC(game.NPCSprites["Keeper of the Quests"], dialogueJournal, journalQuest,
+                    new Rectangle(1630, 670 - 388, 516, 388), player, game.Font, game, "North Hall", "Keeper of the Quests", false);
+
+                AddNPC("JournalInstructor", journalInstructor);
             }
 
             if (!nPCs.ContainsKey("InventoryInstructor") && prologueBooleans["addedKarmaAndInventory"] == true)
@@ -663,7 +741,7 @@ null, null, null, null, camera.StaticTransform);
                 inventoryInstructor = new NPC(game.NPCSprites["Weapons Master"], dialogueEquipment, inventoryQuest,
                     new Rectangle(500, 680 - 388, 516, 388), player, game.Font, game, "The Quad", "Weapons Master", false);
 
-                nPCs.Add("InventoryInstructor", inventoryInstructor);
+                AddNPC("InventoryInstructor", inventoryInstructor);
 
                 //--Karma Instructor
                 List<String> dialogueKarma = new List<string>();
@@ -671,7 +749,7 @@ null, null, null, null, camera.StaticTransform);
                 karmaInstructor = new NPC(game.NPCSprites["Karma Shaman"], dialogueKarma, karmaQuest,
                     new Rectangle(1500, 255, 516, 388), player, game.Font, game,  "Main Lobby", "Karma Shaman", false);
                 karmaInstructor.FacingRight = true;
-                nPCs.Add("KarmaInstructor", karmaInstructor);
+                AddNPC("KarmaInstructor", karmaInstructor);
                 #endregion
             }
 
@@ -681,7 +759,7 @@ null, null, null, null, camera.StaticTransform);
                 List<String> timDialogue = new List<string>();
                 tim = new NPC(game.NPCSprites["Tim"], timDialogue, new Rectangle(0, 680 - 388, 516, 388),
                     player, game.Font, game, "North Hall", "Tim", false);
-                nPCs.Add("Tim", tim);
+                AddNPC("Tim", tim);
             }
         }
     }

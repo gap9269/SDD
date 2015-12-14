@@ -76,12 +76,12 @@ namespace ISurvived
 
             targets = new List<Vector2>();
 
-            elevator =  new MovingPlatform(Game1.platformTextures.ElementAt(0).Value, new Rectangle(3060, -650, 270, 50),
-                true, false, false, targets, 3, 100);
+            elevator =  new MovingPlatform(Game1.platformTextures.ElementAt(0).Value, new Rectangle(3060, -1050, 270, 50),
+                true, false, false, targets, 3, 100, Platform.PlatformType.rock);
 
             platforms.Add(elevator);
 
-            MapQuestSign sign = new MapQuestSign(800, 633 - Game1.mapSign.Height + 20, "Slay Six Flasks to Proceed", enemiesToKill,
+            MapQuestSign sign = new MapQuestSign(800, 593 - Game1.mapSign.Height + 20, "Slay Six Flasks to Proceed", enemiesToKill,
                 enemiesKilledForQuest, enemyNames, player);
             mapQuestSigns.Add(sign);
 
@@ -94,11 +94,22 @@ namespace ISurvived
             Barrel bar2 = new Barrel(game, 2000, -275 + 155, Game1.interactiveObjects["Barrel"], true, 1, 4, .07f, false, Barrel.BarrelType.ScienceTube);
             interactiveObjects.Add(bar2);
 
-            Barrel bar3 = new Barrel(game, 3500, -580 + 155, Game1.interactiveObjects["Barrel"], true, 1, 3, .03f, false, Barrel.BarrelType.ScienceBarrel);
+            Barrel bar3 = new Barrel(game, 3500, -580 + 155, Game1.interactiveObjects["Barrel"], true, 2, 3, .03f, false, Barrel.BarrelType.ScienceBarrel);
             interactiveObjects.Add(bar3);
 
             up3 = true;
             up2 = false;
+
+            currentBackgroundMusic = Sound.MusicNames.DoingScienceMed;
+
+            enemyNamesAndNumberInMap.Add("Erl The Flask", 0);
+
+        }
+
+        public override void ResetMapAssetsOnEnter()
+        {
+            base.ResetMapAssetsOnEnter();
+            spawnEnemies = true;
         }
 
         public override void LoadEnemyData()
@@ -125,10 +136,13 @@ namespace ISurvived
                 gate = content.Load<Texture2D>(@"Maps/Science/103/gate");
                 doorTextures = ContentLoader.LoadContent(content, "Maps\\Science\\103\\GateDestroy");
                 laserTextures = ContentLoader.LoadContent(content, "Maps\\Science\\103\\Lasers");
+
             }
+            Sound.LoadScienceZoneSounds();
 
             flowerTextures = ContentLoader.LoadContent(content, "Maps\\Science\\103\\Head Bob");
             Game1.npcFaces["Flower God"].faces["Normal"] = content.Load<Texture2D>(@"NPCFaces\Flower");
+
         }
 
         public override void UnloadNPCContent()
@@ -140,33 +154,69 @@ namespace ISurvived
 
         public override void RespawnGroundEnemies()
         {
-            if (game.MapBooleans.prologueMapBooleans["spawnEnemies"] && enemiesToKill[0] - enemiesKilledForQuest[0] > enemiesInMap.Count)
-            {
+
                 base.RespawnGroundEnemies();
 
                 switch (game.chapterState)
                 {
                     case Game1.ChapterState.prologue:
-                        ErlTheFlask en = new ErlTheFlask(pos, "Erl The Flask", game, ref player, this);
-                        monsterY = platforms[platformNum].Rec.Y - en.Rec.Height - 1;
-                        en.Position = new Vector2(monsterX, monsterY);
+                        if (game.MapBooleans.prologueMapBooleans["spawnEnemies"] && enemiesToKill[0] - enemiesKilledForQuest[0] > enemiesInMap.Count)
+                        {
+                            ErlTheFlask en = new ErlTheFlask(pos, "Erl The Flask", game, ref player, this);
+                            monsterY = platforms[platformNum].Rec.Y - en.Rec.Height - 1;
+                            en.Position = new Vector2(monsterX, monsterY);
 
-                        Rectangle testRec = new Rectangle(en.RecX, monsterY, en.Rec.Width, en.Rec.Height);
-                        if (testRec.Intersects(player.Rec))
-                        {
+                            if (enemiesKilledForQuest[0] == 0)
+                                en.SpawnWithPoof = false;
+
+                            Rectangle testRec = new Rectangle(en.RecX, monsterY, en.Rec.Width, en.Rec.Height);
+                            if (testRec.Intersects(player.Rec))
+                            {
+                            }
+                            else
+                            {
+                                AddEnemyToEnemyList(en);
+                            }
                         }
-                        else
+                        break;
+                    default:
+                        if (enemyNamesAndNumberInMap["Erl The Flask"] < 4)
                         {
-                            enemiesInMap.Add(en);
+                            ErlTheFlask erl = new ErlTheFlask(pos, "Erl The Flask", game, ref player, this);
+                            monsterY = platforms[platformNum].Rec.Y - erl.Rec.Height - 1;
+                            erl.Position = new Vector2(monsterX, monsterY);
+
+                            Rectangle erlRec = new Rectangle(erl.RecX, monsterY, erl.Rec.Width, erl.Rec.Height);
+                            if (erlRec.Intersects(player.Rec))
+                            {
+                            }
+                            else
+                            {
+                                AddEnemyToEnemyList(erl);
+                                enemyNamesAndNumberInMap["Erl The Flask"]++;
+                            }
                         }
                         break;
                 }
-            }
+            
+        }
+
+        public override void PlayAmbience()
+        {
+            Sound.PlayAmbience("ambience_wasteland");
+        }
+
+        public override void PlayBackgroundMusic()
+        {
+            Sound.PlayBackGroundMusic(currentBackgroundMusic.ToString());
         }
 
         public override void Update()
         {
             base.Update();
+
+            PlayAmbience();
+            PlayBackgroundMusic();
 
             interactiveObjects[0].RecY = -900 + (int)y2;
             interactiveObjects[1].RecY = -680 + (int)y3;
@@ -218,31 +268,38 @@ namespace ISurvived
             }
             #endregion
 
-            if (player.VitalRecY < -300 && player.VitalRecX < 1000 && !game.MapBooleans.prologueMapBooleans["spawnEnemies"])
-            {
-                Chapter.effectsManager.AddInGameDialogue("Salutations, small invertebrate. It would seem your path is blocked. Press the button below and perhaps I can aid you on your way. \n\nHold 'Shift' and tap the 'Down Arrow' to drop through platorms.", "Flower God", "Normal", 1);
-            }
 
             //--If there aren't max enemies on the screen, spawn more
-            if (enemiesInMap.Count < enemyAmount)
+            if (enemiesInMap.Count < enemyAmount && (spawnEnemies || game.chapterState == Game1.ChapterState.prologue))
                 RespawnGroundEnemies();
 
-            if (doorSwitch.Active)
+            if (game.chapterState == Game1.ChapterState.prologue)
             {
-                if (!game.MapBooleans.prologueMapBooleans["spawnEnemies"])
-                    game.MapBooleans.prologueMapBooleans["spawnEnemies"] = true;
+                if (player.VitalRecY < -300 && player.VitalRecX < 1000 && !game.MapBooleans.prologueMapBooleans["spawnEnemies"])
+                {
+                    if(Game1.gamePadConnected)
+                        Chapter.effectsManager.AddInGameDialogue("Salutations, small invertebrate. It would seem your path is blocked. Press the button below and perhaps I can aid you on your way. \n\nHold the 'Left Trigger' and tap 'Down' on the D-Pad to drop through platorms.", "Flower God", "Normal", 1);
+                    else
+                        Chapter.effectsManager.AddInGameDialogue("Salutations, small invertebrate. It would seem your path is blocked. Press the button below and perhaps I can aid you on your way. \n\nHold 'Shift' and tap the 'Down Arrow' to drop through platorms.", "Flower God", "Normal", 1);
+                }
 
-                if (platforms.Contains(door))
-                    platforms.Remove(door);
-            }
+                if (doorSwitch.Active)
+                {
+                    if (!game.MapBooleans.prologueMapBooleans["spawnEnemies"])
+                        game.MapBooleans.prologueMapBooleans["spawnEnemies"] = true;
 
-            if (CheckSwitch(doorSwitch) && !game.MapBooleans.prologueMapBooleans["spawnEnemies"])
-            {
-                game.CurrentChapter.state = Chapter.GameState.Cutscene;
-                flowerDelay = 4;
-                flowerFrame = 0;
+                    if (platforms.Contains(door))
+                        platforms.Remove(door);
+                }
 
-                //Chapter.effectsManager.AddInGameDialogue("Is...is that dirt under your fingernails?", "Flower God", "Normal", 100);
+                if (CheckSwitch(doorSwitch) && !game.MapBooleans.prologueMapBooleans["spawnEnemies"])
+                {
+                    game.CurrentChapter.state = Chapter.GameState.Cutscene;
+                    flowerDelay = 4;
+                    flowerFrame = 0;
+
+                    //Chapter.effectsManager.AddInGameDialogue("Is...is that dirt under your fingernails?", "Flower God", "Normal", 100);
+                }
             }
 
 
@@ -254,8 +311,8 @@ namespace ISurvived
 
             if (completedMapQuest && targets.Count == 0)
             {
-                targets.Add(new Vector2(3060, -1400));
                 targets.Add(new Vector2(3060, -650));
+                targets.Add(new Vector2(3060, -1400));
             }
         }
 
@@ -263,10 +320,10 @@ namespace ISurvived
         {
             base.SetPortals();
 
-            toScience102 = new Portal(10, platforms[0], "Science103");
+            toScience102 = new Portal(10, platforms[0], "Science 103", Portal.DoorType.movement_door_open);
             toScience102.FButtonYOffset = -16;
             toScience102.PortalNameYOffset = -16;
-            toScience104 = new Portal(4190, -1050 - Game1.portalTexture.Height, "Science103");
+            toScience104 = new Portal(4190, -1050 - Game1.portalTexture.Height, "Science 103", Portal.DoorType.movement_door_open);
             toScience104.FButtonYOffset = -40;
             toScience104.PortalNameYOffset = -40;
         }
@@ -281,7 +338,7 @@ namespace ISurvived
 
         public void DrawFlower(SpriteBatch s)
         {
-            String textureString = "science103";
+            String textureString = "Science 103";
             if (flowerFrame < 10)
                 textureString += "0" + flowerFrame.ToString();
             else

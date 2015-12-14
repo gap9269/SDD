@@ -121,8 +121,9 @@ namespace ISurvived
 
                 if (player.VitalRec.Intersects(rec) || timeAfterSeek > 150)
                 {
-                    player.Health += HealthAmount;
+                    player.Health += HealthAmount * 5;
                     pickedUp = true;
+                    Sound.PlaySoundInstance(Sound.SoundNames.object_pickup_health,false,int.MaxValue,int.MaxValue,0,0,0,false);
                 }
 
             }

@@ -104,7 +104,7 @@ namespace ISurvived
 
         public override void CheckFiniteCollisions(Rectangle attackRec, float damage, Vector2 kbvel, int shakeTime, int shakeMag)
         {
-            damage *= player.Strength;
+            damage *= player.realStrength;
 
             //--Bosses
             if (game.CurrentChapter.BossFight && attackRec.Intersects(currentBoss.VitalRec) && !bossesHitThisAttack.Contains(currentBoss))
@@ -200,9 +200,9 @@ namespace ISurvived
             }
         }
 
-        public override void ApplyLevelUp()
+        public override void ApplyLevelUp(Boolean silent = false)
         {
-            base.ApplyLevelUp();
+            base.ApplyLevelUp(silent);
 
             switch (skillRank)
             {

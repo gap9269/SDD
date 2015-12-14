@@ -72,9 +72,9 @@ namespace ISurvived
                         ben1.Alpha = 1f;
                         ben2.Alpha = 1f;
 
-                        game.CurrentChapter.CurrentMap.EnemiesInMap.Add(ben);
-                        game.CurrentChapter.CurrentMap.EnemiesInMap.Add(ben1);
-                        game.CurrentChapter.CurrentMap.EnemiesInMap.Add(ben2);
+                        game.CurrentChapter.CurrentMap.AddEnemyToEnemyList(ben);
+                        game.CurrentChapter.CurrentMap.AddEnemyToEnemyList(ben1);
+                        game.CurrentChapter.CurrentMap.AddEnemyToEnemyList(ben2);
 
                         game.Camera.centerTarget = new Vector2(camFollow.PositionX, 0);
 
@@ -180,7 +180,7 @@ namespace ISurvived
                         player.playerState = Player.PlayerState.standing;
 
                         //--Add the second bridge quest and move the bridge kid to the new area
-                        game.ChapterTwo.NPCs["BridgeKidOne"].AddQuest(game.ChapterTwo.buildBridgeTwo);
+                        //game.ChapterTwo.NPCs["BridgeKidOne"].AddQuest(game.ChapterTwo.buildBridgeTwo);
 
                         game.CurrentChapter.NPCs["BridgeKidOne"].MapName = "Woodsy River";
                         game.CurrentChapter.NPCs["BridgeKidOne"].PositionX = 425;
@@ -204,7 +204,7 @@ namespace ISurvived
 
                     game.CurrentChapter.CurrentMap.Draw(s);
                     game.CurrentChapter.DrawNPC(s);
-                    game.CurrentChapter.CurrentMap.DrawEnemies(s);
+                    game.CurrentChapter.CurrentMap.DrawEnemiesAndHazards(s);
                     player.Draw(s);
                     s.End();
 
@@ -222,7 +222,7 @@ null, null, null, null, camera.StaticTransform);
 
                     game.CurrentChapter.CurrentMap.Draw(s);
                     game.CurrentChapter.DrawNPC(s);
-                    game.CurrentChapter.CurrentMap.DrawEnemies(s);
+                    game.CurrentChapter.CurrentMap.DrawEnemiesAndHazards(s);
                     player.Draw(s);
                     s.End();
 
@@ -240,7 +240,7 @@ null, null, null, null, camera.StaticTransform);
 
                     game.CurrentChapter.CurrentMap.Draw(s);
                     game.CurrentChapter.DrawNPC(s);
-                    game.CurrentChapter.CurrentMap.DrawEnemies(s);
+                    game.CurrentChapter.CurrentMap.DrawEnemiesAndHazards(s);
                     player.Draw(s);
                     s.End();
 
@@ -257,7 +257,7 @@ null, null, null, null, camera.StaticTransform);
 
                     game.CurrentChapter.CurrentMap.Draw(s);
                     game.CurrentChapter.DrawNPC(s);
-                    game.CurrentChapter.CurrentMap.DrawEnemies(s);
+                    game.CurrentChapter.CurrentMap.DrawEnemiesAndHazards(s);
                     player.Draw(s);
                     s.End();
 
@@ -275,7 +275,7 @@ null, null, null, null, camera.StaticTransform);
 
                     game.CurrentChapter.CurrentMap.Draw(s);
                     game.CurrentChapter.DrawNPC(s);
-                    game.CurrentChapter.CurrentMap.DrawEnemies(s);
+                    game.CurrentChapter.CurrentMap.DrawEnemiesAndHazards(s);
                     player.Draw(s);
                     s.End();
 
@@ -293,7 +293,7 @@ null, null, null, null, camera.StaticTransform);
 
                     game.CurrentChapter.CurrentMap.Draw(s);
                     game.CurrentChapter.DrawNPC(s);
-                    game.CurrentChapter.CurrentMap.DrawEnemies(s);
+                    game.CurrentChapter.CurrentMap.DrawEnemiesAndHazards(s);
                     player.Draw(s);
                     s.End();
 
@@ -311,7 +311,7 @@ null, null, null, null, camera.StaticTransform);
 
                     game.CurrentChapter.CurrentMap.Draw(s);
                     game.CurrentChapter.DrawNPC(s);
-                    game.CurrentChapter.CurrentMap.DrawEnemies(s);
+                    game.CurrentChapter.CurrentMap.DrawEnemiesAndHazards(s);
                     player.Draw(s);
                     s.End();
 

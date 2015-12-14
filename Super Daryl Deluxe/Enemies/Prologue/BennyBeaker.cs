@@ -31,8 +31,8 @@ namespace ISurvived
             tolerance = 3;
             vitalRec = new Rectangle(rec.X, rec.Y, 125, 125);
             maxHealthDrop = 5;
-            moneyToDrop = .03f;
-
+            moneyToDrop = .05f;
+            distanceFromFeetToBottomOfRectangle = 7;
             standRand = new Random();
         }
 
@@ -66,10 +66,13 @@ namespace ISurvived
 
             if (!respawning && !isStunned)
             {
-                if (hostile)
-                    attackCooldown--;
-                Move(mapwidth);
-                CheckWalkCollisions(5, new Vector2(10, -5));
+                if (hitPauseTimer <= 0)
+                {
+                    if (hostile)
+                        attackCooldown--;
+                    Move(mapwidth);
+                    CheckWalkCollisions(25, new Vector2(10, -5));
+                }
             }
             vitalRec.X = rec.X + 90;
             vitalRec.Y = rec.Y + 50;
@@ -89,164 +92,185 @@ namespace ISurvived
         public override void Move(int mapWidth)
         {
             base.Move(mapWidth);
-
-            //--Calculate the distance from the player
-            float distanceFromPlayer = Vector2.Distance(new Vector2(player.VitalRec.Center.X,player.VitalRec.Center.Y) , new Vector2(vitalRec.Center.X, vitalRec.Center.Y));
-
-            //--If the enemy hasn't been hit, walk randomly. If he is hostile but far away from the player, ignore him
-            if (hostile == false || distanceFromPlayer > 1200)
+            if (isStunned == false)
             {
-                #region Random movement, not hostile
-                if (currentlyInMoveState == false)
-                {
-                    moveState = moveNum.Next(0, 3);
-                    moveTimer = moveTime.Next(10, 200);
+                //--Calculate the distance from the player
+                float distanceFromPlayer = Vector2.Distance(new Vector2(player.VitalRec.Center.X, player.VitalRec.Center.Y), new Vector2(vitalRec.Center.X, vitalRec.Center.Y));
 
-                    if (moveState == 0)
+                //--If the enemy hasn't been hit, walk randomly. If he is hostile but far away from the player, ignore him
+                if (hostile == false || distanceFromPlayer > 1200)
+                {
+                    #region Random movement, not hostile
+                    if (currentlyInMoveState == false)
                     {
-                        standState = standRand.Next(0, 2);
+                        moveState = moveNum.Next(0, 3);
+                        moveTimer = moveTime.Next(10, 200);
+
+                        if (moveState == 0)
+                        {
+                            standState = standRand.Next(0, 2);
+                        }
                     }
-                }
 
-                switch (moveState)
-                {
-                    case 0:
-                        enemyState = EnemyState.standing;
-                        frameDelay--;
-                        if (frameDelay == 0)
-                        {
-                            moveFrame++;
-                            frameDelay = 12;
-                        }
-
-                        if (moveFrame > 1)
-                            moveFrame = 0;
-
-                        currentlyInMoveState = true;
-                        moveTimer--;
-                        break;
-
-                    case 1:
-                        facingRight = true;
-                        enemyState = EnemyState.moving;
-                        if (currentlyInMoveState == false)
-                            moveFrame = 0;
-
-                        frameDelay--;
-                        if (frameDelay == 0)
-                        {
-                            moveFrame++;
-                            frameDelay = 5;
-                        }
-
-                        if (moveFrame > 3)
-                            moveFrame = 0;
-
-                        currentlyInMoveState = true;
-                        moveTimer--;
-                        if (position.X <= mapWidth - 6)
-                            position.X += enemySpeed;
-                        break;
-
-                    case 2:
-                        facingRight = false;
-                        enemyState = EnemyState.moving;
-                        if (currentlyInMoveState == false)
-                            moveFrame = 0;
-
-                        frameDelay--;
-                        if (frameDelay == 0)
-                        {
-                            moveFrame++;
-                            frameDelay = 5;
-                        }
-
-                        if (moveFrame > 3)
-                            moveFrame = 0;
-
-                        currentlyInMoveState = true;
-                        moveTimer--;
-                        if (position.X >= 6)
-                            position.X -= enemySpeed;
-                        break;
-                }
-
-
-                if (moveTimer <= 0)
-                    currentlyInMoveState = false;
-                #endregion
-            }
-            //--If it is hostile
-            else if(hostile && distanceFromPlayer < 1200)
-            {
-                #region If the player is too far away, move closer
-                //--If the player is too far, or the enemy cannot attack yet. Can't be in the middle of a 
-                //--knockback or attacking
-                if ((distanceFromPlayer > 230 || attackCooldown > 0) && knockedBack == false && enemyState != EnemyState.attacking)
-                {
-                    //--If the player is to the left
-                    if (player.VitalRec.Center.X < vitalRec.Center.X)
+                    switch (moveState)
                     {
-                        facingRight = false;
-                        enemyState = EnemyState.moving;
-                        if (currentlyInMoveState == false)
-                            moveFrame = 0;
+                        case 0:
+                            enemyState = EnemyState.standing;
+                            frameDelay--;
+                            if (frameDelay == 0)
+                            {
+                                moveFrame++;
+                                frameDelay = 12;
+                            }
 
-                        frameDelay--;
-                        if (frameDelay == 0)
-                        {
-                            moveFrame++;
-                            frameDelay = 5;
-                        }
+                            if (moveFrame > 1)
+                                moveFrame = 0;
 
-                        if (moveFrame > 3)
-                            moveFrame = 0;
+                            currentlyInMoveState = true;
+                            moveTimer--;
+                            break;
 
-                        currentlyInMoveState = true;
-                        if (position.X >= 6)
-                            position.X -= enemySpeed;
+                        case 1:
+                            facingRight = true;
+                            enemyState = EnemyState.moving;
+                            if (currentlyInMoveState == false)
+                                moveFrame = 0;
+
+                            frameDelay--;
+                            if (frameDelay == 0)
+                            {
+                                moveFrame++;
+                                frameDelay = 5;
+                            }
+
+                            if (moveFrame > 3)
+                                moveFrame = 0;
+
+                            currentlyInMoveState = true;
+                            moveTimer--;
+                            if (position.X <= mapWidth - 6)
+                                position.X += enemySpeed;
+                            break;
+
+                        case 2:
+                            facingRight = false;
+                            enemyState = EnemyState.moving;
+                            if (currentlyInMoveState == false)
+                                moveFrame = 0;
+
+                            frameDelay--;
+                            if (frameDelay == 0)
+                            {
+                                moveFrame++;
+                                frameDelay = 5;
+                            }
+
+                            if (moveFrame > 3)
+                                moveFrame = 0;
+
+                            currentlyInMoveState = true;
+                            moveTimer--;
+                            if (position.X >= 6)
+                                position.X -= enemySpeed;
+                            break;
                     }
-                    //Player to the right
+
+
+                    if (moveTimer <= 0)
+                        currentlyInMoveState = false;
+                    #endregion
+                }
+                //--If it is hostile
+                else if (hostile && distanceFromPlayer < 1200)
+                {
+                    #region If the player is too far away, move closer
+                    //--If the player is too far, or the enemy cannot attack yet. Can't be in the middle of a 
+                    //--knockback or attacking
+                    if ((distanceFromPlayer > 230 || attackCooldown > 0) && knockedBack == false && enemyState != EnemyState.attacking)
+                    {
+                        if (distanceFromPlayer > 230)
+                        {
+                            //--If the player is to the left
+                            if (player.VitalRec.Center.X < vitalRec.Center.X)
+                            {
+                                facingRight = false;
+                                enemyState = EnemyState.moving;
+                                if (currentlyInMoveState == false)
+                                    moveFrame = 0;
+
+                                frameDelay--;
+                                if (frameDelay == 0)
+                                {
+                                    moveFrame++;
+                                    frameDelay = 5;
+                                }
+
+                                if (moveFrame > 3)
+                                    moveFrame = 0;
+
+                                currentlyInMoveState = true;
+                                if (position.X >= 6)
+                                    position.X -= enemySpeed;
+                            }
+                            //Player to the right
+                            else
+                            {
+                                facingRight = true;
+                                enemyState = EnemyState.moving;
+                                if (currentlyInMoveState == false)
+                                    moveFrame = 0;
+
+                                frameDelay--;
+                                if (frameDelay == 0)
+                                {
+                                    moveFrame++;
+                                    frameDelay = 5;
+                                }
+
+                                if (moveFrame > 3)
+                                    moveFrame = 0;
+
+                                currentlyInMoveState = true;
+                                if (position.X <= mapWidth - 6)
+                                    position.X += enemySpeed;
+                            }
+                        }
+                        else
+                        {
+                            enemyState = EnemyState.standing;
+                            frameDelay--;
+                            if (frameDelay == 0)
+                            {
+                                moveFrame++;
+                                frameDelay = 12;
+                            }
+
+                            if (moveFrame > 1)
+                                moveFrame = 0;
+
+                            currentlyInMoveState = true;
+                            moveTimer--;
+                        }
+                    }
+                    #endregion
+
+                    #region Attack once it is close enough
                     else
                     {
-                        facingRight = true;
-                        enemyState = EnemyState.moving;
-                        if (currentlyInMoveState == false)
-                            moveFrame = 0;
-
-                        frameDelay--;
-                        if (frameDelay == 0)
+                        //--Only attack if off cooldown
+                        if (attackCooldown <= 0)
                         {
-                            moveFrame++;
-                            frameDelay = 5;
+                            Vector2 kb;
+                            if (facingRight)
+                                kb = new Vector2(10, -5);
+                            else
+                                kb = new Vector2(-10, -5);
+
+                            Attack(30, kb);
                         }
-
-                        if (moveFrame > 3)
-                            moveFrame = 0;
-
-                        currentlyInMoveState = true;
-                        if (position.X <= mapWidth - 6)
-                            position.X += enemySpeed;
                     }
+                    #endregion
                 }
-                #endregion
-
-                #region Attack once it is close enough
-                else
-                {
-                    //--Only attack if off cooldown
-                    if (attackCooldown <= 0)
-                    {
-                        Vector2 kb;
-                        if (facingRight)
-                            kb = new Vector2(10, -5);
-                        else
-                            kb = new Vector2(-10, -5);
-
-                        Attack(7, kb);
-                    }
-                }
-                #endregion
             }
         }
 
@@ -296,7 +320,7 @@ namespace ISurvived
             {
                 if (player.CheckIfHit(attackRec) && player.InvincibleTime <= 0)
                 {
-                    player.TakeDamage(damage);
+                    player.TakeDamage(damage, level);
                     player.KnockPlayerBack(kb);
                     hitPauseTimer = 3;
                     player.HitPauseTimer = 3;
@@ -314,6 +338,7 @@ namespace ISurvived
                 enemyState = EnemyState.standing;
                 currentlyInMoveState = false;
                 attackRec = new Rectangle(0, 0, 0, 0);
+                standState = standRand.Next(0, 2);
             }
 
             currentlyInMoveState = true;
@@ -327,8 +352,10 @@ namespace ISurvived
                 enemyState = EnemyState.standing;
                 currentlyInMoveState = false;
                 attackRec = new Rectangle(0, 0, 0, 0);
+                standState = standRand.Next(0, 2);
             }
         }
+
         public override void StopAttack()
         {
             base.StopAttack();
@@ -342,8 +369,72 @@ namespace ISurvived
 
         public override void Draw(SpriteBatch s)
         {
-            base.Draw(s);
+            #region Draw Enemy
+            if (facingRight == true)
+                s.Draw(game.EnemySpriteSheets[name], rec, GetSourceRectangle(moveFrame), Color.White * alpha);
 
+            if (facingRight == false)
+                s.Draw(game.EnemySpriteSheets[name], rec, GetSourceRectangle(moveFrame), Color.White * alpha, 0f, Vector2.Zero, SpriteEffects.FlipHorizontally, 0f);
+            #endregion
+
+            #region Health Bar
+            if (health < maxHealth)
+            {
+                healthBoxRec.Y = vitalRec.Y - 50;
+                healthBarRec.Y = vitalRec.Y - 48;
+
+                s.Draw(healthBack, healthBoxRec, Color.White);
+
+                if (health > (maxHealth / 2))
+                {
+                    greenColor = 1;
+                    redColor = (1f - ((float)health / (float)maxHealth));
+                }
+                else
+                {
+                    redColor = 1;
+                    greenColor = (((float)health / ((float)maxHealth / 2f)));
+                }
+
+
+                s.Draw(healthFore, healthBarRec, new Color(redColor, greenColor, 0));
+                s.Draw(healthFore, healthBarRec, Color.Gray * .4f);
+
+                float measX = Game1.descriptionFont.MeasureString("Lv." + level + " " + displayName).X;
+
+                if (facingRight)
+                {
+                    Game1.OutlineFont(Game1.font, s, "Lv. " + level + " " + displayName, 1, (int)(rec.X + rec.Width / 2 - measX / 2 - 7), healthBoxRec.Y - 25 - 2, Color.Black, Color.White);
+                }
+                else
+                {
+                    Game1.OutlineFont(Game1.font, s, "Lv. " + level + " " + displayName, 1, (int)(rec.X + rec.Width / 2 - measX / 2 - 4), healthBoxRec.Y - 25 - 2, Color.Black, Color.White);
+                }
+            }
+            #endregion
+
+            //Draw the stars above his head when he's stunned
+            if (isStunned)
+            {
+                //Stars
+                starTimer--;
+
+                if (starTimer <= 0)
+                {
+                    starFrame++;
+                    starTimer = 15;
+
+                    if (starFrame > 3)
+                    {
+                        starFrame = 0;
+                    }
+                }
+
+                if (facingRight)
+                    s.Draw(player.PlayerSheet, rec, new Rectangle(530 + (530 * starFrame), 3610, 530, 398), Color.White * alpha);
+                else
+                    s.Draw(player.PlayerSheet, rec, new Rectangle(530 + (530 * starFrame), 3610, 530, 398), Color.White * alpha, 0f, Vector2.Zero, SpriteEffects.FlipHorizontally, 0f);
+            }
         }
 
         public override void CheckWalkCollisions(int damage, Vector2 knockback)
@@ -370,13 +461,13 @@ namespace ISurvived
 
             int dropType = moveNum.Next(0, 101);
 
-            if (dropType < 25)
+            if (dropType < 35)
             {
                 currentMap.Drops.Add(new EnemyDrop("Broken Glass", new Rectangle(rec.Center.X, rec.Center.Y, dropDiameter, dropDiameter)));
             }
-            else if (dropType < 35)
+            else if (dropType < 45)
             {
-                //currentMap.Drops.Add(new EnemyDrop(new DunceCap(), new Rectangle(rec.Center.X, rec.Center.Y, dropDiameter, dropDiameter)));
+                currentMap.Drops.Add(new EnemyDrop("Spinach", new Rectangle(rec.Center.X, rec.Center.Y, dropDiameter, dropDiameter)));
             }
         }
     }

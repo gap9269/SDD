@@ -95,7 +95,7 @@ namespace ISurvived
             }
             else
             {
-                enemiesInMap.Add(en);
+                AddEnemyToEnemyList(en);
             }
 
         }
@@ -118,7 +118,7 @@ namespace ISurvived
             }
             else
             {
-                enemiesInMap.Add(en);
+                AddEnemyToEnemyList(en);
                 pitfallEnemies.Add(en);
             }
 
@@ -175,8 +175,8 @@ namespace ISurvived
         {
             base.SetPortals();
 
-            toTheWoods = new Portal(4400, 660, "DeepWoods");
-            toClearing = new Portal(100, -1717, "DeepWoods");
+            toTheWoods = new Portal(4400, 660, "Deep Woods");
+            toClearing = new Portal(100, -1717, "Deep Woods");
         }
 
         public override void DrawParallaxAndForeground(SpriteBatch s)

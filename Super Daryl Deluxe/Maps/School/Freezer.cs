@@ -40,14 +40,14 @@ namespace ISurvived
         {
             base.SetPortals();
 
-            toCafeteria = new Portal(50, platforms[0], "Freezer");
+            //toCafeteria = new Portal(50, platforms[0], "Freezer");
         }
 
         public override void SetDestinationPortals()
         {
             base.SetDestinationPortals();
 
-            portals.Add(toCafeteria, Cafeteria.ToFreezer);
+            //portals.Add(toCafeteria, Kitchen.ToFreezer);
         }
 
         public override void AddNPCs()

@@ -28,7 +28,7 @@ namespace ISurvived
 
         public void DrawSkillDescriptions(Skill skill, Rectangle box)
         {
-           // Game1.Player.EquippedSkills[0].Experience = 100;
+            #region Current Rank
             descriptionBoxRec = box;
             descriptionBoxRec.X = 20;
             descriptionBoxRec.Y += 170;
@@ -40,27 +40,24 @@ namespace ISurvived
 
 
             spriteBatch.Draw(Game1.skillDescriptionBox, new Vector2(descriptionBoxRec.X, descriptionBoxRec.Y), Color.White * .8f);
+
+            Vector2 nameLength = Game1.skillNameMoireFont.MeasureString(skill.Name.ToUpper());
+
             spriteBatch.DrawString(Game1.skillLevelMoireFont, skill.Name, new Vector2(205 - (Game1.skillLevelMoireFont.MeasureString(skill.Name).X / 2), descriptionBoxRec.Y + 5), Color.White);
             spriteBatch.DrawString(Game1.skillInfoImpactFont, skill.SkillRank.ToString(), new Vector2(85, descriptionBoxRec.Y + 39), Color.White);
 
-            //Tell the player when they can rank up the skill if they can't yet
-            if (skill.SkillRank > 1 && skill.SkillRank < 4 && Game1.Player.Level < skill.PlayerLevelsRequiredToLevel[skill.SkillRank - 1])
-            {
-                spriteBatch.DrawString(Game1.twConQuestHudInfo, "(NEXT RANK AT LVL. " + skill.PlayerLevelsRequiredToLevel[skill.SkillRank - 1] + ")", new Vector2(descriptionBoxRec.X + 28, descriptionBoxRec.Y + 41) + new Vector2(Game1.twConQuestHudInfo.MeasureString(skill.Experience + " / " + skill.ExperienceUntilLevel).X, 0), Color.Red);
-            }
-
-            spriteBatch.DrawString(Game1.skillInfoImpactFont, skill.Damage.ToString("N2") + "%", new Vector2(descriptionBoxRec.X + 310, descriptionBoxRec.Y + 39), Color.White);
-
             spriteBatch.DrawString(Game1.skillInfoImpactFont, Game1.WrapText(Game1.skillInfoImpactFont, skill.Description, 345), new Vector2(descriptionBoxRec.X + 25, descriptionBoxRec.Y + 62), Color.White);
 
-            if (skill.SkillRank < 4)
+            spriteBatch.DrawString(Game1.skillInfoImpactFont, (skill.Damage * 100).ToString(), new Vector2(descriptionBoxRec.X + 310, descriptionBoxRec.Y + 39), Color.White);
+            if (skill.SkillRank < Skill.maxLevel)
             {
                 //Tell the player when they can rank up the skill if they can't yet
-                if (skill.SkillRank > 1 && Game1.Player.Level < skill.PlayerLevelsRequiredToLevel[skill.SkillRank - 1])
+                if (Game1.Player.Level < skill.PlayerLevelsRequiredToLevel[skill.SkillRank - 1])
                 {
-                    spriteBatch.DrawString(Game1.twConQuestHudInfo, "(NEXT RANK AT LVL. " + skill.PlayerLevelsRequiredToLevel[skill.SkillRank - 1] + ")", new Vector2(descriptionBoxRec.X + 60, descriptionBoxRec.Y + 135) + new Vector2(Game1.skillInfoImpactFont.MeasureString(skill.Experience + " / " + skill.ExperienceUntilLevel).X, 0), Color.Red);
+                    Game1.OutlineFont(Game1.twConQuestHudInfo, spriteBatch, "NEXT RANK AT LVL. " + skill.PlayerLevelsRequiredToLevel[skill.SkillRank - 1] + "", 1, (int)(descriptionBoxRec.X + 50), descriptionBoxRec.Y + 135, Color.White, Color.DarkRed);
+                    //spriteBatch.DrawString(Game1.twConQuestHudInfo, "(NEXT RANK AT LVL. " + skill.PlayerLevelsRequiredToLevel[skill.SkillRank - 1] + ")", new Vector2(descriptionBoxRec.X + 60, descriptionBoxRec.Y + 135) + new Vector2(Game1.skillInfoImpactFont.MeasureString(skill.Experience + " / " + skill.ExperienceUntilLevel).X, 0), Color.Red);
 
-                    spriteBatch.DrawString(Game1.skillInfoImpactFont, skill.Experience + " / " + skill.ExperienceUntilLevel, new Vector2(descriptionBoxRec.X + 50, descriptionBoxRec.Y + 132), Color.White * .8f);
+                   // spriteBatch.DrawString(Game1.skillInfoImpactFont, skill.Experience + " / " + skill.ExperienceUntilLevel, new Vector2(descriptionBoxRec.X + 50, descriptionBoxRec.Y + 132), Color.White * .8f);
                 }
                 else
                     spriteBatch.DrawString(Game1.skillInfoImpactFont, skill.Experience + " / " + skill.ExperienceUntilLevel, new Vector2(descriptionBoxRec.X + 50, descriptionBoxRec.Y + 132), Color.White);
@@ -68,6 +65,65 @@ namespace ISurvived
             else
                 spriteBatch.DrawString(font, "Max Rank", new Vector2(descriptionBoxRec.X + 50, descriptionBoxRec.Y + 132), Color.White);
 
+            for (int i = 0; i < skill.transformLevels.Length; i++)
+            {
+                float starAlpha = 1f;
+                if (skill.SkillRank < skill.transformLevels[i])
+                    starAlpha = .23f;
+
+                spriteBatch.Draw(Game1.skillStar, new Vector2(descriptionBoxRec.X + 262 + ((3 - skill.transformLevels.Length) * 25) + (28 * (i + 1)), descriptionBoxRec.Y + 132), Color.White * starAlpha);
+            }
+            #endregion
+
+            if (skill.SkillRank < Skill.maxLevel)
+            {
+                #region Next Rank
+                Rectangle descriptionBoxRec2 = descriptionBoxRec;
+                descriptionBoxRec2.X += 390;
+
+                float nextAlpha = .75f;
+
+                if (descriptionBoxRec2.X + descriptionBoxRec2.Width > 720)
+                {
+                    descriptionBoxRec2.X -= 450;
+                }
+
+                Game1.OutlineFont(Game1.skillLevelMoireFont, spriteBatch, "NEXT RANK", 1, (int)(descriptionBoxRec2.X + 120), descriptionBoxRec2.Y - 30, Color.Black, new Color(201, 107, 79));
+
+                spriteBatch.Draw(Game1.skillDescriptionBox, new Vector2(descriptionBoxRec2.X, descriptionBoxRec2.Y), Color.White * .8f * nextAlpha);
+
+                spriteBatch.DrawString(Game1.skillLevelMoireFont, skill.Name, new Vector2(390 + 205 - (Game1.skillLevelMoireFont.MeasureString(skill.Name).X / 2), descriptionBoxRec2.Y + 5), Color.White * nextAlpha);
+                spriteBatch.DrawString(Game1.skillInfoImpactFont, skill.nextRankOfSkill.SkillRank.ToString(), new Vector2(390 + 85, descriptionBoxRec2.Y + 39), Color.White * nextAlpha);
+
+                spriteBatch.DrawString(Game1.skillInfoImpactFont, Game1.WrapText(Game1.skillInfoImpactFont, skill.nextRankOfSkill.Description, 345), new Vector2(descriptionBoxRec2.X + 25, descriptionBoxRec2.Y + 62), Color.White * nextAlpha);
+
+                spriteBatch.DrawString(Game1.skillInfoImpactFont, (skill.nextRankOfSkill.Damage * 100).ToString(), new Vector2(descriptionBoxRec2.X + 310, descriptionBoxRec2.Y + 39), Color.White * nextAlpha);
+                if (skill.nextRankOfSkill.SkillRank < Skill.maxLevel)
+                {
+                    //Tell the player when they can rank up the skill if they can't yet
+                    if (Game1.Player.Level < skill.nextRankOfSkill.PlayerLevelsRequiredToLevel[skill.nextRankOfSkill.SkillRank - 1])
+                    {
+                        Game1.OutlineFont(Game1.twConQuestHudInfo, spriteBatch, "NEXT RANK AT LVL. " + skill.nextRankOfSkill.PlayerLevelsRequiredToLevel[skill.nextRankOfSkill.SkillRank - 1] + "", 1, (int)(descriptionBoxRec2.X + 50), descriptionBoxRec2.Y + 135, Color.White, Color.DarkRed * nextAlpha);
+                        //spriteBatch.DrawString(Game1.twConQuestHudInfo, "(NEXT RANK AT LVL. " + skill.PlayerLevelsRequiredToLevel[skill.SkillRank - 1] + ")", new Vector2(descriptionBoxRec.X + 60, descriptionBoxRec.Y + 135) + new Vector2(Game1.skillInfoImpactFont.MeasureString(skill.Experience + " / " + skill.ExperienceUntilLevel).X, 0), Color.Red);
+
+                        // spriteBatch.DrawString(Game1.skillInfoImpactFont, skill.Experience + " / " + skill.ExperienceUntilLevel, new Vector2(descriptionBoxRec.X + 50, descriptionBoxRec.Y + 132), Color.White * .8f);
+                    }
+                    else
+                        spriteBatch.DrawString(Game1.skillInfoImpactFont, skill.nextRankOfSkill.Experience + " / " + skill.nextRankOfSkill.ExperienceUntilLevel, new Vector2(descriptionBoxRec2.X + 50, descriptionBoxRec2.Y + 132), Color.White * nextAlpha);
+                }
+                else
+                    spriteBatch.DrawString(font, "Max Rank", new Vector2(descriptionBoxRec2.X + 50, descriptionBoxRec2.Y + 132), Color.White * nextAlpha);
+
+                for (int i = 0; i < skill.transformLevels.Length; i++)
+                {
+                    float starAlpha = 1f;
+                    if (skill.nextRankOfSkill.SkillRank < skill.transformLevels[i])
+                        starAlpha = .23f;
+
+                    spriteBatch.Draw(Game1.skillStar, new Vector2(descriptionBoxRec2.X + 262 + ((3 - skill.transformLevels.Length) * 25) + (28 * (i + 1)), descriptionBoxRec2.Y + 132), Color.White * starAlpha);
+                }
+                #endregion
+            }
             ////The type of skill
             //String skillType = "(" + skill.SkillType.ToString() + ", " + skill.RangedOrMelee.ToString() + ")";
             //spriteBatch.DrawString(font, skillType, new Vector2(descriptionBoxRec.X + 25, descriptionBoxRec.Y + 225), Color.Black);
@@ -76,7 +132,6 @@ namespace ISurvived
 
         public void DrawEquipDescriptions(Equipment equip, Rectangle box)
         {
-
             descriptionBoxRec = box;
             descriptionBoxRec.X -= 50;
             descriptionBoxRec.Y += 50;
@@ -114,7 +169,13 @@ namespace ISurvived
             }
             //DESCRIPTION
             if (!(equip is Money) && !(equip is Karma) && !(equip is Experience))
+            {
                 spriteBatch.DrawString(font, Game1.WrapText(font, equip.Description, 364), new Vector2(descriptionBoxRec.X + 103, descriptionBoxRec.Y + 96), Color.Black);
+
+                int posX = descriptionBoxRec.X + 460 - (int)font.MeasureString(equip.SellPrice.ToString("N2")).X;
+                spriteBatch.Draw(Game1.smallTypeIcons["smallMoneyIcon"], new Vector2(posX - 25, descriptionBoxRec.Y + 52), Color.White);
+                spriteBatch.DrawString(font, equip.SellPrice.ToString("N2"), new Vector2(posX, descriptionBoxRec.Y + 54), Color.Black);
+            }
             else
                 spriteBatch.DrawString(font, Game1.WrapText(font, equip.Description, 364), new Vector2(descriptionBoxRec.X + 103, descriptionBoxRec.Y + 76), Color.Black);
 
@@ -161,17 +222,17 @@ namespace ISurvived
                     #region Draw the bonus differences for the first Weapon
                     if (healthDiff >= 0)
                         spriteBatch.DrawString(font, "(+" + healthDiff + ")", healthVec + new Vector2(font.MeasureString("+ " + " " + Math.Abs(equip.Health)).X, 0), Color.Green);
-                    else
+                    else if (healthDiff < 0)
                         spriteBatch.DrawString(font, "(" + healthDiff + ")", healthVec + new Vector2(font.MeasureString("+ " + " " + Math.Abs(equip.Health)).X, 0), Color.Red);
 
                     if (strengthDiff >= 0)
                         spriteBatch.DrawString(font, "(+" + strengthDiff + ")", strengthVec + new Vector2(font.MeasureString("+ " + " " + Math.Abs(equip.Strength)).X, 0), Color.Green);
-                    else
+                    else if (strengthDiff < 0)
                         spriteBatch.DrawString(font, "(" + strengthDiff + ")", strengthVec + new Vector2(font.MeasureString("+ " + " " + Math.Abs(equip.Strength)).X, 0), Color.Red);
 
                     if (defenseDiff >= 0)
                         spriteBatch.DrawString(font, "(+" + defenseDiff + ")", defenseVec + new Vector2(font.MeasureString("+ " + " " + Math.Abs(equip.Defense)).X, 0), Color.Green);
-                    else
+                    else if (defenseDiff < 0)
                         spriteBatch.DrawString(font, "(" + defenseDiff + ")", defenseVec + new Vector2(font.MeasureString("+ " + " " + Math.Abs(equip.Defense)).X, 0), Color.Red);
                     #endregion
 
@@ -183,32 +244,33 @@ namespace ISurvived
                         int secondStrengthDiff = equip.Strength - Game1.Player.SecondWeapon.Strength;
 
                         #region Draw the bonus differences for the second Weapon
-                        if (secondHealthDiff >= 0)
+                        if (secondHealthDiff > 0)
                             spriteBatch.DrawString(font, "(+" + secondHealthDiff + ")", healthVec + new Vector2(font.MeasureString("+ " + "" + Math.Abs(equip.Health)).X, 0) + new Vector2(font.MeasureString("(+" + Math.Abs(healthDiff) + ")").X + 10, 0), Color.Green);
-                        else
+                        else if (secondHealthDiff < 0)
                             spriteBatch.DrawString(font, "(" + secondHealthDiff + ")", healthVec + new Vector2(font.MeasureString("+ " + "" + Math.Abs(equip.Health)).X, 0) + new Vector2(font.MeasureString("(+" + Math.Abs(healthDiff) + ")").X + 10, 0), Color.Red);
 
 
-                        if (secondStrengthDiff >= 0)
+                        if (secondStrengthDiff > 0)
                             spriteBatch.DrawString(font, "(+" + secondStrengthDiff + ")", strengthVec + new Vector2(font.MeasureString("+ " + "" + Math.Abs(equip.Strength)).X, 0) + new Vector2(font.MeasureString("(+" + Math.Abs(strengthDiff) + ")").X + 10, 0), Color.Green);
-                        else
+                        else if (secondStrengthDiff < 0)
                             spriteBatch.DrawString(font, "(" + secondStrengthDiff + ")", strengthVec + new Vector2(font.MeasureString("+ " + "" + Math.Abs(equip.Strength)).X, 0) + new Vector2(font.MeasureString("(+" + Math.Abs(strengthDiff) + ")").X + 10, 0), Color.Red);
 
 
-                        if (secondDefenseDiff >= 0)
+                        if (secondDefenseDiff > 0)
                             spriteBatch.DrawString(font, "(+" + secondDefenseDiff + ")", defenseVec + new Vector2(font.MeasureString("+ " + "" + Math.Abs(equip.Defense)).X, 0) + new Vector2(font.MeasureString("(+" + Math.Abs(defenseDiff) + ")").X + 10, 0), Color.Green);
-                        else
+                        else if (secondDefenseDiff < 0)
                             spriteBatch.DrawString(font, "(" + secondDefenseDiff + ")", defenseVec + new Vector2(font.MeasureString("+ " + "" + Math.Abs(equip.Defense)).X, 0) + new Vector2(font.MeasureString("(+" + Math.Abs(defenseDiff) + ")").X + 10, 0), Color.Red);
                         #endregion
                     }
                     else //The player has no second weapon, so it's all positive stat differences
                     {
                         #region Draw the positive stat differences next to the first accessory differences
-                        spriteBatch.DrawString(font, "(+" + equip.Health + ")", healthVec + new Vector2(font.MeasureString("+ " + "" + Math.Abs(equip.Health)).X, 0) + new Vector2(font.MeasureString("(+" + Math.Abs(healthDiff) + ")").X + 10, 0), Color.Green);
-
-                        spriteBatch.DrawString(font, "(+" + equip.Strength + ")", strengthVec + new Vector2(font.MeasureString("+ " + "" + Math.Abs(equip.Strength)).X, 0) + new Vector2(font.MeasureString("(+" + Math.Abs(strengthDiff) + ")").X + 10, 0), Color.Green);
-
-                        spriteBatch.DrawString(font, "(+" + equip.Defense + ")", defenseVec + new Vector2(font.MeasureString("+ " + "" + Math.Abs(equip.Defense)).X, 0) + new Vector2(font.MeasureString("(+" + Math.Abs(defenseDiff) + ")").X + 10, 0), Color.Green);
+                        if (equip.Health > 0)
+                            spriteBatch.DrawString(font, "(+" + equip.Health + ")", healthVec + new Vector2(font.MeasureString("+ " + "" + Math.Abs(equip.Health)).X, 0) + new Vector2(font.MeasureString("(+" + Math.Abs(healthDiff) + ")").X + 10, 0), Color.Green);
+                        if (equip.Strength > 0)
+                            spriteBatch.DrawString(font, "(+" + equip.Strength + ")", strengthVec + new Vector2(font.MeasureString("+ " + "" + Math.Abs(equip.Strength)).X, 0) + new Vector2(font.MeasureString("(+" + Math.Abs(strengthDiff) + ")").X + 10, 0), Color.Green);
+                        if (equip.Defense > 0)
+                            spriteBatch.DrawString(font, "(+" + equip.Defense + ")", defenseVec + new Vector2(font.MeasureString("+ " + "" + Math.Abs(equip.Defense)).X, 0) + new Vector2(font.MeasureString("(+" + Math.Abs(defenseDiff) + ")").X + 10, 0), Color.Green);
                         #endregion
                     }
 
@@ -216,9 +278,12 @@ namespace ISurvived
                 else if(Game1.Player.EquippedWeapon == null)//No weapons, so it's all positive
                 {
                     #region Draw the stat differences, all positive
-                    spriteBatch.DrawString(font, "(+" + equip.Health + ")", healthVec + new Vector2(font.MeasureString("+ " + " " + Math.Abs(equip.Health)).X, 0), Color.Green);
-                    spriteBatch.DrawString(font, "(+" + equip.Strength + ")", strengthVec + new Vector2(font.MeasureString("+ " + " " + Math.Abs(equip.Strength)).X, 0), Color.Green);
-                    spriteBatch.DrawString(font, "(+" + equip.Defense + ")", defenseVec + new Vector2(font.MeasureString("+ " + " " + Math.Abs(equip.Defense)).X, 0), Color.Green);
+                    if(equip.Health > 0)
+                        spriteBatch.DrawString(font, "(+" + equip.Health + ")", healthVec + new Vector2(font.MeasureString("+ " + " " + Math.Abs(equip.Health)).X, 0), Color.Green);
+                    if(equip.Strength > 0)
+                        spriteBatch.DrawString(font, "(+" + equip.Strength + ")", strengthVec + new Vector2(font.MeasureString("+ " + " " + Math.Abs(equip.Strength)).X, 0), Color.Green);
+                    if (equip.Defense > 0)
+                        spriteBatch.DrawString(font, "(+" + equip.Defense + ")", defenseVec + new Vector2(font.MeasureString("+ " + " " + Math.Abs(equip.Defense)).X, 0), Color.Green);
                     #endregion
                 }
             }
@@ -238,17 +303,17 @@ namespace ISurvived
                     #region Draw the bonus differences for the first accessory
                     if (healthDiff >= 0)
                         spriteBatch.DrawString(font, "(+" + healthDiff + ")", healthVec + new Vector2(font.MeasureString("+  " + Math.Abs(equip.Health)).X, 0), Color.Green);
-                    else
+                    else if (healthDiff < 0)
                         spriteBatch.DrawString(font, "(" + healthDiff + ")", healthVec + new Vector2(font.MeasureString("+  " + Math.Abs(equip.Health)).X, 0), Color.Red);
 
                     if (strengthDiff >= 0)
                         spriteBatch.DrawString(font, "(+" + strengthDiff + ")", strengthVec + new Vector2(font.MeasureString("+  " + Math.Abs(equip.Strength)).X, 0), Color.Green);
-                    else
+                    else if (strengthDiff < 0)
                         spriteBatch.DrawString(font, "(" + strengthDiff + ")", strengthVec + new Vector2(font.MeasureString("+  " + Math.Abs(equip.Strength)).X, 0), Color.Red);
 
                     if (defenseDiff >= 0)
                         spriteBatch.DrawString(font, "(+" + defenseDiff + ")", defenseVec + new Vector2(font.MeasureString("+  " + Math.Abs(equip.Defense)).X, 0), Color.Green);
-                    else
+                    else if (defenseDiff < 0)
                         spriteBatch.DrawString(font, "(" + defenseDiff + ")", defenseVec + new Vector2(font.MeasureString("+  " + Math.Abs(equip.Defense)).X, 0), Color.Red);
                     #endregion
 
@@ -260,32 +325,33 @@ namespace ISurvived
                         int secondStrengthDiff = equip.Strength - Game1.Player.SecondAccessory.Strength;
 
                         #region Draw the bonus differences for the second accessory
-                        if (secondHealthDiff >= 0)
+                        if (secondHealthDiff > 0)
                             spriteBatch.DrawString(font, "(+" + secondHealthDiff + ")", healthVec + new Vector2(font.MeasureString("+ " + Math.Abs(equip.Health)).X, 0) + new Vector2(font.MeasureString("(+" + Math.Abs(healthDiff) + ")").X + 10, 0), Color.Green);
-                        else
+                        else if (secondHealthDiff < 0)
                             spriteBatch.DrawString(font, "(" + secondHealthDiff + ")", healthVec + new Vector2(font.MeasureString("+ " + Math.Abs(equip.Health)).X, 0) + new Vector2(font.MeasureString("(+" + Math.Abs(healthDiff) + ")").X + 10, 0), Color.Red);
 
 
-                        if (secondStrengthDiff >= 0)
+                        if (secondStrengthDiff > 0)
                             spriteBatch.DrawString(font, "(+" + secondStrengthDiff + ")", strengthVec + new Vector2(font.MeasureString("+ " + Math.Abs(equip.Strength)).X, 0) + new Vector2(font.MeasureString("(+" + Math.Abs(strengthDiff) + ")").X + 10, 0), Color.Green);
-                        else
+                        else if (secondStrengthDiff < 0)
                             spriteBatch.DrawString(font, "(" + secondStrengthDiff + ")", strengthVec + new Vector2(font.MeasureString("+ " + Math.Abs(equip.Strength)).X, 0) + new Vector2(font.MeasureString("(+" + Math.Abs(strengthDiff) + ")").X + 10, 0), Color.Red);
 
 
-                        if (secondDefenseDiff >= 0)
+                        if (secondDefenseDiff > 0)
                             spriteBatch.DrawString(font, "(+" + secondDefenseDiff + ")", defenseVec + new Vector2(font.MeasureString("+ " + Math.Abs(equip.Defense)).X, 0) + new Vector2(font.MeasureString("(+" + Math.Abs(defenseDiff) + ")").X + 10, 0), Color.Green);
-                        else
+                        else if (secondDefenseDiff < 0)
                             spriteBatch.DrawString(font, "(" + secondDefenseDiff + ")", defenseVec + new Vector2(font.MeasureString("+ " + Math.Abs(equip.Defense)).X, 0) + new Vector2(font.MeasureString("(+" + Math.Abs(defenseDiff) + ")").X + 10, 0), Color.Red);
                         #endregion
                     }
                     else //The player has no second accessory, so it's all positive stat differences
                     {
                         #region Draw the positive stat differences next to the first accessory differences
-                        spriteBatch.DrawString(font, "(+" + equip.Health + ")", healthVec + new Vector2(font.MeasureString("+ " + Math.Abs(equip.Health)).X, 0) + new Vector2(font.MeasureString("(+" + Math.Abs(healthDiff) + ")").X + 10, 0), Color.Green);
-
-                        spriteBatch.DrawString(font, "(+" + equip.Strength + ")", strengthVec + new Vector2(font.MeasureString("+ " + Math.Abs(equip.Strength)).X, 0) + new Vector2(font.MeasureString("(+" + Math.Abs(strengthDiff) + ")").X + 10, 0), Color.Green);
-
-                        spriteBatch.DrawString(font, "(+" + equip.Defense + ")", defenseVec + new Vector2(font.MeasureString("+ " + Math.Abs(equip.Defense)).X, 0) + new Vector2(font.MeasureString("(+" + Math.Abs(defenseDiff) + ")").X + 10, 0), Color.Green);
+                        if (equip.Health > 0)
+                            spriteBatch.DrawString(font, "(+" + equip.Health + ")", healthVec + new Vector2(font.MeasureString("+ " + Math.Abs(equip.Health)).X, 0) + new Vector2(font.MeasureString("(+" + Math.Abs(healthDiff) + ")").X + 10, 0), Color.Green);
+                        if (equip.Strength > 0)
+                            spriteBatch.DrawString(font, "(+" + equip.Strength + ")", strengthVec + new Vector2(font.MeasureString("+ " + Math.Abs(equip.Strength)).X, 0) + new Vector2(font.MeasureString("(+" + Math.Abs(strengthDiff) + ")").X + 10, 0), Color.Green);
+                        if (equip.Defense > 0)
+                            spriteBatch.DrawString(font, "(+" + equip.Defense + ")", defenseVec + new Vector2(font.MeasureString("+ " + Math.Abs(equip.Defense)).X, 0) + new Vector2(font.MeasureString("(+" + Math.Abs(defenseDiff) + ")").X + 10, 0), Color.Green);
                         #endregion
                     }
 
@@ -293,9 +359,12 @@ namespace ISurvived
                 else if (Game1.Player.EquippedAccessory == null)//No accessories, so it's all positive
                 {
                     #region Draw the stat differences, all positive
-                    spriteBatch.DrawString(font, "(+" + equip.Health + ")", healthVec + new Vector2(font.MeasureString(" + " + Math.Abs(equip.Health)).X, 0), Color.Green);
-                    spriteBatch.DrawString(font, "(+" + equip.Strength + ")", strengthVec + new Vector2(font.MeasureString(" + " + Math.Abs(equip.Strength)).X, 0), Color.Green);
-                    spriteBatch.DrawString(font, "(+" + equip.Defense + ")", defenseVec + new Vector2(font.MeasureString(" + " + Math.Abs(equip.Defense)).X, 0), Color.Green);
+                    if (equip.Health > 0)
+                        spriteBatch.DrawString(font, "(+" + equip.Health + ")", healthVec + new Vector2(font.MeasureString(" + " + Math.Abs(equip.Health)).X, 0), Color.Green);
+                    if (equip.Strength > 0)
+                        spriteBatch.DrawString(font, "(+" + equip.Strength + ")", strengthVec + new Vector2(font.MeasureString(" + " + Math.Abs(equip.Strength)).X, 0), Color.Green);
+                    if (equip.Defense > 0)
+                        spriteBatch.DrawString(font, "(+" + equip.Defense + ")", defenseVec + new Vector2(font.MeasureString(" + " + Math.Abs(equip.Defense)).X, 0), Color.Green);
                     #endregion
                 }
             }
@@ -313,35 +382,38 @@ namespace ISurvived
                     int strengthDiff = equip.Strength - Game1.Player.EquippedHat.Strength;
 
                     #region Draw the bonus differences for the first hat
-                    if (healthDiff >= 0)
+                    if (healthDiff > 0)
                         spriteBatch.DrawString(font, "(+" + healthDiff + ")", healthVec + new Vector2(font.MeasureString(" + " + Math.Abs(equip.Health)).X, 0), Color.Green);
-                    else
+                    else if (healthDiff < 0)
                         spriteBatch.DrawString(font, "(" + healthDiff + ")", healthVec + new Vector2(font.MeasureString(" + " + Math.Abs(equip.Health)).X, 0), Color.Red);
 
-                    if (strengthDiff >= 0)
+                    if (strengthDiff > 0)
                         spriteBatch.DrawString(font, "(+" + strengthDiff + ")", strengthVec + new Vector2(font.MeasureString(" + " + Math.Abs(equip.Strength)).X, 0), Color.Green);
-                    else
+                    else if (strengthDiff < 0)
                         spriteBatch.DrawString(font, "(" + strengthDiff + ")", strengthVec + new Vector2(font.MeasureString(" + " + Math.Abs(equip.Strength)).X, 0), Color.Red);
 
-                    if (defenseDiff >= 0)
+                    if (defenseDiff > 0)
                         spriteBatch.DrawString(font, "(+" + defenseDiff + ")", defenseVec + new Vector2(font.MeasureString(" + " + Math.Abs(equip.Defense)).X, 0), Color.Green);
-                    else
+                    else if (defenseDiff < 0)
                         spriteBatch.DrawString(font, "(" + defenseDiff + ")", defenseVec + new Vector2(font.MeasureString(" + " + Math.Abs(equip.Defense)).X, 0), Color.Red);
                     #endregion
                 }
                 else if (Game1.Player.EquippedHat == null)//No hat, so it's all positive
                 {
                     #region Draw the stat differences, all positive
-                    spriteBatch.DrawString(font, "(+" + equip.Health + ")", healthVec + new Vector2(font.MeasureString(" + " + Math.Abs(equip.Health)).X, 0), Color.Green);
-                    spriteBatch.DrawString(font, "(+" + equip.Strength + ")", strengthVec + new Vector2(font.MeasureString(" + " + Math.Abs(equip.Strength)).X, 0), Color.Green);
-                    spriteBatch.DrawString(font, "(+" + equip.Defense + ")", defenseVec + new Vector2(font.MeasureString(" + " + Math.Abs(equip.Defense)).X, 0), Color.Green);
+                    if (equip.Health > 0)
+                        spriteBatch.DrawString(font, "(+" + equip.Health + ")", healthVec + new Vector2(font.MeasureString(" + " + Math.Abs(equip.Health)).X, 0), Color.Green);
+                    if (equip.Strength > 0)
+                        spriteBatch.DrawString(font, "(+" + equip.Strength + ")", strengthVec + new Vector2(font.MeasureString(" + " + Math.Abs(equip.Strength)).X, 0), Color.Green);
+                    if (equip.Defense > 0)
+                        spriteBatch.DrawString(font, "(+" + equip.Defense + ")", defenseVec + new Vector2(font.MeasureString(" + " + Math.Abs(equip.Defense)).X, 0), Color.Green);
                     #endregion
                 }
             }
             #endregion
 
             #region Draw the stat differences for Outfits
-            if (equip is Hoodie)
+            if (equip is Outfit)
             {
 
                 if (Game1.Player.EquippedHoodie != null && equip != Game1.Player.EquippedHoodie)
@@ -352,28 +424,31 @@ namespace ISurvived
                     int strengthDiff = equip.Strength - Game1.Player.EquippedHoodie.Strength;
 
                     #region Draw the bonus differences for the first outfit
-                    if (healthDiff >= 0)
+                    if (healthDiff > 0)
                         spriteBatch.DrawString(font, "(+" + healthDiff + ")", healthVec + new Vector2(font.MeasureString(" + " + Math.Abs(equip.Health)).X, 0), Color.Green);
-                    else
+                    else if (healthDiff < 0)
                         spriteBatch.DrawString(font, "(" + healthDiff + ")", healthVec + new Vector2(font.MeasureString(" + " + Math.Abs(equip.Health)).X, 0), Color.Red);
 
-                    if (strengthDiff >= 0)
+                    if (strengthDiff > 0)
                         spriteBatch.DrawString(font, "(+" + strengthDiff + ")", strengthVec + new Vector2(font.MeasureString(" + " + Math.Abs(equip.Strength)).X, 0), Color.Green);
-                    else
+                    else if (strengthDiff < 0)
                         spriteBatch.DrawString(font, "(" + strengthDiff + ")", strengthVec + new Vector2(font.MeasureString(" + " + Math.Abs(equip.Strength)).X, 0), Color.Red);
 
-                    if (defenseDiff >= 0)
+                    if (defenseDiff > 0)
                         spriteBatch.DrawString(font, "(+" + defenseDiff + ")", defenseVec + new Vector2(font.MeasureString(" + " + Math.Abs(equip.Defense)).X, 0), Color.Green);
-                    else
+                    else if (defenseDiff < 0)
                         spriteBatch.DrawString(font, "(" + defenseDiff + ")", defenseVec + new Vector2(font.MeasureString(" + " + Math.Abs(equip.Defense)).X, 0), Color.Red);
                     #endregion
                 }
                 else if (Game1.Player.EquippedHoodie == null)//No outfit, so it's all positive
                 {
                     #region Draw the stat differences, all positive
-                    spriteBatch.DrawString(font, "(+" + equip.Health + ")", healthVec + new Vector2(font.MeasureString("  +" + Math.Abs(equip.Health)).X, 0), Color.Green);
-                    spriteBatch.DrawString(font, "(+" + equip.Strength + ")", strengthVec + new Vector2(font.MeasureString("  +" + Math.Abs(equip.Strength)).X, 0), Color.Green);
-                    spriteBatch.DrawString(font, "(+" + equip.Defense + ")", defenseVec + new Vector2(font.MeasureString("  +" + Math.Abs(equip.Defense)).X, 0), Color.Green);
+                    if(equip.Health > 0)
+                        spriteBatch.DrawString(font, "(+" + equip.Health + ")", healthVec + new Vector2(font.MeasureString("  +" + Math.Abs(equip.Health)).X, 0), Color.Green);
+                    if (equip.Strength > 0)
+                        spriteBatch.DrawString(font, "(+" + equip.Strength + ")", strengthVec + new Vector2(font.MeasureString("  +" + Math.Abs(equip.Strength)).X, 0), Color.Green);
+                    if (equip.Defense > 0)
+                        spriteBatch.DrawString(font, "(+" + equip.Defense + ")", defenseVec + new Vector2(font.MeasureString("  +" + Math.Abs(equip.Defense)).X, 0), Color.Green);
                     #endregion
                 }
             }
@@ -455,7 +530,7 @@ namespace ISurvived
             spriteBatch.Draw(Game1.otherDescriptionBox, new Vector2(descriptionBoxRec.X, descriptionBoxRec.Y), Color.White);
             spriteBatch.DrawString(font, EnemyDrop.allDrops[dropName].name, new Vector2(descriptionBoxRec.X + 114, descriptionBoxRec.Y + 53), Color.Black);
 
-            spriteBatch.DrawString(font, EnemyDrop.allDrops[dropName].description, new Vector2(descriptionBoxRec.X + 106, descriptionBoxRec.Y + 76), Color.Black);
+            spriteBatch.DrawString(font, Game1.WrapText(font, EnemyDrop.allDrops[dropName].description, 370), new Vector2(descriptionBoxRec.X + 106, descriptionBoxRec.Y + 76), Color.Black);
             spriteBatch.Draw(Game1.smallTypeIcons["smallMoneyIcon"], new Vector2(descriptionBoxRec.X + 470 - Game1.font.MeasureString(EnemyDrop.allDrops[dropName].sellCost.ToString("N2")).X - 25, descriptionBoxRec.Y + 125), Color.White);
             spriteBatch.DrawString(font, EnemyDrop.allDrops[dropName].sellCost.ToString("N2"), new Vector2(descriptionBoxRec.X + 470 - Game1.font.MeasureString(EnemyDrop.allDrops[dropName].sellCost.ToString("N2")).X, descriptionBoxRec.Y + 127), Color.Black);
         }

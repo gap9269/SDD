@@ -192,7 +192,7 @@ namespace ISurvived
                 Vector2 v = new Vector2(player.VitalRec.Center.X, player.VitalRec.Center.Y) - gunPos;
                 v.Normalize();
 
-                Projectile arrow = new Projectile((int)gunPos.X, (int)gunPos.Y, 180, v, gunRotation, 10, new Vector2(5,-5), 1, 0, 10, Projectile.ProjType.arrow);
+                Projectile arrow = new Projectile((int)gunPos.X, (int)gunPos.Y, 180, v, gunRotation, 10, new Vector2(5, -5), 1, 0, 10, Projectile.ProjType.arrow, level);
 
                 currentMap.Projectiles.Add(arrow);
             }

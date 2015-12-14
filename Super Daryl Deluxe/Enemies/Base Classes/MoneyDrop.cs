@@ -179,7 +179,10 @@ namespace ISurvived
                     player.AddMoneyJustPickedUp(moneyAmount);
                     player.Money += MoneyAmount;
                     pickedUp = true;
-                    Sound.PlaySoundInstance(Sound.SoundNames.CoinPickUp);
+
+                    String name = "object_pickup_coin_0" + Game1.randomNumberGen.Next(1, 6);
+                    Sound.PlaySoundInstance(Sound.permanentSoundEffects[name], name);
+
                 }
 
             }

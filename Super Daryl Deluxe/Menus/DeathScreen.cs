@@ -79,9 +79,9 @@ namespace ISurvived
 
             if (!exitingScreen)
             {
-                if ((current.IsKeyUp(Keys.Down) && previous.IsKeyDown(Keys.Down) && currentSelection == 0) || continueLoad.IsOver())
+                if ((((current.IsKeyUp(Keys.Down) && previous.IsKeyDown(Keys.Down)) || MyGamePad.DownPadPressed()) && currentSelection == 0) || continueLoad.IsOver())
                     currentSelection = 1;
-                else if ((current.IsKeyUp(Keys.Up) && previous.IsKeyDown(Keys.Up) && currentSelection == 1) || mainMenu.IsOver())
+                else if ((((current.IsKeyUp(Keys.Up) && previous.IsKeyDown(Keys.Up)) || MyGamePad.UpPadPressed()) && currentSelection == 1) || mainMenu.IsOver())
                     currentSelection = 0;
             }
 
@@ -112,13 +112,13 @@ namespace ISurvived
 
             fadeOut.Play();
 
-            if (mainMenu.Clicked() || (current.IsKeyUp(Keys.Enter) && previous.IsKeyDown(Keys.Enter) && currentSelection == 0))
+            if (mainMenu.Clicked() || (((current.IsKeyUp(Keys.Enter) && previous.IsKeyDown(Keys.Enter)) || MyGamePad.APressed()) && currentSelection == 0))
             {
                 main = true;
                 exitingScreen = true;
             }
 
-            if (continueLoad.Clicked() || (current.IsKeyUp(Keys.Enter) && previous.IsKeyDown(Keys.Enter) && currentSelection == 1))
+            if (continueLoad.Clicked() || (((current.IsKeyUp(Keys.Enter) && previous.IsKeyDown(Keys.Enter)) || MyGamePad.APressed()) && currentSelection == 1))
             {
                 if (canContinue)
                 {
@@ -155,8 +155,6 @@ namespace ISurvived
                         Game1.schoolMaps.UnloadSchoolZone();
 
                         game.ResetWithoutGoingToMain();
-                        game.CurrentChapter.CurrentMap.UnloadNPCContent();
-                        game.CurrentChapter.CurrentMap.UnloadContent();
                         game.SaveLoadManager.InitiateLoad();
                         game.CurrentChapter.StartingPortal = Bathroom.ToLastMap;
                         game.CurrentChapter.CurrentMap = Game1.schoolMaps.maps["Bathroom"];
@@ -178,6 +176,7 @@ namespace ISurvived
             holdBlackScreenTimer = 0;
             wordsAlpha = 0f;
             exitingScreen = false;
+            canContinue = false;
             UnloadContent();
         }
 
@@ -210,7 +209,7 @@ namespace ISurvived
             if (fadeOut.State == 1)
             {
                 s.Draw(Game1.whiteFilter, backgroundRec, Color.Black);
-                s.DrawString(Game1.font, "Loading...", new Vector2(1100, 690), Color.DarkRed);
+                s.Draw(Game1.loadingScreenText, new Rectangle(1280 - Game1.loadingScreenText.Width, (int)(Game1.aspectRatio * 1280) - Game1.loadingScreenText.Height, Game1.loadingScreenText.Width, Game1.loadingScreenText.Height), Color.White);
             }
         }
 

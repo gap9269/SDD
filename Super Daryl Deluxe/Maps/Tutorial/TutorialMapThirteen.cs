@@ -56,7 +56,7 @@ namespace ISurvived
             if (game.MapBooleans.tutorialMapBooleans["YouShouldSave"] == false)
             {
                 //game.MapBooleans.tutorialMapBooleans["YouShouldSave"] = true;
-                Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][44], 400, 100, game.ChapterTwo.associateOneTex);
+                //Chapter.effectsManager.AddToolTipWithImage(game.ChapterTwo.AssociateDialogue[game.ChapterTwo.SelectedAssociate][44], 400, 100, game.ChapterTwo.associateOneTex);
             }
 
         }

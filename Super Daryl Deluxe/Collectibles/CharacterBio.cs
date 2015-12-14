@@ -59,7 +59,7 @@ namespace ISurvived
 
             nameAndInfo.Add("Blurso", new CharacterInfo() { name = "Blurso", yearbookQuote = "I am the alpha and the omega, the greatest textbook salesman to ever inhabit this ball of floating dirt.", funFact = "Has never sold a textbook.", superlative = "Most Likely To Wage War Against Several Gallic Tribes", age = "16" });
 
-            nameAndInfo.Add("Pelt Kid", new CharacterInfo() { name = "Pelt Kid", yearbookQuote = "\"There exists no problem large or rare enough that it can't be shot down, eaten and worn.\" – Pa", funFact = "Accidently shot Pa dead while on Colorado Pond Snake hunt", superlative = "Most likely to stay in college until he's 40.", age = "18" });
+            nameAndInfo.Add("Pelt Kid", new CharacterInfo() { name = "Pelt Kid", yearbookQuote = "\"There exists no problem large or rare enough that it can't be shot down, eaten and worn.\" - Pa", funFact = "Accidently shot Pa dead while on Colorado Pond Snake hunt", superlative = "Most likely to stay in college until he's 40.", age = "18" });
 
             nameAndInfo.Add("Squirrel Boy", new CharacterInfo() { name = "Squirrel Boy", yearbookQuote = "I am the alpha and the omega, the greatest textbook salesman to ever inhabit this ball of floating dirt.", funFact = "Has never sold a textbook.", superlative = "Most Likely To Shoot Mark", age = "16" });
 
@@ -68,19 +68,71 @@ namespace ISurvived
 
             enemyNameAndInfo.Add("Fez", new EnemyInfo() { name = "Fez", experienceGiven = "1", hobby = "Recalling glory days of Ottoman Empire", itemDrop = "World-weary sigh", level = "1" });
 
-            enemyNameAndInfo.Add("Benny Beaker", new EnemyInfo() { name = "Benny Beaker", experienceGiven = "5", hobby = "Sea-shanties", itemDrop = "Broken Glass", level = "3" });
+            enemyNameAndInfo.Add("Benny Beaker", new EnemyInfo() { name = "Benny Beaker", experienceGiven = "5", hobby = "Sea-shanties", itemDrop = "Broken Glass / Spinach", level = "3" });
 
             enemyNameAndInfo.Add("Erl The Flask", new EnemyInfo() { name = "Erl the Flask", experienceGiven = "3", hobby = "Fuckin' swaggin' around", itemDrop = "Broken Glass", level = "2" });
+
+            enemyNameAndInfo.Add("Vent Bat", new EnemyInfo() { name = "Vent Bat", experienceGiven = "8", hobby = "Baseball", itemDrop = "Guano", level = "3" });
+
+            enemyNameAndInfo.Add("Fluffles the Rat", new EnemyInfo() { name = "Fluffles the Rat", experienceGiven = "11", hobby = "Collecting wallets", itemDrop = "Half-Eaten Cheese", level = "4" });
+
+            enemyNameAndInfo.Add("Tuba Ghost", new EnemyInfo() { name = "Tuba Ghost", experienceGiven = "18", hobby = "Playing sousaphone", itemDrop = "Ectoplasm / Sheet Music", level = "6" });
+
+            enemyNameAndInfo.Add("Maracas Hermanos", new EnemyInfo() { name = "Maracas Hermanos", experienceGiven = "20", hobby = "Hiding from termites", itemDrop = "Magic Jumping Bean", level = "7" });
+
+            enemyNameAndInfo.Add("Sergeant Cymbal", new EnemyInfo() { name = "Sergeant Cymbal", experienceGiven = "23", hobby = "Applause", itemDrop = "Cymbal Polish", level = "7" });
+
+            enemyNameAndInfo.Add("Captain Sax", new EnemyInfo() { name = "Captain Sax", experienceGiven = "25", hobby = "Street performance", itemDrop = "Mix Tape", level = "7" });
+
+            enemyNameAndInfo.Add("Lord Glockenspiel", new EnemyInfo() { name = "Lord Glockenspiel", experienceGiven = "100", hobby = "Playing himself", itemDrop = "???", level = "8" });
+
+            enemyNameAndInfo.Add("Slay Dough", new EnemyInfo() { name = "Slay Dough", experienceGiven = "50", hobby = "Reading Herculoid fan-fiction", itemDrop = "Clay Dough", level = "8" });
+
+            enemyNameAndInfo.Add("Eatball", new EnemyInfo() { name = "Eatball", experienceGiven = "50", hobby = "Congealing", itemDrop = "Fuzzy Meat Chunk", level = "8" });
+
+            enemyNameAndInfo.Add("Fluffles the Bandit", new EnemyInfo() { name = "Fluffles the Bandit", experienceGiven = "50", hobby = "Stealing from the rich and stealing from the poor", itemDrop = "Stolen Painting", level = "8" });
+
+            enemyNameAndInfo.Add("Goblin Mortar", new EnemyInfo() { name = "Goblin Mortar", experienceGiven = "50", hobby = "Falling over", itemDrop = "Stolen Painting", level = "10" });
 
             enemyNameAndInfo.Add("Scarecrow", new EnemyInfo() { name = "Scarecrow", experienceGiven = "45", hobby = "Sneaking up on unsuspecting Daryls", itemDrop = "Corn Stalk", level = "14" });
 
             enemyNameAndInfo.Add("Crow",  new EnemyInfo() { name = "Crow", experienceGiven = "30", hobby = "Corn muffins", itemDrop = "Feather", level = "13" });
 
-            enemyNameAndInfo.Add("Goblin", new EnemyInfo() { name = "Goblin", experienceGiven = "75", hobby = "Building swingsets", itemDrop = "Invisible Goblin Gold", level = "15" });
+            enemyNameAndInfo.Add("Goblin", new EnemyInfo() { name = "Goblin", experienceGiven = "75", hobby = "Building swingsets", itemDrop = "Goblin Gold", level = "10" });
+
+            enemyNameAndInfo.Add("Nurse Goblin", new EnemyInfo() { name = "Nurse Goblin", experienceGiven = "75", hobby = "Performing unnecessary surgery", itemDrop = "First Aid Kit", level = "10" });
 
             enemyNameAndInfo.Add("Field Goblin", new EnemyInfo() { name = "Field Goblin", experienceGiven = "25", hobby = "Building field swingsets", itemDrop = "Invisible Field Goblin Gold", level = "4" });
 
-            enemyNameAndInfo.Add("Bomblin", new EnemyInfo() { name = "Bomblin", experienceGiven = "25", hobby = "Clearing debris", itemDrop = "Shrapnel", level = "15" });
+            enemyNameAndInfo.Add("Bomblin", new EnemyInfo() { name = "Bomblin", experienceGiven = "25", hobby = "Practicing Magic", itemDrop = "Shrapnel", level = "15" });
+
+            enemyNameAndInfo.Add("Sexy Saguaro", new EnemyInfo() { name = "Sexy Saguaro", experienceGiven = "25", hobby = "Skipping stump day", itemDrop = "Peyote / Cactus Flower", level = "12" });
+
+            enemyNameAndInfo.Add("Burnie Buzzard", new EnemyInfo() { name = "Burnie Buzzard", experienceGiven = "25", hobby = "Swallowing rocks", itemDrop = "", level = "13" });
+
+            enemyNameAndInfo.Add("Vile Mummy", new EnemyInfo() { name = "Vile Mummy", experienceGiven = "25", hobby = "Giving sticky hugs", itemDrop = "", level = "15" });
+
+            enemyNameAndInfo.Add("Mummy", new EnemyInfo() { name = "Mummy", experienceGiven = "25", hobby = "Contemplating life after death", itemDrop = "", level = "15" });
+
+            enemyNameAndInfo.Add("Scorpadillo", new EnemyInfo() { name = "Scorpadillo", experienceGiven = "25", hobby = "Singing the Canadian national anthem", itemDrop = "", level = "15" });
+
+            enemyNameAndInfo.Add("Tree Ent", new EnemyInfo() { name = "Tree Ent", experienceGiven = "25", hobby = "Discussing Foreign Policy", itemDrop = "Lumber", level = "15" });
+
+            enemyNameAndInfo.Add("Eerie Elf", new EnemyInfo() { name = "Eerie Elf", experienceGiven = "25", hobby = "Discussing Foreign Policy", itemDrop = "Haunted Present", level = "15" });
+
+            enemyNameAndInfo.Add("Spooky Present", new EnemyInfo() { name = "Spooky Present", experienceGiven = "25", hobby = "Discussing Foreign Policy", itemDrop = "Haunted Present", level = "15" });
+
+            enemyNameAndInfo.Add("Haunted Nutcracker", new EnemyInfo() { name = "Haunted Nutcracker", experienceGiven = "25", hobby = "Discussing Foreign Policy", itemDrop = "Haunted Walnuts", level = "15" });
+
+            enemyNameAndInfo.Add("Anubis Warrior", new EnemyInfo() { name = "Anubis Warrior", experienceGiven = "25", hobby = "Mummifying Goblins", itemDrop = "Toilet Paper", level = "15" });
+
+            enemyNameAndInfo.Add("Commander Anubis", new EnemyInfo() { name = "Commander Anubis", experienceGiven = "25", hobby = "Raising Locust", itemDrop = "Immortality", level = "15" });
+
+            enemyNameAndInfo.Add("Commander Goblin", new EnemyInfo() { name = "Commander Goblin", experienceGiven = "25", hobby = "Invading Russia", itemDrop = "Stolen Hat", level = "15" });
+
+            enemyNameAndInfo.Add("Goblin Soldier", new EnemyInfo() { name = "Goblin Soldier", experienceGiven = "25", hobby = "Following orders", itemDrop = "War Helmet", level = "15" });
+
+            enemyNameAndInfo.Add("Locust", new EnemyInfo() { name = "Locust", experienceGiven = "25", hobby = "Reading Non-fiction", itemDrop = "Insect Husk", level = "15" });
 
             enemyNameAndInfo.Add("Troll", new EnemyInfo() { name = "Troll", experienceGiven = "1000", hobby = "Licking roof of mouth", itemDrop = "Increased land value", level = "16" });
 

@@ -71,7 +71,7 @@ namespace ISurvived
             }
             else
             {
-                enemiesInMap.Add(en);
+                AddEnemyToEnemyList(en);
             }
 
         }
@@ -90,7 +90,7 @@ namespace ISurvived
 
             if (hitMelon == false && enemyAmount == enemiesInMap.Count)
             {
-                Chapter.effectsManager.AddToolTipWithImage("Cool! Flying melons!", 400, 100, game.ChapterTwo.associateOneTex);
+              //  Chapter.effectsManager.AddToolTipWithImage("Cool! Flying melons!", 400, 100, game.ChapterTwo.associateOneTex);
 
                 for (int i = 0; i < 15; i++)
                 {

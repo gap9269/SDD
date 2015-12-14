@@ -23,6 +23,11 @@ namespace ISurvived
         int timFrame;
         int timDelay = 5;
         float leftPlatY, rightPlatY, platVelocity;
+        Boolean timIntroPlaying = true;
+        Boolean timTransformPlaying = false;
+        Boolean playedExitTitleSound = false;
+        SoundEffectInstance timIntro, timPreFightLoop, timTransform;
+        SoundEffect cutscene_gorilla_tim_transform;
 
         int timesTimStandLooped = 0;
         int timTransformTimer = 0;
@@ -132,9 +137,43 @@ namespace ISurvived
             }
         }
 
+        public override void LoadContent()
+        {
+            base.LoadContent();
+
+            timIntro = Sound.backgroundMusicContent.Load<SoundEffect>(@"Sound\Cutscenes\Tim\TimIntro").CreateInstance();
+            timPreFightLoop = Sound.backgroundMusicContent.Load<SoundEffect>(@"Sound\Cutscenes\Tim\TimPreTransformLoop").CreateInstance();
+            timPreFightLoop.IsLooped = true;
+            timTransform = Sound.backgroundMusicContent.Load<SoundEffect>(@"Sound\Cutscenes\Tim\TimTransform").CreateInstance();
+
+            cutscene_gorilla_tim_transform = content.Load<SoundEffect>(@"Sound\Cutscenes\Tim\cutscene_gorilla_tim_transform");
+            
+            timIntro.Volume = 0;
+            timPreFightLoop.Volume = Sound.GetSoundVolumeFromFile("Tim PreFight Loop");
+            timTransform.Volume = Sound.GetSoundVolumeFromFile("Tim Transform");
+           
+        }
+
         public override void Play()
         {
             base.Play();
+
+            if (timIntro != null)
+            {
+                if (timIntro.State == SoundState.Stopped && timIntroPlaying)
+                {
+                    timPreFightLoop.Play();
+                    timIntroPlaying = false;
+                }
+
+                if (timTransform.State == SoundState.Stopped && timTransformPlaying)
+                {
+                    timTransformPlaying = false;
+                }
+
+                if (timIntro.Volume < Sound.GetSoundVolumeFromFile("Tim Intro") && timIntroPlaying)
+                    timIntro.Volume += .01f;
+            }
             switch (state)
             {
                 case 0:
@@ -160,14 +199,18 @@ namespace ISurvived
                         alan.Dialogue.Clear();
                         paul.Dialogue.Clear();
 
+                        LoadContent();
+
                         if (alan.QuestDialogue != null)
                             alan.QuestDialogue.Clear();
 
                         if (paul.QuestDialogue != null)
                             paul.QuestDialogue.Clear();
+                        Sound.StopBackgroundMusic();
+                        timIntro.Play();
                     }
 
-                    camera.Update(camFollow, game, Game1.schoolMaps.maps["NorthHall"]);
+                    camera.Update(camFollow, game, Game1.schoolMaps.maps["North Hall"]);
 
                     if (timer > 20)
                         alan.FacingRight = false;
@@ -179,7 +222,7 @@ namespace ISurvived
 
                     if (tim.Position.X < 2550)
                     {
-                        tim.Move(new Vector2(3, 0));
+                        tim.Move(new Vector2(3, 0), Platform.PlatformType.rock, 1, 5);
                     }
                     else
                     {
@@ -199,7 +242,7 @@ namespace ISurvived
                         tim.Talking = true;
                     }
 
-                    camera.Update(camFollow, game, Game1.schoolMaps.maps["NorthHall"]);
+                    camera.Update(camFollow, game, Game1.schoolMaps.maps["North Hall"]);
                     tim.UpdateInteraction();
 
                     if (tim.Talking == false)
@@ -217,7 +260,7 @@ namespace ISurvived
                         alan.Talking = true;
                     }
 
-                    camera.Update(camFollow, game, Game1.schoolMaps.maps["NorthHall"]);
+                    camera.Update(camFollow, game, Game1.schoolMaps.maps["North Hall"]);
                     alan.UpdateInteraction();
 
                     if (alan.Talking == false)
@@ -235,7 +278,7 @@ namespace ISurvived
                         paul.Talking = true;
                     }
 
-                    camera.Update(camFollow, game, Game1.schoolMaps.maps["NorthHall"]);
+                    camera.Update(camFollow, game, Game1.schoolMaps.maps["North Hall"]);
                     paul.UpdateInteraction();
 
                     if (paul.Talking == false)
@@ -253,7 +296,7 @@ namespace ISurvived
                         tim.Talking = true;
                     }
 
-                    camera.Update(camFollow, game, Game1.schoolMaps.maps["NorthHall"]);
+                    camera.Update(camFollow, game, Game1.schoolMaps.maps["North Hall"]);
                     tim.UpdateInteraction();
 
                     if (tim.Talking == false)
@@ -275,7 +318,7 @@ namespace ISurvived
                         paul.FacingRight = true;
 
                     paul.UpdateInteraction();
-                    camera.Update(camFollow, game, Game1.schoolMaps.maps["NorthHall"]);
+                    camera.Update(camFollow, game, Game1.schoolMaps.maps["North Hall"]);
                     if (paul.Talking == false)
                     {
                         paul.Dialogue.Clear();
@@ -289,7 +332,7 @@ namespace ISurvived
                     {
                         alan.FacingRight = true;
                     }
-                    camera.Update(camFollow, game, Game1.schoolMaps.maps["NorthHall"]);
+                    camera.Update(camFollow, game, Game1.schoolMaps.maps["North Hall"]);
                     if (timer > 2)
                     {
                         timer = 0;
@@ -306,11 +349,14 @@ namespace ISurvived
                         alan.Position = new Vector2(alan.RecX, alan.RecY);
                     }
 
-                    paul.Move(new Vector2(3, 0));
-                    alan.Move(new Vector2(3, 0));
+                    if (alan.RecX < 5500)
+                    {
+                        paul.Move(new Vector2(3, 0));
+                        alan.Move(new Vector2(3, 0));
+                    }
 
                     tim.UpdateInteraction();
-                    camera.Update(camFollow, game, Game1.schoolMaps.maps["NorthHall"]);
+                    camera.Update(camFollow, game, Game1.schoolMaps.maps["North Hall"]);
                     if (tim.Talking == false)
                     {
                         tim.Dialogue.Clear();
@@ -321,9 +367,13 @@ namespace ISurvived
 
                 case 8:
 
-                    paul.Move(new Vector2(3, 0));
-                    alan.Move(new Vector2(3, 0));
-                    camera.Update(camFollow, game, Game1.schoolMaps.maps["NorthHall"]);
+                    if (alan.RecX < 5500)
+                    {
+                        paul.Move(new Vector2(3, 0));
+                        alan.Move(new Vector2(3, 0));
+                    }
+
+                    camera.Update(camFollow, game, Game1.schoolMaps.maps["North Hall"]);
                     if(timer > 320)
                     {
                         timer = 0;
@@ -338,12 +388,21 @@ namespace ISurvived
                         tim.Talking = true;
                     }
 
-                    paul.Move(new Vector2(5, 0));
-                    alan.Move(new Vector2(5, 0));
+                    if (alan.RecX < 5500)
+                    {
+                        paul.Move(new Vector2(5, 0));
+                        alan.Move(new Vector2(5, 0));
+                    }
                     tim.UpdateInteraction();
-                    camera.Update(camFollow, game, Game1.schoolMaps.maps["NorthHall"]);
+                    camera.Update(camFollow, game, Game1.schoolMaps.maps["North Hall"]);
                     if (tim.Talking == false)
                     {
+                        timPreFightLoop.Stop();
+                        timTransform.Play();
+                        timTransformPlaying = true;
+
+                        Sound.PlaySoundInstance(cutscene_gorilla_tim_transform, Game1.GetFileName(()=> cutscene_gorilla_tim_transform));
+
                         tim.Dialogue.Clear();
                         timer = 0;
                         state++;
@@ -353,7 +412,7 @@ namespace ISurvived
                 case 10:
 
                     //TIM TRANSFORMS
-                    camera.Update(camFollow, game, Game1.schoolMaps.maps["NorthHall"]);
+                    camera.Update(camFollow, game, Game1.schoolMaps.maps["North Hall"]);
                     NorthHall.drawTimMap = true;
 
                     //Tim transforms
@@ -436,32 +495,32 @@ namespace ISurvived
 
                         //--Pillars
                         NorthHall.leftPillar = new Platform(Game1.platformTextures.ElementAt(0).Value, new Rectangle(2200, -1000, 100, 3000), false, false, false);
-                        Game1.schoolMaps.maps["NorthHall"].Platforms.Add(NorthHall.leftPillar);
+                        Game1.schoolMaps.maps["North Hall"].Platforms.Add(NorthHall.leftPillar);
                         NorthHall.rightPillar = new Platform(Game1.platformTextures.ElementAt(0).Value, new Rectangle(4000, -1000, 100, 3000), false, false, false);
-                        Game1.schoolMaps.maps["NorthHall"].Platforms.Add(NorthHall.rightPillar);
+                        Game1.schoolMaps.maps["North Hall"].Platforms.Add(NorthHall.rightPillar);
 
                         //--Steps on Pillars
                         NorthHall.leftStep = new Platform(Game1.platformTextures.ElementAt(0).Value, new Rectangle(2300, 400, 100, 50), false, false, false);
                         NorthHall.rightStep = new Platform(Game1.platformTextures.ElementAt(0).Value, new Rectangle(3850, 350, 100, 50), false, false, false);
-                        Game1.schoolMaps.maps["NorthHall"].Platforms.Add(NorthHall.leftStep);
-                        Game1.schoolMaps.maps["NorthHall"].Platforms.Add(NorthHall.rightStep);
+                        Game1.schoolMaps.maps["North Hall"].Platforms.Add(NorthHall.leftStep);
+                        Game1.schoolMaps.maps["North Hall"].Platforms.Add(NorthHall.rightStep);
 
                         //--Platforms
                         NorthHall.leftTimPlat = new Platform(Game1.platformTextures.ElementAt(0).Value, new Rectangle(2600, 175, 400, 50), true, false, false);
                         NorthHall.rightTimPlat = new Platform(Game1.platformTextures.ElementAt(0).Value, new Rectangle(3250, 175, 400, 50), true, false, false);
-                        Game1.schoolMaps.maps["NorthHall"].Platforms.Add(NorthHall.leftTimPlat);
-                        Game1.schoolMaps.maps["NorthHall"].Platforms.Add(NorthHall.rightTimPlat);
+                        Game1.schoolMaps.maps["North Hall"].Platforms.Add(NorthHall.leftTimPlat);
+                        Game1.schoolMaps.maps["North Hall"].Platforms.Add(NorthHall.rightTimPlat);
 
                         //Barrels
                         NorthHall.timBar1 = new Barrel(game, 3613, 456 + 155, Game1.interactiveObjects["Barrel"], true, 4, 5, 0f, false, Barrel.BarrelType.TimBarrel);
                         NorthHall.timBar2 = new Barrel(game, 2919, 456 + 155, Game1.interactiveObjects["Barrel"], true, 4, 6, .04f, false, Barrel.BarrelType.TimBarrel);
                         NorthHall.timBar3 = new Barrel(game, 2454, 550 + 155, Game1.interactiveObjects["Barrel"], true, 4, 7, .14f, true, Barrel.BarrelType.TimBarrel);
 
-                        Game1.schoolMaps.maps["NorthHall"].InteractiveObjects.Add(NorthHall.timBar1);
-                        Game1.schoolMaps.maps["NorthHall"].InteractiveObjects.Add(NorthHall.timBar2);
-                        Game1.schoolMaps.maps["NorthHall"].InteractiveObjects.Add(NorthHall.timBar3);
+                        Game1.schoolMaps.maps["North Hall"].InteractiveObjects.Add(NorthHall.timBar1);
+                        Game1.schoolMaps.maps["North Hall"].InteractiveObjects.Add(NorthHall.timBar2);
+                        Game1.schoolMaps.maps["North Hall"].InteractiveObjects.Add(NorthHall.timBar3);
                         
-                        GorillaTim gorillaTim = new GorillaTim(new Vector2((int)tim.PositionX + 55, 118), "GORILLA TIM", game, ref player, Game1.schoolMaps.maps["NorthHall"]);
+                        GorillaTim gorillaTim = new GorillaTim(new Vector2((int)tim.PositionX + 55, 118), "GORILLA TIM", game, ref player, Game1.schoolMaps.maps["North Hall"]);
                         tim.Move(new Vector2(-10000, 0));
                         gorillaTim.Boundaries.Add(new Platform(Game1.platformTextures.ElementAt(0).Value, new Rectangle(2300, 400, 100, 50), true, false, false));
                         gorillaTim.Boundaries.Add(new Platform(Game1.platformTextures.ElementAt(0).Value, new Rectangle(3850, 350, 100, 50), true, false, false));
@@ -482,12 +541,13 @@ namespace ISurvived
                     }
                     camera.Update(camFollow, game, game.CurrentChapter.CurrentMap);
 
-                    if (timer > 45 && drawTitle == false && updateBossHealth == false)
+                    if (timer > 65 && drawTitle == false && updateBossHealth == false)
+                    {
                         drawTitle = true;
-
+                    }
                     if (drawTitle && gorillaWordPositionX < 1280 && timWordPositionX > -311)
                     {
-                        if (timer > 60)
+                        if (timer > 80)
                         {
                             if (gorillaWordPositionX >= 250 && gorillaWordPositionX < 300)
                             {
@@ -496,6 +556,10 @@ namespace ISurvived
                             }
                             else
                             {
+                                if (playedExitTitleSound == false)
+                                {
+                                    playedExitTitleSound = true;
+                                }
                                 gorillaWordPositionX += 40;
                                 timWordPositionX -= 40;
                             }
@@ -517,8 +581,10 @@ namespace ISurvived
                             game.CurrentChapter.CurrentBoss.HealthBarGrow();
                     }
 
-                    if (timer > 180 && drawTitle == false)
+                    if (timer > 200 && drawTitle == false && timTransform.State == SoundState.Stopped)
                     {
+                        GorillaTim.timFightTheme.Play();
+                        UnloadContent();
                         timer = 0;
                         game.CurrentChapter.state = Chapter.GameState.Game;
                         game.CurrentChapter.CutsceneState++;

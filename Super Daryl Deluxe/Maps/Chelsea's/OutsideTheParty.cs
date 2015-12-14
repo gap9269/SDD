@@ -42,16 +42,14 @@ namespace ISurvived
             SetPortals();
 
 
-            Barrel bar = new Barrel(game, 1824, 630, Game1.interactiveObjects["Barrel"], true, 1, 5, 1.38f, false, Barrel.BarrelType.WoodenLeft);
+            Barrel bar = new Barrel(game, 1824, 630, Game1.interactiveObjects["Barrel"], true, 3, 5, 1.38f, false, Barrel.BarrelType.WoodenLeft);
             interactiveObjects.Add(bar);
 
-            Barrel bar2 = new Barrel(game, 2900, 590, Game1.interactiveObjects["Barrel"], true, 1, 0, .46f, false, Barrel.BarrelType.Radioactive);
+            Barrel bar2 = new Barrel(game, 2900, 590, Game1.interactiveObjects["Barrel"], true, 3, 0, .46f, false, Barrel.BarrelType.MetalRadioactive);
             interactiveObjects.Add(bar2);
 
-            Barrel bar1 = new Barrel(game, 2800, 610, Game1.interactiveObjects["Barrel"], true, 1, 0, .76f, false, Barrel.BarrelType.WoodenRight);
+            Barrel bar1 = new Barrel(game, 2800, 610, Game1.interactiveObjects["Barrel"], true, 3, 0, .76f, false, Barrel.BarrelType.WoodenRight);
             interactiveObjects.Add(bar1);
-
-            backgroundMusicName = "The Party";
         }
 
         public override void LoadContent()
@@ -91,7 +89,15 @@ namespace ISurvived
             //    Sound.music.Add("Exploring", backgroundMusic1);
             //}
 
-            Sound.backgroundVolume = 1f;
+            if (Chapter.lastMap != "The Goats" && Chapter.lastMap != "Chelsea's Pool")
+            {
+                SoundEffect am = Sound.ambienceContent.Load<SoundEffect>(@"Sound\Ambience\ambience_outdoors_night");
+                SoundEffectInstance amb = am.CreateInstance();
+                amb.IsLooped = true;
+                Sound.ambience.Add("ambience_outdoors_night", amb);
+            }
+
+            Sound.currentBackgroundVolume = 1f;
         }
 
 
@@ -113,12 +119,22 @@ namespace ISurvived
             Game1.npcFaces["Mark"].faces["Normal"] = Game1.whiteFilter;
 
             ////DOn't clear the music if the next map is the party
-            //if (Chapter.theNextMap != "TheParty")
+            //if (Chapter.theNextMap != "The Party")
             //{
             //    Sound.UnloadBackgroundMusic();
             //}
             //else
             //    Sound.music["Exploring"].Pause();
+
+            if (Chapter.theNextMap == "The Party")
+            {
+                Sound.UnloadAmbience();
+            }
+        }
+
+        public override void PlayAmbience()
+        {
+            Sound.PlayAmbience("ambience_outdoors_night");
         }
 
         public override void PlayBackgroundMusic()
@@ -169,15 +185,16 @@ namespace ISurvived
             base.Update();
 
             PlayBackgroundMusic();
+            PlayAmbience();
         }
 
         public override void SetPortals()
         {
             base.SetPortals();
 
-            toTheGoats = new Portal(0, platforms[0], "OutsidetheParty");
-            toChelseasPool = new Portal(3800, platforms[0], "OutsidetheParty");
-            toTheParty = new Portal(1180, platforms[0], "OutsidetheParty");
+            toTheGoats = new Portal(0, platforms[0], "Outside the Party");
+            toChelseasPool = new Portal(3800, platforms[0], "Outside the Party");
+            toTheParty = new Portal(1180, platforms[0], "Outside the Party");
             toTheParty.PortalNameYOffset = -90;
             toTheParty.FButtonYOffset = -90;
         }

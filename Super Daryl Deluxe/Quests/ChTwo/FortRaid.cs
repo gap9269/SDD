@@ -10,10 +10,10 @@ namespace ISurvived
         public FortRaid(Boolean story)
             : base(story)
         {
-            questDialogue.Add("The plan is as follows: We open the gate, clear the camp of enemy scum, and roll our big wooden friend here inside.");
-            questDialogue.Add("We're going to blow this thing as close to the enemy barracks as we can, but we'll need to clear a path for her. Just follow my orders.");
-            questDialogue.Add("Start by opening that gate!");
-            questDialogue.Add("Get that gate open!");
+            questDialogue.Add("Ze horse iss ready!");
+            questDialogue.Add("We're going to blow ziss thing as close to ze enemy barracks as we can.");
+            questDialogue.Add("Start by opening zat gate!");
+            questDialogue.Add("Get zat gate open!");
             completedDialogue.Add("xgdfhsfgh");
 
             questName = "Fort Raid";
@@ -21,6 +21,8 @@ namespace ISurvived
             specialConditions.Add("Follow Napoleon's orders to destroy the\nenemy's camp", false);
 
             conditionsToComplete = "Follow Napoleon's orders to destroy the enemy's camp.";
+
+            npcName = "Napoleon";
 
             rewards = "";
 

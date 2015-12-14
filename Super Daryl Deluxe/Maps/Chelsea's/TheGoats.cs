@@ -114,8 +114,6 @@ namespace ISurvived
             AddNPCs();
             SetPortals();
 
-            backgroundMusicName = "Outside the Party";
-
             lowBranchPlat = new Platform(Game1.platformTextures.ElementAt(0).Value, new Rectangle(1702, 347, 100, 50), true, false, true);
             highBranchPlat = new Platform(Game1.platformTextures.ElementAt(0).Value, new Rectangle(1766, 191, 150, 50), true, false, true);
 
@@ -146,17 +144,26 @@ namespace ISurvived
             Game1.npcFaces["Pelt Kid"].faces["Normal"] = content.Load<Texture2D>(@"NPCFaces\Party\PeltKid");
 
             ////If the last map does not have the same music
-            //if (Chapter.lastMap != "Chelsea's Field" && Chapter.lastMap != "Tree House")
-            //{
-            //    SoundEffect bg1 = Sound.backgroundMusicContent.Load<SoundEffect>(@"Sound\Hidden Agenda");
-            //    SoundEffectInstance backgroundMusic1 = bg1.CreateInstance();
-            //    backgroundMusic1.IsLooped = true;
-            //    Sound.music.Add("Exploring", backgroundMusic1);
-            //}
+            if (Chapter.lastMap == "Tree House")
+            {
+                //SoundEffect bg1 = Sound.backgroundMusicContent.Load<SoundEffect>(@"Sound\Hidden Agenda");
+                //SoundEffectInstance backgroundMusic1 = bg1.CreateInstance();
+                //backgroundMusic1.IsLooped = true;
+                //Sound.music.Add("Exploring", backgroundMusic1);
+
+                SoundEffect am = Sound.ambienceContent.Load<SoundEffect>(@"Sound\Ambience\ambience_outdoors_night");
+                SoundEffectInstance amb = am.CreateInstance();
+                amb.IsLooped = true;
+                Sound.ambience.Add("ambience_outdoors_night", amb);
+            }
 
             //Sound.backgroundVolume = 1f;
         }
 
+        public override void PlayAmbience()
+        {
+            Sound.PlayAmbience("ambience_outdoors_night");
+        }
         public override void PlayBackgroundMusic()
         {
             //Sound.PlayBackGroundMusic("Exploring");
@@ -322,19 +329,20 @@ namespace ISurvived
 
             Game1.npcFaces["Pelt Kid"].faces["Normal"] = Game1.whiteFilter;
 
-            //if (Chapter.theNextMap != "ChelseasField" && Chapter.theNextMap != "TreeHouse")
-            //{
-            //    Sound.UnloadBackgroundMusic();
-            //}
+            if (Chapter.theNextMap == "Tree House")
+            {
+                //Sound.UnloadBackgroundMusic();
+                Sound.UnloadAmbience();
+            }
         }
 
         public override void SetPortals()
         {
             base.SetPortals();
 
-            toOutsideTheParty = new Portal(1875, platforms[0], "TheGoats");
-            toChelseasField = new Portal(10, platforms[0], "TheGoats");
-            toTreeHouse = new Portal(1740, 100, "TheGoats");
+            toOutsideTheParty = new Portal(1875, platforms[0], "The Goats");
+            toChelseasField = new Portal(10, platforms[0], "The Goats");
+            toTreeHouse = new Portal(1740, 100, "The Goats");
 
             toTreeHouse.FButtonYOffset = 220;
         }

@@ -153,13 +153,23 @@ namespace ISurvived
 
         }
         Boolean gaveToga = false;
+        Boolean battleReady = false;
 
+        public Boolean BattleReady { get { return battleReady; } set { battleReady = value; } }
         public Boolean GaveToga { get { return gaveToga; } set { gaveToga = value; } }
 
         public override Rectangle GetSourceRectangle(int frame)
         {
 
-            if (gaveToga)
+            if (battleReady)
+            {
+                //Make his dialogue face the naked one
+                if (currentDialogueFace != "Helmet")
+                    currentDialogueFace = "Helmet";
+
+                return new Rectangle(1036, 0, 518, 388);
+            }
+            else if (gaveToga)
             {
                 //Make his dialogue face the naked one
                 if (currentDialogueFace != "Naked")
@@ -169,7 +179,11 @@ namespace ISurvived
             }
 
             else
+            {
+                if (currentDialogueFace != "Normal")
+                    currentDialogueFace = "Normal";
                 return new Rectangle(0, 0, 518, 388);
+            }
         }
 
     }
@@ -275,6 +289,7 @@ namespace ISurvived
     {
         public enum NPCState
         {
+            normal,
             falling,
             ground
         }
@@ -299,16 +314,13 @@ namespace ISurvived
         //--Check if the player is talking to the NPC
         public override void CheckInteraction()
         {
-            last = current;
-            current = Keyboard.GetState();
-
             //--Get the distance from daryl to the NPC
             Point distanceFromNPC = new Point(Math.Abs(player.VitalRec.Center.X - rec.Center.X),
             Math.Abs(player.VitalRec.Center.Y - rec.Center.Y));
 
             if (distanceFromNPC.X < 70 && distanceFromNPC.Y < 130 && state != NPCState.falling)
             {
-                if (last.IsKeyDown(Keys.F) && current.IsKeyUp(Keys.F) && Game1.spokeThisFrame == false && player.CurrentPlat != null)
+                if (((game.current.IsKeyUp(Keys.F) && game.last.IsKeyDown(Keys.F)) || MyGamePad.LeftBumperPressed()) && Game1.spokeThisFrame == false && player.CurrentPlat != null)
                 {
                     game.CurrentChapter.TalkingToNPC = true;
                     talking = true;
